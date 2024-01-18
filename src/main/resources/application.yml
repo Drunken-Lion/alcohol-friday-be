@@ -1,1 +1,6 @@
-
+spring:
+  profiles:
+    active: local
+    group:
+      local:
+        - test
