@@ -3,4 +3,4 @@ spring:
     active: local
     group:
       local:
-        - test
+        - file
