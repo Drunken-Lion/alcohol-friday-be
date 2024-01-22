@@ -39,3 +39,4 @@ out/
 ### Custom ###
 data/
 application-file.yml
+.DS_Store
