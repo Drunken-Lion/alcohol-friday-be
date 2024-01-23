@@ -1,5 +1,6 @@
-package com.drunkenlion.alcoholfriday.domain.store.entity;
+package com.drunkenlion.alcoholfriday.domain.customerservice.entity;
 
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.store.entity;
+package com.drunkenlion.alcoholfriday.domain.member.entity;
 
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;

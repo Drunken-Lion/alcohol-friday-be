@@ -1,5 +1,6 @@
-package com.drunkenlion.alcoholfriday.domain.store.entity;
+package com.drunkenlion.alcoholfriday.domain.customerservice.entity;
 
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,17 +17,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class Address extends BaseEntity {
+public class Question extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    private Boolean isPrimary;
-
     @Column(length = 200)
-    private String address;
+    private String title;
 
-    @Column(length = 200)
-    private String detail;
-
-    private Long postcode;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String content;
 }
