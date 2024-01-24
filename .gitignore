@@ -40,3 +40,4 @@ out/
 data/
 application-file.yml
 .DS_Store
+src/main/generated/
