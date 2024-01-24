@@ -26,7 +26,6 @@ public class Restaurant extends BaseEntity {
     @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member members;
 
-
     @Column(length = 50)
     private String category;
 
@@ -35,19 +34,14 @@ public class Restaurant extends BaseEntity {
 
     @Column(length = 200)
     private String address;
-
-
-
+    
     private Point location;
 
-
     private Long contact;
-
 
     @Type(JsonType.class)
     @Column(name = "menu", columnDefinition ="json")
     private Map<String, Object> menu = new HashMap<>();
-
 
     @Type(JsonType.class)
     @Column(name = "time", columnDefinition ="json")
