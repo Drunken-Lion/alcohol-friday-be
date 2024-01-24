@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.product.entity;
 
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
+import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -10,6 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -31,7 +35,7 @@ public class Product extends BaseEntity {
     private Long alcohol;
 
     @Column(name = "ingredient", columnDefinition = "VARCHAR(1000)")
-    @Comment("제품 이름")
+    @Comment("제품 재료")
     private String ingredient;
 
     @Column(name = "sweet", columnDefinition = "BIGINT")
@@ -69,4 +73,7 @@ public class Product extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "maker_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Maker maker;
+
+    @OneToMany(mappedBy = "product")
+    private List<ItemProduct> itemProducts = new ArrayList<>();
 }
