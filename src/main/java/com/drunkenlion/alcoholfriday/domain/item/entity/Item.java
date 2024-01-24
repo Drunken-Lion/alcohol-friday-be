@@ -1,9 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.item.entity;
 
+import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
+import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +12,8 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,5 +32,15 @@ public class Item extends BaseEntity {
 
     @Column(name = "info", columnDefinition = "MEDIUMTEXT")
     @Comment("상품 설명")
-    private BigDecimal info;
+    private String info;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+    private Category category;
+
+    @OneToMany(mappedBy = "item")
+    private List<ItemProduct> itemProducts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item")
+    private List<OrderDetail> orderDetails = new ArrayList<>();
 }
