@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.cart.entity;
 
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
