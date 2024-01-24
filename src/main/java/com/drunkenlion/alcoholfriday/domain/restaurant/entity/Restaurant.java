@@ -34,7 +34,7 @@ public class Restaurant extends BaseEntity {
 
     @Column(length = 200)
     private String address;
-    
+
     private Point location;
 
     private Long contact;
