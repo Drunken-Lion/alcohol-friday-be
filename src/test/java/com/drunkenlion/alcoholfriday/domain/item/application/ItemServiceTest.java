@@ -10,6 +10,7 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

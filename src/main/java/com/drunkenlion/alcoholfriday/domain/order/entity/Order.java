@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.order.entity;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.global.common.OrderStatus;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

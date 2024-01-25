@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.global.common;
+package com.drunkenlion.alcoholfriday.global.common.enumerated;
 
 /**
  * 결제 수단

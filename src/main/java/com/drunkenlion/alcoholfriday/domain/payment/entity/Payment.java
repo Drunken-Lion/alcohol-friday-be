@@ -2,8 +2,8 @@ package com.drunkenlion.alcoholfriday.domain.payment.entity;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
-import com.drunkenlion.alcoholfriday.global.common.PaymentMethod;
-import com.drunkenlion.alcoholfriday.global.common.PaymentStatus;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.PaymentMethod;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.PaymentStatus;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
