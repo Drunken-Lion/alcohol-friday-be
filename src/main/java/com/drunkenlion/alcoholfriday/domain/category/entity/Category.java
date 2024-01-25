@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.category.entity;
 
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,5 +34,10 @@ public class Category extends BaseEntity {
     private String lastName;
 
     @OneToMany(mappedBy = "category")
-    private List<Item> items;
+    @Builder.Default
+    private List<Item> items = new ArrayList<>();
+
+    @OneToMany(mappedBy = "category")
+    @Builder.Default
+    private List<Product> products = new ArrayList<>();
 }
