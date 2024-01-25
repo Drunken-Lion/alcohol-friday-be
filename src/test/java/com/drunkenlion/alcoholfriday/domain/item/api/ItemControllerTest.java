@@ -19,11 +19,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.math.BigDecimal;
+import java.util.LinkedHashMap;
+import java.util.List;
 
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -112,13 +114,18 @@ class ItemControllerTest {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ItemController.class))
-                .andExpect(handler().methodName("search"));
-//                .andExpect(jsonPath("$.resultCode", is("200")))
-//                .andExpect(jsonPath("$.msg", is(Message.Success.LOGIN_SUCCESS.getMessage())))
-//                .andExpect(jsonPath("$.data.item.id", instanceOf(Number.class)))
-//                .andExpect(jsonPath("$.data.item.createDate", matchesPattern(DATE_PATTERN)))
-//                .andExpect(jsonPath("$.data.item.modifyDate", matchesPattern(DATE_PATTERN)))
-//                .andExpect(jsonPath("$.data.item.username", notNullValue()))
-//                .andExpect(jsonPath("$.data.accessToken", notNullValue()));
+                .andExpect(handler().methodName("search"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].id", notNullValue()))
+                .andExpect(jsonPath("$.data[0].name", notNullValue()))
+                .andExpect(jsonPath("$.data[0].price", notNullValue()))
+                .andExpect(jsonPath("$.data[0].info", notNullValue()))
+                .andExpect(jsonPath("$.data[0].category.firstName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].category.middleName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].category.lastName", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
     }
 }

@@ -26,6 +26,7 @@ public class SearchItemResponse {
         return SearchItemResponse.builder()
                 .id(item.getId())
                 .name(item.getName())
+                .price(item.getPrice())
                 .info(item.getInfo())
                 .category(FindCategoryResponse.of(item.getCategory()))
                 .build();
