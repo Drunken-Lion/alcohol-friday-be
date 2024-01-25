@@ -104,7 +104,16 @@ class ItemServiceTest {
         // when
         Page<SearchItemResponse> search = this.itemService.search(searchItemRequest);
         // then
-        assertThat(search.getContent()).isInstanceOf(List.class);
-        assertThat(search.getContent().size()).isEqualTo(1);
+        List<SearchItemResponse> content = search.getContent();
+
+        assertThat(content).isInstanceOf(List.class);
+        assertThat(content.size()).isEqualTo(1);
+        assertThat(content.get(0).getId()).isNotNull();
+        assertThat(content.get(0).getName()).isEqualTo("test ddaattaa");
+        assertThat(content.get(0).getPrice()).isEqualTo(new BigDecimal("50000.000")); // DB에 저장될 때 소수점 3자리까지 저장됨.
+        assertThat(content.get(0).getInfo()).isEqualTo("이 상품은 테스트 상품입니다.");
+        assertThat(content.get(0).getCategory().getFirstName()).isEqualTo("식품");
+        assertThat(content.get(0).getCategory().getMiddleName()).isEqualTo("전통주");
+        assertThat(content.get(0).getCategory().getLastName()).isEqualTo("탁주");
     }
 }
