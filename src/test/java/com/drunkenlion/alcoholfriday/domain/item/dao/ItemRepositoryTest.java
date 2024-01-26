@@ -23,7 +23,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Transactional(readOnly = true)
+@Transactional
 class ItemRepositoryTest {
     @Autowired
     private ItemRepository itemRepository;
@@ -35,17 +35,15 @@ class ItemRepositoryTest {
     private CategoryRepository categoryRepository;
 
     @BeforeEach
+    @Transactional
     void beforeEach() {
         Category category = Category.builder()
                 .firstName("식품")
                 .middleName("전통주")
                 .lastName("탁주")
                 .build();
-        categoryRepository.save(category);
-        categoryRepository.flush();
 
         Product product = Product.builder()
-                .category(category)
                 .name("test data")
                 .quantity(10L)
                 .alcohol(17L)
@@ -58,27 +56,30 @@ class ItemRepositoryTest {
                 .insense(1L)
                 .throat(1L)
                 .build();
-        productRepository.save(product);
-        productRepository.flush();
+        product.addCategory(category);
 
         Item item = Item.builder()
-                .category(category)
                 .name("test ddaattaa")
                 .price(new BigDecimal(50000))
                 .info("이 상품은 테스트 상품입니다.")
                 .build();
-        itemRepository.save(item);
-        itemRepository.flush();
+        item.addCategory(category);
 
         ItemProduct itemProduct = ItemProduct.builder()
                 .item(item)
                 .product(product)
                 .build();
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product);
+
+        categoryRepository.save(category);
+        productRepository.save(product);
+        itemRepository.save(item);
         itemProductRepository.save(itemProduct);
-        itemProductRepository.flush();
     }
 
     @AfterEach
+    @Transactional
     void afterEach() {
         itemProductRepository.deleteAll();
         itemRepository.deleteAll();
@@ -87,7 +88,6 @@ class ItemRepositoryTest {
     }
 
     @Test
-    @Transactional
     void searchTest() {
         // given
         List<String> keywordType = new ArrayList<>();
@@ -102,5 +102,41 @@ class ItemRepositoryTest {
         // then
         assertThat(search.getContent()).isInstanceOf(List.class);
         assertThat(search.getContent().size()).isEqualTo(1);
+        assertThat(search.getContent().get(0).getCategory().getFirstName()).isEqualTo("식품");
+        assertThat(search.getContent().get(0).getCategory().getMiddleName()).isEqualTo("전통주");
+        assertThat(search.getContent().get(0).getCategory().getLastName()).isEqualTo("탁주");
+    }
+
+    @Test
+    void getTest() {
+        // given
+        Item saved = itemRepository.findAll().get(0);
+
+        // when
+        Item item = itemRepository.findById(saved.getId())
+                .orElseThrow(() -> new IllegalArgumentException("fail"));
+
+        // then
+        assertThat(saved).isNotNull();
+        assertThat(saved.getItemProducts().isEmpty()).isFalse();
+        assertThat(item.getId()).isEqualTo(saved.getId());
+        assertThat(item.getName()).isEqualTo(saved.getName());
+        assertThat(item.getPrice()).isEqualTo(saved.getPrice());
+        assertThat(item.getInfo()).isEqualTo(saved.getInfo());
+        assertThat(item.getItemProducts().isEmpty()).isFalse();
+        assertThat(item.getItemProducts().get(0).getProduct().getName()).isEqualTo(saved.getItemProducts().get(0).getProduct().getName());
+        assertThat(item.getItemProducts().get(0).getProduct().getQuantity()).isEqualTo(saved.getItemProducts().get(0).getProduct().getQuantity());
+        assertThat(item.getItemProducts().get(0).getProduct().getAlcohol()).isEqualTo(saved.getItemProducts().get(0).getProduct().getAlcohol());
+        assertThat(item.getItemProducts().get(0).getProduct().getIngredient()).isEqualTo(saved.getItemProducts().get(0).getProduct().getIngredient());
+        assertThat(item.getItemProducts().get(0).getProduct().getSweet()).isEqualTo(saved.getItemProducts().get(0).getProduct().getSweet());
+        assertThat(item.getItemProducts().get(0).getProduct().getSour()).isEqualTo(saved.getItemProducts().get(0).getProduct().getSour());
+        assertThat(item.getItemProducts().get(0).getProduct().getCool()).isEqualTo(saved.getItemProducts().get(0).getProduct().getCool());
+        assertThat(item.getItemProducts().get(0).getProduct().getBody()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBody());
+        assertThat(item.getItemProducts().get(0).getProduct().getBalence()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBalence());
+        assertThat(item.getItemProducts().get(0).getProduct().getInsense()).isEqualTo(saved.getItemProducts().get(0).getProduct().getInsense());
+        assertThat(item.getItemProducts().get(0).getProduct().getThroat()).isEqualTo(saved.getItemProducts().get(0).getProduct().getThroat());
+        assertThat(item.getCategory().getFirstName()).isEqualTo(saved.getCategory().getFirstName());
+        assertThat(item.getCategory().getMiddleName()).isEqualTo(saved.getCategory().getMiddleName());
+        assertThat(item.getCategory().getLastName()).isEqualTo(saved.getCategory().getLastName());
     }
 }

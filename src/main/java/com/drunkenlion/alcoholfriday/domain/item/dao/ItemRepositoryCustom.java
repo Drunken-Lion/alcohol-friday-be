@@ -7,7 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ItemRepositoryCustom {
-    public Page<Item> search(List<String> keywordType, String keyword, Pageable pageable);
+    Page<Item> search(List<String> keywordType, String keyword, Pageable pageable);
+    Optional<Item> get(Long id);
 }

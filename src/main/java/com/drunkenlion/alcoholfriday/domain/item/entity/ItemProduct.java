@@ -21,4 +21,16 @@ public class ItemProduct extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Product product;
+
+    // 연관 관계 편의 메서드
+    public void addItem(Item item) {
+        this.item = item;
+        this.item.getItemProducts().add(this);
+    }
+
+    // 연관 관계 편의 메서드
+    public void addProduct(Product product) {
+        this.product = product;
+        this.product.getItemProducts().add(this);
+    }
 }

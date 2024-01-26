@@ -12,6 +12,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.drunkenlion.alcoholfriday.domain.category.entity.QCategory.category;
 import static com.drunkenlion.alcoholfriday.domain.item.entity.QItem.item;
@@ -41,12 +42,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
         List<Item> items = jpaQueryFactory
                 .select(item)
                 .from(item)
-                .leftJoin(itemProduct).on(item.id.eq(itemProduct.item.id))
-                .fetchJoin()
-                .leftJoin(product).on(product.id.eq(itemProduct.product.id))
-                .fetchJoin()
-                .leftJoin(category).on(product.category.id.eq(category.id))
-                .fetchJoin()
+                .leftJoin(category).on(category.id.eq(item.category.id)).fetchJoin()
                 .where(builder)
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -54,14 +50,25 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
         JPAQuery<Long> total = jpaQueryFactory
                 .select(item.count())
                 .from(item)
-                .leftJoin(itemProduct).on(item.id.eq(itemProduct.item.id))
-                .fetchJoin()
-                .leftJoin(product).on(product.id.eq(itemProduct.product.id))
-                .fetchJoin()
-                .leftJoin(category).on(product.category.id.eq(category.id))
-                .fetchJoin()
+                .leftJoin(itemProduct).on(itemProduct.item.id.eq(item.id)).fetchJoin()
+                .leftJoin(product).on(product.id.eq(itemProduct.product.id)).fetchJoin()
+                .leftJoin(category).on(category.id.eq(product.category.id)).fetchJoin()
                 .where(builder);
 
         return PageableExecutionUtils.getPage(items, pageable, total::fetchOne);
+    }
+
+    @Override
+    public Optional<Item> get(Long id) {
+        return Optional.ofNullable(
+                jpaQueryFactory
+                        .select(item)
+                        .from(item)
+                        .join(itemProduct).on(itemProduct.item.id.eq(item.id)).fetchJoin()
+                        .join(product).on(product.id.eq(itemProduct.product.id)).fetchJoin()
+                        .join(category).on(category.id.eq(product.category.id)).fetchJoin()
+                        .where(item.id.eq(id))
+                        .fetchOne()
+        );
     }
 }
