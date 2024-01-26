@@ -50,9 +50,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
         JPAQuery<Long> total = jpaQueryFactory
                 .select(item.count())
                 .from(item)
-                .leftJoin(itemProduct).on(itemProduct.item.id.eq(item.id)).fetchJoin()
-                .leftJoin(product).on(product.id.eq(itemProduct.product.id)).fetchJoin()
-                .leftJoin(category).on(category.id.eq(product.category.id)).fetchJoin()
+                .leftJoin(category).on(category.id.eq(item.category.id)).fetchJoin()
                 .where(builder);
 
         return PageableExecutionUtils.getPage(items, pageable, total::fetchOne);
