@@ -5,10 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
@@ -17,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@ToString(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -75,5 +73,12 @@ public class Product extends BaseEntity {
     private Maker maker;
 
     @OneToMany(mappedBy = "product")
+    @Builder.Default
     private List<ItemProduct> itemProducts = new ArrayList<>();
+
+    // 연관 관계 편의 메서드
+    public void addCategory(Category category) {
+        this.category = category;
+        category.getProducts().add(this);
+    }
 }

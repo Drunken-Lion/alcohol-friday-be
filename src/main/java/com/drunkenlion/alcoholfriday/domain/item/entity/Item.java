@@ -4,10 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
@@ -17,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@ToString(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,8 +37,16 @@ public class Item extends BaseEntity {
     private Category category;
 
     @OneToMany(mappedBy = "item")
+    @Builder.Default
     private List<ItemProduct> itemProducts = new ArrayList<>();
 
     @OneToMany(mappedBy = "item")
+    @Builder.Default
     private List<OrderDetail> orderDetails = new ArrayList<>();
+
+    // 연관 관계 편의 메서드
+    public void addCategory(Category category) {
+        this.category = category;
+        category.getItems().add(this);
+    }
 }

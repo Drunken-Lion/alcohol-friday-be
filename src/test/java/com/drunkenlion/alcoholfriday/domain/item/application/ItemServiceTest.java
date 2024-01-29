@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Transactional
 class ItemServiceTest {
     @Autowired
     private ItemService itemService;
@@ -38,17 +40,15 @@ class ItemServiceTest {
     private CategoryRepository categoryRepository;
 
     @BeforeEach
+    @Transactional
     void beforeEach() {
         Category category = Category.builder()
                 .firstName("식품")
                 .middleName("전통주")
                 .lastName("탁주")
                 .build();
-        categoryRepository.save(category);
-        categoryRepository.flush();
 
         Product product = Product.builder()
-                .category(category)
                 .name("test data")
                 .quantity(10L)
                 .alcohol(17L)
@@ -61,27 +61,30 @@ class ItemServiceTest {
                 .insense(1L)
                 .throat(1L)
                 .build();
-        productRepository.save(product);
-        productRepository.flush();
+        product.addCategory(category);
 
         Item item = Item.builder()
-                .category(category)
                 .name("test ddaattaa")
                 .price(new BigDecimal(50000))
                 .info("이 상품은 테스트 상품입니다.")
                 .build();
-        itemRepository.save(item);
-        itemRepository.flush();
+        item.addCategory(category);
 
         ItemProduct itemProduct = ItemProduct.builder()
                 .item(item)
                 .product(product)
                 .build();
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product);
+
+        categoryRepository.save(category);
+        productRepository.save(product);
+        itemRepository.save(item);
         itemProductRepository.save(itemProduct);
-        itemProductRepository.flush();
     }
 
     @AfterEach
+    @Transactional
     void afterEach() {
         itemProductRepository.deleteAll();
         itemRepository.deleteAll();
@@ -110,7 +113,7 @@ class ItemServiceTest {
         assertThat(content.size()).isEqualTo(1);
         assertThat(content.get(0).getId()).isNotNull();
         assertThat(content.get(0).getName()).isEqualTo("test ddaattaa");
-        assertThat(content.get(0).getPrice()).isEqualTo(new BigDecimal("50000.000")); // DB에 저장될 때 소수점 3자리까지 저장됨.
+        assertThat(content.get(0).getPrice()).isEqualTo(new BigDecimal(50000));
         assertThat(content.get(0).getInfo()).isEqualTo("이 상품은 테스트 상품입니다.");
         assertThat(content.get(0).getCategory().getFirstName()).isEqualTo("식품");
         assertThat(content.get(0).getCategory().getMiddleName()).isEqualTo("전통주");
