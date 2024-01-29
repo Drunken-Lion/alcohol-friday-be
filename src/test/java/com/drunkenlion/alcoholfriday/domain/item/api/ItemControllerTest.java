@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
@@ -43,6 +44,7 @@ class ItemControllerTest {
     private CategoryRepository categoryRepository;
 
     @BeforeEach
+    @Transactional
     void beforeEach() {
         Category category = Category.builder()
                 .firstName("식품")
@@ -87,6 +89,7 @@ class ItemControllerTest {
     }
 
     @AfterEach
+    @Transactional
     void afterEach() {
         itemProductRepository.deleteAll();
         itemRepository.deleteAll();
