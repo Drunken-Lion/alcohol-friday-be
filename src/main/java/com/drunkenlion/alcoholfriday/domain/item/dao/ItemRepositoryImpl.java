@@ -17,6 +17,7 @@ import java.util.Optional;
 import static com.drunkenlion.alcoholfriday.domain.category.entity.QCategory.category;
 import static com.drunkenlion.alcoholfriday.domain.item.entity.QItem.item;
 import static com.drunkenlion.alcoholfriday.domain.item.entity.QItemProduct.itemProduct;
+import static com.drunkenlion.alcoholfriday.domain.maker.entity.QMaker.maker;
 import static com.drunkenlion.alcoholfriday.domain.product.entity.QProduct.product;
 
 @RequiredArgsConstructor
@@ -62,9 +63,10 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 jpaQueryFactory
                         .select(item)
                         .from(item)
-                        .join(itemProduct).on(itemProduct.item.id.eq(item.id)).fetchJoin()
-                        .join(product).on(product.id.eq(itemProduct.product.id)).fetchJoin()
-                        .join(category).on(category.id.eq(product.category.id)).fetchJoin()
+                        .leftJoin(category).on(category.id.eq(item.category.id)).fetchJoin()
+                        .leftJoin(itemProduct).on(itemProduct.item.id.eq(item.id)).fetchJoin()
+                        .leftJoin(product).on(product.id.eq(itemProduct.product.id)).fetchJoin()
+                        .leftJoin(maker).on(maker.id.eq(product.maker.id)).fetchJoin()
                         .where(item.id.eq(id))
                         .fetchOne()
         );

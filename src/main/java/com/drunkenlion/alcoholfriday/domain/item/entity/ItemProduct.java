@@ -8,7 +8,6 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
-@ToString(callSuper = true)
 @SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

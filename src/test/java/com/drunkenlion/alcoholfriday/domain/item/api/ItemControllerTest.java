@@ -131,4 +131,47 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
                 .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
     }
+
+    @Test
+    void getTest() throws Exception {
+        // given
+        Item saved = this.itemRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/items/" + saved.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ItemController.class))
+                .andExpect(handler().methodName("get"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.price", notNullValue()))
+                .andExpect(jsonPath("$.info", notNullValue()))
+                .andExpect(jsonPath("$.category.firstName", notNullValue()))
+                .andExpect(jsonPath("$.category.middleName", notNullValue()))
+                .andExpect(jsonPath("$.category.lastName", notNullValue()))
+                .andExpect(jsonPath("$.products[0].name", notNullValue()))
+                .andExpect(jsonPath("$.products[0].quantity", notNullValue()))
+                .andExpect(jsonPath("$.products[0].alcohol", notNullValue()))
+                .andExpect(jsonPath("$.products[0].ingredient", notNullValue()))
+                .andExpect(jsonPath("$.products[0].sweet", notNullValue()))
+                .andExpect(jsonPath("$.products[0].sour", notNullValue()))
+                .andExpect(jsonPath("$.products[0].cool", notNullValue()))
+                .andExpect(jsonPath("$.products[0].body", notNullValue()))
+                .andExpect(jsonPath("$.products[0].balence", notNullValue()))
+                .andExpect(jsonPath("$.products[0].insense", notNullValue()))
+                .andExpect(jsonPath("$.products[0].throat", notNullValue()))
+                .andExpect(jsonPath("$.products[0].sweet", notNullValue()))
+                .andExpect(jsonPath("$.products[0].sweet", notNullValue()))
+                .andExpect(jsonPath("$.products[0].sweet", notNullValue()))
+                .andExpect(jsonPath("$.products[0].sweet", notNullValue()))
+                .andExpect(jsonPath("$.products[0].sweet", notNullValue()));
+    }
 }
