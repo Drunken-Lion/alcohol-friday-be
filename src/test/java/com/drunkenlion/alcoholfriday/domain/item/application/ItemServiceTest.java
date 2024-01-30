@@ -4,6 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
+import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemRequest;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
@@ -118,5 +119,35 @@ class ItemServiceTest {
         assertThat(content.get(0).getCategory().getFirstName()).isEqualTo("식품");
         assertThat(content.get(0).getCategory().getMiddleName()).isEqualTo("전통주");
         assertThat(content.get(0).getCategory().getLastName()).isEqualTo("탁주");
+    }
+
+    @Test
+    void getTest() {
+        // given
+        Item saved = this.itemRepository.findAll().get(0);
+        // when
+        FindItemResponse findItemResponse = this.itemService.get(saved.getId());
+        // then
+        assertThat(saved).isNotNull();
+        assertThat(saved.getItemProducts().isEmpty()).isFalse();
+        assertThat(findItemResponse.getId()).isEqualTo(saved.getId());
+        assertThat(findItemResponse.getName()).isEqualTo(saved.getName());
+        assertThat(findItemResponse.getPrice()).isEqualTo(saved.getPrice());
+        assertThat(findItemResponse.getInfo()).isEqualTo(saved.getInfo());
+        assertThat(findItemResponse.getProducts().isEmpty()).isFalse();
+        assertThat(findItemResponse.getProducts().get(0).getName()).isEqualTo(saved.getItemProducts().get(0).getProduct().getName());
+        assertThat(findItemResponse.getProducts().get(0).getQuantity()).isEqualTo(saved.getItemProducts().get(0).getProduct().getQuantity());
+        assertThat(findItemResponse.getProducts().get(0).getAlcohol()).isEqualTo(saved.getItemProducts().get(0).getProduct().getAlcohol());
+        assertThat(findItemResponse.getProducts().get(0).getIngredient()).isEqualTo(saved.getItemProducts().get(0).getProduct().getIngredient());
+        assertThat(findItemResponse.getProducts().get(0).getSweet()).isEqualTo(saved.getItemProducts().get(0).getProduct().getSweet());
+        assertThat(findItemResponse.getProducts().get(0).getSour()).isEqualTo(saved.getItemProducts().get(0).getProduct().getSour());
+        assertThat(findItemResponse.getProducts().get(0).getCool()).isEqualTo(saved.getItemProducts().get(0).getProduct().getCool());
+        assertThat(findItemResponse.getProducts().get(0).getBody()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBody());
+        assertThat(findItemResponse.getProducts().get(0).getBalence()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBalence());
+        assertThat(findItemResponse.getProducts().get(0).getInsense()).isEqualTo(saved.getItemProducts().get(0).getProduct().getInsense());
+        assertThat(findItemResponse.getProducts().get(0).getThroat()).isEqualTo(saved.getItemProducts().get(0).getProduct().getThroat());
+        assertThat(findItemResponse.getCategory().getFirstName()).isEqualTo(saved.getCategory().getFirstName());
+        assertThat(findItemResponse.getCategory().getMiddleName()).isEqualTo(saved.getCategory().getMiddleName());
+        assertThat(findItemResponse.getCategory().getLastName()).isEqualTo(saved.getCategory().getLastName());
     }
 }

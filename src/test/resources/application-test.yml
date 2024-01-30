@@ -3,7 +3,14 @@ spring:
     ansi:
       enabled: always
   datasource:
-    url: jdbc:h2:mem:demo_test;
+    # jdbc:mysql://localhost:3306/alcohol_friday_test
+    # jdbc:h2:mem:demo_test
+    url: jdbc:h2:mem:demo_test
+    # org.h2.Driver
+    # com.mysql.cj.jdbc.Driver
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
   jpa:
     properties:
       hibernate:
@@ -12,4 +19,5 @@ spring:
         highlight_sql: true
         use_sql_comments: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
+    # database-platform: org.hibernate.dialect.MySQLDialect

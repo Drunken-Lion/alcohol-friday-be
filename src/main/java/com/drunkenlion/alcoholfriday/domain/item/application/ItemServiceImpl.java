@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.item.application;
 
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
+import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemRequest;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
@@ -23,5 +24,13 @@ public class ItemServiceImpl implements ItemService {
         Page<Item> search = this.itemRepository.search(searchItemRequest.getKeywordType(), searchItemRequest.getKeyword(), pageable);
 
         return SearchItemResponse.of(search);
+    }
+
+    @Override
+    public FindItemResponse get(Long id) {
+        Item item = this.itemRepository.get(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+
+        return FindItemResponse.of(item);
     }
 }
