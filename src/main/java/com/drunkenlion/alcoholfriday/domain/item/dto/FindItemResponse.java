@@ -2,33 +2,38 @@ package com.drunkenlion.alcoholfriday.domain.item.dto;
 
 import com.drunkenlion.alcoholfriday.domain.category.dto.FindCategoryResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
+import com.drunkenlion.alcoholfriday.domain.product.dto.FindProductResponse;
 import lombok.*;
-import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class SearchItemResponse {
+public class FindItemResponse {
     private Long id;
     private String name;
     private BigDecimal price;
     private String info;
     private FindCategoryResponse category;
+    private List<FindProductResponse> products;
 
-    public static Page<SearchItemResponse> of(Page<Item> items) {
-        return items.map((SearchItemResponse::of));
-    }
+    public static FindItemResponse of(Item item) {
+        List<FindProductResponse> list = item.getItemProducts().stream()
+                .map(ItemProduct::getProduct)
+                .map(FindProductResponse::of)
+                .toList();
 
-    public static SearchItemResponse of(Item item) {
-        return SearchItemResponse.builder()
+        return FindItemResponse.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .price(item.getPrice())
                 .info(item.getInfo())
                 .category(FindCategoryResponse.of(item.getCategory()))
+                .products(list)
                 .build();
     }
 }
