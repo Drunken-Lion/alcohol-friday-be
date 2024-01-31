@@ -5,6 +5,10 @@ package com.drunkenlion.alcoholfriday.global.common.enumerated;
  */
 public enum OrderStatus {
     /**
+     * 주문 접수 - 고객이 주문을 제출한 초기 상태로, 시스템이 주문을 받아들입니다.
+     */
+    ORDER_RECEIVED,
+    /**
      * 결제 완료 - 주문에 대한 결제가 완료되었으며 처리가 진행 중인 상태입니다.
      */
     PAYMENT_COMPLETED,
