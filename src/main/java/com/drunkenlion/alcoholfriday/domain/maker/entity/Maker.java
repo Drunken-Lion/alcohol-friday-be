@@ -26,6 +26,10 @@ public class Maker extends BaseEntity {
     @Comment("제조사 주소")
     private String address;
 
+    @Column(name = "detail", columnDefinition = "VARCHAR(200)")
+    @Comment("제조사 상세 주소")
+    private String detail;
+
     @Column(name = "region", columnDefinition = "VARCHAR(50)")
     @Comment("술 제조지역")
     private String region;
