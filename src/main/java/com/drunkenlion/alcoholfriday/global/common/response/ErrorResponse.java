@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.global.common.response;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.*;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
@@ -10,18 +11,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class ErrorResponse {
-    private int status;
     private String httpMethod;
-    private String message;
     private String path;
+    private String message;
     private LocalDateTime timestamp;
 
-    public static ErrorResponse of(final int code, final String message, final HttpServletRequest request) {
+    public static ErrorResponse of(final String message, final HttpServletRequest request) {
         return ErrorResponse.builder()
-                .status(code)
                 .httpMethod(request.getMethod())
-                .message(message)
                 .path(request.getRequestURI())
+                .message(message)
                 .timestamp(LocalDateTime.now())
                 .build();
     }

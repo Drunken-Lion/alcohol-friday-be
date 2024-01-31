@@ -1,8 +1,7 @@
 package com.drunkenlion.alcoholfriday.global.exception;
 
-import com.drunkenlion.alcoholfriday.global.common.response.Code;
 import com.drunkenlion.alcoholfriday.global.common.response.ErrorResponse;
-import com.drunkenlion.alcoholfriday.global.common.response.Message;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.UnexpectedTypeException;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(e.getStatus())
                 .body(ErrorResponse.of(
-                        e.getStatus(),
                         e.getMessage(),
                         request
                 ));
@@ -41,12 +39,10 @@ public class GlobalExceptionHandler {
             UnexpectedTypeException.class
     })
     public ResponseEntity<ErrorResponse> handleBindException(MethodArgumentNotValidException e, HttpServletRequest request) {
-
         return ResponseEntity
-                .status(Code.Fail.INVALID_INPUT_VALUE.getStatus())
+                .status(HttpResponse.Fail.INVALID_INPUT_VALUE.getStatus())
                 .body(ErrorResponse.of(
-                        Code.Fail.INVALID_INPUT_VALUE.getStatus(),
-                        Message.Fail.INVALID_INPUT_VALUE.getMessage(),
+                        HttpResponse.Fail.INVALID_INPUT_VALUE.getMessage(),
                         request
                 ));
     }
@@ -61,30 +57,19 @@ public class GlobalExceptionHandler {
             AccessDeniedException.class
     })
     public ResponseEntity<ErrorResponse> handleHttpException(Exception e, HttpServletRequest request) {
-        Code.Fail code;
-        Message.Fail message;
+        HttpResponse.Fail response;
 
         String exceptionName = e.getClass().getSimpleName();
         switch (exceptionName) {
-            case "HttpRequestMethodNotSupportedException" -> {
-                code = Code.Fail.METHOD_NOT_ALLOWED;
-                message = Message.Fail.METHOD_NOT_ALLOWED;
-            }
-            case "AccessDeniedException" -> {
-                code = Code.Fail.DEACTIVATE_USER;
-                message = Message.Fail.DEACTIVATE_USER;
-            }
-            default -> {
-                code = Code.Fail.BAD_REQUEST;
-                message = Message.Fail.BAD_REQUEST;
-            }
+            case "HttpRequestMethodNotSupportedException" -> response = HttpResponse.Fail.METHOD_NOT_ALLOWED;
+            case "AccessDeniedException" -> response = HttpResponse.Fail.DEACTIVATE_USER;
+            default -> response = HttpResponse.Fail.BAD_REQUEST;
         }
 
         return ResponseEntity
-                .status(code.getStatus())
+                .status(response.getStatus())
                 .body(ErrorResponse.of(
-                        code.getStatus(),
-                        message.getMessage(),
+                        response.getMessage(),
                         request
                 ));
     }
@@ -103,34 +88,20 @@ public class GlobalExceptionHandler {
             UsernameNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleSecurityException(Exception e, HttpServletRequest request) {
-        Code.Fail code;
-        Message.Fail message;
+        HttpResponse.Fail response;
 
         String exceptionName = e.getClass().getSimpleName();
         switch (exceptionName) {
-            case "AuthenticationCredentialsNotFoundException", "BadCredentialsException" -> {
-                code = Code.Fail.INVALID_TOKEN;
-                message = Message.Fail.INVALID_TOKEN;
-            }
-            case "AccountExpiredException", "CredentialsExpiredException" -> {
-                code = Code.Fail.EXPIRED_TOKEN;
-                message = Message.Fail.EXPIRED_TOKEN;
-            }
-            case "AccountStatusException", "OAuth2AuthenticationException", "UsernameNotFoundException" -> {
-                code = Code.Fail.INVALID_ACCOUNT;
-                message = Message.Fail.INVALID_ACCOUNT;
-            }
-            default -> {
-                code = Code.Fail.UNAUTHORIZED;
-                message = Message.Fail.UNAUTHORIZED;
-            }
+            case "AuthenticationCredentialsNotFoundException", "BadCredentialsException" -> response = HttpResponse.Fail.INVALID_TOKEN;
+            case "AccountExpiredException", "CredentialsExpiredException" -> response = HttpResponse.Fail.EXPIRED_TOKEN;
+            case "AccountStatusException", "OAuth2AuthenticationException", "UsernameNotFoundException" -> response = HttpResponse.Fail.INVALID_ACCOUNT;
+            default -> response = HttpResponse.Fail.UNAUTHORIZED;
         }
 
         return ResponseEntity
-                .status(code.getStatus())
+                .status(response.getStatus())
                 .body(ErrorResponse.of(
-                        code.getStatus(),
-                        message.getMessage(),
+                        response.getMessage(),
                         request
                 ));
     }
@@ -141,10 +112,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handlerAllException(Exception e, HttpServletRequest request) {
         return ResponseEntity
-                .status(Code.Fail.INTERNAL_SERVER_ERROR.getStatus())
+                .status(HttpResponse.Fail.INTERNAL_SERVER_ERROR.getStatus())
                 .body(ErrorResponse.of(
-                        Code.Fail.INTERNAL_SERVER_ERROR.getStatus(),
-                        Message.Fail.INTERNAL_SERVER_ERROR.getMessage(),
+                        HttpResponse.Fail.INTERNAL_SERVER_ERROR.getMessage(),
                         request
                 ));
     }
