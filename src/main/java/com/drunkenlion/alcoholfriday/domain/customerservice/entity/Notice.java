@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -21,13 +22,16 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notice extends BaseEntity {
+    @Comment("공지사항 작성자")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
+    @Comment("공지사항 제목")
     @Column(length = 200)
     private String title;
 
+    @Comment("공지사항 내용")
     @Column(columnDefinition = "MEDIUMTEXT")
     private String content;
 }
