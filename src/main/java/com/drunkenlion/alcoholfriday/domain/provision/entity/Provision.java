@@ -19,7 +19,7 @@ import org.hibernate.annotations.Comment;
 public class Provision extends BaseEntity {
 
     @Column(length = 200)
-    @Comment("공급자 이름")
+    @Comment("레스토랑 재고 수량")
     private String name;
 
 }

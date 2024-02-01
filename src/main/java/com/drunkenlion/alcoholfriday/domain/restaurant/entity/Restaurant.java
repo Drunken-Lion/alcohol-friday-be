@@ -28,7 +28,7 @@ public class Restaurant extends BaseEntity {
     private Member members;
 
     @Column(length = 50)
-    @Comment("종류")
+    @Comment("레스토랑 분류")
     private String category;
 
     @Column(length = 200)
@@ -39,19 +39,19 @@ public class Restaurant extends BaseEntity {
     @Comment("레스토랑 주소")
     private String address;
 
-    @Comment("레스토랑 위치 정보")
+    @Comment("위도, 경도")
     private Point location;
 
-    @Comment("레스토랑 연락처")
+    @Comment("가게 연락처")
     private Long contact;
 
     @Type(JsonType.class)
-    @Comment("메뉴 정보")
+    @Comment("메뉴")
     @Column(name = "menu", columnDefinition ="json")
     private Map<String, Object> menu = new HashMap<>();
 
     @Type(JsonType.class)
-    @Comment("영업 시간")
+    @Comment("영업시간")
     @Column(name = "time", columnDefinition ="json")
     private Map<String, Object> time = new HashMap<>();
 }
