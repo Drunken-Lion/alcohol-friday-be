@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Comment;
 
 @Getter
 @Entity
@@ -18,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 public class Provision extends BaseEntity {
 
     @Column(length = 200)
+    @Comment("공급자 이름")
     private String name;
 
 }
