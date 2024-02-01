@@ -1,0 +1,13 @@
+services:
+  nginx:
+    container_name: nginx
+    image: nginx
+    restart: always
+    ports:
+      - 80:80
+  spring-docker:
+    container_name: spring-server
+    image: spring-docker:0.0.1
+    restart: always
+    ports:
+      - 8080:8080
