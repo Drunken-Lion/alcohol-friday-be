@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.item.entity;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -19,6 +20,11 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "item")
 public class Item extends BaseEntity {
+    @Column(name = "type", columnDefinition = "VARCHAR(20)")
+    @Comment("상품 유형")
+    @Enumerated(EnumType.STRING)
+    private ItemType type;
+
     @Column(name = "name", columnDefinition = "VARCHAR(200)")
     @Comment("상품 이름")
     private String name;

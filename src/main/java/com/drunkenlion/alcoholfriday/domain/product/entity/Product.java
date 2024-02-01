@@ -9,6 +9,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,10 @@ public class Product extends BaseEntity {
     @Column(name = "name", columnDefinition = "VARCHAR(50)")
     @Comment("제품 이름")
     private String name;
+
+    @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
+    @Comment("제품 원가")
+    private BigDecimal price;
 
     @Column(name = "quantity", columnDefinition = "BIGINT")
     @Comment("재고 수량")
