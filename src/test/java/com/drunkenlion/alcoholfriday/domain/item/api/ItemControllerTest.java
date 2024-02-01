@@ -1,7 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.item.api;
 
+import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
+import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
@@ -42,20 +44,22 @@ class ItemControllerTest {
     private ProductRepository productRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryClassRepository categoryClassRepository;
 
     @BeforeEach
     @Transactional
     void beforeEach() {
-        Category category = Category.builder()
+        CategoryClass categoryClass = CategoryClass.builder()
                 .firstName("식품")
-                .middleName("전통주")
+                .build();
+
+        Category category = Category.builder()
                 .lastName("탁주")
                 .build();
-        categoryRepository.save(category);
-        categoryRepository.flush();
+        category.addCategoryClass(categoryClass);
 
         Product product = Product.builder()
-                .category(category)
                 .name("test data")
                 .quantity(10L)
                 .alcohol(17L)
@@ -68,24 +72,27 @@ class ItemControllerTest {
                 .insense(1L)
                 .throat(1L)
                 .build();
-        productRepository.save(product);
-        productRepository.flush();
+        product.addCategory(category);
 
         Item item = Item.builder()
-                .category(category)
                 .name("test ddaattaa")
                 .price(new BigDecimal(50000))
                 .info("이 상품은 테스트 상품입니다.")
                 .build();
-        itemRepository.save(item);
-        itemRepository.flush();
+        item.addCategory(category);
 
         ItemProduct itemProduct = ItemProduct.builder()
                 .item(item)
                 .product(product)
                 .build();
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product);
+
+        categoryClassRepository.save(categoryClass);
+        categoryRepository.save(category);
+        productRepository.save(product);
+        itemRepository.save(item);
         itemProductRepository.save(itemProduct);
-        itemProductRepository.flush();
     }
 
     @AfterEach
@@ -95,6 +102,7 @@ class ItemControllerTest {
         itemRepository.deleteAll();
         productRepository.deleteAll();
         categoryRepository.deleteAll();
+        categoryClassRepository.deleteAll();
     }
 
     @Test
@@ -125,7 +133,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.data[0].price", notNullValue()))
                 .andExpect(jsonPath("$.data[0].info", notNullValue()))
                 .andExpect(jsonPath("$.data[0].category.firstName", notNullValue()))
-                .andExpect(jsonPath("$.data[0].category.middleName", notNullValue()))
                 .andExpect(jsonPath("$.data[0].category.lastName", notNullValue()))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
@@ -155,7 +162,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.price", notNullValue()))
                 .andExpect(jsonPath("$.info", notNullValue()))
                 .andExpect(jsonPath("$.category.firstName", notNullValue()))
-                .andExpect(jsonPath("$.category.middleName", notNullValue()))
                 .andExpect(jsonPath("$.category.lastName", notNullValue()))
                 .andExpect(jsonPath("$.products[0].name", notNullValue()))
                 .andExpect(jsonPath("$.products[0].quantity", notNullValue()))

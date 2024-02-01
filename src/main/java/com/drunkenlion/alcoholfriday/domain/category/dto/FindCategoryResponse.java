@@ -9,13 +9,11 @@ import lombok.*;
 @Builder
 public class FindCategoryResponse {
     private String firstName;
-    private String middleName;
     private String lastName;
 
     public static FindCategoryResponse of(Category category) {
         return FindCategoryResponse.builder()
-                .firstName(category.getFirstName())
-                .middleName(category.getMiddleName())
+                .firstName(category.getCategoryClass().getFirstName())
                 .lastName(category.getLastName())
                 .build();
     }
