@@ -31,7 +31,6 @@ public class NcpFile extends BaseEntity {
 	@Comment("file 정보가 저장된 json")
 	private List<Map<String, Object>> s3Files;
 
-	@ColumnDefault("0")
 	@Column(name = "entity_id", columnDefinition = "BIGINT")
 	@Comment("파일이 저장되는 entity pk")
 	private Long entityId;
