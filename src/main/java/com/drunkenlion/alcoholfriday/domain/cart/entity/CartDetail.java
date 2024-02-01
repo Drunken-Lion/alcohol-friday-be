@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -21,14 +22,17 @@ import org.hibernate.annotations.ColumnDefault;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class CartDetail extends BaseEntity {
+    @Comment("장바구니 정보")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Cart cart;
 
+    @Comment("장바구니 내 담긴 상품")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id",foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Item item;
 
+    @Comment("상품 수량")
     @ColumnDefault("0")
     private Long quantity;
 }
