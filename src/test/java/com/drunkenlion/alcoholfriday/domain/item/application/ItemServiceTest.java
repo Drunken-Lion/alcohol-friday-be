@@ -76,11 +76,11 @@ class ItemServiceTest {
 
         assertThat(content).isInstanceOf(List.class);
         assertThat(content.size()).isEqualTo(1);
-        assertThat(content.get(0).getName()).isEqualTo("test ddaattaa");
-        assertThat(content.get(0).getPrice()).isEqualTo(new BigDecimal(50000));
-        assertThat(content.get(0).getInfo()).isEqualTo("이 상품은 테스트 상품입니다.");
-        assertThat(content.get(0).getCategory().getFirstName()).isEqualTo("식품");
-        assertThat(content.get(0).getCategory().getLastName()).isEqualTo("탁주");
+        assertThat(content.get(0).getName()).isEqualTo(itemName);
+        assertThat(content.get(0).getPrice()).isEqualTo(price);
+        assertThat(content.get(0).getInfo()).isEqualTo(info);
+        assertThat(content.get(0).getCategory().getFirstName()).isEqualTo(firstName);
+        assertThat(content.get(0).getCategory().getLastName()).isEqualTo(lastName);
     }
 
     @Test
@@ -110,50 +110,16 @@ class ItemServiceTest {
     }
 
     private Page<Item> getSearch() {
-        CategoryClass categoryClass = CategoryClass.builder()
-                .firstName(firstName)
-                .build();
-
-        Category category = Category.builder()
-                .lastName(lastName)
-                .build();
-        category.addCategoryClass(categoryClass);
-
-        Product product = Product.builder()
-                .name(productName)
-                .quantity(quantity)
-                .alcohol(alcohol)
-                .ingredient(ingredient)
-                .sweet(sweet)
-                .sour(sour)
-                .cool(cool)
-                .body(body)
-                .balence(balence)
-                .insense(insense)
-                .throat(throat)
-                .build();
-        product.addCategory(category);
-
-        Item item = Item.builder()
-                .name(itemName)
-                .price(price)
-                .info(info)
-                .build();
-        item.addCategory(category);
-
-        ItemProduct itemProduct = ItemProduct.builder()
-                .item(item)
-                .product(product)
-                .build();
-        itemProduct.addItem(item);
-        itemProduct.addProduct(product);
-
-        List<Item> list = List.of(item);
+        List<Item> list = List.of(this.getData());
         Pageable pageable = PageRequest.of(0, 10);
         return new PageImpl<Item>(list, pageable, list.size());
     }
 
     private Optional<Item> getOne() {
+        return Optional.of(this.getData());
+    }
+
+    private Item getData() {
         CategoryClass categoryClass = CategoryClass.builder()
                 .firstName(firstName)
                 .build();
@@ -192,6 +158,6 @@ class ItemServiceTest {
         itemProduct.addItem(item);
         itemProduct.addProduct(product);
 
-        return Optional.of(item);
+        return item;
     }
 }
