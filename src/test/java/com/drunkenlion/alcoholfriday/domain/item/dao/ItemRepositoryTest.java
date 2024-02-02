@@ -1,7 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.item.dao;
 
+import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
+import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
@@ -33,15 +35,20 @@ class ItemRepositoryTest {
     private ProductRepository productRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryClassRepository categoryClassRepository;
 
     @BeforeEach
     @Transactional
     void beforeEach() {
-        Category category = Category.builder()
+        CategoryClass categoryClass = CategoryClass.builder()
                 .firstName("식품")
-                .middleName("전통주")
+                .build();
+
+        Category category = Category.builder()
                 .lastName("탁주")
                 .build();
+        category.addCategoryClass(categoryClass);
 
         Product product = Product.builder()
                 .name("test data")
@@ -72,6 +79,7 @@ class ItemRepositoryTest {
         itemProduct.addItem(item);
         itemProduct.addProduct(product);
 
+        categoryClassRepository.save(categoryClass);
         categoryRepository.save(category);
         productRepository.save(product);
         itemRepository.save(item);
@@ -85,6 +93,7 @@ class ItemRepositoryTest {
         itemRepository.deleteAll();
         productRepository.deleteAll();
         categoryRepository.deleteAll();
+        categoryClassRepository.deleteAll();
     }
 
     @Test
@@ -102,8 +111,7 @@ class ItemRepositoryTest {
         // then
         assertThat(search.getContent()).isInstanceOf(List.class);
         assertThat(search.getContent().size()).isEqualTo(1);
-        assertThat(search.getContent().get(0).getCategory().getFirstName()).isEqualTo("식품");
-        assertThat(search.getContent().get(0).getCategory().getMiddleName()).isEqualTo("전통주");
+        assertThat(search.getContent().get(0).getCategory().getCategoryClass().getFirstName()).isEqualTo("식품");
         assertThat(search.getContent().get(0).getCategory().getLastName()).isEqualTo("탁주");
     }
 
@@ -135,8 +143,7 @@ class ItemRepositoryTest {
         assertThat(item.getItemProducts().get(0).getProduct().getBalence()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBalence());
         assertThat(item.getItemProducts().get(0).getProduct().getInsense()).isEqualTo(saved.getItemProducts().get(0).getProduct().getInsense());
         assertThat(item.getItemProducts().get(0).getProduct().getThroat()).isEqualTo(saved.getItemProducts().get(0).getProduct().getThroat());
-        assertThat(item.getCategory().getFirstName()).isEqualTo(saved.getCategory().getFirstName());
-        assertThat(item.getCategory().getMiddleName()).isEqualTo(saved.getCategory().getMiddleName());
+        assertThat(item.getCategory().getCategoryClass().getFirstName()).isEqualTo(saved.getCategory().getCategoryClass().getFirstName());
         assertThat(item.getCategory().getLastName()).isEqualTo(saved.getCategory().getLastName());
     }
 }

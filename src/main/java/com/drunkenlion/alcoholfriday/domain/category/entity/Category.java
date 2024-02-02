@@ -43,4 +43,10 @@ public class Category extends BaseEntity {
 	@OneToMany(mappedBy = "category")
 	@Builder.Default
 	private List<Product> products = new ArrayList<>();
+
+	// 연관 관계 편의 메서드
+	public void addCategoryClass(CategoryClass categoryClass) {
+		this.categoryClass = categoryClass;
+		categoryClass.getCategories().add(this);
+	}
 }

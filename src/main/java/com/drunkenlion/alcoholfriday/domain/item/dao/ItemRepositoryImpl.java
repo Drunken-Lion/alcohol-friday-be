@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.drunkenlion.alcoholfriday.domain.category.entity.QCategory.category;
+import static com.drunkenlion.alcoholfriday.domain.category.entity.QCategoryClass.categoryClass;
 import static com.drunkenlion.alcoholfriday.domain.item.entity.QItem.item;
 import static com.drunkenlion.alcoholfriday.domain.item.entity.QItemProduct.itemProduct;
 import static com.drunkenlion.alcoholfriday.domain.maker.entity.QMaker.maker;
@@ -44,6 +46,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 .select(item)
                 .from(item)
                 .leftJoin(category).on(category.id.eq(item.category.id)).fetchJoin()
+                .leftJoin(categoryClass).on(categoryClass.id.eq(category.categoryClass.id)).fetchJoin()
                 .where(builder)
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -52,6 +55,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 .select(item.count())
                 .from(item)
                 .leftJoin(category).on(category.id.eq(item.category.id)).fetchJoin()
+                .leftJoin(categoryClass).on(categoryClass.id.eq(category.categoryClass.id)).fetchJoin()
                 .where(builder);
 
         return PageableExecutionUtils.getPage(items, pageable, total::fetchOne);
@@ -64,6 +68,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                         .select(item)
                         .from(item)
                         .leftJoin(category).on(category.id.eq(item.category.id)).fetchJoin()
+                        .leftJoin(categoryClass).on(categoryClass.id.eq(category.categoryClass.id)).fetchJoin()
                         .leftJoin(itemProduct).on(itemProduct.item.id.eq(item.id)).fetchJoin()
                         .leftJoin(product).on(product.id.eq(itemProduct.product.id)).fetchJoin()
                         .leftJoin(maker).on(maker.id.eq(product.maker.id)).fetchJoin()

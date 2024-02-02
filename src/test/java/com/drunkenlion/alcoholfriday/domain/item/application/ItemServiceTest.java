@@ -1,7 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.item.application;
 
+import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
+import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
@@ -31,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ItemServiceTest {
     @Autowired
     private ItemService itemService;
+
     @Autowired
     private ItemRepository itemRepository;
     @Autowired
@@ -39,15 +42,20 @@ class ItemServiceTest {
     private ProductRepository productRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryClassRepository categoryClassRepository;
 
     @BeforeEach
     @Transactional
     void beforeEach() {
-        Category category = Category.builder()
+        CategoryClass categoryClass = CategoryClass.builder()
                 .firstName("식품")
-                .middleName("전통주")
+                .build();
+
+        Category category = Category.builder()
                 .lastName("탁주")
                 .build();
+        category.addCategoryClass(categoryClass);
 
         Product product = Product.builder()
                 .name("test data")
@@ -78,6 +86,7 @@ class ItemServiceTest {
         itemProduct.addItem(item);
         itemProduct.addProduct(product);
 
+        categoryClassRepository.save(categoryClass);
         categoryRepository.save(category);
         productRepository.save(product);
         itemRepository.save(item);
@@ -91,6 +100,7 @@ class ItemServiceTest {
         itemRepository.deleteAll();
         productRepository.deleteAll();
         categoryRepository.deleteAll();
+        categoryClassRepository.deleteAll();
     }
 
     @Test
@@ -117,7 +127,6 @@ class ItemServiceTest {
         assertThat(content.get(0).getPrice()).isEqualTo(new BigDecimal(50000));
         assertThat(content.get(0).getInfo()).isEqualTo("이 상품은 테스트 상품입니다.");
         assertThat(content.get(0).getCategory().getFirstName()).isEqualTo("식품");
-        assertThat(content.get(0).getCategory().getMiddleName()).isEqualTo("전통주");
         assertThat(content.get(0).getCategory().getLastName()).isEqualTo("탁주");
     }
 
@@ -146,8 +155,7 @@ class ItemServiceTest {
         assertThat(findItemResponse.getProducts().get(0).getBalence()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBalence());
         assertThat(findItemResponse.getProducts().get(0).getInsense()).isEqualTo(saved.getItemProducts().get(0).getProduct().getInsense());
         assertThat(findItemResponse.getProducts().get(0).getThroat()).isEqualTo(saved.getItemProducts().get(0).getProduct().getThroat());
-        assertThat(findItemResponse.getCategory().getFirstName()).isEqualTo(saved.getCategory().getFirstName());
-        assertThat(findItemResponse.getCategory().getMiddleName()).isEqualTo(saved.getCategory().getMiddleName());
+        assertThat(findItemResponse.getCategory().getFirstName()).isEqualTo(saved.getCategory().getCategoryClass().getFirstName());
         assertThat(findItemResponse.getCategory().getLastName()).isEqualTo(saved.getCategory().getLastName());
     }
 }
