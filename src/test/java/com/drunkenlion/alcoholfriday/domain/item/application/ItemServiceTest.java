@@ -1,111 +1,65 @@
 package com.drunkenlion.alcoholfriday.domain.item.application;
 
-import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
-import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
-import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemRequest;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
-import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 @Transactional
 class ItemServiceTest {
-    @Autowired
-    private ItemService itemService;
-
-    @Autowired
+    @InjectMocks
+    private ItemServiceImpl itemService;
+    @Mock
     private ItemRepository itemRepository;
-    @Autowired
-    private ItemProductRepository itemProductRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private CategoryClassRepository categoryClassRepository;
 
-    @BeforeEach
-    @Transactional
-    void beforeEach() {
-        CategoryClass categoryClass = CategoryClass.builder()
-                .firstName("식품")
-                .build();
-
-        Category category = Category.builder()
-                .lastName("탁주")
-                .build();
-        category.addCategoryClass(categoryClass);
-
-        Product product = Product.builder()
-                .name("test data")
-                .quantity(10L)
-                .alcohol(17L)
-                .ingredient("알콜, 누룩 등등...")
-                .sweet(1L)
-                .sour(1L)
-                .cool(1L)
-                .body(1L)
-                .balence(1L)
-                .insense(1L)
-                .throat(1L)
-                .build();
-        product.addCategory(category);
-
-        Item item = Item.builder()
-                .name("test ddaattaa")
-                .price(new BigDecimal(50000))
-                .info("이 상품은 테스트 상품입니다.")
-                .build();
-        item.addCategory(category);
-
-        ItemProduct itemProduct = ItemProduct.builder()
-                .item(item)
-                .product(product)
-                .build();
-        itemProduct.addItem(item);
-        itemProduct.addProduct(product);
-
-        categoryClassRepository.save(categoryClass);
-        categoryRepository.save(category);
-        productRepository.save(product);
-        itemRepository.save(item);
-        itemProductRepository.save(itemProduct);
-    }
-
-    @AfterEach
-    @Transactional
-    void afterEach() {
-        itemProductRepository.deleteAll();
-        itemRepository.deleteAll();
-        productRepository.deleteAll();
-        categoryRepository.deleteAll();
-        categoryClassRepository.deleteAll();
-    }
+    // test를 위한 임의 변수
+    private final String firstName = "식품";
+    private final String lastName = "탁주";
+    private final String productName = "test data";
+    private final String itemName = "test ddaattaa";
+    private final BigDecimal price = new BigDecimal(50000);
+    private final String info = "이 상품은 테스트 상품입니다.";
+    private final Long quantity = 10L;
+    private final Long alcohol = 17L;
+    private final String ingredient = "알콜, 누룩 등등...";
+    private final Long sweet = 10L;
+    private final Long sour = 10L;
+    private final Long cool = 10L;
+    private final Long body = 10L;
+    private final Long balence = 10L;
+    private final Long insense = 10L;
+    private final Long throat = 10L;
 
     @Test
     void searchTest() {
         // given
+        Mockito.when(this.itemRepository.search(any(), any(), any())).thenReturn(this.getSearch());
+
         List<String> list = new ArrayList<>();
         list.add("type");
         list.add("name");
@@ -122,7 +76,6 @@ class ItemServiceTest {
 
         assertThat(content).isInstanceOf(List.class);
         assertThat(content.size()).isEqualTo(1);
-        assertThat(content.get(0).getId()).isNotNull();
         assertThat(content.get(0).getName()).isEqualTo("test ddaattaa");
         assertThat(content.get(0).getPrice()).isEqualTo(new BigDecimal(50000));
         assertThat(content.get(0).getInfo()).isEqualTo("이 상품은 테스트 상품입니다.");
@@ -133,29 +86,112 @@ class ItemServiceTest {
     @Test
     void getTest() {
         // given
-        Item saved = this.itemRepository.findAll().get(0);
+        Mockito.when(this.itemRepository.get(any())).thenReturn(this.getOne());
         // when
-        FindItemResponse findItemResponse = this.itemService.get(saved.getId());
+        FindItemResponse findItemResponse = this.itemService.get(1L);
         // then
-        assertThat(saved).isNotNull();
-        assertThat(saved.getItemProducts().isEmpty()).isFalse();
-        assertThat(findItemResponse.getId()).isEqualTo(saved.getId());
-        assertThat(findItemResponse.getName()).isEqualTo(saved.getName());
-        assertThat(findItemResponse.getPrice()).isEqualTo(saved.getPrice());
-        assertThat(findItemResponse.getInfo()).isEqualTo(saved.getInfo());
+        assertThat(findItemResponse.getName()).isEqualTo(itemName);
+        assertThat(findItemResponse.getPrice()).isEqualTo(price);
+        assertThat(findItemResponse.getInfo()).isEqualTo(info);
         assertThat(findItemResponse.getProducts().isEmpty()).isFalse();
-        assertThat(findItemResponse.getProducts().get(0).getName()).isEqualTo(saved.getItemProducts().get(0).getProduct().getName());
-        assertThat(findItemResponse.getProducts().get(0).getQuantity()).isEqualTo(saved.getItemProducts().get(0).getProduct().getQuantity());
-        assertThat(findItemResponse.getProducts().get(0).getAlcohol()).isEqualTo(saved.getItemProducts().get(0).getProduct().getAlcohol());
-        assertThat(findItemResponse.getProducts().get(0).getIngredient()).isEqualTo(saved.getItemProducts().get(0).getProduct().getIngredient());
-        assertThat(findItemResponse.getProducts().get(0).getSweet()).isEqualTo(saved.getItemProducts().get(0).getProduct().getSweet());
-        assertThat(findItemResponse.getProducts().get(0).getSour()).isEqualTo(saved.getItemProducts().get(0).getProduct().getSour());
-        assertThat(findItemResponse.getProducts().get(0).getCool()).isEqualTo(saved.getItemProducts().get(0).getProduct().getCool());
-        assertThat(findItemResponse.getProducts().get(0).getBody()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBody());
-        assertThat(findItemResponse.getProducts().get(0).getBalence()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBalence());
-        assertThat(findItemResponse.getProducts().get(0).getInsense()).isEqualTo(saved.getItemProducts().get(0).getProduct().getInsense());
-        assertThat(findItemResponse.getProducts().get(0).getThroat()).isEqualTo(saved.getItemProducts().get(0).getProduct().getThroat());
-        assertThat(findItemResponse.getCategory().getFirstName()).isEqualTo(saved.getCategory().getCategoryClass().getFirstName());
-        assertThat(findItemResponse.getCategory().getLastName()).isEqualTo(saved.getCategory().getLastName());
+        assertThat(findItemResponse.getProducts().get(0).getName()).isEqualTo(productName);
+        assertThat(findItemResponse.getProducts().get(0).getQuantity()).isEqualTo(quantity);
+        assertThat(findItemResponse.getProducts().get(0).getAlcohol()).isEqualTo(alcohol);
+        assertThat(findItemResponse.getProducts().get(0).getIngredient()).isEqualTo(ingredient);
+        assertThat(findItemResponse.getProducts().get(0).getSweet()).isEqualTo(sweet);
+        assertThat(findItemResponse.getProducts().get(0).getSour()).isEqualTo(sour);
+        assertThat(findItemResponse.getProducts().get(0).getCool()).isEqualTo(cool);
+        assertThat(findItemResponse.getProducts().get(0).getBody()).isEqualTo(body);
+        assertThat(findItemResponse.getProducts().get(0).getBalence()).isEqualTo(balence);
+        assertThat(findItemResponse.getProducts().get(0).getInsense()).isEqualTo(insense);
+        assertThat(findItemResponse.getProducts().get(0).getThroat()).isEqualTo(throat);
+        assertThat(findItemResponse.getCategory().getFirstName()).isEqualTo(firstName);
+        assertThat(findItemResponse.getCategory().getLastName()).isEqualTo(lastName);
+    }
+
+    private Page<Item> getSearch() {
+        CategoryClass categoryClass = CategoryClass.builder()
+                .firstName(firstName)
+                .build();
+
+        Category category = Category.builder()
+                .lastName(lastName)
+                .build();
+        category.addCategoryClass(categoryClass);
+
+        Product product = Product.builder()
+                .name(productName)
+                .quantity(quantity)
+                .alcohol(alcohol)
+                .ingredient(ingredient)
+                .sweet(sweet)
+                .sour(sour)
+                .cool(cool)
+                .body(body)
+                .balence(balence)
+                .insense(insense)
+                .throat(throat)
+                .build();
+        product.addCategory(category);
+
+        Item item = Item.builder()
+                .name(itemName)
+                .price(price)
+                .info(info)
+                .build();
+        item.addCategory(category);
+
+        ItemProduct itemProduct = ItemProduct.builder()
+                .item(item)
+                .product(product)
+                .build();
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product);
+
+        List<Item> list = List.of(item);
+        Pageable pageable = PageRequest.of(0, 10);
+        return new PageImpl<Item>(list, pageable, list.size());
+    }
+
+    private Optional<Item> getOne() {
+        CategoryClass categoryClass = CategoryClass.builder()
+                .firstName(firstName)
+                .build();
+
+        Category category = Category.builder()
+                .lastName(lastName)
+                .build();
+        category.addCategoryClass(categoryClass);
+
+        Product product = Product.builder()
+                .name(productName)
+                .quantity(quantity)
+                .alcohol(alcohol)
+                .ingredient(ingredient)
+                .sweet(sweet)
+                .sour(sour)
+                .cool(cool)
+                .body(body)
+                .balence(balence)
+                .insense(insense)
+                .throat(throat)
+                .build();
+        product.addCategory(category);
+
+        Item item = Item.builder()
+                .name(itemName)
+                .price(price)
+                .info(info)
+                .build();
+        item.addCategory(category);
+
+        ItemProduct itemProduct = ItemProduct.builder()
+                .item(item)
+                .product(product)
+                .build();
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product);
+
+        return Optional.of(item);
     }
 }
