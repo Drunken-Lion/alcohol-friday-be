@@ -58,7 +58,7 @@ public class AdminRestaurantServiceTest {
     private final Point location = new Point(37.4979,127.0276);
     private final Long contact = 1012345678L;
 
-    private Map<String, Object> menu = new HashMap<String, Object>(){{
+    private final Map<String, Object> menu = new HashMap<String, Object>(){{
         put("비빔밥", 8000);
         put("불고기", 12000);
     }};
@@ -85,7 +85,7 @@ public class AdminRestaurantServiceTest {
         return allDayTime;
     }
 
-    private Map<String, Object> time = getTimeTest();
+    private final Map<String, Object> time = getTimeTest();
     private final LocalDateTime createdAt = LocalDateTime.now();
     private final int page = 0;
     private final int size = 20;
