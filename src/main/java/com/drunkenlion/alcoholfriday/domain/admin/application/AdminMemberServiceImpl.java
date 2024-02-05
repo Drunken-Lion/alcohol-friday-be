@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.dto.MemberDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.dto.MemberListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -21,5 +22,12 @@ public class AdminMemberServiceImpl implements AdminMemberService{
         Page<Member> members = memberRepository.findAll(pageable);
 
         return members.map(MemberListResponse::of);
+    }
+
+    public MemberDetailResponse getMember(Long id) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다."));
+
+        return MemberDetailResponse.of(member);
     }
 }
