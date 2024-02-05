@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.Type;
 import org.springframework.data.geo.Point;
 
@@ -27,23 +28,30 @@ public class Restaurant extends BaseEntity {
     private Member members;
 
     @Column(length = 50)
+    @Comment("레스토랑 분류")
     private String category;
 
     @Column(length = 200)
+    @Comment("레스토랑 이름")
     private String name;
 
     @Column(length = 200)
+    @Comment("레스토랑 주소")
     private String address;
 
+    @Comment("위도, 경도")
     private Point location;
 
+    @Comment("가게 연락처")
     private Long contact;
 
     @Type(JsonType.class)
+    @Comment("메뉴")
     @Column(name = "menu", columnDefinition ="json")
     private Map<String, Object> menu = new HashMap<>();
 
     @Type(JsonType.class)
+    @Comment("영업시간")
     @Column(name = "time", columnDefinition ="json")
     private Map<String, Object> time = new HashMap<>();
 }
