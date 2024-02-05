@@ -3,7 +3,9 @@ package com.drunkenlion.alcoholfriday.domain.admin.application;
 import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,37 +63,29 @@ public class AdminRestaurantServiceTest {
         put("불고기", 12000);
     }};
 
-    private Map<String, Object> time = new HashMap<String, Object>(){{
-        put("Mon open", "09:00");
-        put("Mon close", "22:00");
-        put("Mon break start", "15:00");
-        put("Mon break end", "17:00");
-        put("Tue open", "09:00");
-        put("Tue close", "22:00");
-        put("Tue break start", "15:00");
-        put("Tue break end", "17:00");
-        put("Wed open", "09:00");
-        put("Wed close", "22:00");
-        put("Wed break start", "15:00");
-        put("Wed break end", "17:00");
-        put("Thu open", "09:00");
-        put("Thu close", "22:00");
-        put("Thu break start", "15:00");
-        put("Thu break end", "17:00");
-        put("Fri open", "09:00");
-        put("Fri close", "22:00");
-        put("Fri break start", "15:00");
-        put("Fri break end", "17:00");
-        put("Sat open", "09:00");
-        put("Sat close", "22:00");
-        put("Sat break start", "15:00");
-        put("Sat break end", "17:00");
-        put("Sun open", "-");
-        put("Sun close", "-");
-        put("Sun break start", "-");
-        put("Sun break end", "-");
-    }};
+    private Map<String, Object> getTimeTest() {
+        Map<String, Object> allDayTime = new LinkedHashMap<>();
 
+        TimeData timeData = TimeData.builder()
+                .businessStatus(true)
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(22,0))
+                .breakBusinessStatus(true)
+                .breakStartTime(LocalTime.of(15,0))
+                .breakEndTime(LocalTime.of(17,0))
+                .build();
+
+        for (DayInfo value : DayInfo.values()) {
+            allDayTime.put(value.toString(), timeData);
+        }
+
+        allDayTime.put("holiday", true);
+        allDayTime.put("etc", "명절 당일만 휴업");
+
+        return allDayTime;
+    }
+
+    private Map<String, Object> time = getTimeTest();
     private final LocalDateTime createdAt = LocalDateTime.now();
     private final int page = 0;
     private final int size = 20;
