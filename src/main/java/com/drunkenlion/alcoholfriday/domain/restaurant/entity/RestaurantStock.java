@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 @Getter
 @Entity
@@ -22,7 +23,6 @@ public class RestaurantStock extends BaseEntity {
     @JoinColumn(name = "restaurant_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Restaurant restaurant;
 
-    @ColumnDefault("0")
+    @Comment("레스토랑 재고 수량")
     private Long quantity;
-
 }
