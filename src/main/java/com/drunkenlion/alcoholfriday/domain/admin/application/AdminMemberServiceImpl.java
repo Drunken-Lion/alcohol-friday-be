@@ -16,8 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminMemberServiceImpl implements AdminMemberService{
     private final MemberRepository memberRepository;
 
-    public Page<MemberListResponse> getMembers() {
-        Pageable pageable = PageRequest.of(0, 20);
+    public Page<MemberListResponse> getMembers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         Page<Member> members = memberRepository.findAll(pageable);
 
         return members.map(MemberListResponse::of);

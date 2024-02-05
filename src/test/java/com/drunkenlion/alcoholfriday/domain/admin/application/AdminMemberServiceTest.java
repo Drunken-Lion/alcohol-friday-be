@@ -43,6 +43,8 @@ public class AdminMemberServiceTest {
     private final boolean agreedToServicePolicy = false;
     private final boolean agreedToServicePolicyUse = false;
     private final LocalDateTime createdAt = LocalDateTime.now();
+    private final int page = 0;
+    private final int size = 20;
 
     @Test
     public void getMembersTest() {
@@ -50,7 +52,7 @@ public class AdminMemberServiceTest {
         Mockito.when(this.memberRepository.findAll(any(Pageable.class))).thenReturn(this.getMembers());
 
         // when
-        Page<MemberListResponse> members = this.adminMemberService.getMembers();
+        Page<MemberListResponse> members = this.adminMemberService.getMembers(page, size);
 
         // then
         List<MemberListResponse> content = members.getContent();
@@ -68,7 +70,7 @@ public class AdminMemberServiceTest {
 
     private Page<Member> getMembers() {
         List<Member> list = List.of(this.getMember());
-        Pageable pageable = PageRequest.of(0, 20);
+        Pageable pageable = PageRequest.of(page, size);
         return new PageImpl<Member>(list, pageable, list.size());
     }
 
