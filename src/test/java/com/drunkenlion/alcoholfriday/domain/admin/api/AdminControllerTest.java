@@ -61,9 +61,8 @@ public class AdminControllerTest {
     }
 
     @Test
-    void getTest() throws Exception {
+    void getMembersTest() throws Exception {
         // given
-        Member saved = this.memberRepository.findAll().get(0);
 
         // when
         ResultActions resultActions = mvc
