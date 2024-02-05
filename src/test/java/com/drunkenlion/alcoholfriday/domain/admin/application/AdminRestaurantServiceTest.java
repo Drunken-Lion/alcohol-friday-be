@@ -60,8 +60,34 @@ public class AdminRestaurantServiceTest {
     }};
 
     private Map<String, Object> time = new HashMap<String, Object>(){{
-        put("오픈 시간", "09:00");
-        put("마감 시간", "22:00");
+        put("Mon open", "09:00");
+        put("Mon close", "22:00");
+        put("Mon break start", "15:00");
+        put("Mon break end", "17:00");
+        put("Tue open", "09:00");
+        put("Tue close", "22:00");
+        put("Tue break start", "15:00");
+        put("Tue break end", "17:00");
+        put("Wed open", "09:00");
+        put("Wed close", "22:00");
+        put("Wed break start", "15:00");
+        put("Wed break end", "17:00");
+        put("Thu open", "09:00");
+        put("Thu close", "22:00");
+        put("Thu break start", "15:00");
+        put("Thu break end", "17:00");
+        put("Fri open", "09:00");
+        put("Fri close", "22:00");
+        put("Fri break start", "15:00");
+        put("Fri break end", "17:00");
+        put("Sat open", "09:00");
+        put("Sat close", "22:00");
+        put("Sat break start", "15:00");
+        put("Sat break end", "17:00");
+        put("Sun open", "-");
+        put("Sun close", "-");
+        put("Sun break start", "-");
+        put("Sun break end", "-");
     }};
 
     private final LocalDateTime createdAt = LocalDateTime.now();
