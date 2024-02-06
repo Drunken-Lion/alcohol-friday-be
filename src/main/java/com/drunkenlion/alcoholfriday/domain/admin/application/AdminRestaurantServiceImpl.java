@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -21,5 +22,12 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService{
         Page<Restaurant> restaurants = restaurantRepository.findAll(pageable);
 
         return restaurants.map(RestaurantListResponse::of);
+    }
+
+    public RestaurantDetailResponse getRestaurant(Long id) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 매장을 찾을 수 없습니다."));
+
+        return RestaurantDetailResponse.of(restaurant);
     }
 }

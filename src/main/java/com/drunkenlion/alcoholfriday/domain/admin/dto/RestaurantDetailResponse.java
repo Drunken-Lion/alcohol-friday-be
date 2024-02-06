@@ -23,16 +23,28 @@ public class RestaurantDetailResponse {
     private Map<String, Object> menu;
     private Map<String, Object> time;
     private LocalDateTime createdAt;
-    private boolean deleted;
+    private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
+
+// TODO: 편의시설, 판매하는 술정보 추가 필요
+//    private List<Provision> provision;
+//    private List<Item> item;
 
     public static RestaurantDetailResponse of(Restaurant restaurant) {
         return RestaurantDetailResponse.builder()
                 .id(restaurant.getId())
+                .memberId(restaurant.getMembers().getId())
                 .memberNickname(restaurant.getMembers().getNickname())
                 .name(restaurant.getName())
                 .category(restaurant.getCategory())
+                .address(restaurant.getAddress())
+                .location(restaurant.getLocation())
+                .contact(restaurant.getContact())
+                .menu(restaurant.getMenu())
+                .time(restaurant.getTime())
                 .createdAt(restaurant.getCreatedAt())
-                .deleted(restaurant.getDeletedAt() != null)
+                .updatedAt(restaurant.getUpdatedAt())
+                .deletedAt(restaurant.getDeletedAt())
                 .build();
     }
 }

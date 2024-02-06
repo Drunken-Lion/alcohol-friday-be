@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.application.AdminMemberService
 import com.drunkenlion.alcoholfriday.domain.admin.application.AdminRestaurantService;
 import com.drunkenlion.alcoholfriday.domain.admin.dto.MemberDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.dto.MemberListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,4 +45,13 @@ public class AdminController {
         PageResponse<RestaurantListResponse> pageResponse = PageResponse.of(this.adminRestaurantService.getRestaurants(page, size));
         return ResponseEntity.ok().body(pageResponse);
     }
+
+    @GetMapping(value = "restaurant/{id}")
+    public ResponseEntity<RestaurantDetailResponse> getRestaurant(
+            @PathVariable("id") Long id
+    ) {
+        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.getRestaurant(id);
+        return ResponseEntity.ok().body(restaurantDetailResponse);
+    }
+
 }
