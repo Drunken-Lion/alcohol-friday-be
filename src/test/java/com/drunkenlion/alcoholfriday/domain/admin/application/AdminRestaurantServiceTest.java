@@ -3,8 +3,8 @@ package com.drunkenlion.alcoholfriday.domain.admin.application;
 import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,13 +58,18 @@ public class AdminRestaurantServiceTest {
     private final Point location = new Point(37.4979,127.0276);
     private final Long contact = 1012345678L;
 
-    private final Map<String, Object> menu = new HashMap<String, Object>(){{
-        put("비빔밥", 8000);
-        put("불고기", 12000);
-    }};
+    private Map<String, Object> getMenuTest()  {
+        Map<String, Object> frame = new HashMap<>();
+        frame.put("비빔밥", 8000);
+        frame.put("불고기", 12000);
+        return frame;
+    }
 
     private Map<String, Object> getTimeTest() {
         Map<String, Object> allDayTime = new LinkedHashMap<>();
+
+        allDayTime.put("holiday", true);
+        allDayTime.put("etc", "명절 당일만 휴업");
 
         TimeData timeData = TimeData.builder()
                 .businessStatus(true)
@@ -79,12 +84,10 @@ public class AdminRestaurantServiceTest {
             allDayTime.put(value.toString(), timeData);
         }
 
-        allDayTime.put("holiday", true);
-        allDayTime.put("etc", "명절 당일만 휴업");
-
         return allDayTime;
     }
 
+    private final Map<String, Object> menu = getMenuTest();
     private final Map<String, Object> time = getTimeTest();
     private final LocalDateTime createdAt = LocalDateTime.now();
     private final int page = 0;
