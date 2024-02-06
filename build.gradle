@@ -41,6 +41,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	// hypersistence-utils
 	implementation group: 'io.hypersistence', name: 'hypersistence-utils-hibernate-63', version: '3.7.0'
+	//swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 	// dev
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	// lombok
