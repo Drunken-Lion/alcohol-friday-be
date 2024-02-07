@@ -22,12 +22,12 @@ public class RestaurantDetailResponse {
     private Long contact;
     private Map<String, Object> menu;
     private Map<String, Object> time;
+    private Map<String, Object> provision;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-// TODO: 편의시설, 판매하는 술정보 추가 필요
-//    private List<Provision> provision;
+// TODO: 판매하는 술정보 추가 필요
 //    private List<Item> item;
 
     public static RestaurantDetailResponse of(Restaurant restaurant) {
@@ -42,6 +42,7 @@ public class RestaurantDetailResponse {
                 .contact(restaurant.getContact())
                 .menu(restaurant.getMenu())
                 .time(restaurant.getTime())
+                .provision(restaurant.getProvision())
                 .createdAt(restaurant.getCreatedAt())
                 .updatedAt(restaurant.getUpdatedAt())
                 .deletedAt(restaurant.getDeletedAt())
