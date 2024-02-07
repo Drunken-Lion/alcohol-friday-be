@@ -1,10 +1,12 @@
 package com.drunkenlion.alcoholfriday.domain.admin.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.util.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,10 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,9 +45,9 @@ public class AdminRestaurantServiceTest {
     private final String role = "MEMBER";
     private final Long phone = 1012345678L;
     private final LocalDate certifyAt = null;
-    private final boolean agreedToServiceUse = false;
-    private final boolean agreedToServicePolicy = false;
-    private final boolean agreedToServicePolicyUse = false;
+    private final boolean agreedToServiceUse = true;
+    private final boolean agreedToServicePolicy = true;
+    private final boolean agreedToServicePolicyUse = true;
     private final LocalDateTime memberCreatedAt = LocalDateTime.now();
 
     private final Long id = 1L;
@@ -59,7 +58,7 @@ public class AdminRestaurantServiceTest {
     private final Long contact = 1012345678L;
 
     private Map<String, Object> getMenuTest()  {
-        Map<String, Object> frame = new HashMap<>();
+        Map<String, Object> frame = new LinkedHashMap<>();
         frame.put("비빔밥", 8000);
         frame.put("불고기", 12000);
         return frame;
@@ -87,8 +86,18 @@ public class AdminRestaurantServiceTest {
         return allDayTime;
     }
 
+    private Map<String, Object> getProvisionTest() {
+        Map<String, Object> frame = new LinkedHashMap<>();
+
+        for (Provision value : Provision.values()) {
+            frame.put(value.toString(), true);
+        }
+        return frame;
+    }
+
     private final Map<String, Object> menu = getMenuTest();
     private final Map<String, Object> time = getTimeTest();
+    private final Map<String, Object> provision = getProvisionTest();
     private final LocalDateTime createdAt = LocalDateTime.now();
     private final int page = 0;
     private final int size = 20;
@@ -114,10 +123,36 @@ public class AdminRestaurantServiceTest {
         assertThat(content.get(0).isDeleted()).isEqualTo(false);
     }
 
+    @Test
+    public void getRestaurantTest() {
+        // given
+        Mockito.when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
+
+        // when
+        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(id);
+
+        // then
+        assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
+        assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
+        assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(nickname);
+        assertThat(restaurantDetailResponse.getName()).isEqualTo(name);
+        assertThat(restaurantDetailResponse.getCategory()).isEqualTo(category);
+        assertThat(restaurantDetailResponse.getAddress()).isEqualTo(address);
+        assertThat(restaurantDetailResponse.getLocation()).isEqualTo(location);
+        assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
+        assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
+        assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
+        assertThat(restaurantDetailResponse.getCreatedAt()).isEqualTo(createdAt);
+    }
+
     private Page<Restaurant> getRestaurants() {
         List<Restaurant> list = List.of(this.getData());
         Pageable pageable = PageRequest.of(page, size);
         return new PageImpl<Restaurant>(list, pageable, list.size());
+    }
+
+    private Optional<Restaurant> getOne() {
+        return Optional.of(this.getData());
     }
 
     private Restaurant getData() {
@@ -147,6 +182,7 @@ public class AdminRestaurantServiceTest {
                 .contact(contact)
                 .menu(menu)
                 .time(time)
+                .provision(provision)
                 .createdAt(createdAt)
                 .build();
     }
