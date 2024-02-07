@@ -54,4 +54,9 @@ public class Restaurant extends BaseEntity {
     @Comment("영업시간")
     @Column(name = "time", columnDefinition ="json")
     private Map<String, Object> time = new HashMap<>();
+
+    @Type(JsonType.class)
+    @Comment("레스토랑의 편의시설")
+    @Column(name = "provision", columnDefinition ="json")
+    private Map<String , Object> provision = new HashMap<>();
 }
