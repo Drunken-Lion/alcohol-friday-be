@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.util.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,6 +76,15 @@ public class AdminControllerTest {
         return allDayTime;
     }
 
+    private Map<String, Object> getProvisionTest() {
+        Map<String, Object> frame = new LinkedHashMap<>();
+
+        for (Provision value : Provision.values()) {
+            frame.put(value.toString(), true);
+        }
+        return frame;
+    }
+
     @BeforeEach
     @Transactional
     void beforeEach() {
@@ -105,6 +115,7 @@ public class AdminControllerTest {
                 .contact(1012345678L)
                 .menu(getMenuTest())
                 .time(getTimeTest())
+                .provision(getProvisionTest())
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -235,6 +246,7 @@ public class AdminControllerTest {
                 .andExpect(jsonPath("$.contact", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.time", instanceOf(Map.class)))
+                .andExpect(jsonPath("$.provision", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));

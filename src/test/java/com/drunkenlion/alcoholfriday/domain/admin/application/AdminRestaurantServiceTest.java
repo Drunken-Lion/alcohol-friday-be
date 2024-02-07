@@ -6,6 +6,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.util.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,8 +86,18 @@ public class AdminRestaurantServiceTest {
         return allDayTime;
     }
 
+    private Map<String, Object> getProvisionTest() {
+        Map<String, Object> frame = new LinkedHashMap<>();
+
+        for (Provision value : Provision.values()) {
+            frame.put(value.toString(), true);
+        }
+        return frame;
+    }
+
     private final Map<String, Object> menu = getMenuTest();
     private final Map<String, Object> time = getTimeTest();
+    private final Map<String, Object> provision = getProvisionTest();
     private final LocalDateTime createdAt = LocalDateTime.now();
     private final int page = 0;
     private final int size = 20;
@@ -171,6 +182,7 @@ public class AdminRestaurantServiceTest {
                 .contact(contact)
                 .menu(menu)
                 .time(time)
+                .provision(provision)
                 .createdAt(createdAt)
                 .build();
     }
