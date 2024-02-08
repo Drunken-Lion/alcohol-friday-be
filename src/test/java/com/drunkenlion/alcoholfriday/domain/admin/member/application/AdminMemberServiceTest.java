@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.member.application;
 
 import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,11 @@ public class AdminMemberServiceTest {
     private final int page = 0;
     private final int size = 20;
 
+
+    private final String modifyNickname = "test 수정";
+    private final String modifyRole = "ADMIN";
+    private final Long modifyPhone = 1011112222L;
+
     @Test
     public void getMembersTest() {
         // given
@@ -94,6 +100,36 @@ public class AdminMemberServiceTest {
         assertThat(memberDetailResponse.getCreatedAt()).isEqualTo(createdAt);
         assertThat(memberDetailResponse.getUpdatedAt()).isEqualTo(updatedAt);
         assertThat(memberDetailResponse.getDeletedAt()).isEqualTo(deletedAt);
+    }
+
+    @Test
+    public void modifyMemberTest() {
+        // given
+        MemberModifyRequest memberModifyRequest = MemberModifyRequest.builder()
+                .nickname(modifyNickname)
+                .role(modifyRole)
+                .phone(modifyPhone)
+                .build();
+
+        // When
+        Member member = Member.builder()
+                .id(id)
+                .nickname(memberModifyRequest.getNickname())
+                .role(memberModifyRequest.getRole())
+                .phone(memberModifyRequest.getPhone())
+                .build();
+
+        Mockito.when(this.memberRepository.findById(id)).thenReturn(Optional.of(member));
+        Mockito.when(this.memberRepository.save(any(Member.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        MemberDetailResponse modifiedMember = this.adminMemberService.modifyMember(id, memberModifyRequest);
+
+        // then
+        assertThat(modifiedMember.getId()).isEqualTo(id);
+        assertThat(modifiedMember.getNickname()).isEqualTo(modifyNickname);
+        assertThat(modifiedMember.getRole()).isEqualTo(modifyRole);
+        assertThat(modifiedMember.getPhone()).isEqualTo(modifyPhone);
     }
 
     private Page<Member> getMembers() {
