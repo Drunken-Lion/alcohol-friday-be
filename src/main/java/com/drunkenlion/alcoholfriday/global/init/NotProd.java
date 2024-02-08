@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.util.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
 @Slf4j
-@Profile("!prod")
+@Profile("!prod & !test")
 @RequiredArgsConstructor
 @Configuration
 public class NotProd {
@@ -47,7 +47,7 @@ public class NotProd {
     }
 
     private Map<String, Object> getMenuTest()  {
-        Map<String, Object> frame = new HashMap<>();
+        Map<String, Object> frame = new LinkedHashMap<>();
         frame.put("비빔밥", 8000);
         frame.put("불고기", 12000);
         return frame;
@@ -73,6 +73,15 @@ public class NotProd {
         }
 
         return allDayTime;
+    }
+
+    private Map<String, Object> getProvisionTest() {
+        Map<String, Object> frame = new LinkedHashMap<>();
+
+        for (Provision value : Provision.values()) {
+            frame.put(value.toString(), true);
+        }
+        return frame;
     }
 
     @Transactional
@@ -107,6 +116,7 @@ public class NotProd {
                     .contact(1012345678L)
                     .menu(getMenuTest())
                     .time(getTimeTest())
+                    .provision(getProvisionTest())
                     .createdAt(LocalDateTime.now())
                     .build();
 
