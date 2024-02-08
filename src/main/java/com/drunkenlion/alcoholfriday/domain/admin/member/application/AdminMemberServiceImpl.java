@@ -1,7 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.admin.application;
+package com.drunkenlion.alcoholfriday.domain.admin.member.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.dto.MemberDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.dto.MemberListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;

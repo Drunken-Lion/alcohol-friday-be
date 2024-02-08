@@ -1,7 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.admin.application;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -24,7 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

@@ -1,7 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.admin.application;
+package com.drunkenlion.alcoholfriday.domain.admin.member.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.dto.MemberDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.dto.MemberListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,6 @@ public class AdminMemberServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
-    // test를 위한 임의 변수
     private final Long id = 1L;
     private final String email = "test@example.com";
     private final String provider = "kakao_test12345";

@@ -1,7 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.admin.application;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.dto.RestaurantListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class AdminRestaurantServiceImpl implements AdminRestaurantService{
+public class AdminRestaurantServiceImpl implements AdminRestaurantService {
     private final RestaurantRepository restaurantRepository;
 
     public Page<RestaurantListResponse> getRestaurants(int page, int size) {

@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.admin.dto;
+package com.drunkenlion.alcoholfriday.domain.admin.member.dto;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
