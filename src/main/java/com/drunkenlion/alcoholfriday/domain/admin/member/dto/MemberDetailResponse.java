@@ -1,60 +1,29 @@
-package com.drunkenlion.alcoholfriday.domain.admin.dto;
+package com.drunkenlion.alcoholfriday.domain.admin.member.dto;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "회원 상세 조회 항목")
+@Builder
 public class MemberDetailResponse {
-    @Schema(description = "고유 아이디")
     private Long id;
-
-    @Email
-    @Schema(description = "이메일", example = "example@example.com")
     private String email;
-
-    @Schema(description = "가입 소셜 정보")
     private String provider;
-
-    @Schema(description = "이름")
     private String name;
-
-    @Schema(description = "별명")
     private String nickname;
-
-    @Schema(description = "권한")
     private String role;
-
-    @Schema(description = "연락처")
     private Long phone;
-
-    @Schema(description = "성인인증 날짜")
     private LocalDate certifyAt;
-
-    @Schema(description = "이용 약관 동의")
     private Boolean agreedToServiceUse;
-
-    @Schema(description = "개인정보 수집 이용 안내 동의")
     private Boolean agreedToServicePolicy;
-
-    @Schema(description = "개인정보 활용 동의")
     private Boolean agreedToServicePolicyUse;
-
-    @Schema(description = "생성일시")
     private LocalDateTime createdAt;
-
-    @Schema(description = "마지막 수정일시")
     private LocalDateTime updatedAt;
-
-    @Schema(description = "삭제일시")
     private LocalDateTime deletedAt;
 
     public static MemberDetailResponse of(Member member) {

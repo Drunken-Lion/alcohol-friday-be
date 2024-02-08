@@ -1,5 +1,6 @@
-package com.drunkenlion.alcoholfriday.domain.admin.api;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.member.api.AdminMemberController;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
@@ -33,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class AdminControllerTest {
+public class AdminRestaurantControllerTest {
     @Autowired
     private MockMvc mvc;
 
@@ -130,68 +131,6 @@ public class AdminControllerTest {
     }
 
     @Test
-    void getMembersTest() throws Exception {
-        // when
-        ResultActions resultActions = mvc
-                .perform(get("/v1/admin/members")
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print());
-
-        // then
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
-                .andExpect(handler().methodName("getMembers"))
-                .andExpect(jsonPath("$.data", instanceOf(List.class)))
-                .andExpect(jsonPath("$.data.length()", is(1)))
-                .andExpect(jsonPath("$.data[0].id", notNullValue()))
-                .andExpect(jsonPath("$.data[0].name", notNullValue()))
-                .andExpect(jsonPath("$.data[0].nickname", notNullValue()))
-                .andExpect(jsonPath("$.data[0].email", notNullValue()))
-                .andExpect(jsonPath("$.data[0].role", notNullValue()))
-                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.data[0].deleted", instanceOf(Boolean.class)))
-                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
-                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
-                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
-    }
-
-    @Test
-    void getMemberTest() throws Exception {
-        // given
-        Member member = this.memberRepository.findAll().get(0);
-
-        // when
-        ResultActions resultActions = mvc
-                .perform(get("/v1/admin/member/" + member.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print());
-
-        // then
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
-                .andExpect(handler().methodName("getMember"))
-                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
-                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.email", notNullValue()))
-                .andExpect(jsonPath("$.provider", notNullValue()))
-                .andExpect(jsonPath("$.name", notNullValue()))
-                .andExpect(jsonPath("$.nickname", notNullValue()))
-                .andExpect(jsonPath("$.role", notNullValue()))
-                .andExpect(jsonPath("$.phone", notNullValue()))
-                .andExpect(jsonPath("$.certifyAt", anyOf(is(matchesPattern(DATE_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.agreedToServiceUse", instanceOf(Boolean.class)))
-                .andExpect(jsonPath("$.agreedToServicePolicy", instanceOf(Boolean.class)))
-                .andExpect(jsonPath("$.agreedToServicePolicyUse", instanceOf(Boolean.class)))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
-    }
-
-    @Test
     void getRestaurantsTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -203,7 +142,7 @@ public class AdminControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+                .andExpect(handler().handlerType(AdminRestaurantController.class))
                 .andExpect(handler().methodName("getRestaurants"))
                 .andExpect(jsonPath("$.data", instanceOf(List.class)))
                 .andExpect(jsonPath("$.data.length()", is(1)))
@@ -233,7 +172,7 @@ public class AdminControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminController.class))
+                .andExpect(handler().handlerType(AdminRestaurantController.class))
                 .andExpect(handler().methodName("getRestaurant"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
