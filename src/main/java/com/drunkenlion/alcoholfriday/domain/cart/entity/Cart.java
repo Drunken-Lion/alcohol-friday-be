@@ -2,20 +2,17 @@ package com.drunkenlion.alcoholfriday.domain.cart.entity;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,8 +24,10 @@ public class Cart extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Member member;
 
+    @Builder.Default
     @Comment("장바구니에 담긴 상품")
     @OneToMany(mappedBy = "cart")
+    @ToString.Exclude
     private List<CartDetail> cartDetails = new ArrayList<>();
 
     // Member가 첫 장바구니 관련 기능을 사용할 때 추가해 주시면 됩니다.
@@ -40,5 +39,11 @@ public class Cart extends BaseEntity {
 
     private void createCart(Member member) {
         this.member = member;
+    }
+
+    public BigDecimal getTotalCartPrice() {
+        return cartDetails.stream()
+                .map(cartDetail -> cartDetail.getItem().getPrice())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
