@@ -100,7 +100,7 @@ public class AdminMemberControllerTest {
 
         // when
         ResultActions resultActions = mvc
-                .perform(get("/v1/admin/member/" + member.getId())
+                .perform(get("/v1/admin/members/" + member.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
@@ -134,7 +134,7 @@ public class AdminMemberControllerTest {
 
         // when
         ResultActions resultActions = mvc
-                .perform(put("/v1/admin/member/" + member.getId())
+                .perform(put("/v1/admin/members/" + member.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {

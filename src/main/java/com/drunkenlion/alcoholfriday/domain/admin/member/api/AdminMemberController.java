@@ -30,7 +30,7 @@ public class AdminMemberController {
     }
 
     @Operation(summary = "회원 상세 조회", description = "관리자 화면에 대한 회원 상세 조회")
-    @GetMapping(value = "member/{id}")
+    @GetMapping(value = "members/{id}")
     public ResponseEntity<MemberDetailResponse> getMember(
             @PathVariable("id") Long id
     ) {
@@ -39,7 +39,7 @@ public class AdminMemberController {
     }
 
     @Operation(summary = "회원 수정", description = "관리자 화면에 대한 회원 수정")
-    @PutMapping(value = "member/{id}")
+    @PutMapping(value = "members/{id}")
     public ResponseEntity<MemberDetailResponse> modifyMember(
             @PathVariable("id") Long id,
             @Valid @RequestBody MemberModifyRequest memberModifyRequest
