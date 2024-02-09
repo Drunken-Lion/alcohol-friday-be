@@ -2,8 +2,11 @@ package com.drunkenlion.alcoholfriday.domain.admin.member.application;
 
 import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +29,27 @@ public class AdminMemberServiceImpl implements AdminMemberService{
 
     public MemberDetailResponse getMember(Long id) {
         Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND)
+                        .build());
+
+        return MemberDetailResponse.of(member);
+    }
+
+    @Transactional
+    public MemberDetailResponse modifyMember(Long id, MemberModifyRequest memberModifyRequest) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND)
+                        .build());
+
+        member = member.toBuilder()
+                .nickname(memberModifyRequest.getNickname())
+                .role(memberModifyRequest.getRole())
+                .phone(memberModifyRequest.getPhone())
+                .build();
+
+        memberRepository.save(member);
 
         return MemberDetailResponse.of(member);
     }

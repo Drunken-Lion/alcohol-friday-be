@@ -19,6 +19,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -99,7 +100,7 @@ public class AdminMemberControllerTest {
 
         // when
         ResultActions resultActions = mvc
-                .perform(get("/v1/admin/member/" + member.getId())
+                .perform(get("/v1/admin/members/" + member.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
@@ -123,6 +124,47 @@ public class AdminMemberControllerTest {
                 .andExpect(jsonPath("$.agreedToServicePolicyUse", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @Test
+    void modifyMemberTest() throws Exception {
+        // given
+        Member member = this.memberRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/members/" + member.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                   "nickname": "test 수정",
+                                   "role": "ADMIN",
+                                   "phone": 1011112222
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminMemberController.class))
+                .andExpect(handler().methodName("modifyMember"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.email", notNullValue()))
+                .andExpect(jsonPath("$.provider", notNullValue()))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.nickname", notNullValue()))
+                .andExpect(jsonPath("$.role", notNullValue()))
+                .andExpect(jsonPath("$.phone", notNullValue()))
+                .andExpect(jsonPath("$.certifyAt", anyOf(is(matchesPattern(DATE_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.agreedToServiceUse", instanceOf(Boolean.class)))
+                .andExpect(jsonPath("$.agreedToServicePolicy", instanceOf(Boolean.class)))
+                .andExpect(jsonPath("$.agreedToServicePolicyUse", instanceOf(Boolean.class)))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
     }
 }
