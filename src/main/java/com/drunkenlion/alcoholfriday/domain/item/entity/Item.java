@@ -16,6 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 @SuperBuilder
+@ToString
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "item")

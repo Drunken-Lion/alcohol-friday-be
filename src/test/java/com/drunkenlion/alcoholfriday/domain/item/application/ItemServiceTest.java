@@ -9,6 +9,7 @@ import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.file.application.FileServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,6 +35,8 @@ import static org.mockito.ArgumentMatchers.any;
 class ItemServiceTest {
     @InjectMocks
     private ItemServiceImpl itemService;
+    @Mock
+    private FileServiceImpl fileService;
     @Mock
     private ItemRepository itemRepository;
 
