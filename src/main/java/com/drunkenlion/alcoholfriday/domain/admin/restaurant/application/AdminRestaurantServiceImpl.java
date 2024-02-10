@@ -62,18 +62,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                     .build();
         }
 
-        Restaurant restaurant = Restaurant.builder()
-                .members(member)
-                .category(restaurantCreateRequest.getCategory())
-                .name(restaurantCreateRequest.getName())
-                .address(restaurantCreateRequest.getAddress())
-                .location(restaurantCreateRequest.getLocation())
-                .contact(restaurantCreateRequest.getContact())
-                .menu(restaurantCreateRequest.getMenu())
-                .time(restaurantCreateRequest.getTime())
-                .provision(restaurantCreateRequest.getProvision())
-                .build();
-
+        Restaurant restaurant = RestaurantCreateRequest.toEntity(restaurantCreateRequest, member);
         restaurantRepository.save(restaurant);
 
         return RestaurantDetailResponse.of(restaurant);

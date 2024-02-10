@@ -1,5 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto;
 
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.data.geo.Point;
@@ -38,4 +40,18 @@ public class RestaurantCreateRequest {
 
     @Schema(description = "편의시설 목록")
     private Map<String, Object> provision;
+
+    public static Restaurant toEntity(RestaurantCreateRequest request, Member member) {
+        return Restaurant.builder()
+                .members(member)
+                .category(request.getCategory())
+                .name(request.getName())
+                .address(request.getAddress())
+                .location(request.getLocation())
+                .contact(request.getContact())
+                .menu(request.getMenu())
+                .time(request.getTime())
+                .provision(request.getProvision())
+                .build();
+    }
 }
