@@ -214,7 +214,6 @@ class CartServiceTest {
                 .quantity(quantityCart2)
                 .build();
     }
-
     private Optional<Member> getOneMember() {
         return Optional.of(this.getDataMember());
     }

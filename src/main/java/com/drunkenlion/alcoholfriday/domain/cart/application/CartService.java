@@ -6,6 +6,5 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 
 public interface CartService {
     CartResponse getCartList(Member member);
-
     Cart addFirstCart(Member member);
 }

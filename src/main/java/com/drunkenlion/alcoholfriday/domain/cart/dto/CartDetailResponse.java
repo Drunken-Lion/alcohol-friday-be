@@ -4,7 +4,6 @@ import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
