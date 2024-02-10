@@ -185,6 +185,7 @@ public class AdminRestaurantServiceTest {
                 .build();
 
         Mockito.when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+        Mockito.when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
         RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(restaurantCreateRequest);
