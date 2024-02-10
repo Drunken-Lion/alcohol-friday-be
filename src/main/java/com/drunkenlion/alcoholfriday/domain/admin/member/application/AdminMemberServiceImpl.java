@@ -30,7 +30,7 @@ public class AdminMemberServiceImpl implements AdminMemberService{
     public MemberDetailResponse getMember(Long id) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND)
+                        .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
         return MemberDetailResponse.of(member);
@@ -40,7 +40,7 @@ public class AdminMemberServiceImpl implements AdminMemberService{
     public MemberDetailResponse modifyMember(Long id, MemberModifyRequest memberModifyRequest) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND)
+                        .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
         member = member.toBuilder()

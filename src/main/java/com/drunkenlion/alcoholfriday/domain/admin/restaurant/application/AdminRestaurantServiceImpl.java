@@ -41,7 +41,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
     public RestaurantDetailResponse getRestaurant(Long id) {
         Restaurant restaurant = restaurantRepository.findById(id)
                 .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND)
+                        .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
 
         return RestaurantDetailResponse.of(restaurant);
@@ -50,7 +50,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
     public RestaurantDetailResponse createRestaurant(RestaurantCreateRequest restaurantCreateRequest) {
         Member member = memberRepository.findById(restaurantCreateRequest.getMemberId())
                 .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND)
+                        .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
         if(!isMenuDataValid(restaurantCreateRequest.getMenu()) ||
