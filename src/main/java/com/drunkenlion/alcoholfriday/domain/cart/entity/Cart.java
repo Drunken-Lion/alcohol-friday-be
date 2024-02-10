@@ -41,9 +41,23 @@ public class Cart extends BaseEntity {
         this.member = member;
     }
 
-    public BigDecimal getTotalCartPrice() {
-        return cartDetails.stream()
-                .map(cartDetail -> cartDetail.getItem().getPrice())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    public BigDecimal getTotalCartPrice(List<CartDetail> cartDetails) {
+        if (cartDetails.isEmpty()) {
+            return BigDecimal.ZERO;
+        } else {
+            return cartDetails.stream()
+                    .map(cartDetail -> cartDetail.getItem().getPrice())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+    }
+
+    public Long getTotalCartQuantity(List<CartDetail> cartDetails) {
+        if (cartDetails.isEmpty()) {
+            return 0L;
+        } else {
+            return cartDetails.stream()
+                    .mapToLong(CartDetail::getQuantity)
+                    .sum();
+        }
     }
 }
