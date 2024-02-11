@@ -35,4 +35,8 @@ public class CartDetail extends BaseEntity {
     @Comment("상품 수량")
     @ColumnDefault("0")
     private Long quantity;
+
+    public void setQuantity(Long quantity) {
+        this.quantity = quantity;
+    }
 }
