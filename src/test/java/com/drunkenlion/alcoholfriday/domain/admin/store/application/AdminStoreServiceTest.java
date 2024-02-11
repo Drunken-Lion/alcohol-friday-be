@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.store.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
@@ -79,7 +80,27 @@ public class AdminStoreServiceTest {
         assertThat(makerDetailResponse.getUpdatedAt()).isEqualTo(updatedAt);
     }
 
+    @Test
+    public void createMakerTest() {
+        // given
+        MakerCreateRequest makerCreateRequest = MakerCreateRequest.builder()
+                .name(name)
+                .address(address)
+                .detail(detail)
+                .region(region)
+                .build();
 
+        Mockito.when(makerRepository.save(any(Maker.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        MakerDetailResponse makerDetailResponse = adminStoreService.createMaker(makerCreateRequest);
+
+        // then
+        assertThat(makerDetailResponse.getName()).isEqualTo(name);
+        assertThat(makerDetailResponse.getAddress()).isEqualTo(address);
+        assertThat(makerDetailResponse.getDetail()).isEqualTo(detail);
+        assertThat(makerDetailResponse.getRegion()).isEqualTo(region);
+    }
     private Page<Maker> getMakers() {
         List<Maker> list = List.of(this.getData());
         Pageable pageable = PageRequest.of(page, size);

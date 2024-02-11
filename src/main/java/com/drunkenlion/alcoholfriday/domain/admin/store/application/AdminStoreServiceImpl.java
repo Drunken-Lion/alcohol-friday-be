@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.store.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
@@ -29,8 +30,15 @@ public class AdminStoreServiceImpl implements AdminStoreService {
     public MakerDetailResponse getMaker(Long id) {
         Maker maker = makerRepository.findById(id)
                 .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND)
+                        .response(HttpResponse.Fail.NOT_FOUND_MAKER)
                         .build());
+
+        return MakerDetailResponse.of(maker);
+    }
+
+    public MakerDetailResponse createMaker(MakerCreateRequest makerCreateRequest) {
+        Maker maker = MakerCreateRequest.toEntity(makerCreateRequest);
+        makerRepository.save(maker);
 
         return MakerDetailResponse.of(maker);
     }

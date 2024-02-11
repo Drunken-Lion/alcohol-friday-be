@@ -1,11 +1,14 @@
 package com.drunkenlion.alcoholfriday.domain.admin.store.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.store.application.AdminStoreService;
+import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,5 +37,14 @@ public class AdminStoreController {
     ) {
         MakerDetailResponse makerDetailResponse = adminStoreService.getMaker(id);
         return ResponseEntity.ok().body(makerDetailResponse);
+    }
+
+    @Operation(summary = "제조사 등록", description = "관리자 권한에 대한 제조사 등록")
+    @PostMapping(value = "makers")
+    public ResponseEntity<MakerDetailResponse> createMaker(
+            @Valid @RequestBody MakerCreateRequest makerCreateRequest
+    ) {
+        MakerDetailResponse makerDetailResponse = adminStoreService.createMaker(makerCreateRequest);
+        return ResponseEntity.status(HttpResponse.Success.CREATED.getStatus()).body(makerDetailResponse);
     }
 }
