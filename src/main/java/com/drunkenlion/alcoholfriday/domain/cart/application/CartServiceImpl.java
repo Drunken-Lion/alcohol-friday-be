@@ -13,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -24,20 +21,11 @@ public class CartServiceImpl implements CartService {
     private final CartDetailRepository cartDetailRepository;
     private final ItemRepository itemRepository;
 
-    // 장바구니 추가
     @Override
-    public List<CartDetailResponse> addCartList(List<AddCartRequest> cartRequests, Member member) {
-        // Cart에 이미 사용자가 있다면 바로 CartDetail로 넘어가도 되겠다.
-        // 멤버가 첫 장바구니를 사용할 때
-        Cart cart = addFirstCart(member) == null ? Cart.create(member) : addFirstCart(member);
+    @Transactional
+    public CartDetailResponse addCart(AddCartRequest addCart, Member member) {
+        Cart cart = addFirstCart(member);
 
-        return cartRequests.stream()
-                .map(cartRequest -> addCart(cartRequest, cart))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public CartDetailResponse addCart(AddCartRequest addCart, Cart cart) {
         Item item = itemRepository.findById(addCart.getItemId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
 
@@ -52,8 +40,22 @@ public class CartServiceImpl implements CartService {
         return CartDetailResponse.of(cartDetail);
     }
 
-    // 멤버가 장바구니 이용 경험 있는지 확인
+    // 상품 수량만 변경할 경우
     @Override
+    @Transactional
+    public void modifyCartItemQuantity(AddCartRequest modifyCart, Member member) {
+        Cart cart = addFirstCart(member);
+
+        Item item = itemRepository.findById(modifyCart.getItemId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+
+        CartDetail cartDetail = cartDetailRepository.findByItemAndCart(item, cart);
+
+        cartDetail.setQuantity(modifyCart.getQuantity());
+    }
+
+    @Override
+    @Transactional
     public Cart addFirstCart(Member member) {
         return cartRepository.findFirstByMember(member).orElse(null);
     }
