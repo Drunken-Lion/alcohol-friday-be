@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.AddCartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
+import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
@@ -12,13 +13,11 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,10 +30,11 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
-class CartServiceImplTest {
+class CartServiceTest {
     @InjectMocks
     private CartServiceImpl cartService;
     @Mock
@@ -45,13 +45,6 @@ class CartServiceImplTest {
     private ItemRepository itemRepository;
 
     // test를 위한 임의 변수
-    /*private Member member;
-    private List<CartDetail> cartDetails = new ArrayList<>();
-    private Cart cart;
-    @JoinColumn(name = "item_id",foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    private Item item;
-    @ColumnDefault("0")
-    private Long quantity;*/
     // Item
     private final String firstName = "식품";
     private final String lastName = "탁주";
@@ -69,6 +62,24 @@ class CartServiceImplTest {
     private final Long balence = 10L;
     private final Long insense = 10L;
     private final Long throat = 10L;
+
+    // Item2
+    private final String firstName2 = "식품";
+    private final String lastName2 = "청주";
+    private final String productName2 = "test data2";
+    private final String itemName2 = "test ddaattaa";
+    private final BigDecimal price2 = new BigDecimal(100_000);
+    private final String info2 = "이 상품은 테스트 상품2 입니다.";
+    private final Long quantity2 = 10L;
+    private final Long alcohol2 = 17L;
+    private final String ingredient2 = "알콜, 누룩 등등...";
+    private final Long sweet2 = 10L;
+    private final Long sour2 = 10L;
+    private final Long cool2 = 10L;
+    private final Long body2 = 10L;
+    private final Long balence2 = 10L;
+    private final Long insense2 = 10L;
+    private final Long throat2 = 10L;
 
     // Member
     private final Long id = 1L;
@@ -88,69 +99,109 @@ class CartServiceImplTest {
     private final int page = 0;
     private final int size = 20;
 
+    // Cart
+    private final Member member = getDataMember();
+
+    // CartDetail
+    private final Cart cart = getDataCart();
+    private final Item item = getDataItem();
+    private final Item item2 = getDataItem2();
+    private final Long quantityCart = 2L;
+    private final Long quantityCart2 = 1L;
+
+
     @Test
-    @DisplayName("장바구니에 한개 담기")
+    @DisplayName("장바구니에 한 개 상품 담았을 경우")
     void addCart() {
         // given
-        Mockito.when(this.cartRepository.findFirstByMember(any(Member.class))).thenReturn(this.getOneCart());
-        Mockito.when(itemRepository.findById(any(Long.class))).thenReturn(this.getOneItem());
-
-        List<AddCartRequest> cartRequests = new ArrayList<>();
-        AddCartRequest cartRequest1 = AddCartRequest.builder()
+        List<AddCartRequest> cartDetails = new ArrayList<>();
+        AddCartRequest cartRequest = AddCartRequest.builder()
                 .itemId(1L)
-                .quantity(2L)
+                .quantity(quantityCart)
                 .build();
+        cartDetails.add(cartRequest);
 
-        cartRequests.add(cartRequest1);
+        when(this.itemRepository.findById(cartRequest.getItemId())).thenReturn(this.getOneItem());
+
+        CartDetail cartDetail = CartDetail.builder()
+                .cart(cart)
+                .item(item)
+                .quantity(cartRequest.getQuantity())
+                .build();
+        when(this.cartDetailRepository.save(any(CartDetail.class))).thenReturn(cartDetail);
 
         // when
-        List<CartDetailResponse> cartDetailResponse = cartService.addCartList(cartRequests, getOneMember().get());
+        List<CartDetailResponse> cartDetailResponses = this.cartService.addCartList(cartDetails, member);
 
         // then
-        assertThat(cartDetailResponse).isNotNull();
-        assertThat(cartDetailResponse.get(1).getItem()).isEqualTo(getOneItem());
+        assertThat(cartDetailResponses.get(0).getItem().getName()).isEqualTo(itemName);
+        assertThat(cartDetailResponses.get(0).getQuantity()).isEqualTo(cartRequest.getQuantity());
     }
 
     @Test
-    @DisplayName("장바구니에 여러개 담기")
-    @Disabled
+    @DisplayName("장바구니에 한 개 이상 상품 담았을 경우")
     void addCartList() {
-        // given
-        Member member = Member.builder().build();
-        List<AddCartRequest> cartRequests = new ArrayList<>();
+        // itemRepository.findById(addCart.getItemId())
+        // cartDetailRepository.save(cartDetail)
 
-        AddCartRequest cartRequest1 = AddCartRequest.builder()
-                .itemId(1L)
-                .quantity(2L)
-                .build();
-
-        AddCartRequest cartRequest2 = AddCartRequest.builder()
-                .itemId(2L)
-                .quantity(1L)
-                .build();
-
-        cartRequests.add(cartRequest1);
-        cartRequests.add(cartRequest2);
-
-//        when(cartRepository.findFirstByMember(any(Member.class))).thenReturn(null);
-//        when(cartRepository.save(any(Cart.class))).thenReturn(Cart.builder().build());
-
-        // when
-        List<CartDetailResponse> cartDetailResponses = cartService.addCartList(cartRequests, member);
-
-        // then
-        assertThat(cartDetailResponses).isNotNull();
-        assertThat(cartDetailResponses.size()).isEqualTo(2);
     }
 
-    @Test
-    @DisplayName("Item 테이블에 없는 item인 경우")
-    void ifItemNull() {
+
+    private Optional<Cart> getOneCart() {
+        return Optional.of(this.getDataCart());
     }
 
-    // 장바구니가 이미 있는 경우
-    // 장바구니가 없는 경우
+    private Cart getDataCart() {
+        return Cart.builder()
+                .member(member)
+                .build();
+    }
 
+    private Optional<CartDetail> getOneCartDetail() {
+        return Optional.of(this.getDataCartDetail());
+    }
+
+    private CartDetail getDataCartDetail() {
+        return CartDetail.builder()
+                .cart(cart)
+                .item(item)
+                .quantity(quantityCart)
+                .build();
+    }
+
+    private Optional<CartDetail> getOneCartDetail2() {
+        return Optional.of(this.getDataCartDetail2());
+    }
+
+    private CartDetail getDataCartDetail2() {
+        return CartDetail.builder()
+                .cart(cart)
+                .item(item2)
+                .quantity(quantityCart2)
+                .build();
+    }
+    private Optional<Member> getOneMember() {
+        return Optional.of(this.getDataMember());
+    }
+
+    private Member getDataMember() {
+        return Member.builder()
+                .id(id)
+                .email(email)
+                .provider(provider)
+                .name(name)
+                .nickname(nickname)
+                .role(role)
+                .phone(phone)
+                .certifyAt(certifyAt)
+                .agreedToServiceUse(agreedToServiceUse)
+                .agreedToServicePolicy(agreedToServicePolicy)
+                .agreedToServicePolicyUse(agreedToServicePolicyUse)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
 
     private Optional<Item> getOneItem() {
         return Optional.of(this.getDataItem());
@@ -198,53 +249,49 @@ class CartServiceImplTest {
         return item;
     }
 
-    private Optional<Cart> getOneCart() {
-        return Optional.of(this.getMemberCart());
+    private Optional<Item> getOneItem2() {
+        return Optional.of(this.getDataItem2());
     }
 
-    private Cart getMemberCart() {
-        Member member = Member.builder()
-                .id(id)
-                .email(email)
-                .provider(provider)
-                .name(name)
-                .nickname(nickname)
-                .role(role)
-                .phone(phone)
-                .certifyAt(certifyAt)
-                .agreedToServiceUse(agreedToServiceUse)
-                .agreedToServicePolicy(agreedToServicePolicy)
-                .agreedToServicePolicyUse(agreedToServicePolicyUse)
-                .createdAt(createdAt)
-                .updatedAt(updatedAt)
-                .deletedAt(deletedAt)
+    private Item getDataItem2() {
+        CategoryClass categoryClass = CategoryClass.builder()
+                .firstName(firstName2)
                 .build();
 
-        return Cart.builder()
-                .member(member)
+        Category category = Category.builder()
+                .lastName(lastName2)
                 .build();
-    }
+        category.addCategoryClass(categoryClass);
 
-    private Optional<Member> getOneMember() {
-        return Optional.of(this.getDataMember());
-    }
-
-    private Member getDataMember() {
-       return Member.builder()
-                .id(id)
-                .email(email)
-                .provider(provider)
-                .name(name)
-                .nickname(nickname)
-                .role(role)
-                .phone(phone)
-                .certifyAt(certifyAt)
-                .agreedToServiceUse(agreedToServiceUse)
-                .agreedToServicePolicy(agreedToServicePolicy)
-                .agreedToServicePolicyUse(agreedToServicePolicyUse)
-                .createdAt(createdAt)
-                .updatedAt(updatedAt)
-                .deletedAt(deletedAt)
+        Product product = Product.builder()
+                .name(productName2)
+                .quantity(quantity2)
+                .alcohol(alcohol2)
+                .ingredient(ingredient2)
+                .sweet(sweet2)
+                .sour(sour2)
+                .cool(cool2)
+                .body(body2)
+                .balence(balence2)
+                .insense(insense2)
+                .throat(throat2)
                 .build();
+        product.addCategory(category);
+
+        Item item = Item.builder()
+                .name(itemName2)
+                .price(price2)
+                .info(info2)
+                .build();
+        item.addCategory(category);
+
+        ItemProduct itemProduct = ItemProduct.builder()
+                .item(item)
+                .product(product)
+                .build();
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product);
+
+        return item;
     }
 }
