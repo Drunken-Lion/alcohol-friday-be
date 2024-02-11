@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -23,9 +25,17 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartDetailResponse addCart(AddCartRequest addCart, Member member) {
+    public List<CartDetailResponse> addCartList(List<AddCartRequest> cartRequestList, Member member) {
         Cart cart = addFirstCart(member);
 
+        return cartRequestList.stream()
+                .map(cartRequest -> addCart(cartRequest, cart))
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public CartDetailResponse addCart(AddCartRequest addCart, Cart cart) {
         Item item = itemRepository.findById(addCart.getItemId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
 
