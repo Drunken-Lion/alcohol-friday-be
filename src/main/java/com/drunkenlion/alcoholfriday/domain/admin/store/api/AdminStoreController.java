@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.store.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.store.application.AdminStoreService;
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
@@ -42,9 +42,19 @@ public class AdminStoreController {
     @Operation(summary = "제조사 등록", description = "관리자 권한에 대한 제조사 등록")
     @PostMapping(value = "makers")
     public ResponseEntity<MakerDetailResponse> createMaker(
-            @Valid @RequestBody MakerCreateRequest makerCreateRequest
+            @Valid @RequestBody MakerRequest makerRequest
     ) {
-        MakerDetailResponse makerDetailResponse = adminStoreService.createMaker(makerCreateRequest);
+        MakerDetailResponse makerDetailResponse = adminStoreService.createMaker(makerRequest);
         return ResponseEntity.status(HttpResponse.Success.CREATED.getStatus()).body(makerDetailResponse);
+    }
+
+    @Operation(summary = "제조사 수정", description = "관리자 권한에 대한 제조사 수정")
+    @PutMapping(value = "makers/{id}")
+    public ResponseEntity<MakerDetailResponse> modifyMaker(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody MakerRequest makerRequest
+    ) {
+        MakerDetailResponse makerDetailResponse = adminStoreService.modifyMaker(id, makerRequest);
+        return ResponseEntity.ok().body(makerDetailResponse);
     }
 }

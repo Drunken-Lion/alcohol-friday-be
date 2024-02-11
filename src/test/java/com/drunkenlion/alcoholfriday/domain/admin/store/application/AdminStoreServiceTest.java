@@ -1,8 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.admin.store.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import org.junit.jupiter.api.Test;
@@ -41,6 +41,11 @@ public class AdminStoreServiceTest {
     private final LocalDateTime updatedAt = LocalDateTime.now();
     private final int page = 0;
     private final int size = 20;
+
+    private final String modiftyName = "test 제조사 수정";
+    private final String modifyAddress = "test 주소 수정";
+    private final String modifyDetail = "test 상세주소 수정";
+    private final String modifyRegion = "test 제조지역 수정";
 
     @Test
     public void getMakersTest() {
@@ -83,7 +88,7 @@ public class AdminStoreServiceTest {
     @Test
     public void createMakerTest() {
         // given
-        MakerCreateRequest makerCreateRequest = MakerCreateRequest.builder()
+        MakerRequest makerRequest = MakerRequest.builder()
                 .name(name)
                 .address(address)
                 .detail(detail)
@@ -93,7 +98,7 @@ public class AdminStoreServiceTest {
         Mockito.when(makerRepository.save(any(Maker.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        MakerDetailResponse makerDetailResponse = adminStoreService.createMaker(makerCreateRequest);
+        MakerDetailResponse makerDetailResponse = adminStoreService.createMaker(makerRequest);
 
         // then
         assertThat(makerDetailResponse.getName()).isEqualTo(name);
@@ -101,6 +106,40 @@ public class AdminStoreServiceTest {
         assertThat(makerDetailResponse.getDetail()).isEqualTo(detail);
         assertThat(makerDetailResponse.getRegion()).isEqualTo(region);
     }
+
+    @Test
+    public void modifyMakerTest() {
+        // given
+        MakerRequest makerRequest = MakerRequest.builder()
+                .name(modiftyName)
+                .address(modifyAddress)
+                .detail(modifyDetail)
+                .region(modifyRegion)
+                .build();
+
+        // When
+        Maker maker = Maker.builder()
+                .id(id)
+                .name(makerRequest.getName())
+                .address(makerRequest.getAddress())
+                .detail(makerRequest.getDetail())
+                .region(makerRequest.getRegion())
+                .build();
+
+        Mockito.when(makerRepository.findById(id)).thenReturn(Optional.of(maker));
+        Mockito.when(makerRepository.save(any(Maker.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        MakerDetailResponse makerDetailResponse = adminStoreService.modifyMaker(id, makerRequest);
+
+        // then
+        assertThat(makerDetailResponse.getId()).isEqualTo(id);
+        assertThat(makerDetailResponse.getName()).isEqualTo(modiftyName);
+        assertThat(makerDetailResponse.getAddress()).isEqualTo(modifyAddress);
+        assertThat(makerDetailResponse.getDetail()).isEqualTo(modifyDetail);
+        assertThat(makerDetailResponse.getRegion()).isEqualTo(modifyRegion);
+    }
+
     private Page<Maker> getMakers() {
         List<Maker> list = List.of(this.getData());
         Pageable pageable = PageRequest.of(page, size);

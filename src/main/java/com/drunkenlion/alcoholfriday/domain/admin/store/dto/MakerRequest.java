@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "제조사 등록 요청 항목")
-public class MakerCreateRequest {
+public class MakerRequest {
     @Schema(description = "이름")
     private String name;
 
@@ -22,7 +22,7 @@ public class MakerCreateRequest {
     @Schema(description = "제조지역")
     private String region;
 
-    public static Maker toEntity(MakerCreateRequest request) {
+    public static Maker toEntity(MakerRequest request) {
         return Maker.builder()
                 .name(request.getName())
                 .address(request.getAddress())

@@ -17,9 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -132,6 +130,42 @@ public class AdminStoreControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(handler().handlerType(AdminStoreController.class))
                 .andExpect(handler().methodName("createMaker"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.address", notNullValue()))
+                .andExpect(jsonPath("$.detail", notNullValue()))
+                .andExpect(jsonPath("$.region", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @Test
+    void modifyMakerTest() throws Exception {
+        // given
+        Maker maker = this.makerRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/store/makers/" + maker.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "test 제조사",
+                                  "address": "test 주소",
+                                  "detail": "test 상세주소",
+                                  "region": "test 제조지역"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().methodName("modifyMaker"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.name", notNullValue()))
