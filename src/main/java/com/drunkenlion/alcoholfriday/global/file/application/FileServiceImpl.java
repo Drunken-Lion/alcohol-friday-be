@@ -1,17 +1,17 @@
 package com.drunkenlion.alcoholfriday.global.file.application;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
 import com.drunkenlion.alcoholfriday.global.ncp.application.NcpS3Service;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,20 +21,25 @@ public class FileServiceImpl implements FileService {
 	private final FileRepository fileRepository;
 
 	/**
-	 * NcpFile 테이블 모두 조회
+	 * 여러개의 게시물에 있는 모든 이미지 조회
 	 */
 	@Override
-	public List<NcpFileResponse> findAllFiles() {
-		List<NcpFile> ncpFileList = fileRepository.findAll();
-		return ncpFileList.stream().map(NcpFileResponse::of).toList();
+	public List<NcpFileResponse> findAllByEntityIds(List<Long> entityIds, String entityType) {
+		List<NcpFile> ncpFiles = this.fileRepository.findAllByEntityIdInAndEntityType(entityIds, entityType);
+
+		return NcpFileResponse.of(ncpFiles);
 	}
 
 	/**
 	 * 하나의 게시물에 있는 모든 이미지 조회
 	 */
 	@Override
-	public NcpFileResponse findEntityFiles(Long entityId, String entityType) {
-		NcpFile ncpFile = fileRepository.findByEntityIdAndEntityType(entityId, entityType);
+	public NcpFileResponse findByEntityId(Long entityId, String entityType) {
+		NcpFile ncpFile = this.fileRepository.findByEntityIdAndEntityType(entityId, entityType)
+				.orElseThrow(() -> BusinessException.builder()
+						.response(HttpResponse.Fail.NOT_FOUND_FILE)
+						.build());
+
 		return NcpFileResponse.of(ncpFile);
 	}
 
