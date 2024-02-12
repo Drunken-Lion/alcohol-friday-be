@@ -139,7 +139,44 @@ class CartServiceTest {
     @Test
     @DisplayName("장바구니에서 상품 한 개 이상 삭제")
     void deleteCartListTest() {
+        // given
+        // 상품을 장바구니에 저장
+        CartDetail cartDetail = CartDetail.builder()
+                .cart(cart)
+                .item(item)
+                .quantity(quantityCart)
+                .build();
+        CartDetail cartDetail2 = CartDetail.builder()
+                .cart(cart)
+                .item(item2)
+                .quantity(quantityCart2)
+                .build();
+        cartDetailRepository.save(cartDetail);
+        cartDetailRepository.save(cartDetail2);
 
+        // cartRepository.findFirstByMember(member)
+        when(cartRepository.findFirstByMember(member)).thenReturn(getOneCart());
+        // cartDetailRepository.deleteByIdAndCart(cartRequest.getItemId(), cart)
+        List<DeleteCartRequest> cartRequests = new ArrayList<>();
+        DeleteCartRequest cartRequest = DeleteCartRequest.builder()
+                .itemId(itemId1)
+                .build();
+        DeleteCartRequest cartRequest2 = DeleteCartRequest.builder()
+                .itemId(itemId2)
+                .build();
+        cartRequests.add(cartRequest);
+        cartRequests.add(cartRequest2);
+
+        doNothing().when(cartDetailRepository).deleteByIdAndCart(cartRequest.getItemId(), cart);
+        doNothing().when(cartDetailRepository).deleteByIdAndCart(cartRequest2.getItemId(), cart);
+
+        // when
+        cartService.deleteCartList(cartRequests, member);
+
+        // then
+        // 메서드 호출 여부를 검증
+        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest.getItemId(), cart);
+        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest2.getItemId(), cart);
     }
 
     @Test
