@@ -19,7 +19,7 @@ public class CartServiceImpl implements CartService {
     private final CartDetailRepository cartDetailRepository;
 
     @Override
-    public void deleteCart(List<DeleteCartRequest> cartRequests, Member member) {
+    public void deleteCartList(List<DeleteCartRequest> cartRequests, Member member) {
         Cart cart = addFirstCart(member);
 
         if (cart == null) throw new IllegalArgumentException("현재 장바구니에 상품이 없습니다.");

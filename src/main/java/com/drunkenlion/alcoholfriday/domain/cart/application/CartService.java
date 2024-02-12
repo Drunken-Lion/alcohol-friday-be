@@ -7,7 +7,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import java.util.List;
 
 public interface CartService {
-    void deleteCart(List<DeleteCartRequest> cartRequest, Member member)
+    void deleteCartList(List<DeleteCartRequest> cartRequest, Member member);
     void deleteCart(DeleteCartRequest cartRequest, Cart cart);
     Cart addFirstCart(Member member);
 }
