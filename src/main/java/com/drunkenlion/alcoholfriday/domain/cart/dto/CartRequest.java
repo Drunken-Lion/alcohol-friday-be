@@ -6,7 +6,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class AddCartRequest {
+public class CartRequest {
     private Long itemId;
     private Long quantity;
 }
