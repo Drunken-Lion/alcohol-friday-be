@@ -109,6 +109,16 @@ class CartServiceTest {
     @DisplayName("장바구니에서 상품 한 개 삭제")
     void deleteCartOneItemTest() {
         // given
+        // 상품을 장바구니에 저장
+        CartDetail cartDetail = CartDetail.builder()
+                .cart(cart)
+                .item(item)
+                .quantity(quantityCart)
+                .build();
+        cartDetailRepository.save(cartDetail);
+
+        // cartRepository.findFirstByMember(member)
+        when(cartRepository.findFirstByMember(member)).thenReturn(getOneCart());
         // cartDetailRepository.deleteByIdAndCart(cartRequest.getItemId(), cart)
         List<DeleteCartRequest> cartRequests = new ArrayList<>();
         DeleteCartRequest cartRequest = DeleteCartRequest.builder()
