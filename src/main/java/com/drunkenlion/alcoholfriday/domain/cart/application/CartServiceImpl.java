@@ -2,7 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.cart.application;
 
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
-import com.drunkenlion.alcoholfriday.domain.cart.dto.AddCartRequest;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.CartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
@@ -25,7 +25,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public List<CartDetailResponse> addCartList(List<AddCartRequest> cartRequestList, Member member) {
+    public List<CartDetailResponse> addCartList(List<CartRequest> cartRequestList, Member member) {
         Cart cart = addFirstCart(member);
 
         return cartRequestList.stream()
@@ -35,7 +35,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartDetailResponse addCart(AddCartRequest addCart, Cart cart) {
+    public CartDetailResponse addCart(CartRequest addCart, Cart cart) {
         Item item = itemRepository.findById(addCart.getItemId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
 
@@ -53,7 +53,7 @@ public class CartServiceImpl implements CartService {
     // 상품 수량만 변경할 경우
     @Override
     @Transactional
-    public void modifyCartItemQuantity(AddCartRequest modifyCart, Member member) {
+    public CartDetail modifyCartItemQuantity(CartRequest modifyCart, Member member) {
         Cart cart = addFirstCart(member);
 
         Item item = itemRepository.findById(modifyCart.getItemId())
@@ -62,6 +62,8 @@ public class CartServiceImpl implements CartService {
         CartDetail cartDetail = cartDetailRepository.findByItemAndCart(item, cart);
 
         cartDetail.setQuantity(modifyCart.getQuantity());
+
+        return cartDetail;
     }
 
     @Override
