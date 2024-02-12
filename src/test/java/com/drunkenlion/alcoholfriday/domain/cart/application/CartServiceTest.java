@@ -107,7 +107,7 @@ class CartServiceTest {
 
 
     @Test
-    @DisplayName("장바구니에 한 개 상품 담았을 경우")
+    @DisplayName("장바구니에 한 개 상품 조회하는 경우")
     void getCartDetailOneTest() {
         // given
         when(this.cartRepository.findFirstByMember(any(Member.class))).thenReturn(this.getOneCart());
@@ -128,7 +128,7 @@ class CartServiceTest {
     }
 
     @Test
-    @DisplayName("장바구니에 한 개 이상 상품 담았을 경우")
+    @DisplayName("장바구니에 한 개 이상 조회하는 경우")
     void getCartListTest() {
         // given
         when(this.cartRepository.findFirstByMember(any(Member.class))).thenReturn(this.getOneCart());
@@ -154,7 +154,7 @@ class CartServiceTest {
 
     @Test
     @DisplayName("회원에게 카트가 없는 경우")
-    void getCartList_EmptyCart() {
+    void getCartList_EmptyCartTest() {
         // given
         when(cartRepository.findFirstByMember(any(Member.class))).thenReturn(Optional.empty());
 
@@ -166,7 +166,7 @@ class CartServiceTest {
 
     @Test
     @DisplayName("카트에 아무런 상품이 없는 경우")
-    void getCartList_EmptyCartDetail() {
+    void getCartList_EmptyCartDetailTest() {
         // given
         when(cartRepository.findFirstByMember(any(Member.class))).thenReturn(this.getOneCart());
 
