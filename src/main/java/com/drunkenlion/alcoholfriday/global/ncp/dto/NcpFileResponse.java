@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.global.ncp.dto;
 
 import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
 import com.drunkenlion.alcoholfriday.global.ncp.util.vo.FileInfo;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.List;
@@ -11,9 +12,15 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(callSuper = true)
+@Schema(description = "파일 요청시 응답")
 public class NcpFileResponse {
+	@Schema(description = "file")
 	private List<FileInfo> file;
+
+	@Schema(description = "해당 entity의 식별자")
 	private Long entityId;
+
+	@Schema(description = "해당 entity의 타입")
 	private String entityType;
 
 	public static List<NcpFileResponse> of (List<NcpFile> ncpFiles) {

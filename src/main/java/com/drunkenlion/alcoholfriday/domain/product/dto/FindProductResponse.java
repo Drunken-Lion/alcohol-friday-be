@@ -1,23 +1,46 @@
 package com.drunkenlion.alcoholfriday.domain.product.dto;
 
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Schema(description = "제품 상세 요청하는 응답")
 public class FindProductResponse {
+    @Schema(description = "제품 이름")
     private String name;
+
+    @Schema(description = "제품 수량")
     private Long quantity;
+
+    @Schema(description = "알콜 도수")
     private Long alcohol;
+
+    @Schema(description = "제품 재료")
     private String ingredient;
+
+    @Schema(description = "술 단맛")
     private Long sweet;
+
+    @Schema(description = "술 신맛")
     private Long sour;
+
+    @Schema(description = "술 청량감")
     private Long cool;
+
+    @Schema(description = "술 바디감")
     private Long body;
+
+    @Schema(description = "술 밸런스")
     private Long balence;
+
+    @Schema(description = "술 향기")
     private Long insense;
+
+    @Schema(description = "술 목넘김")
     private Long throat;
 
     public static FindProductResponse of(Product product) {
