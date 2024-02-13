@@ -2,12 +2,13 @@ package com.drunkenlion.alcoholfriday.global.init;
 
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -99,7 +100,7 @@ public class NotProd {
 				.provider(ProviderType.KAKAO)
 				.name("테스트" + i)
 				.nickname("test" + i)
-				.role("MEMBER")
+				.role(MemberRole.MEMBER)
 				.phone(1012345678L)
 				.certifyAt(null)
 				.agreedToServiceUse(false)

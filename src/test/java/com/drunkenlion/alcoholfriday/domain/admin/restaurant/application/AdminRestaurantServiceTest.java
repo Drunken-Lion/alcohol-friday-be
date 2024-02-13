@@ -3,12 +3,13 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.application;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,10 +45,10 @@ public class AdminRestaurantServiceTest {
 
 	private final Long memberId = 1L;
 	private final String email = "test@example.com";
-	private final ProviderType provider = ProviderType.KAKAO;
+	private final String provider = ProviderType.KAKAO.getProviderName();
 	private final String memberName = "테스트";
 	private final String nickname = "test";
-	private final String role = "MEMBER";
+	private final String role = MemberRole.MEMBER.getRole();
 	private final Long phone = 1012345678L;
 	private final LocalDate certifyAt = null;
 	private final boolean agreedToServiceUse = true;
@@ -165,10 +166,10 @@ public class AdminRestaurantServiceTest {
 		Member member = Member.builder()
 			.id(memberId)
 			.email(email)
-			.provider(provider)
+			.provider(ProviderType.ofProvider(provider))
 			.name(memberName)
 			.nickname(nickname)
-			.role(role)
+			.role(MemberRole.ofRole(role))
 			.phone(phone)
 			.certifyAt(certifyAt)
 			.agreedToServiceUse(agreedToServiceUse)

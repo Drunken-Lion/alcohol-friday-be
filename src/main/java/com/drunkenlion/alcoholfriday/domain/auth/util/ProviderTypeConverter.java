@@ -1,6 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.auth.util;
 
-import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

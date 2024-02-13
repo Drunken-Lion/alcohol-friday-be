@@ -24,7 +24,8 @@ import com.drunkenlion.alcoholfriday.domain.auth.dto.SocialUserInfo;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
@@ -62,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
 					.email(email)
 					.name(username)
 					.nickname(username)
-					.role("MEMBER")
+					.role(MemberRole.MEMBER)
 					.provider(ProviderType.KAKAO)
 					.build();
 
@@ -131,7 +132,7 @@ public class AuthServiceImpl implements AuthService {
 					.email(userInfo.getEmail())
 					.name(userInfo.getName())
 					.nickname(userInfo.getNickname())
-					.role("MEMBER")
+					.role(MemberRole.MEMBER)
 					.provider(userInfo.getProvider())
 					.build();
 

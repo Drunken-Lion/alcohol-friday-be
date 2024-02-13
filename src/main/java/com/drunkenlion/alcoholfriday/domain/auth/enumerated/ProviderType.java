@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.global.common.enumerated;
+package com.drunkenlion.alcoholfriday.domain.auth.enumerated;
 
 import java.util.Arrays;
 
@@ -18,6 +18,6 @@ public enum ProviderType {
 		return Arrays.stream(ProviderType.values())
 			.filter(value -> value.providerName.equals(providerName))
 			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException(String.format("제공처에 %s가 존재하지 않습니다.", providerName)));
+			.orElseThrow(() -> new IllegalArgumentException(String.format("%s 은(는) 존재하지 않는 제공처 입니다.", providerName)));
 	}
 }

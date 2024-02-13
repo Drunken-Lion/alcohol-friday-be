@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.drunkenlion.alcoholfriday.domain.auth.application.AuthService;
 import com.drunkenlion.alcoholfriday.domain.auth.dto.LoginResponse;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.security.jwt.dto.JwtResponse;
@@ -45,6 +45,7 @@ public class AuthController {
 		return ResponseEntity.ok().body(loginResponse);
 	}
 
+	@Operation(summary = "액세스 토큰 재발급")
 	@PostMapping("/reissue-token")
 	public ResponseEntity<JwtResponse> reissueToken(@RequestBody String refreshToken) {
 		if (refreshToken == null) {

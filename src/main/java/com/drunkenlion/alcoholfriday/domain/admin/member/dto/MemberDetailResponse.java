@@ -65,7 +65,7 @@ public class MemberDetailResponse {
 			.provider(member.getProvider().getProviderName())
 			.name(member.getName())
 			.nickname(member.getNickname())
-			.role(member.getRole())
+			.role(member.getRole().getRole())
 			.phone(member.getPhone())
 			.certifyAt(member.getCertifyAt())
 			.agreedToServiceUse(member.getAgreedToServiceUse())

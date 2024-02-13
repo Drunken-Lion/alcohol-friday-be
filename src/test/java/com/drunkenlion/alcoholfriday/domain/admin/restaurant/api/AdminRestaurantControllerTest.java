@@ -2,12 +2,13 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -95,7 +96,7 @@ public class AdminRestaurantControllerTest {
 			.provider(ProviderType.KAKAO)
 			.name("테스트")
 			.nickname("test")
-			.role("MEMBER")
+			.role(MemberRole.MEMBER)
 			.phone(1012345678L)
 			.certifyAt(null)
 			.agreedToServiceUse(true)

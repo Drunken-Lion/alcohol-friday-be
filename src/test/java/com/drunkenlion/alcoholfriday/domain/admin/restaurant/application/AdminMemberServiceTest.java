@@ -5,7 +5,8 @@ import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberDetailRespons
 import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,10 +39,10 @@ public class AdminMemberServiceTest {
 	// test를 위한 임의 변수
 	private final Long id = 1L;
 	private final String email = "test@example.com";
-	private final ProviderType provider = ProviderType.KAKAO;
+	private final String provider = ProviderType.KAKAO.getProviderName();
 	private final String name = "테스트";
 	private final String nickname = "test";
-	private final String role = "MEMBER";
+	private final String role = MemberRole.MEMBER.getRole();
 	private final Long phone = 1012345678L;
 	private final LocalDate certifyAt = null;
 	private final boolean agreedToServiceUse = false;
@@ -114,10 +115,10 @@ public class AdminMemberServiceTest {
 		return Member.builder()
 			.id(id)
 			.email(email)
-			.provider(provider)
+			.provider(ProviderType.ofProvider(provider))
 			.name(name)
 			.nickname(nickname)
-			.role(role)
+			.role(MemberRole.ofRole(role))
 			.phone(phone)
 			.certifyAt(certifyAt)
 			.agreedToServiceUse(agreedToServiceUse)

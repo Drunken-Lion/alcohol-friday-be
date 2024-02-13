@@ -2,7 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.auth.dto;
 
 import java.util.Map;
 
-import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 
 import lombok.Builder;
 
