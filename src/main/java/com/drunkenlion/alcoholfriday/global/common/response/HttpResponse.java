@@ -45,6 +45,7 @@ public class HttpResponse {
 
         // 404
         NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 리소스입니다."),
+        NOT_FOUND_FILE(HttpStatus.NOT_FOUND, "존재하지 않는 파일입니다."),
         NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
         NOT_FOUND_RESTAURANT(HttpStatus.NOT_FOUND, "존재하지 않는 매장입니다."),
 
