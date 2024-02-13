@@ -1,10 +1,9 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.util;
+package com.drunkenlion.alcoholfriday.domain.restaurant.vo;
 
 import lombok.*;
 
 import java.time.LocalTime;
 
-@Setter
 @Getter
 @Builder
 @NoArgsConstructor

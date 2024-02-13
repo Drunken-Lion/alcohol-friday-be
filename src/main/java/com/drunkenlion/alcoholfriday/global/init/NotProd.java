@@ -4,9 +4,10 @@ import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
-import com.drunkenlion.alcoholfriday.domain.restaurant.util.Provision;
-import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
+import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
+import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +57,8 @@ public class NotProd {
     private Map<String, Object> getTimeTest() {
         Map<String, Object> allDayTime = new LinkedHashMap<>();
 
-        allDayTime.put("holiday", true);
-        allDayTime.put("etc", "명절 당일만 휴업");
+        allDayTime.put(TimeOption.HOLIDAY.toString(), true);
+        allDayTime.put(TimeOption.ETC.toString(), "명절 당일만 휴업");
 
         TimeData timeData = TimeData.builder()
                 .businessStatus(true)

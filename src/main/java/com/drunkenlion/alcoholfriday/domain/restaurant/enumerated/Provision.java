@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.util;
+package com.drunkenlion.alcoholfriday.domain.restaurant.enumerated;
 
 /**
  * 편의 시설
