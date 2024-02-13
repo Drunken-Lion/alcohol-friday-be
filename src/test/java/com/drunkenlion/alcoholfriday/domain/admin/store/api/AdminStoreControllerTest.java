@@ -191,17 +191,8 @@ public class AdminStoreControllerTest {
 
         // then
         resultActions
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andExpect(handler().handlerType(AdminStoreController.class))
-                .andExpect(handler().methodName("deleteMaker"))
-                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
-                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.name", notNullValue()))
-                .andExpect(jsonPath("$.address", notNullValue()))
-                .andExpect(jsonPath("$.detail", notNullValue()))
-                .andExpect(jsonPath("$.region", notNullValue()))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", matchesPattern(DATETIME_PATTERN)));
+                .andExpect(handler().methodName("deleteMaker"));
     }
 }

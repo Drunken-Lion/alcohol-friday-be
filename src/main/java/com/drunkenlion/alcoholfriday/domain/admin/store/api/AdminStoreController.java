@@ -1,10 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.store.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.store.application.AdminStoreService;
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
-import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,7 +47,14 @@ public class AdminStoreController {
             @Valid @RequestBody MakerRequest makerRequest
     ) {
         MakerDetailResponse makerDetailResponse = adminStoreService.createMaker(makerRequest);
-        return ResponseEntity.status(HttpResponse.Success.CREATED.getStatus()).body(makerDetailResponse);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(makerDetailResponse.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(makerDetailResponse);
     }
 
     @Operation(summary = "제조사 수정", description = "관리자 권한에 대한 제조사 수정")
@@ -60,10 +69,10 @@ public class AdminStoreController {
 
     @Operation(summary = "제조사 삭제", description = "관리자 권한에 대한 제조사 삭제")
     @DeleteMapping(value = "makers/{id}")
-    public ResponseEntity<MakerDetailResponse> deleteMaker(
+    public ResponseEntity<Void> deleteMaker(
             @PathVariable("id") Long id
     ) {
-        MakerDetailResponse makerDetailResponse = adminStoreService.deleteMaker(id);
-        return ResponseEntity.ok().body(makerDetailResponse);
+        adminStoreService.deleteMaker(id);
+        return ResponseEntity.noContent().build();
     }
 }
