@@ -12,13 +12,13 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class RestTemplateConfig {
-	@Bean
-	public RestTemplate restTemplate(RestTemplateBuilder builder) {
-		return builder
-			.requestFactory((settings) -> new BufferingClientHttpRequestFactory(
-				ClientHttpRequestFactories.get(HttpComponentsClientHttpRequestFactory.class, settings)))
-			.setConnectTimeout(Duration.ofSeconds(300))
-			.setReadTimeout(Duration.ofSeconds(300))
-			.build();
-	}
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder
+                .requestFactory((settings) -> new BufferingClientHttpRequestFactory(
+                        ClientHttpRequestFactories.get(HttpComponentsClientHttpRequestFactory.class, settings)))
+                .setConnectTimeout(Duration.ofSeconds(300))
+                .setReadTimeout(Duration.ofSeconds(300))
+                .build();
+    }
 }

@@ -11,13 +11,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class SocialUserInfo {
-	protected Map<String, Object> attributes;
+    protected Map<String, Object> attributes;
 
-	public abstract String getName();
+    public abstract String getName();
 
-	public abstract String getEmail();
+    public abstract String getEmail();
 
-	public abstract String getNickname();
+    public abstract String getNickname();
 
-	public abstract ProviderType getProvider();
+    public abstract ProviderType getProvider();
 }

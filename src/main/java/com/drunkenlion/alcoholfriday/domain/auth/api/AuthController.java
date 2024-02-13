@@ -25,34 +25,34 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/v1/auth")
 @Tag(name = "v1-auth-controller", description = "회원 인증을 담당하는 컨트롤러")
 public class AuthController {
-	private final AuthService authService;
+    private final AuthService authService;
 
-	@PostMapping("/test")
-	public ResponseEntity<LoginResponse> testLogin(@RequestBody String username) {
-		LoginResponse loginResponse = authService.testLogin(username);
-		return ResponseEntity.ok().body(loginResponse);
-	}
+    @PostMapping("/test")
+    public ResponseEntity<LoginResponse> testLogin(@RequestBody String username) {
+        LoginResponse loginResponse = authService.testLogin(username);
+        return ResponseEntity.ok().body(loginResponse);
+    }
 
-	@Operation(summary = "소셜 로그인")
-	@PostMapping("/login/{provider}")
-	public ResponseEntity<LoginResponse> login(@PathVariable ProviderType provider,
-		@RequestBody String providerAccessToken) {
-		if (providerAccessToken == null) {
-			throw new BusinessException(HttpResponse.Fail.BAD_REQUEST);
-		}
+    @Operation(summary = "소셜 로그인")
+    @PostMapping("/login/{provider}")
+    public ResponseEntity<LoginResponse> login(@PathVariable ProviderType provider,
+                                               @RequestBody String providerAccessToken) {
+        if (providerAccessToken == null) {
+            throw new BusinessException(HttpResponse.Fail.BAD_REQUEST);
+        }
 
-		LoginResponse loginResponse = authService.socialLogin(provider, providerAccessToken);
-		return ResponseEntity.ok().body(loginResponse);
-	}
+        LoginResponse loginResponse = authService.socialLogin(provider, providerAccessToken);
+        return ResponseEntity.ok().body(loginResponse);
+    }
 
-	@Operation(summary = "액세스 토큰 재발급")
-	@PostMapping("/reissue-token")
-	public ResponseEntity<JwtResponse> reissueToken(@RequestBody String refreshToken) {
-		if (refreshToken == null) {
-			throw new BusinessException(HttpResponse.Fail.BAD_REQUEST);
-		}
+    @Operation(summary = "액세스 토큰 재발급")
+    @PostMapping("/reissue-token")
+    public ResponseEntity<JwtResponse> reissueToken(@RequestBody String refreshToken) {
+        if (refreshToken == null) {
+            throw new BusinessException(HttpResponse.Fail.BAD_REQUEST);
+        }
 
-		JwtResponse jwtResponse = authService.reissueToken(refreshToken);
-		return ResponseEntity.ok().body(jwtResponse);
-	}
+        JwtResponse jwtResponse = authService.reissueToken(refreshToken);
+        return ResponseEntity.ok().body(jwtResponse);
+    }
 }

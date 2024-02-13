@@ -51,7 +51,7 @@ public class NotProd {
         };
     }
 
-    private Map<String, Object> getMenuTest()  {
+    private Map<String, Object> getMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
         frame.put("비빔밥", 8000);
         frame.put("불고기", 12000);
@@ -67,10 +67,10 @@ public class NotProd {
         TimeData timeData = TimeData.builder()
                 .businessStatus(true)
                 .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(22,0))
+                .endTime(LocalTime.of(22, 0))
                 .breakBusinessStatus(true)
-                .breakStartTime(LocalTime.of(15,0))
-                .breakEndTime(LocalTime.of(17,0))
+                .breakStartTime(LocalTime.of(15, 0))
+                .breakEndTime(LocalTime.of(17, 0))
                 .build();
 
         for (DayInfo value : DayInfo.values()) {
@@ -95,20 +95,20 @@ public class NotProd {
             return;
         }
 
-		IntStream.range(0, 50).forEach(i -> {
-			Member member = Member.builder()
-				.email("test" + i + "@example.com")
-				.provider(ProviderType.KAKAO)
-				.name("테스트" + i)
-				.nickname("test" + i)
-				.role(MemberRole.MEMBER)
-				.phone(1012345678L)
-				.certifyAt(null)
-				.agreedToServiceUse(false)
-				.agreedToServicePolicy(false)
-				.agreedToServicePolicyUse(false)
-				.createdAt(LocalDateTime.now())
-				.build();
+        IntStream.range(0, 50).forEach(i -> {
+            Member member = Member.builder()
+                    .email("test" + i + "@example.com")
+                    .provider(ProviderType.KAKAO)
+                    .name("테스트" + i)
+                    .nickname("test" + i)
+                    .role(MemberRole.MEMBER)
+                    .phone(1012345678L)
+                    .certifyAt(null)
+                    .agreedToServiceUse(false)
+                    .agreedToServicePolicy(false)
+                    .agreedToServicePolicyUse(false)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
             memberRepository.save(member);
 
@@ -117,7 +117,7 @@ public class NotProd {
                     .category("한식" + member.getId())
                     .name("맛있는 한식당" + member.getId())
                     .address("서울시 강남구")
-                    .location(new Point(37.4979,127.0276)) // 위도, 경도
+                    .location(new Point(37.4979, 127.0276)) // 위도, 경도
                     .contact(1012345678L)
                     .menu(getMenuTest())
                     .time(getTimeTest())

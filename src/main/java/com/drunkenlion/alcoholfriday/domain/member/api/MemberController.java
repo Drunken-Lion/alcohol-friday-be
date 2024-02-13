@@ -21,11 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/v1/members")
 @Tag(name = "v1-members-controller", description = "회원 관련 컨트롤러")
 public class MemberController {
-	private final MemberService memberService;
-	
-	@PostMapping("/test")
-	public ResponseEntity<?> authMemberTest(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-		MemberResponse memberResponse = memberService.getMember(userPrincipal.getUsername());
-		return ResponseEntity.ok().body(memberResponse);
-	}
+    private final MemberService memberService;
+
+    @PostMapping("/test")
+    public ResponseEntity<?> authMemberTest(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        MemberResponse memberResponse = memberService.getMember(userPrincipal.getUsername());
+        return ResponseEntity.ok().body(memberResponse);
+    }
 }

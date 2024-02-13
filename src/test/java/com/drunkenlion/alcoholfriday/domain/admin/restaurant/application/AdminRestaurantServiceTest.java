@@ -41,212 +41,212 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(MockitoExtension.class)
 @Transactional
 public class AdminRestaurantServiceTest {
-	@InjectMocks
-	private AdminRestaurantServiceImpl adminRestaurantService;
-	@Mock
-	private RestaurantRepository restaurantRepository;
-	@Mock
-	private MemberRepository memberRepository;
+    @InjectMocks
+    private AdminRestaurantServiceImpl adminRestaurantService;
+    @Mock
+    private RestaurantRepository restaurantRepository;
+    @Mock
+    private MemberRepository memberRepository;
 
-	private final Long memberId = 1L;
-	private final String email = "test@example.com";
-	private final String provider = ProviderType.KAKAO.getProviderName();
-	private final String memberName = "테스트";
-	private final String nickname = "test";
-	private final String role = MemberRole.MEMBER.getRole();
-	private final Long phone = 1012345678L;
-	private final LocalDate certifyAt = null;
-	private final boolean agreedToServiceUse = true;
-	private final boolean agreedToServicePolicy = true;
-	private final boolean agreedToServicePolicyUse = true;
-	private final LocalDateTime memberCreatedAt = LocalDateTime.now();
+    private final Long memberId = 1L;
+    private final String email = "test@example.com";
+    private final String provider = ProviderType.KAKAO.getProviderName();
+    private final String memberName = "테스트";
+    private final String nickname = "test";
+    private final String role = MemberRole.MEMBER.getRole();
+    private final Long phone = 1012345678L;
+    private final LocalDate certifyAt = null;
+    private final boolean agreedToServiceUse = true;
+    private final boolean agreedToServicePolicy = true;
+    private final boolean agreedToServicePolicyUse = true;
+    private final LocalDateTime memberCreatedAt = LocalDateTime.now();
 
-	private final Long id = 1L;
-	private final String category = "한식";
-	private final String name = "맛있는 한식당";
-	private final String address = "서울시 강남구";
-	private final Point location = new Point(37.4979, 127.0276);
-	private final Long contact = 1012345678L;
+    private final Long id = 1L;
+    private final String category = "한식";
+    private final String name = "맛있는 한식당";
+    private final String address = "서울시 강남구";
+    private final Point location = new Point(37.4979, 127.0276);
+    private final Long contact = 1012345678L;
 
-	private Map<String, Object> getMenuTest() {
-		Map<String, Object> frame = new LinkedHashMap<>();
-		frame.put("비빔밥", 8000);
-		frame.put("불고기", 12000);
-		return frame;
-	}
+    private Map<String, Object> getMenuTest() {
+        Map<String, Object> frame = new LinkedHashMap<>();
+        frame.put("비빔밥", 8000);
+        frame.put("불고기", 12000);
+        return frame;
+    }
 
-	private Map<String, Object> getTimeTest() {
-		Map<String, Object> allDayTime = new LinkedHashMap<>();
+    private Map<String, Object> getTimeTest() {
+        Map<String, Object> allDayTime = new LinkedHashMap<>();
 
-		allDayTime.put(TimeOption.HOLIDAY.toString(), true);
-		allDayTime.put(TimeOption.ETC.toString(), "명절 당일만 휴업");
+        allDayTime.put(TimeOption.HOLIDAY.toString(), true);
+        allDayTime.put(TimeOption.ETC.toString(), "명절 당일만 휴업");
 
-		TimeData timeData = TimeData.builder()
-			.businessStatus(true)
-			.startTime(LocalTime.of(9, 0))
-			.endTime(LocalTime.of(22, 0))
-			.breakBusinessStatus(true)
-			.breakStartTime(LocalTime.of(15, 0))
-			.breakEndTime(LocalTime.of(17, 0))
-			.build();
+        TimeData timeData = TimeData.builder()
+                .businessStatus(true)
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(22, 0))
+                .breakBusinessStatus(true)
+                .breakStartTime(LocalTime.of(15, 0))
+                .breakEndTime(LocalTime.of(17, 0))
+                .build();
 
-		for (DayInfo value : DayInfo.values()) {
-			allDayTime.put(value.toString(), timeData);
-		}
+        for (DayInfo value : DayInfo.values()) {
+            allDayTime.put(value.toString(), timeData);
+        }
 
-		return allDayTime;
-	}
+        return allDayTime;
+    }
 
-	private Map<String, Object> getProvisionTest() {
-		Map<String, Object> frame = new LinkedHashMap<>();
+    private Map<String, Object> getProvisionTest() {
+        Map<String, Object> frame = new LinkedHashMap<>();
 
-		for (Provision value : Provision.values()) {
-			frame.put(value.toString(), true);
-		}
-		return frame;
-	}
+        for (Provision value : Provision.values()) {
+            frame.put(value.toString(), true);
+        }
+        return frame;
+    }
 
-	private final Map<String, Object> menu = getMenuTest();
-	private final Map<String, Object> time = getTimeTest();
-	private final Map<String, Object> provision = getProvisionTest();
-	private final LocalDateTime createdAt = LocalDateTime.now();
-	private final int page = 0;
-	private final int size = 20;
+    private final Map<String, Object> menu = getMenuTest();
+    private final Map<String, Object> time = getTimeTest();
+    private final Map<String, Object> provision = getProvisionTest();
+    private final LocalDateTime createdAt = LocalDateTime.now();
+    private final int page = 0;
+    private final int size = 20;
 
-	@Test
-	public void getRestaurantsTest() {
-		// given
-		Mockito.when(this.restaurantRepository.findAll(any(Pageable.class))).thenReturn(this.getRestaurants());
+    @Test
+    public void getRestaurantsTest() {
+        // given
+        Mockito.when(this.restaurantRepository.findAll(any(Pageable.class))).thenReturn(this.getRestaurants());
 
-		// when
-		Page<RestaurantListResponse> restaurants = this.adminRestaurantService.getRestaurants(page, size);
+        // when
+        Page<RestaurantListResponse> restaurants = this.adminRestaurantService.getRestaurants(page, size);
 
-		// then
-		List<RestaurantListResponse> content = restaurants.getContent();
+        // then
+        List<RestaurantListResponse> content = restaurants.getContent();
 
-		assertThat(content).isInstanceOf(List.class);
-		assertThat(content.size()).isEqualTo(1);
-		assertThat(content.get(0).getId()).isEqualTo(id);
-		assertThat(content.get(0).getMemberNickname()).isEqualTo(nickname);
-		assertThat(content.get(0).getName()).isEqualTo(name);
-		assertThat(content.get(0).getCategory()).isEqualTo(category);
-		assertThat(content.get(0).getCreatedAt()).isEqualTo(createdAt);
-		assertThat(content.get(0).isDeleted()).isEqualTo(false);
-	}
+        assertThat(content).isInstanceOf(List.class);
+        assertThat(content.size()).isEqualTo(1);
+        assertThat(content.get(0).getId()).isEqualTo(id);
+        assertThat(content.get(0).getMemberNickname()).isEqualTo(nickname);
+        assertThat(content.get(0).getName()).isEqualTo(name);
+        assertThat(content.get(0).getCategory()).isEqualTo(category);
+        assertThat(content.get(0).getCreatedAt()).isEqualTo(createdAt);
+        assertThat(content.get(0).isDeleted()).isEqualTo(false);
+    }
 
-	@Test
-	public void getRestaurantTest() {
-		// given
-		Mockito.when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
+    @Test
+    public void getRestaurantTest() {
+        // given
+        Mockito.when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
 
-		// when
-		RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(id);
+        // when
+        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(id);
 
-		// then
-		assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
-		assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
-		assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(nickname);
-		assertThat(restaurantDetailResponse.getName()).isEqualTo(name);
-		assertThat(restaurantDetailResponse.getCategory()).isEqualTo(category);
-		assertThat(restaurantDetailResponse.getAddress()).isEqualTo(address);
-		assertThat(restaurantDetailResponse.getLocation()).isEqualTo(location);
-		assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
-		assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
-		assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
-		assertThat(restaurantDetailResponse.getProvision()).isEqualTo(provision);
-		assertThat(restaurantDetailResponse.getCreatedAt()).isEqualTo(createdAt);
-	}
+        // then
+        assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
+        assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
+        assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(nickname);
+        assertThat(restaurantDetailResponse.getName()).isEqualTo(name);
+        assertThat(restaurantDetailResponse.getCategory()).isEqualTo(category);
+        assertThat(restaurantDetailResponse.getAddress()).isEqualTo(address);
+        assertThat(restaurantDetailResponse.getLocation()).isEqualTo(location);
+        assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
+        assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
+        assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
+        assertThat(restaurantDetailResponse.getProvision()).isEqualTo(provision);
+        assertThat(restaurantDetailResponse.getCreatedAt()).isEqualTo(createdAt);
+    }
 
-	@Test
-	public void createRestaurantTest() {
-		// given
-		RestaurantCreateRequest restaurantCreateRequest = RestaurantCreateRequest.builder()
-			.memberId(memberId)
-			.name(name)
-			.category(category)
-			.address(address)
-			.location(location)
-			.contact(contact)
-			.menu(menu)
-			.time(time)
-			.provision(provision)
-			.build();
+    @Test
+    public void createRestaurantTest() {
+        // given
+        RestaurantCreateRequest restaurantCreateRequest = RestaurantCreateRequest.builder()
+                .memberId(memberId)
+                .name(name)
+                .category(category)
+                .address(address)
+                .location(location)
+                .contact(contact)
+                .menu(menu)
+                .time(time)
+                .provision(provision)
+                .build();
 
-		Member member = Member.builder()
-			.id(memberId)
-			.email(email)
-			.provider(ProviderType.ofProvider(provider))
-			.name(memberName)
-			.nickname(nickname)
-			.role(MemberRole.ofRole(role))
-			.phone(phone)
-			.certifyAt(certifyAt)
-			.agreedToServiceUse(agreedToServiceUse)
-			.agreedToServicePolicy(agreedToServicePolicy)
-			.agreedToServicePolicyUse(agreedToServicePolicyUse)
-			.createdAt(memberCreatedAt)
-			.build();
+        Member member = Member.builder()
+                .id(memberId)
+                .email(email)
+                .provider(ProviderType.ofProvider(provider))
+                .name(memberName)
+                .nickname(nickname)
+                .role(MemberRole.ofRole(role))
+                .phone(phone)
+                .certifyAt(certifyAt)
+                .agreedToServiceUse(agreedToServiceUse)
+                .agreedToServicePolicy(agreedToServicePolicy)
+                .agreedToServicePolicyUse(agreedToServicePolicyUse)
+                .createdAt(memberCreatedAt)
+                .build();
 
-		Mockito.when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-		Mockito.when(restaurantRepository.save(any(Restaurant.class)))
-			.thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+        Mockito.when(restaurantRepository.save(any(Restaurant.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-		// When
-		RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(
-			restaurantCreateRequest);
+        // When
+        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(
+                restaurantCreateRequest);
 
-		// then
-		assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
-		assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(nickname);
-		assertThat(restaurantDetailResponse.getName()).isEqualTo(name);
-		assertThat(restaurantDetailResponse.getCategory()).isEqualTo(category);
-		assertThat(restaurantDetailResponse.getAddress()).isEqualTo(address);
-		assertThat(restaurantDetailResponse.getLocation()).isEqualTo(location);
-		assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
-		assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
-		assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
-		assertThat(restaurantDetailResponse.getProvision()).isEqualTo(provision);
-	}
+        // then
+        assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
+        assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(nickname);
+        assertThat(restaurantDetailResponse.getName()).isEqualTo(name);
+        assertThat(restaurantDetailResponse.getCategory()).isEqualTo(category);
+        assertThat(restaurantDetailResponse.getAddress()).isEqualTo(address);
+        assertThat(restaurantDetailResponse.getLocation()).isEqualTo(location);
+        assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
+        assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
+        assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
+        assertThat(restaurantDetailResponse.getProvision()).isEqualTo(provision);
+    }
 
-	private Page<Restaurant> getRestaurants() {
-		List<Restaurant> list = List.of(this.getData());
-		Pageable pageable = PageRequest.of(page, size);
-		return new PageImpl<Restaurant>(list, pageable, list.size());
-	}
+    private Page<Restaurant> getRestaurants() {
+        List<Restaurant> list = List.of(this.getData());
+        Pageable pageable = PageRequest.of(page, size);
+        return new PageImpl<Restaurant>(list, pageable, list.size());
+    }
 
-	private Optional<Restaurant> getOne() {
-		return Optional.of(this.getData());
-	}
+    private Optional<Restaurant> getOne() {
+        return Optional.of(this.getData());
+    }
 
-	private Restaurant getData() {
+    private Restaurant getData() {
 
-		Member member = Member.builder()
-			.id(memberId)
-			.email(email)
-			.provider(ProviderType.ofProvider(provider))
-			.name(memberName)
-			.nickname(nickname)
-			.role(MemberRole.ofRole(role))
-			.phone(phone)
-			.certifyAt(certifyAt)
-			.agreedToServiceUse(agreedToServiceUse)
-			.agreedToServicePolicy(agreedToServicePolicy)
-			.agreedToServicePolicyUse(agreedToServicePolicyUse)
-			.createdAt(memberCreatedAt)
-			.build();
+        Member member = Member.builder()
+                .id(memberId)
+                .email(email)
+                .provider(ProviderType.ofProvider(provider))
+                .name(memberName)
+                .nickname(nickname)
+                .role(MemberRole.ofRole(role))
+                .phone(phone)
+                .certifyAt(certifyAt)
+                .agreedToServiceUse(agreedToServiceUse)
+                .agreedToServicePolicy(agreedToServicePolicy)
+                .agreedToServicePolicyUse(agreedToServicePolicyUse)
+                .createdAt(memberCreatedAt)
+                .build();
 
-		return Restaurant.builder()
-			.id(id)
-			.members(member)
-			.category(category)
-			.name(name)
-			.address(address)
-			.location(location)
-			.contact(contact)
-			.menu(menu)
-			.time(time)
-			.provision(provision)
-			.createdAt(createdAt)
-			.build();
-	}
+        return Restaurant.builder()
+                .id(id)
+                .members(member)
+                .category(category)
+                .name(name)
+                .address(address)
+                .location(location)
+                .contact(contact)
+                .menu(menu)
+                .time(time)
+                .provision(provision)
+                .createdAt(createdAt)
+                .build();
+    }
 }

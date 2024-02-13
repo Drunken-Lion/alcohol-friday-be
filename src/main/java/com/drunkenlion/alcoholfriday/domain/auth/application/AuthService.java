@@ -5,9 +5,9 @@ import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.global.security.jwt.dto.JwtResponse;
 
 public interface AuthService {
-	LoginResponse testLogin(String username);
+    LoginResponse testLogin(String username);
 
-	LoginResponse socialLogin(ProviderType provider, String accessToken);
+    LoginResponse socialLogin(ProviderType provider, String accessToken);
 
-	JwtResponse reissueToken(String requestRefreshToken);
+    JwtResponse reissueToken(String requestRefreshToken);
 }

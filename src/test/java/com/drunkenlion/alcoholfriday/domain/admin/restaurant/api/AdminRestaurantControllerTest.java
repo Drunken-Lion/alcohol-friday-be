@@ -52,7 +52,7 @@ public class AdminRestaurantControllerTest {
     private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
     private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
 
-    private Map<String, Object> getMenuTest()  {
+    private Map<String, Object> getMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
         frame.put("비빔밥", 8000);
         frame.put("불고기", 12000);
@@ -68,10 +68,10 @@ public class AdminRestaurantControllerTest {
         TimeData timeData = TimeData.builder()
                 .businessStatus(true)
                 .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(22,0))
+                .endTime(LocalTime.of(22, 0))
                 .breakBusinessStatus(true)
-                .breakStartTime(LocalTime.of(15,0))
-                .breakEndTime(LocalTime.of(17,0))
+                .breakStartTime(LocalTime.of(15, 0))
+                .breakEndTime(LocalTime.of(17, 0))
                 .build();
 
         for (DayInfo value : DayInfo.values()) {
@@ -90,24 +90,24 @@ public class AdminRestaurantControllerTest {
         return frame;
     }
 
-	@BeforeEach
-	@Transactional
-	void beforeEach() {
-		Member member = Member.builder()
-			.email("test@example.com")
-			.provider(ProviderType.KAKAO)
-			.name("테스트")
-			.nickname("test")
-			.role(MemberRole.MEMBER)
-			.phone(1012345678L)
-			.certifyAt(null)
-			.agreedToServiceUse(true)
-			.agreedToServicePolicy(true)
-			.agreedToServicePolicyUse(true)
-			.createdAt(LocalDateTime.now())
-			.updatedAt(null)
-			.deletedAt(null)
-			.build();
+    @BeforeEach
+    @Transactional
+    void beforeEach() {
+        Member member = Member.builder()
+                .email("test@example.com")
+                .provider(ProviderType.KAKAO)
+                .name("테스트")
+                .nickname("test")
+                .role(MemberRole.MEMBER)
+                .phone(1012345678L)
+                .certifyAt(null)
+                .agreedToServiceUse(true)
+                .agreedToServicePolicy(true)
+                .agreedToServicePolicyUse(true)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(null)
+                .deletedAt(null)
+                .build();
 
         memberRepository.save(member);
 
@@ -116,7 +116,7 @@ public class AdminRestaurantControllerTest {
                 .category("한식")
                 .name("맛있는 한식당")
                 .address("서울시 강남구")
-                .location(new Point(37.4979,127.0276))
+                .location(new Point(37.4979, 127.0276))
                 .contact(1012345678L)
                 .menu(getMenuTest())
                 .time(getTimeTest())

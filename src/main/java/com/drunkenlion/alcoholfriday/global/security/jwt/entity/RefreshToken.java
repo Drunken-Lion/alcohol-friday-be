@@ -31,16 +31,16 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "refresh_token")
 public class RefreshToken extends BaseEntity {
-	@Column(name = "token")
-	@Comment("리프레시 토큰")
-	private String token;
+    @Column(name = "token")
+    @Comment("리프레시 토큰")
+    private String token;
 
-	@Column(name = "expiry_date")
-	@Comment("리프레시 토큰 만료 일자")
-	private Instant expiryDate;
+    @Column(name = "expiry_date")
+    @Comment("리프레시 토큰 만료 일자")
+    private Instant expiryDate;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	@Comment("해당 토큰을 가진 회원 정보")
-	private Member member;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+    @Comment("해당 토큰을 가진 회원 정보")
+    private Member member;
 }

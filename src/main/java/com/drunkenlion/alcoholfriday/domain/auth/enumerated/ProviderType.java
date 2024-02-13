@@ -6,18 +6,18 @@ import lombok.Getter;
 
 @Getter
 public enum ProviderType {
-	KAKAO("kakao");
+    KAKAO("kakao");
 
-	private final String providerName;
+    private final String providerName;
 
-	ProviderType(String providerName) {
-		this.providerName = providerName;
-	}
+    ProviderType(String providerName) {
+        this.providerName = providerName;
+    }
 
-	public static ProviderType ofProvider(String providerName) {
-		return Arrays.stream(ProviderType.values())
-			.filter(value -> value.providerName.equals(providerName))
-			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException(String.format("%s 은(는) 존재하지 않는 제공처 입니다.", providerName)));
-	}
+    public static ProviderType ofProvider(String providerName) {
+        return Arrays.stream(ProviderType.values())
+                .filter(value -> value.providerName.equals(providerName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(String.format("%s 은(는) 존재하지 않는 제공처 입니다.", providerName)));
+    }
 }

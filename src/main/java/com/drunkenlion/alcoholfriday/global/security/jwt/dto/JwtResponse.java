@@ -16,12 +16,12 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "토큰 정보")
 public class JwtResponse {
-	@Schema(description = "액세스 토큰")
-	private final String accessToken;
+    @Schema(description = "액세스 토큰")
+    private final String accessToken;
 
-	@Schema(description = "액세스 토큰 만료 일자")
-	private final Long accessTokenExp;
+    @Schema(description = "액세스 토큰 만료 일자")
+    private final Long accessTokenExp;
 
-	@Schema(description = "리프레시 토큰")
-	private final String refreshToken;
+    @Schema(description = "리프레시 토큰")
+    private final String refreshToken;
 }

@@ -14,13 +14,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MemberServiceImpl implements MemberService {
-	private final MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-	@Override
-	public MemberResponse getMember(String email) {
-		Member member = memberRepository.findByEmail(email)
-			.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 계정입니다."));
+    @Override
+    public MemberResponse getMember(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 계정입니다."));
 
-		return MemberResponse.of(member);
-	}
+        return MemberResponse.of(member);
+    }
 }

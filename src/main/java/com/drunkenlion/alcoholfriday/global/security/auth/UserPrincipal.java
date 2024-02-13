@@ -23,72 +23,72 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserPrincipal implements OAuth2User, UserDetails {
-	private Member member;
-	private Collection<? extends GrantedAuthority> authorities;
-	private Map<String, Object> attributes;
+    private Member member;
+    private Collection<? extends GrantedAuthority> authorities;
+    private Map<String, Object> attributes;
 
-	public static UserPrincipal create(Member member) {
-		List<GrantedAuthority> authorities = Collections.
-			singletonList(new SimpleGrantedAuthority(member.getRole().getRole()));
+    public static UserPrincipal create(Member member) {
+        List<GrantedAuthority> authorities = Collections.
+                singletonList(new SimpleGrantedAuthority(member.getRole().getRole()));
 
-		return UserPrincipal.builder()
-			.member(member)
-			.authorities(authorities)
-			.build();
-	}
+        return UserPrincipal.builder()
+                .member(member)
+                .authorities(authorities)
+                .build();
+    }
 
-	public static UserPrincipal create(Member member, Map<String, Object> attributes) {
-		UserPrincipal userPrincipal = UserPrincipal.create(member);
+    public static UserPrincipal create(Member member, Map<String, Object> attributes) {
+        UserPrincipal userPrincipal = UserPrincipal.create(member);
 
-		return UserPrincipal.builder()
-			.member(userPrincipal.getMember())
-			.authorities(userPrincipal.getAuthorities())
-			.attributes(attributes)
-			.build();
-	}
+        return UserPrincipal.builder()
+                .member(userPrincipal.getMember())
+                .authorities(userPrincipal.getAuthorities())
+                .attributes(attributes)
+                .build();
+    }
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return this.authorities;
-	}
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.authorities;
+    }
 
-	@Override
-	public <A> A getAttribute(String name) {
-		return OAuth2User.super.getAttribute(name);
-	}
+    @Override
+    public <A> A getAttribute(String name) {
+        return OAuth2User.super.getAttribute(name);
+    }
 
-	@Override
-	public String getUsername() {
-		return member.getEmail();
-	}
+    @Override
+    public String getUsername() {
+        return member.getEmail();
+    }
 
-	@Override
-	public String getName() {
-		return member.getName();
-	}
+    @Override
+    public String getName() {
+        return member.getName();
+    }
 
-	@Override
-	public String getPassword() {
-		return null;
-	}
+    @Override
+    public String getPassword() {
+        return null;
+    }
 
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
-	}
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
-	@Override
-	public boolean isEnabled() {
-		return true;
-	}
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

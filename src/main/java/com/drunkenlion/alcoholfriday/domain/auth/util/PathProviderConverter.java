@@ -7,8 +7,8 @@ import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 
 @Component
 public class PathProviderConverter implements Converter<String, ProviderType> {
-	@Override
-	public ProviderType convert(String provider) {
-		return ProviderType.ofProvider(provider);
-	}
+    @Override
+    public ProviderType convert(String provider) {
+        return ProviderType.ofProvider(provider);
+    }
 }

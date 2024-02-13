@@ -17,9 +17,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "로그인 정보")
 public class LoginResponse {
-	@Schema(description = "회원 정보")
-	private MemberResponse memberResponse;
+    @Schema(description = "회원 정보")
+    private MemberResponse memberResponse;
 
-	@Schema(description = "토큰 정보")
-	private JwtResponse jwtResponse;
+    @Schema(description = "토큰 정보")
+    private JwtResponse jwtResponse;
 }

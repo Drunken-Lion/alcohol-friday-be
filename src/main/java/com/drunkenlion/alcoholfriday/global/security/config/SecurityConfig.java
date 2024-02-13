@@ -24,58 +24,58 @@ import com.drunkenlion.alcoholfriday.global.security.jwt.JwtAuthenticationFilter
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http, MvcRequestMatcher.Builder mvcRequestMatcher) throws
-		Exception {
-		http
-			.cors(cors -> cors.configure(http))
-			.csrf(AbstractHttpConfigurer::disable)
-			.headers(headers -> headers
-				.frameOptions(HeadersConfigurer
-					.FrameOptionsConfig::sameOrigin
-				)
-			)
-			.sessionManagement(
-				sessionManagement -> sessionManagement
-					.sessionCreationPolicy(
-						SessionCreationPolicy.STATELESS
-					)
-			)
-			.authorizeHttpRequests(authorizeRequests -> authorizeRequests
-				.requestMatchers(mvcRequestMatcher.pattern("/**"))
-				.permitAll()
-			);
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, MvcRequestMatcher.Builder mvcRequestMatcher) throws
+            Exception {
+        http
+                .cors(cors -> cors.configure(http))
+                .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer
+                                .FrameOptionsConfig::sameOrigin
+                        )
+                )
+                .sessionManagement(
+                        sessionManagement -> sessionManagement
+                                .sessionCreationPolicy(
+                                        SessionCreationPolicy.STATELESS
+                                )
+                )
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        .requestMatchers(mvcRequestMatcher.pattern("/**"))
+                        .permitAll()
+                );
 
-		http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-		return http.build();
-	}
+        return http.build();
+    }
 
-	@Bean
-	public WebSecurityCustomizer webSecurityCustomizer() {
-		return (web) -> web.ignoring()
-			.requestMatchers(new AntPathRequestMatcher("/h2-console/**"))
-			.requestMatchers(new AntPathRequestMatcher("/css/**"))
-			.requestMatchers(new AntPathRequestMatcher("/js/**"))
-			.requestMatchers(new AntPathRequestMatcher("/img/**"))
-			.requestMatchers(new AntPathRequestMatcher("/lib/**"));
-	}
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers(new AntPathRequestMatcher("/h2-console/**"))
+                .requestMatchers(new AntPathRequestMatcher("/css/**"))
+                .requestMatchers(new AntPathRequestMatcher("/js/**"))
+                .requestMatchers(new AntPathRequestMatcher("/img/**"))
+                .requestMatchers(new AntPathRequestMatcher("/lib/**"));
+    }
 
-	@Bean
-	protected MvcRequestMatcher.Builder mvcRequestMatcherBuilder(HandlerMappingIntrospector introspect) {
-		return new MvcRequestMatcher.Builder(introspect);
-	}
+    @Bean
+    protected MvcRequestMatcher.Builder mvcRequestMatcherBuilder(HandlerMappingIntrospector introspect) {
+        return new MvcRequestMatcher.Builder(introspect);
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws
-		Exception {
-		return authenticationConfiguration.getAuthenticationManager();
-	}
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws
+            Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 }
