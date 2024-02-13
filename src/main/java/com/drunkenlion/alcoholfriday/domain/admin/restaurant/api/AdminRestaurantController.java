@@ -11,6 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,6 +47,13 @@ public class AdminRestaurantController {
             @Valid @RequestBody RestaurantCreateRequest restaurantCreateRequest
     ) {
         RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(restaurantCreateRequest);
-        return ResponseEntity.ok().body(restaurantDetailResponse);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(restaurantDetailResponse.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(restaurantDetailResponse);
     }
 }

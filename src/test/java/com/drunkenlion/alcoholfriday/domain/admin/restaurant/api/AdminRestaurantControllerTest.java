@@ -249,7 +249,7 @@ public class AdminRestaurantControllerTest {
 
         // then
         resultActions
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(handler().handlerType(AdminRestaurantController.class))
                 .andExpect(handler().methodName("createRestaurant"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
