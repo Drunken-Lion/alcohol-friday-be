@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.global.common.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.data.domain.Page;
 
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Page;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Schema(description = "페이징이 적용된 응답")
 public class PageResponse<T> {
     private T data;
     private PageInfo pageInfo;
