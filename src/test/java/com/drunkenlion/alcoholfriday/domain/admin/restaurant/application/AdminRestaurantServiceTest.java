@@ -1,13 +1,16 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
+import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
-import com.drunkenlion.alcoholfriday.domain.restaurant.util.Provision;
-import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
+import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
+import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,6 +42,8 @@ public class AdminRestaurantServiceTest {
     private AdminRestaurantServiceImpl adminRestaurantService;
     @Mock
     private RestaurantRepository restaurantRepository;
+    @Mock
+    private MemberRepository memberRepository;
 
     private final Long memberId = 1L;
     private final String email = "test@example.com";
@@ -70,8 +75,8 @@ public class AdminRestaurantServiceTest {
     private Map<String, Object> getTimeTest() {
         Map<String, Object> allDayTime = new LinkedHashMap<>();
 
-        allDayTime.put("holiday", true);
-        allDayTime.put("etc", "명절 당일만 휴업");
+        allDayTime.put(TimeOption.HOLIDAY.toString(), true);
+        allDayTime.put(TimeOption.ETC.toString(), "명절 당일만 휴업");
 
         TimeData timeData = TimeData.builder()
                 .businessStatus(true)
@@ -145,7 +150,57 @@ public class AdminRestaurantServiceTest {
         assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
         assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
         assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
+        assertThat(restaurantDetailResponse.getProvision()).isEqualTo(provision);
         assertThat(restaurantDetailResponse.getCreatedAt()).isEqualTo(createdAt);
+    }
+
+    @Test
+    public void createRestaurantTest() {
+        // given
+        RestaurantCreateRequest restaurantCreateRequest = RestaurantCreateRequest.builder()
+                .memberId(memberId)
+                .name(name)
+                .category(category)
+                .address(address)
+                .location(location)
+                .contact(contact)
+                .menu(menu)
+                .time(time)
+                .provision(provision)
+                .build();
+
+        Member member = Member.builder()
+                .id(memberId)
+                .email(email)
+                .provider(provider)
+                .name(memberName)
+                .nickname(nickname)
+                .role(role)
+                .phone(phone)
+                .certifyAt(certifyAt)
+                .agreedToServiceUse(agreedToServiceUse)
+                .agreedToServicePolicy(agreedToServicePolicy)
+                .agreedToServicePolicyUse(agreedToServicePolicyUse)
+                .createdAt(memberCreatedAt)
+                .build();
+
+        Mockito.when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+        Mockito.when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(restaurantCreateRequest);
+
+        // then
+        assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
+        assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(nickname);
+        assertThat(restaurantDetailResponse.getName()).isEqualTo(name);
+        assertThat(restaurantDetailResponse.getCategory()).isEqualTo(category);
+        assertThat(restaurantDetailResponse.getAddress()).isEqualTo(address);
+        assertThat(restaurantDetailResponse.getLocation()).isEqualTo(location);
+        assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
+        assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
+        assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
+        assertThat(restaurantDetailResponse.getProvision()).isEqualTo(provision);
     }
 
     private Page<Restaurant> getRestaurants() {
@@ -159,7 +214,6 @@ public class AdminRestaurantServiceTest {
     }
 
     private Restaurant getData() {
-
         Member member = Member.builder()
                 .id(memberId)
                 .email(email)
