@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.drunkenlion.alcoholfriday.domain.auth.application.AuthService;
 import com.drunkenlion.alcoholfriday.domain.auth.dto.LoginResponse;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import com.drunkenlion.alcoholfriday.global.security.jwt.dto.JwtResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,8 +37,21 @@ public class AuthController {
 	@PostMapping("/login/{provider}")
 	public ResponseEntity<LoginResponse> login(@PathVariable ProviderType provider,
 		@RequestBody String providerAccessToken) {
+		if (providerAccessToken == null) {
+			throw new BusinessException(HttpResponse.Fail.BAD_REQUEST);
+		}
 
 		LoginResponse loginResponse = authService.socialLogin(provider, providerAccessToken);
 		return ResponseEntity.ok().body(loginResponse);
+	}
+
+	@PostMapping("/reissue-token")
+	public ResponseEntity<JwtResponse> reissueToken(@RequestBody String refreshToken) {
+		if (refreshToken == null) {
+			throw new BusinessException(HttpResponse.Fail.BAD_REQUEST);
+		}
+
+		JwtResponse jwtResponse = authService.reissueToken(refreshToken);
+		return ResponseEntity.ok().body(jwtResponse);
 	}
 }

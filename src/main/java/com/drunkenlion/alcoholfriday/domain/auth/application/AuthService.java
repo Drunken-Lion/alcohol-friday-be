@@ -9,5 +9,5 @@ public interface AuthService {
 
 	LoginResponse socialLogin(ProviderType provider, String accessToken);
 
-	LoginResponse reissueToken(String requestRefreshToken);
+	JwtResponse reissueToken(String requestRefreshToken);
 }

@@ -48,6 +48,9 @@ public class AuthServiceImpl implements AuthService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RefreshTokenRepository refreshTokenRepository;
 
+	/**
+	 * 테스터 로그인
+	 */
 	@Transactional
 	@Override
 	public LoginResponse testLogin(String username) {
@@ -73,7 +76,13 @@ public class AuthServiceImpl implements AuthService {
 				userPrincipal, null, userPrincipal.getAuthorities()
 			);
 
-		return generateToken(authentication);
+		JwtResponse jwtResponse = generateToken(authentication);
+		MemberResponse memberResponse = MemberResponse.of(getRefreshToken(jwtResponse.getRefreshToken()).getMember());
+
+		return LoginResponse.builder()
+			.jwtResponse(jwtResponse)
+			.memberResponse(memberResponse)
+			.build();
 	}
 
 	@Transactional
@@ -87,7 +96,13 @@ public class AuthServiceImpl implements AuthService {
 			provider.getProviderName()
 		);
 
-		return generateToken(authentication);
+		JwtResponse jwtResponse = generateToken(authentication);
+		MemberResponse memberResponse = MemberResponse.of(getRefreshToken(jwtResponse.getRefreshToken()).getMember());
+
+		return LoginResponse.builder()
+			.jwtResponse(jwtResponse)
+			.memberResponse(memberResponse)
+			.build();
 	}
 
 	public OAuth2User loadUser(ProviderType provider, String accessToken) {
@@ -151,9 +166,11 @@ public class AuthServiceImpl implements AuthService {
 		};
 	}
 
-	public LoginResponse reissueToken(String requestRefreshToken) {
-		RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(requestRefreshToken)
-			.orElseThrow(() -> new BusinessException(HttpResponse.Fail.INVALID_TOKEN));
+	/**
+	 * 리프레시 토큰 확인 후, 액세스 토큰 재발급
+	 */
+	public JwtResponse reissueToken(String requestRefreshToken) {
+		RefreshToken refreshTokenEntity = getRefreshToken(requestRefreshToken);
 		String refreshToken = refreshTokenEntity.getToken();
 
 		validateToken(refreshToken);
@@ -163,23 +180,21 @@ public class AuthServiceImpl implements AuthService {
 		return generateToken(authentication);
 	}
 
-	private LoginResponse generateToken(Authentication authentication) {
+	/**
+	 * 액세스 토큰 & 리프레시 토큰 생성
+	 */
+	private JwtResponse generateToken(Authentication authentication) {
 		JwtResponse jwtResponse = jwtTokenProvider.createAccessToken(authentication);
 
 		Member member = getMember(authentication.getName());
-		RefreshToken findRefreshToken = refreshTokenRepository.findByMember_Id(member.getId()).orElse(null);
+		RefreshToken refreshToken = refreshTokenRepository.findByMember_Id(member.getId()).orElse(null);
 
-		if (isRefreshTokenInvalid(findRefreshToken)) {
-			findRefreshToken = createJwtRefreshToken(authentication, member);
+		if (isRefreshTokenInvalid(refreshToken)) {
+			refreshToken = createJwtRefreshToken(authentication, member);
 		}
 
-		return LoginResponse.builder()
-			.jwtResponse(
-				jwtResponse.toBuilder()
-					.refreshToken(findRefreshToken.getToken())
-					.build()
-			)
-			.memberResponse(MemberResponse.of(findRefreshToken.getMember()))
+		return jwtResponse.toBuilder()
+			.refreshToken(refreshToken.getToken())
 			.build();
 	}
 
@@ -191,6 +206,11 @@ public class AuthServiceImpl implements AuthService {
 				.member(member)
 				.build()
 		);
+	}
+
+	private RefreshToken getRefreshToken(String refreshToken) {
+		return refreshTokenRepository.findByToken(refreshToken)
+			.orElseThrow(() -> new BusinessException(HttpResponse.Fail.INVALID_TOKEN));
 	}
 
 	private void validateToken(String token) {
