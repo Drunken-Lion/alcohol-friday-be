@@ -176,4 +176,32 @@ public class AdminStoreControllerTest {
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
     }
+
+    @Test
+    void deleteMakerTest() throws Exception {
+        // given
+        Maker maker = this.makerRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(delete("/v1/admin/store/makers/" + maker.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().methodName("deleteMaker"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.address", notNullValue()))
+                .andExpect(jsonPath("$.detail", notNullValue()))
+                .andExpect(jsonPath("$.region", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", matchesPattern(DATETIME_PATTERN)));
+    }
 }

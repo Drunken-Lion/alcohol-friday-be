@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,6 +32,8 @@ public class AdminStoreServiceTest {
     private AdminStoreServiceImpl adminStoreService;
     @Mock
     private MakerRepository makerRepository;
+    @Mock
+    private ProductRepository productRepository;
 
     private final Long id = 1L;
     private final String name = "test 제조사";
@@ -117,16 +120,7 @@ public class AdminStoreServiceTest {
                 .region(modifyRegion)
                 .build();
 
-        // When
-        Maker maker = Maker.builder()
-                .id(id)
-                .name(makerRequest.getName())
-                .address(makerRequest.getAddress())
-                .detail(makerRequest.getDetail())
-                .region(makerRequest.getRegion())
-                .build();
-
-        Mockito.when(makerRepository.findById(id)).thenReturn(Optional.of(maker));
+        Mockito.when(makerRepository.findById(any())).thenReturn(this.getOne());
         Mockito.when(makerRepository.save(any(Maker.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -138,6 +132,26 @@ public class AdminStoreServiceTest {
         assertThat(makerDetailResponse.getAddress()).isEqualTo(modifyAddress);
         assertThat(makerDetailResponse.getDetail()).isEqualTo(modifyDetail);
         assertThat(makerDetailResponse.getRegion()).isEqualTo(modifyRegion);
+    }
+
+    @Test
+    public void deleteMakerTest() {
+        // given
+        Mockito.when(makerRepository.findById(any())).thenReturn(this.getOne());
+        Mockito.when(makerRepository.save(any(Maker.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        MakerDetailResponse makerDetailResponse = adminStoreService.deleteMaker(id);
+
+        // then
+        assertThat(makerDetailResponse.getId()).isEqualTo(id);
+        assertThat(makerDetailResponse.getName()).isEqualTo(name);
+        assertThat(makerDetailResponse.getAddress()).isEqualTo(address);
+        assertThat(makerDetailResponse.getDetail()).isEqualTo(detail);
+        assertThat(makerDetailResponse.getRegion()).isEqualTo(region);
+        assertThat(makerDetailResponse.getCreatedAt()).isEqualTo(createdAt);
+        assertThat(makerDetailResponse.getUpdatedAt()).isEqualTo(updatedAt);
+        assertThat(makerDetailResponse.getDeletedAt()).isNotNull();
     }
 
     private Page<Maker> getMakers() {

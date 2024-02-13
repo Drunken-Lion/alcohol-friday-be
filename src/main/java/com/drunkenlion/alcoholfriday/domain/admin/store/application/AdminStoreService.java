@@ -13,4 +13,6 @@ public interface AdminStoreService {
     MakerDetailResponse createMaker(MakerRequest makerRequest);
 
     MakerDetailResponse modifyMaker(Long id, MakerRequest makerRequest);
+
+    MakerDetailResponse deleteMaker(Long id);
 }

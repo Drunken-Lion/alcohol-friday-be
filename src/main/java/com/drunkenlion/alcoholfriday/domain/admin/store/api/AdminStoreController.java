@@ -57,4 +57,13 @@ public class AdminStoreController {
         MakerDetailResponse makerDetailResponse = adminStoreService.modifyMaker(id, makerRequest);
         return ResponseEntity.ok().body(makerDetailResponse);
     }
+
+    @Operation(summary = "제조사 삭제", description = "관리자 권한에 대한 제조사 삭제")
+    @DeleteMapping(value = "makers/{id}")
+    public ResponseEntity<MakerDetailResponse> deleteMaker(
+            @PathVariable("id") Long id
+    ) {
+        MakerDetailResponse makerDetailResponse = adminStoreService.deleteMaker(id);
+        return ResponseEntity.ok().body(makerDetailResponse);
+    }
 }

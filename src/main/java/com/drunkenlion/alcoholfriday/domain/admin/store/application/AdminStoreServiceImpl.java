@@ -1,10 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.admin.store.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +15,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AdminStoreServiceImpl implements AdminStoreService {
     private final MakerRepository makerRepository;
+    private final ProductRepository productRepository;
 
     public Page<MakerListResponse> getMakers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -55,6 +59,35 @@ public class AdminStoreServiceImpl implements AdminStoreService {
                 .address(makerRequest.getAddress())
                 .detail(makerRequest.getDetail())
                 .region(makerRequest.getRegion())
+                .build();
+
+        makerRepository.save(maker);
+
+        return MakerDetailResponse.of(maker);
+    }
+
+    @Transactional
+    public MakerDetailResponse deleteMaker(Long id) {
+        Maker maker = makerRepository.findById(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_MAKER)
+                        .build());
+
+        if (maker.getDeletedAt() != null) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.ALREADY_DELETED_MAKER)
+                    .build();
+        }
+
+        // maker와 관계가 있는 product 중 삭제 상태가 아닌 것이 있는지 확인
+        if (productRepository.existsByMakerAndDeletedAtIsNull(maker)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.MAKER_IN_USE)
+                    .build();
+        }
+
+        maker = maker.toBuilder()
+                .deletedAt(LocalDateTime.now())
                 .build();
 
         makerRepository.save(maker);
