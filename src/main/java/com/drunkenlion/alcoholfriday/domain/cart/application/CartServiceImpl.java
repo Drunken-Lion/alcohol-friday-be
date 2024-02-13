@@ -28,8 +28,15 @@ public class CartServiceImpl implements CartService {
     public List<CartDetailResponse> addCartList(List<CartRequest> cartRequestList, Member member) {
         Cart cart = addFirstCart(member);
 
+        if (cart == null) {
+            cart = Cart.create(member);
+            cartRepository.save(cart);
+        }
+
+        Cart memberCart = cart;
+
         return cartRequestList.stream()
-                .map(cartRequest -> addCart(cartRequest, cart))
+                .map(cartRequest -> addCart(cartRequest, memberCart))
                 .toList();
     }
 
