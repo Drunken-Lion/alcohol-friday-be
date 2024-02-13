@@ -5,6 +5,8 @@ import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,22 +35,22 @@ public class AdminMemberServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
-    private final Long id = 1L;
-    private final String email = "test@example.com";
-    private final String provider = "kakao_test12345";
-    private final String name = "테스트";
-    private final String nickname = "test";
-    private final String role = "MEMBER";
-    private final Long phone = 1012345678L;
-    private final LocalDate certifyAt = null;
-    private final boolean agreedToServiceUse = false;
-    private final boolean agreedToServicePolicy = false;
-    private final boolean agreedToServicePolicyUse = false;
-    private final LocalDateTime createdAt = LocalDateTime.now();
-    private final LocalDateTime updatedAt = null;
-    private final LocalDateTime deletedAt = null;
-    private final int page = 0;
-    private final int size = 20;
+	private final Long id = 1L;
+	private final String email = "test@example.com";
+	private final ProviderType provider = ProviderType.KAKAO;
+	private final String name = "테스트";
+	private final String nickname = "test";
+	private final String role = "MEMBER";
+	private final Long phone = 1012345678L;
+	private final LocalDate certifyAt = null;
+	private final boolean agreedToServiceUse = false;
+	private final boolean agreedToServicePolicy = false;
+	private final boolean agreedToServicePolicyUse = false;
+	private final LocalDateTime createdAt = LocalDateTime.now();
+	private final LocalDateTime updatedAt = null;
+	private final LocalDateTime deletedAt = null;
+	private final int page = 0;
+	private final int size = 20;
 
 
     private final String modifyNickname = "test 수정";

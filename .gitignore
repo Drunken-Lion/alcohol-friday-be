@@ -39,5 +39,6 @@ out/
 ### Custom ###
 data/
 application-file.yml
+application-secret.yml
 .DS_Store
 src/main/generated/

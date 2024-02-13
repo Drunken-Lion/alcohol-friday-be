@@ -2,6 +2,8 @@ package com.drunkenlion.alcoholfriday.domain.admin.member.api;
 
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,24 +39,24 @@ public class AdminMemberControllerTest {
     private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
     private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
 
-    @BeforeEach
-    @Transactional
-    void beforeEach() {
-        Member member = Member.builder()
-                .email("test@example.com")
-                .provider("kakao_test12345")
-                .name("테스트")
-                .nickname("test")
-                .role("MEMBER")
-                .phone(1012345678L)
-                .certifyAt(null)
-                .agreedToServiceUse(true)
-                .agreedToServicePolicy(true)
-                .agreedToServicePolicyUse(true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(null)
-                .deletedAt(null)
-                .build();
+	@BeforeEach
+	@Transactional
+	void beforeEach() {
+		Member member = Member.builder()
+			.email("test@example.com")
+			.provider(ProviderType.KAKAO)
+			.name("테스트")
+			.nickname("test")
+			.role("MEMBER")
+			.phone(1012345678L)
+			.certifyAt(null)
+			.agreedToServiceUse(true)
+			.agreedToServicePolicy(true)
+			.agreedToServicePolicyUse(true)
+			.createdAt(LocalDateTime.now())
+			.updatedAt(null)
+			.deletedAt(null)
+			.build();
 
         memberRepository.save(member);
     }

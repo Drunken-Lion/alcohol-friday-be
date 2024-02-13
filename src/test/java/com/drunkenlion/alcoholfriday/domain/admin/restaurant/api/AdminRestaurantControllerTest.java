@@ -7,6 +7,8 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.util.TimeData;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,159 +36,159 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 public class AdminRestaurantControllerTest {
-    @Autowired
-    private MockMvc mvc;
+	@Autowired
+	private MockMvc mvc;
 
-    @Autowired
-    private MemberRepository memberRepository;
+	@Autowired
+	private MemberRepository memberRepository;
 
-    @Autowired
-    private RestaurantRepository restaurantRepository;
+	@Autowired
+	private RestaurantRepository restaurantRepository;
 
-    // 날짜 패턴 정규식
-    private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
-    private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
+	// 날짜 패턴 정규식
+	private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
+	private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
 
-    private Map<String, Object> getMenuTest()  {
-        Map<String, Object> frame = new LinkedHashMap<>();
-        frame.put("비빔밥", 8000);
-        frame.put("불고기", 12000);
-        return frame;
-    }
+	private Map<String, Object> getMenuTest() {
+		Map<String, Object> frame = new LinkedHashMap<>();
+		frame.put("비빔밥", 8000);
+		frame.put("불고기", 12000);
+		return frame;
+	}
 
-    private Map<String, Object> getTimeTest() {
-        Map<String, Object> allDayTime = new LinkedHashMap<>();
+	private Map<String, Object> getTimeTest() {
+		Map<String, Object> allDayTime = new LinkedHashMap<>();
 
-        allDayTime.put("holiday", true);
-        allDayTime.put("etc", "명절 당일만 휴업");
+		allDayTime.put("holiday", true);
+		allDayTime.put("etc", "명절 당일만 휴업");
 
-        TimeData timeData = TimeData.builder()
-                .businessStatus(true)
-                .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(22,0))
-                .breakBusinessStatus(true)
-                .breakStartTime(LocalTime.of(15,0))
-                .breakEndTime(LocalTime.of(17,0))
-                .build();
+		TimeData timeData = TimeData.builder()
+			.businessStatus(true)
+			.startTime(LocalTime.of(9, 0))
+			.endTime(LocalTime.of(22, 0))
+			.breakBusinessStatus(true)
+			.breakStartTime(LocalTime.of(15, 0))
+			.breakEndTime(LocalTime.of(17, 0))
+			.build();
 
-        for (DayInfo value : DayInfo.values()) {
-            allDayTime.put(value.toString(), timeData);
-        }
+		for (DayInfo value : DayInfo.values()) {
+			allDayTime.put(value.toString(), timeData);
+		}
 
-        return allDayTime;
-    }
+		return allDayTime;
+	}
 
-    private Map<String, Object> getProvisionTest() {
-        Map<String, Object> frame = new LinkedHashMap<>();
+	private Map<String, Object> getProvisionTest() {
+		Map<String, Object> frame = new LinkedHashMap<>();
 
-        for (Provision value : Provision.values()) {
-            frame.put(value.toString(), true);
-        }
-        return frame;
-    }
+		for (Provision value : Provision.values()) {
+			frame.put(value.toString(), true);
+		}
+		return frame;
+	}
 
-    @BeforeEach
-    @Transactional
-    void beforeEach() {
-        Member member = Member.builder()
-                .email("test@example.com")
-                .provider("kakao_test12345")
-                .name("테스트")
-                .nickname("test")
-                .role("MEMBER")
-                .phone(1012345678L)
-                .certifyAt(null)
-                .agreedToServiceUse(true)
-                .agreedToServicePolicy(true)
-                .agreedToServicePolicyUse(true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(null)
-                .deletedAt(null)
-                .build();
+	@BeforeEach
+	@Transactional
+	void beforeEach() {
+		Member member = Member.builder()
+			.email("test@example.com")
+			.provider(ProviderType.KAKAO)
+			.name("테스트")
+			.nickname("test")
+			.role("MEMBER")
+			.phone(1012345678L)
+			.certifyAt(null)
+			.agreedToServiceUse(true)
+			.agreedToServicePolicy(true)
+			.agreedToServicePolicyUse(true)
+			.createdAt(LocalDateTime.now())
+			.updatedAt(null)
+			.deletedAt(null)
+			.build();
 
-        memberRepository.save(member);
+		memberRepository.save(member);
 
-        Restaurant restaurant = Restaurant.builder()
-                .members(member)
-                .category("한식")
-                .name("맛있는 한식당")
-                .address("서울시 강남구")
-                .location(new Point(37.4979,127.0276))
-                .contact(1012345678L)
-                .menu(getMenuTest())
-                .time(getTimeTest())
-                .provision(getProvisionTest())
-                .createdAt(LocalDateTime.now())
-                .build();
+		Restaurant restaurant = Restaurant.builder()
+			.members(member)
+			.category("한식")
+			.name("맛있는 한식당")
+			.address("서울시 강남구")
+			.location(new Point(37.4979, 127.0276))
+			.contact(1012345678L)
+			.menu(getMenuTest())
+			.time(getTimeTest())
+			.provision(getProvisionTest())
+			.createdAt(LocalDateTime.now())
+			.build();
 
-        restaurantRepository.save(restaurant);
-    }
+		restaurantRepository.save(restaurant);
+	}
 
-    @AfterEach
-    @Transactional
-    void afterEach() {
-        memberRepository.deleteAll();
-        restaurantRepository.deleteAll();
-    }
+	@AfterEach
+	@Transactional
+	void afterEach() {
+		memberRepository.deleteAll();
+		restaurantRepository.deleteAll();
+	}
 
-    @Test
-    void getRestaurantsTest() throws Exception {
-        // when
-        ResultActions resultActions = mvc
-                .perform(get("/v1/admin/restaurants")
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print());
+	@Test
+	void getRestaurantsTest() throws Exception {
+		// when
+		ResultActions resultActions = mvc
+			.perform(get("/v1/admin/restaurants")
+				.contentType(MediaType.APPLICATION_JSON)
+			)
+			.andDo(print());
 
-        // then
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminRestaurantController.class))
-                .andExpect(handler().methodName("getRestaurants"))
-                .andExpect(jsonPath("$.data", instanceOf(List.class)))
-                .andExpect(jsonPath("$.data.length()", is(1)))
-                .andExpect(jsonPath("$.data[0].id", notNullValue()))
-                .andExpect(jsonPath("$.data[0].memberNickname", notNullValue()))
-                .andExpect(jsonPath("$.data[0].name", notNullValue()))
-                .andExpect(jsonPath("$.data[0].category", notNullValue()))
-                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.data[0].deleted", instanceOf(Boolean.class)))
-                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
-                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
-                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
-    }
+		// then
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(handler().handlerType(AdminRestaurantController.class))
+			.andExpect(handler().methodName("getRestaurants"))
+			.andExpect(jsonPath("$.data", instanceOf(List.class)))
+			.andExpect(jsonPath("$.data.length()", is(1)))
+			.andExpect(jsonPath("$.data[0].id", notNullValue()))
+			.andExpect(jsonPath("$.data[0].memberNickname", notNullValue()))
+			.andExpect(jsonPath("$.data[0].name", notNullValue()))
+			.andExpect(jsonPath("$.data[0].category", notNullValue()))
+			.andExpect(jsonPath("$.data[0].createdAt", matchesPattern(DATETIME_PATTERN)))
+			.andExpect(jsonPath("$.data[0].deleted", instanceOf(Boolean.class)))
+			.andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
+			.andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+			.andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+	}
 
-    @Test
-    void getRestaurantTest() throws Exception {
-        // given
-        Restaurant restaurant = this.restaurantRepository.findAll().get(0);
+	@Test
+	void getRestaurantTest() throws Exception {
+		// given
+		Restaurant restaurant = this.restaurantRepository.findAll().get(0);
 
-        // when
-        ResultActions resultActions = mvc
-                .perform(get("/v1/admin/restaurant/" + restaurant.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print());
+		// when
+		ResultActions resultActions = mvc
+			.perform(get("/v1/admin/restaurant/" + restaurant.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+			)
+			.andDo(print());
 
-        // then
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminRestaurantController.class))
-                .andExpect(handler().methodName("getRestaurant"))
-                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
-                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.memberId", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.memberNickname", notNullValue()))
-                .andExpect(jsonPath("$.name", notNullValue()))
-                .andExpect(jsonPath("$.category", notNullValue()))
-                .andExpect(jsonPath("$.address", notNullValue()))
-                .andExpect(jsonPath("$.location", notNullValue()))
-                .andExpect(jsonPath("$.contact", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
-                .andExpect(jsonPath("$.time", instanceOf(Map.class)))
-                .andExpect(jsonPath("$.provision", instanceOf(Map.class)))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
-    }
+		// then
+		resultActions
+			.andExpect(status().isOk())
+			.andExpect(handler().handlerType(AdminRestaurantController.class))
+			.andExpect(handler().methodName("getRestaurant"))
+			.andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+			.andExpect(jsonPath("$.id", instanceOf(Number.class)))
+			.andExpect(jsonPath("$.memberId", instanceOf(Number.class)))
+			.andExpect(jsonPath("$.memberNickname", notNullValue()))
+			.andExpect(jsonPath("$.name", notNullValue()))
+			.andExpect(jsonPath("$.category", notNullValue()))
+			.andExpect(jsonPath("$.address", notNullValue()))
+			.andExpect(jsonPath("$.location", notNullValue()))
+			.andExpect(jsonPath("$.contact", instanceOf(Number.class)))
+			.andExpect(jsonPath("$.menu", instanceOf(Map.class)))
+			.andExpect(jsonPath("$.time", instanceOf(Map.class)))
+			.andExpect(jsonPath("$.provision", instanceOf(Map.class)))
+			.andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
+			.andExpect(jsonPath("$.updatedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
+			.andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+	}
 }

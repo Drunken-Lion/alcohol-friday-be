@@ -1,7 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.member.entity;
 
+import com.drunkenlion.alcoholfriday.domain.auth.util.ProviderTypeConverter;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.ProviderType;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,9 +26,10 @@ public class Member extends BaseEntity {
     @Column(unique = true, length = 50)
     private String email;
 
-    @Comment("회원 가입 소셜 정보")
-    @Column(length = 20)
-    private String provider;
+	@Comment("회원 가입 소셜 정보")
+	@Column(length = 20)
+	@Convert(converter = ProviderTypeConverter.class)
+	private ProviderType provider;
 
     @Comment("회원 본명")
     @Column(length = 50)
