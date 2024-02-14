@@ -75,7 +75,7 @@ public class AdminStoreServiceImpl implements AdminStoreService {
 
         if (maker.getDeletedAt() != null) {
             throw BusinessException.builder()
-                    .response(HttpResponse.Fail.ALREADY_DELETED_MAKER)
+                    .response(HttpResponse.Fail.NOT_FOUND_MAKER)
                     .build();
         }
 
