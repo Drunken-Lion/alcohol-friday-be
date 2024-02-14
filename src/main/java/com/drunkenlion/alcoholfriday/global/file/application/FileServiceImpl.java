@@ -17,39 +17,39 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class FileServiceImpl implements FileService {
-	private final NcpS3Service ncpS3Service;
-	private final FileRepository fileRepository;
+    private final NcpS3Service ncpS3Service;
+    private final FileRepository fileRepository;
 
-	/**
-	 * 여러개의 게시물에 있는 모든 이미지 조회
-	 */
-	@Override
-	public List<NcpFileResponse> findAllByEntityIds(List<Long> entityIds, String entityType) {
-		List<NcpFile> ncpFiles = this.fileRepository.findAllByEntityIdInAndEntityType(entityIds, entityType);
+    /**
+     * 여러개의 게시물에 있는 모든 이미지 조회
+     */
+    @Override
+    public List<NcpFileResponse> findAllByEntityIds(List<Long> entityIds, String entityType) {
+        List<NcpFile> ncpFiles = this.fileRepository.findAllByEntityIdInAndEntityType(entityIds, entityType);
 
-		return NcpFileResponse.of(ncpFiles);
-	}
+        return NcpFileResponse.of(ncpFiles);
+    }
 
-	/**
-	 * 하나의 게시물에 있는 모든 이미지 조회
-	 */
-	@Override
-	public NcpFileResponse findByEntityId(Long entityId, String entityType) {
-		NcpFile ncpFile = this.fileRepository.findByEntityIdAndEntityType(entityId, entityType)
-				.orElseThrow(() -> BusinessException.builder()
-						.response(HttpResponse.Fail.NOT_FOUND_FILE)
-						.build());
+    /**
+     * 하나의 게시물에 있는 모든 이미지 조회
+     */
+    @Override
+    public NcpFileResponse findByEntityId(Long entityId, String entityType) {
+        NcpFile ncpFile = this.fileRepository.findByEntityIdAndEntityType(entityId, entityType)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_FILE)
+                        .build());
 
-		return NcpFileResponse.of(ncpFile);
-	}
+        return NcpFileResponse.of(ncpFile);
+    }
 
-	/**
-	 * 파일 저장 (Ncp & DB)
-	 */
-	@Transactional
-	@Override
-	public NcpFileResponse uploadFiles(List<MultipartFile> multipartFiles, Long entityId, String entityType) {
-		NcpFile ncpFile = ncpS3Service.ncpUploadFiles(multipartFiles, entityId, entityType);
-		return NcpFileResponse.of(fileRepository.save(ncpFile));
-	}
+    /**
+     * 파일 저장 (Ncp & DB)
+     */
+    @Transactional
+    @Override
+    public NcpFileResponse uploadFiles(List<MultipartFile> multipartFiles, Long entityId, String entityType) {
+        NcpFile ncpFile = ncpS3Service.ncpUploadFiles(multipartFiles, entityId, entityType);
+        return NcpFileResponse.of(fileRepository.save(ncpFile));
+    }
 }

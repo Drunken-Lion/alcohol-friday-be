@@ -2,6 +2,9 @@ package com.drunkenlion.alcoholfriday.domain.admin.member.api;
 
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,10 +45,10 @@ public class AdminMemberControllerTest {
     void beforeEach() {
         Member member = Member.builder()
                 .email("test@example.com")
-                .provider("kakao_test12345")
+                .provider(ProviderType.KAKAO)
                 .name("테스트")
                 .nickname("test")
-                .role("MEMBER")
+                .role(MemberRole.MEMBER)
                 .phone(1012345678L)
                 .certifyAt(null)
                 .agreedToServiceUse(true)

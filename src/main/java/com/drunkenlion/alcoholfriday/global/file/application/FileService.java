@@ -8,7 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 
 public interface FileService {
-	List<NcpFileResponse> findAllByEntityIds(List<Long> entityIds, String entityType);
-	NcpFileResponse findByEntityId(Long entityId, String entityType);
-	NcpFileResponse uploadFiles(List<MultipartFile> multipartFiles, Long entityId, String EntityType);
+    List<NcpFileResponse> findAllByEntityIds(List<Long> entityIds, String entityType);
+
+    NcpFileResponse findByEntityId(Long entityId, String entityType);
+
+    NcpFileResponse uploadFiles(List<MultipartFile> multipartFiles, Long entityId, String EntityType);
 }
