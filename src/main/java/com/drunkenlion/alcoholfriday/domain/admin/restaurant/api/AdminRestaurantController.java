@@ -58,7 +58,7 @@ public class AdminRestaurantController {
     }
 
     @Operation(summary = "매장 수정", description = "관리자 권한에 대한 매장 수정")
-    @PostMapping(value = "restaurants/{id}")
+    @PutMapping(value = "restaurants/{id}")
     public ResponseEntity<RestaurantDetailResponse> modifyRestaurant(
             @PathVariable("id") Long id,
             @Valid @RequestBody RestaurantRequest restaurantRequest
