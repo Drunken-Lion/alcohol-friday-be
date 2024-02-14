@@ -30,7 +30,7 @@ public class CartServiceImpl implements CartService {
 
         if (cart == null) {
             cart = Cart.create(member);
-            cartRepository.save(cart);
+            cart = cartRepository.save(cart);
         }
 
         Cart memberCart = cart;
