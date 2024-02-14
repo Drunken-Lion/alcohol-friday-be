@@ -23,11 +23,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -159,10 +159,13 @@ class CartServiceTest {
         // given
         when(cartRepository.findFirstByMember(any(Member.class))).thenReturn(Optional.empty());
 
-        // when & then
-        assertThrows(IllegalArgumentException.class, () -> {
-            cartService.getCartList(getDataMember());
-        });
+        // when
+        CartResponse cartList = this.cartService.getCartList(getDataMember());
+
+        // then
+        assertThat(cartList.getCartDetails()).isEqualTo(Collections.EMPTY_LIST);
+        assertThat(cartList.getTotalCartPrice()).isEqualTo(new BigDecimal("0"));
+        assertThat(cartList.getTotalCartQuantity()).isEqualTo(0);
     }
 
     @Test
@@ -174,10 +177,13 @@ class CartServiceTest {
         List<CartDetail> cartDetails = new ArrayList<>();
         when(this.cartDetailRepository.findAllByCart(any(Cart.class))).thenReturn(cartDetails);
 
-        // when & then
-        assertThrows(IllegalArgumentException.class, () -> {
-            cartService.getCartList(getDataMember());
-        });
+        // when
+        CartResponse cartList = this.cartService.getCartList(getDataMember());
+
+        // then
+        assertThat(cartList.getCartDetails()).isEqualTo(Collections.EMPTY_LIST);
+        assertThat(cartList.getTotalCartPrice()).isEqualTo(new BigDecimal("0"));
+        assertThat(cartList.getTotalCartQuantity()).isEqualTo(0);
     }
 
 
