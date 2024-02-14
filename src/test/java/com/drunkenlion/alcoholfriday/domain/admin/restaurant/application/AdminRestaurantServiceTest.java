@@ -1,16 +1,19 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
-import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
+import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,6 +36,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,7 +57,7 @@ public class AdminRestaurantServiceTest {
     private final String nickname = "test";
     private final String role = "MEMBER";
     private final Long phone = 1012345678L;
-    private final LocalDate certifyAt = null;
+    private final LocalDate certifyAt = LocalDate.now();
     private final boolean agreedToServiceUse = true;
     private final boolean agreedToServicePolicy = true;
     private final boolean agreedToServicePolicyUse = true;
@@ -110,7 +115,59 @@ public class AdminRestaurantServiceTest {
     private final int page = 0;
     private final int size = 20;
 
+    private final Long modifyMemberId = 2L;
+    private final String modifyNickname = "test 수정";
+    private final String modifyCategory = "한식 수정";
+    private final String modifyName = "맛있는 한식당 수정";
+    private final String modifyAddress = "서울시 강남구 수정";
+    private final Point modifyLocation = new Point(10.0001,20.0002);
+    private final Long modifyContact = 1011112222L;
+
+    private Map<String, Object> getModifyMenuTest()  {
+        Map<String, Object> frame = new LinkedHashMap<>();
+        frame.put("비빔밥 수정", 8000);
+        frame.put("불고기 수정", 12000);
+        frame.put("닭갈비 수정", 20000);
+        return frame;
+    }
+
+    private Map<String, Object> getModifyTimeTest() {
+        Map<String, Object> allDayTime = new LinkedHashMap<>();
+
+        allDayTime.put(TimeOption.HOLIDAY.toString(), true);
+        allDayTime.put(TimeOption.ETC.toString(), "명절 당일만 휴업 수정");
+
+        TimeData timeData = TimeData.builder()
+                .businessStatus(true)
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(22,0))
+                .breakBusinessStatus(true)
+                .breakStartTime(LocalTime.of(15,0))
+                .breakEndTime(LocalTime.of(17,0))
+                .build();
+
+        for (DayInfo value : DayInfo.values()) {
+            allDayTime.put(value.toString(), timeData);
+        }
+
+        return allDayTime;
+    }
+
+    private Map<String, Object> getModifyProvisionTest() {
+        Map<String, Object> frame = new LinkedHashMap<>();
+
+        for (Provision value : Provision.values()) {
+            frame.put(value.toString(), false);
+        }
+        return frame;
+    }
+
+    private final Map<String, Object> modifyMenu = getModifyMenuTest();
+    private final Map<String, Object> modifyTime = getModifyTimeTest();
+    private final Map<String, Object> modifyProvision = getModifyProvisionTest();
+
     @Test
+    @DisplayName("매장 목록 조회 성공")
     public void getRestaurantsTest() {
         // given
         Mockito.when(this.restaurantRepository.findAll(any(Pageable.class))).thenReturn(this.getRestaurants());
@@ -132,6 +189,7 @@ public class AdminRestaurantServiceTest {
     }
 
     @Test
+    @DisplayName("매장 상세 조회 성공")
     public void getRestaurantTest() {
         // given
         Mockito.when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
@@ -155,9 +213,26 @@ public class AdminRestaurantServiceTest {
     }
 
     @Test
+    @DisplayName("매장 상세 조회 실패 - 찾을 수 없는 매장")
+    public void getRestaurantFailNotFoundTest() {
+        // given
+        Mockito.when(this.restaurantRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.getRestaurant(id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 등록 성공")
     public void createRestaurantTest() {
         // given
-        RestaurantCreateRequest restaurantCreateRequest = RestaurantCreateRequest.builder()
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
                 .memberId(memberId)
                 .name(name)
                 .category(category)
@@ -169,26 +244,11 @@ public class AdminRestaurantServiceTest {
                 .provision(provision)
                 .build();
 
-        Member member = Member.builder()
-                .id(memberId)
-                .email(email)
-                .provider(provider)
-                .name(memberName)
-                .nickname(nickname)
-                .role(role)
-                .phone(phone)
-                .certifyAt(certifyAt)
-                .agreedToServiceUse(agreedToServiceUse)
-                .agreedToServicePolicy(agreedToServicePolicy)
-                .agreedToServicePolicyUse(agreedToServicePolicyUse)
-                .createdAt(memberCreatedAt)
-                .build();
-
-        Mockito.when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+        Mockito.when(memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
         Mockito.when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(restaurantCreateRequest);
+        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(restaurantRequest);
 
         // then
         assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
@@ -203,31 +263,375 @@ public class AdminRestaurantServiceTest {
         assertThat(restaurantDetailResponse.getProvision()).isEqualTo(provision);
     }
 
+    @Test
+    @DisplayName("매장 등록 실패 - 찾을 수 없는 회원")
+    public void createRestaurantFailMemberNotFoundTest() {
+        // given
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(memberId)
+                .name(name)
+                .category(category)
+                .address(address)
+                .location(location)
+                .contact(contact)
+                .menu(menu)
+                .time(time)
+                .provision(provision)
+                .build();
+
+        Mockito.when(this.memberRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.createRestaurant(restaurantRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MEMBER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MEMBER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 등록 실패 - 메뉴 데이터 validation 체크")
+    public void createRestaurantFailMenuBadRequestTest() {
+        // given
+        Map<String, Object> wrongMenu = new LinkedHashMap<>();
+        wrongMenu.put("비빔밥", "error data"); // key(String), value(Integer)
+        wrongMenu.put("불고기", 12000);
+
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(memberId)
+                .name(name)
+                .category(category)
+                .address(address)
+                .location(location)
+                .contact(contact)
+                .menu(wrongMenu)
+                .time(time)
+                .provision(provision)
+                .build();
+
+        Mockito.when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.createRestaurant(restaurantRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 등록 실패 - 영업시간 데이터 validation 체크")
+    public void createRestaurantFailTimeBadRequestTest() {
+        // given
+        Map<String, Object> wrongTime = new LinkedHashMap<>();
+
+        wrongTime.put(TimeOption.HOLIDAY.toString(), "error data"); // key(String), value(Boolean)
+        wrongTime.put(TimeOption.ETC.toString(), "명절 당일만 휴업"); // key(String), value(String)
+
+        TimeData timeData = TimeData.builder()
+                .businessStatus(true)
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(22,0))
+                .breakBusinessStatus(true)
+                .breakStartTime(LocalTime.of(15,0))
+                .breakEndTime(LocalTime.of(17,0))
+                .build();
+
+        for (DayInfo value : DayInfo.values()) {
+            wrongTime.put(value.toString(), timeData);
+        }
+
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(memberId)
+                .name(name)
+                .category(category)
+                .address(address)
+                .location(location)
+                .contact(contact)
+                .menu(menu)
+                .time(wrongTime)
+                .provision(provision)
+                .build();
+
+        Mockito.when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.createRestaurant(restaurantRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 등록 실패 - 편의시설 데이터 validation 체크")
+    public void createRestaurantFailProvisionBadRequestTest() {
+        // given
+        Map<String, Object> wrongProvision = new LinkedHashMap<>();
+
+        for (Provision value : Provision.values()) {
+            wrongProvision.put(value.toString(), "error data"); // key(String), value(Boolean)
+        }
+
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(memberId)
+                .name(name)
+                .category(category)
+                .address(address)
+                .location(location)
+                .contact(contact)
+                .menu(menu)
+                .time(time)
+                .provision(wrongProvision)
+                .build();
+
+        Mockito.when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.createRestaurant(restaurantRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getMessage(), exception.getMessage());
+    }
+    
+    @Test
+    @DisplayName("매장 수정 성공")
+    public void modifyRestaurantTest() {
+        // given
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(modifyMemberId)
+                .name(modifyName)
+                .category(modifyCategory)
+                .address(modifyAddress)
+                .location(modifyLocation)
+                .contact(modifyContact)
+                .menu(modifyMenu)
+                .time(modifyTime)
+                .provision(modifyProvision)
+                .build();
+
+        Mockito.when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        Mockito.when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        Mockito.when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+
+        // then
+        assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
+        assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(modifyMemberId);
+        assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(modifyNickname);
+        assertThat(restaurantDetailResponse.getName()).isEqualTo(modifyName);
+        assertThat(restaurantDetailResponse.getCategory()).isEqualTo(modifyCategory);
+        assertThat(restaurantDetailResponse.getAddress()).isEqualTo(modifyAddress);
+        assertThat(restaurantDetailResponse.getLocation()).isEqualTo(modifyLocation);
+        assertThat(restaurantDetailResponse.getContact()).isEqualTo(modifyContact);
+        assertThat(restaurantDetailResponse.getMenu()).isEqualTo(modifyMenu);
+        assertThat(restaurantDetailResponse.getTime()).isEqualTo(modifyTime);
+        assertThat(restaurantDetailResponse.getProvision()).isEqualTo(modifyProvision);
+    }
+
+    @Test
+    @DisplayName("매장 수정 실패 - 찾을 수 없는 매장")
+    public void modifyRestaurantFailNotFoundTest() {
+        // given
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(modifyMemberId)
+                .name(modifyName)
+                .category(modifyCategory)
+                .address(modifyAddress)
+                .location(modifyLocation)
+                .contact(modifyContact)
+                .menu(modifyMenu)
+                .time(modifyTime)
+                .provision(modifyProvision)
+                .build();
+
+        Mockito.when(restaurantRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 수정 실패 - 찾을 수 없는 회원")
+    public void modifyRestaurantFailMemberNotFoundTest() {
+        // given
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(modifyMemberId)
+                .name(modifyName)
+                .category(modifyCategory)
+                .address(modifyAddress)
+                .location(modifyLocation)
+                .contact(modifyContact)
+                .menu(modifyMenu)
+                .time(modifyTime)
+                .provision(modifyProvision)
+                .build();
+
+        Mockito.when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        Mockito.when(memberRepository.findById(modifyMemberId)).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MEMBER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MEMBER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 수정 실패 - 메뉴 데이터 validation 체크")
+    public void modifyRestaurantFailMenuBadRequestTest() {
+        // given
+        Map<String, Object> wrongMenu = new LinkedHashMap<>();
+        wrongMenu.put("비빔밥", "error data"); // key(String), value(Integer)
+        wrongMenu.put("불고기", 12000);
+
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(modifyMemberId)
+                .name(modifyName)
+                .category(modifyCategory)
+                .address(modifyAddress)
+                .location(modifyLocation)
+                .contact(modifyContact)
+                .menu(wrongMenu)
+                .time(modifyTime)
+                .provision(modifyProvision)
+                .build();
+
+        Mockito.when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        Mockito.when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 수정 실패 - 영업시간 데이터 validation 체크")
+    public void modifyRestaurantFailTimeBadRequestTest() {
+        // given
+        Map<String, Object> wrongTime = new LinkedHashMap<>();
+
+        wrongTime.put(TimeOption.HOLIDAY.toString(), "error data"); // key(String), value(Boolean)
+        wrongTime.put(TimeOption.ETC.toString(), "명절 당일만 휴업"); // key(String), value(String)
+
+        TimeData timeData = TimeData.builder()
+                .businessStatus(true)
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(22,0))
+                .breakBusinessStatus(true)
+                .breakStartTime(LocalTime.of(15,0))
+                .breakEndTime(LocalTime.of(17,0))
+                .build();
+
+        for (DayInfo value : DayInfo.values()) {
+            wrongTime.put(value.toString(), timeData);
+        }
+
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(modifyMemberId)
+                .name(modifyName)
+                .category(modifyCategory)
+                .address(modifyAddress)
+                .location(modifyLocation)
+                .contact(modifyContact)
+                .menu(modifyMenu)
+                .time(wrongTime)
+                .provision(modifyProvision)
+                .build();
+
+        Mockito.when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        Mockito.when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 수정 실패 - 편의시설 데이터 validation 체크")
+    public void modifyRestaurantFailProvisionBadRequestTest() {
+        // given
+        Map<String, Object> wrongProvision = new LinkedHashMap<>();
+
+        for (Provision value : Provision.values()) {
+            wrongProvision.put(value.toString(), "error data"); // key(String), value(Boolean)
+        }
+
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(modifyMemberId)
+                .name(modifyName)
+                .category(modifyCategory)
+                .address(modifyAddress)
+                .location(modifyLocation)
+                .contact(modifyContact)
+                .menu(modifyMenu)
+                .time(modifyTime)
+                .provision(wrongProvision)
+                .build();
+
+        Mockito.when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        Mockito.when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getMessage(), exception.getMessage());
+    }
+
     private Page<Restaurant> getRestaurants() {
-        List<Restaurant> list = List.of(this.getData());
+        List<Restaurant> list = List.of(this.getRestaurantData());
         Pageable pageable = PageRequest.of(page, size);
         return new PageImpl<Restaurant>(list, pageable, list.size());
     }
 
     private Optional<Restaurant> getOne() {
-        return Optional.of(this.getData());
+        return Optional.of(this.getRestaurantData());
     }
 
-    private Restaurant getData() {
-        Member member = Member.builder()
-                .id(memberId)
-                .email(email)
-                .provider(provider)
-                .name(memberName)
-                .nickname(nickname)
-                .role(role)
-                .phone(phone)
-                .certifyAt(certifyAt)
-                .agreedToServiceUse(agreedToServiceUse)
-                .agreedToServicePolicy(agreedToServicePolicy)
-                .agreedToServicePolicyUse(agreedToServicePolicyUse)
-                .createdAt(memberCreatedAt)
-                .build();
+    private Optional<Member> getMemberOne() {
+        return Optional.of(this.getMemberData());
+    }
+
+    private Optional<Member> getModifyMemberOne() {
+        return Optional.of(this.getModifyMemberData());
+    }
+
+    private Restaurant getRestaurantData() {
+        Member member = getMemberData();
 
         return Restaurant.builder()
                 .id(id)
@@ -241,6 +645,40 @@ public class AdminRestaurantServiceTest {
                 .time(time)
                 .provision(provision)
                 .createdAt(createdAt)
+                .build();
+    }
+
+    private Member getMemberData() {
+        return Member.builder()
+                .id(memberId)
+                .email(email)
+                .provider(provider)
+                .name(memberName)
+                .nickname(nickname)
+                .role(role)
+                .phone(phone)
+                .certifyAt(certifyAt)
+                .agreedToServiceUse(agreedToServiceUse)
+                .agreedToServicePolicy(agreedToServicePolicy)
+                .agreedToServicePolicyUse(agreedToServicePolicyUse)
+                .createdAt(memberCreatedAt)
+                .build();
+    }
+
+    private Member getModifyMemberData() {
+        return Member.builder()
+                .id(modifyMemberId)
+                .email(email)
+                .provider(provider)
+                .name(memberName)
+                .nickname(modifyNickname)
+                .role(role)
+                .phone(phone)
+                .certifyAt(certifyAt)
+                .agreedToServiceUse(agreedToServiceUse)
+                .agreedToServicePolicy(agreedToServicePolicy)
+                .agreedToServicePolicyUse(agreedToServicePolicyUse)
+                .createdAt(memberCreatedAt)
                 .build();
     }
 }

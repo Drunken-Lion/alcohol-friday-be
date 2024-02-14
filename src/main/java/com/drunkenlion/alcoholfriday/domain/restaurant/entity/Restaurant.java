@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Getter
 @Entity
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Restaurant extends BaseEntity {
