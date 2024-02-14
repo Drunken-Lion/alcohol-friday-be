@@ -35,10 +35,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public NcpFileResponse findByEntityId(Long entityId, String entityType) {
-        NcpFile ncpFile = this.fileRepository.findByEntityIdAndEntityType(entityId, entityType)
-                .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_FILE)
-                        .build());
+        NcpFile ncpFile = this.fileRepository.findByEntityIdAndEntityType(entityId, entityType).orElse(null);
 
         return NcpFileResponse.of(ncpFile);
     }

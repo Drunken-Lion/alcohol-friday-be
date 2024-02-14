@@ -126,7 +126,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.data[0].id", notNullValue()))
                 .andExpect(jsonPath("$.data[0].name", notNullValue()))
                 .andExpect(jsonPath("$.data[0].price", notNullValue()))
-                .andExpect(jsonPath("$.data[0].info", notNullValue()))
                 .andExpect(jsonPath("$.data[0].category.firstName", notNullValue()))
                 .andExpect(jsonPath("$.data[0].category.lastName", notNullValue()))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
