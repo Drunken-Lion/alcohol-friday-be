@@ -18,7 +18,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/admin")
-@Tag(name = "v1-admin-restaurant-controller", description = "관리자 매장관리 컨트롤러")
+@Tag(name = "v1-admin-restaurant", description = "관리자 매장관리에 대한 API")
 public class AdminRestaurantController {
     private final AdminRestaurantService adminRestaurantService;
 

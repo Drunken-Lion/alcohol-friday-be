@@ -18,7 +18,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/admin/store")
-@Tag(name = "v1-admin-store-controller", description = "관리자 스토어관리 컨트롤러")
+@Tag(name = "v1-admin-store", description = "관리자 스토어관리에 대한 API")
 public class AdminStoreController {
     private final AdminStoreService adminStoreService;
 
