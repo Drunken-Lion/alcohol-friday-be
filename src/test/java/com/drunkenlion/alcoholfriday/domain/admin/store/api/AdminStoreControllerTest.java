@@ -4,6 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -55,6 +56,7 @@ public class AdminStoreControllerTest {
     }
 
     @Test
+    @DisplayName("제조사 목록 조회 성공")
     void getMakersTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -81,6 +83,7 @@ public class AdminStoreControllerTest {
     }
 
     @Test
+    @DisplayName("제조사 상세 조회 성공")
     void getMakerTest() throws Exception {
         // given
         Maker maker = this.makerRepository.findAll().get(0);
@@ -109,6 +112,7 @@ public class AdminStoreControllerTest {
     }
 
     @Test
+    @DisplayName("제조사 등록 성공")
     void createMakerTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -142,6 +146,7 @@ public class AdminStoreControllerTest {
     }
 
     @Test
+    @DisplayName("제조사 수정 성공")
     void modifyMakerTest() throws Exception {
         // given
         Maker maker = this.makerRepository.findAll().get(0);
@@ -178,6 +183,7 @@ public class AdminStoreControllerTest {
     }
 
     @Test
+    @DisplayName("제조사 삭제 성공")
     void deleteMakerTest() throws Exception {
         // given
         Maker maker = this.makerRepository.findAll().get(0);

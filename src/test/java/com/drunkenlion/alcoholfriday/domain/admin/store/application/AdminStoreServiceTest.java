@@ -6,6 +6,9 @@ import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +47,7 @@ public class AdminStoreServiceTest {
     private final String region = "서울특별시";
     private final LocalDateTime createdAt = LocalDateTime.now();
     private final LocalDateTime updatedAt = LocalDateTime.now();
+    private final LocalDateTime deletedAt = LocalDateTime.now();
     private final int page = 0;
     private final int size = 20;
 
@@ -51,6 +57,7 @@ public class AdminStoreServiceTest {
     private final String modifyRegion = "test 제조지역 수정";
 
     @Test
+    @DisplayName("제조사 목록 조회 성공")
     public void getMakersTest() {
         // given
         Mockito.when(this.makerRepository.findAll(any(Pageable.class))).thenReturn(this.getMakers());
@@ -71,6 +78,7 @@ public class AdminStoreServiceTest {
     }
 
     @Test
+    @DisplayName("제조사 상세 조회 성공")
     public void getMakerTest() {
         // given
         Mockito.when(this.makerRepository.findById(any())).thenReturn(this.getOne());
@@ -89,6 +97,23 @@ public class AdminStoreServiceTest {
     }
 
     @Test
+    @DisplayName("제조사 상세 조회 실패 - 찾을 수 없는 제조사")
+    public void getMakerFailNotFoundTest() {
+        // given
+        Mockito.when(this.makerRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminStoreService.getMaker(id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MAKER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MAKER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("제조사 등록 성공")
     public void createMakerTest() {
         // given
         MakerRequest makerRequest = MakerRequest.builder()
@@ -111,6 +136,7 @@ public class AdminStoreServiceTest {
     }
 
     @Test
+    @DisplayName("제조사 수정 성공")
     public void modifyMakerTest() {
         // given
         MakerRequest makerRequest = MakerRequest.builder()
@@ -135,6 +161,30 @@ public class AdminStoreServiceTest {
     }
 
     @Test
+    @DisplayName("제조사 수정 실패 - 찾을 수 없는 제조사")
+    public void modifyMakerFailNotFoundTest() {
+        // given
+        MakerRequest makerRequest = MakerRequest.builder()
+                .name(modiftyName)
+                .address(modifyAddress)
+                .detail(modifyDetail)
+                .region(modifyRegion)
+                .build();
+
+        Mockito.when(this.makerRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminStoreService.modifyMaker(id, makerRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MAKER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MAKER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("제조사 삭제 성공")
     public void deleteMakerTest() {
         // given
         Mockito.when(makerRepository.findById(any())).thenReturn(this.getOne());
@@ -152,6 +202,60 @@ public class AdminStoreServiceTest {
         assertThat(makerDetailResponse.getCreatedAt()).isEqualTo(createdAt);
         assertThat(makerDetailResponse.getUpdatedAt()).isEqualTo(updatedAt);
         assertThat(makerDetailResponse.getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("제조사 삭제 실패 - 찾을 수 없는 제조사")
+    public void deleteMakerFailNotFoundTest() {
+        // given
+        Mockito.when(makerRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminStoreService.deleteMaker(id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MAKER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MAKER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("제조사 삭제 실패 - 이미 삭제된 제조사")
+    public void deleteMakerFailAlreadyDeletedTest() {
+        // given
+        Maker deletedMaker = this.getOne().get();
+        deletedMaker = deletedMaker.toBuilder()
+                .deletedAt(deletedAt)
+                .build();
+
+        Mockito.when(makerRepository.findById(any())).thenReturn(Optional.of(deletedMaker));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminStoreService.deleteMaker(id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MAKER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MAKER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("제조사 삭제 실패 - 제품과 연결된 제조사")
+    public void deleteMakerFailMakerInUseTest() {
+        // given
+        Mockito.when(makerRepository.findById(any())).thenReturn(this.getOne());
+        Mockito.when(productRepository.existsByMakerAndDeletedAtIsNull(any(Maker.class))).thenReturn(true);
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminStoreService.deleteMaker(id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.MAKER_IN_USE.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.MAKER_IN_USE.getMessage(), exception.getMessage());
     }
 
     private Page<Maker> getMakers() {
