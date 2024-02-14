@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.member.dto;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -61,10 +62,10 @@ public class MemberDetailResponse {
         return MemberDetailResponse.builder()
                 .id(member.getId())
                 .email(member.getEmail())
-                .provider(member.getProvider())
+                .provider(member.getProvider().getProviderName())
                 .name(member.getName())
                 .nickname(member.getNickname())
-                .role(member.getRole())
+                .role(member.getRole().getRole())
                 .phone(member.getPhone())
                 .certifyAt(member.getCertifyAt())
                 .agreedToServiceUse(member.getAgreedToServiceUse())

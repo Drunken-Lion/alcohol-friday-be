@@ -5,6 +5,9 @@ import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,10 +38,10 @@ public class AdminMemberServiceTest {
 
     private final Long id = 1L;
     private final String email = "test@example.com";
-    private final String provider = "kakao_test12345";
+    private final String provider = ProviderType.KAKAO.getProviderName();
     private final String name = "테스트";
     private final String nickname = "test";
-    private final String role = "MEMBER";
+    private final String role = MemberRole.MEMBER.getRole();
     private final Long phone = 1012345678L;
     private final LocalDate certifyAt = null;
     private final boolean agreedToServiceUse = false;
@@ -50,9 +53,8 @@ public class AdminMemberServiceTest {
     private final int page = 0;
     private final int size = 20;
 
-
     private final String modifyNickname = "test 수정";
-    private final String modifyRole = "ADMIN";
+    private final String modifyRole = MemberRole.ADMIN.getRole();
     private final Long modifyPhone = 1011112222L;
 
     @Test
@@ -107,7 +109,7 @@ public class AdminMemberServiceTest {
         // given
         MemberModifyRequest memberModifyRequest = MemberModifyRequest.builder()
                 .nickname(modifyNickname)
-                .role(modifyRole)
+                .role(MemberRole.ofRole(modifyRole))
                 .phone(modifyPhone)
                 .build();
 
@@ -115,6 +117,7 @@ public class AdminMemberServiceTest {
         Member member = Member.builder()
                 .id(id)
                 .nickname(memberModifyRequest.getNickname())
+                .provider(ProviderType.ofProvider(provider))
                 .role(memberModifyRequest.getRole())
                 .phone(memberModifyRequest.getPhone())
                 .build();
@@ -146,10 +149,10 @@ public class AdminMemberServiceTest {
         return Member.builder()
                 .id(id)
                 .email(email)
-                .provider(provider)
+                .provider(ProviderType.ofProvider(provider))
                 .name(name)
                 .nickname(nickname)
-                .role(role)
+                .role(MemberRole.ofRole(role))
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)

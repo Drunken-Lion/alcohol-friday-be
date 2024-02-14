@@ -4,6 +4,7 @@ spring:
     group:
       local:
         - file
+        - secret
 logging:
   level:
     com.drunkenlion.alcoholfriday: DEBUG

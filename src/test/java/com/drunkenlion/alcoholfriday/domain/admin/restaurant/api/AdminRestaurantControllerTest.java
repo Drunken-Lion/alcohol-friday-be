@@ -2,8 +2,11 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
@@ -49,7 +52,7 @@ public class AdminRestaurantControllerTest {
     private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
     private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
 
-    private Map<String, Object> getMenuTest()  {
+    private Map<String, Object> getMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
         frame.put("비빔밥", 8000);
         frame.put("불고기", 12000);
@@ -65,10 +68,10 @@ public class AdminRestaurantControllerTest {
         TimeData timeData = TimeData.builder()
                 .businessStatus(true)
                 .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(22,0))
+                .endTime(LocalTime.of(22, 0))
                 .breakBusinessStatus(true)
-                .breakStartTime(LocalTime.of(15,0))
-                .breakEndTime(LocalTime.of(17,0))
+                .breakStartTime(LocalTime.of(15, 0))
+                .breakEndTime(LocalTime.of(17, 0))
                 .build();
 
         for (DayInfo value : DayInfo.values()) {
@@ -92,10 +95,10 @@ public class AdminRestaurantControllerTest {
     void beforeEach() {
         Member member = Member.builder()
                 .email("test@example.com")
-                .provider("kakao_test12345")
+                .provider(ProviderType.KAKAO)
                 .name("테스트")
                 .nickname("test")
-                .role("MEMBER")
+                .role(MemberRole.MEMBER)
                 .phone(1012345678L)
                 .certifyAt(null)
                 .agreedToServiceUse(true)
@@ -113,7 +116,7 @@ public class AdminRestaurantControllerTest {
                 .category("한식")
                 .name("맛있는 한식당")
                 .address("서울시 강남구")
-                .location(new Point(37.4979,127.0276))
+                .location(new Point(37.4979, 127.0276))
                 .contact(1012345678L)
                 .menu(getMenuTest())
                 .time(getTimeTest())

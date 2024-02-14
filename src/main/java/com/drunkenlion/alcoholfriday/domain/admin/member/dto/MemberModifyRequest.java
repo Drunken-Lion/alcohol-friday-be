@@ -1,5 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.member.dto;
 
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -13,7 +15,7 @@ public class MemberModifyRequest {
     private String nickname;
 
     @Schema(description = "권한")
-    private String role;
+    private MemberRole role;
 
     @Schema(description = "연락처")
     private Long phone;

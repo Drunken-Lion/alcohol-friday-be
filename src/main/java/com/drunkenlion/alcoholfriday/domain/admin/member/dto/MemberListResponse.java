@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.member.dto;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -41,7 +42,7 @@ public class MemberListResponse {
                 .name(member.getName())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
-                .role(member.getRole())
+                .role(member.getRole().getRole())
                 .createdAt(member.getCreatedAt())
                 .deleted(member.getDeletedAt() != null)
                 .build();

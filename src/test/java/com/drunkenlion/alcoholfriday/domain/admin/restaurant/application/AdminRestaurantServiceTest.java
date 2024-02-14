@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListR
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
@@ -14,6 +15,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -52,10 +54,10 @@ public class AdminRestaurantServiceTest {
 
     private final Long memberId = 1L;
     private final String email = "test@example.com";
-    private final String provider = "kakao_test12345";
+    private final String provider = ProviderType.KAKAO.getProviderName();
     private final String memberName = "테스트";
     private final String nickname = "test";
-    private final String role = "MEMBER";
+    private final String role = MemberRole.MEMBER.getRole();
     private final Long phone = 1012345678L;
     private final LocalDate certifyAt = LocalDate.now();
     private final boolean agreedToServiceUse = true;
@@ -67,10 +69,10 @@ public class AdminRestaurantServiceTest {
     private final String category = "한식";
     private final String name = "맛있는 한식당";
     private final String address = "서울시 강남구";
-    private final Point location = new Point(37.4979,127.0276);
+    private final Point location = new Point(37.4979, 127.0276);
     private final Long contact = 1012345678L;
 
-    private Map<String, Object> getMenuTest()  {
+    private Map<String, Object> getMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
         frame.put("비빔밥", 8000);
         frame.put("불고기", 12000);
@@ -86,10 +88,10 @@ public class AdminRestaurantServiceTest {
         TimeData timeData = TimeData.builder()
                 .businessStatus(true)
                 .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(22,0))
+                .endTime(LocalTime.of(22, 0))
                 .breakBusinessStatus(true)
-                .breakStartTime(LocalTime.of(15,0))
-                .breakEndTime(LocalTime.of(17,0))
+                .breakStartTime(LocalTime.of(15, 0))
+                .breakEndTime(LocalTime.of(17, 0))
                 .build();
 
         for (DayInfo value : DayInfo.values()) {
