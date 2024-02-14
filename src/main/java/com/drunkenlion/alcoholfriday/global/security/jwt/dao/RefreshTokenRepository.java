@@ -9,5 +9,5 @@ import com.drunkenlion.alcoholfriday.global.security.jwt.entity.RefreshToken;
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
     Optional<RefreshToken> findByToken(String refreshToken);
 
-    Optional<RefreshToken> findByMember_Id(Long memberId);
+    Optional<RefreshToken> findByMemberId(Long memberId);
 }

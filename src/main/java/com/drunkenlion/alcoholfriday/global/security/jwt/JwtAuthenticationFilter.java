@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
 
+import com.drunkenlion.alcoholfriday.global.security.jwt.enumerated.TokenType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -35,8 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     "anonymous", Optional.empty(), Collections.singletonList(new SimpleGrantedAuthority("anonymous"))
             );
 
-            if (StringUtils.hasText(accessToken) && jwtTokenProvider.validateToken(accessToken)) {
-                authentication = (AbstractAuthenticationToken) jwtTokenProvider.getAuthentication(accessToken);
+            if (StringUtils.hasText(accessToken) && jwtTokenProvider.validateAccessToken(accessToken)) {
+                authentication = (AbstractAuthenticationToken) jwtTokenProvider.getAuthentication(accessToken, TokenType.ACCESS_TOKEN.getValue());
             }
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
