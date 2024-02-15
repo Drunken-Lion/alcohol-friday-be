@@ -79,6 +79,7 @@ class CartServiceTest {
     private final Long balence2 = 10L;
     private final Long insense2 = 10L;
     private final Long throat2 = 10L;
+
     // Member
     private final Long id = 1L;
     private final String email = "test@example.com";
