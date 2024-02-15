@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.cart.application;
 
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartResponse;
@@ -10,6 +11,7 @@ import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -81,10 +83,10 @@ class CartServiceTest {
     // Member
     private final Long id = 1L;
     private final String email = "test@example.com";
-    private final String provider = "kakao_test12345";
+    private final String provider = ProviderType.KAKAO.getProviderName();
     private final String name = "테스트";
     private final String nickname = "test";
-    private final String role = "MEMBER";
+    private final String role = MemberRole.MEMBER.getRole();
     private final Long phone = 1012345678L;
     private final LocalDate certifyAt = null;
     private final boolean agreedToServiceUse = false;
@@ -229,10 +231,10 @@ class CartServiceTest {
         return Member.builder()
                 .id(id)
                 .email(email)
-                .provider(provider)
+                .provider(ProviderType.ofProvider(provider))
                 .name(name)
                 .nickname(nickname)
-                .role(role)
+                .role(MemberRole.ofRole(role))
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)
