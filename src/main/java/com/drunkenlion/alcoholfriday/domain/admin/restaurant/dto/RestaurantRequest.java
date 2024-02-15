@@ -12,7 +12,7 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "매장 등록 요청 항목")
+@Schema(description = "매장 입력 요청 항목")
 public class RestaurantRequest {
     @Schema(description = "매장 사장의 고유 아이디")
     private Long memberId;
