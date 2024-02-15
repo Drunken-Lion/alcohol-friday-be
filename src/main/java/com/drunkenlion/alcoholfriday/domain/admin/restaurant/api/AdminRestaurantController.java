@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.application.AdminRestaurantService;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
@@ -18,7 +18,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/admin")
-@Tag(name = "v1-admin-restaurant-controller", description = "관리자 매장관리 컨트롤러")
+@Tag(name = "v1-admin-restaurant", description = "관리자 매장관리에 대한 API")
 public class AdminRestaurantController {
     private final AdminRestaurantService adminRestaurantService;
 
@@ -44,9 +44,9 @@ public class AdminRestaurantController {
     @Operation(summary = "매장 등록", description = "관리자 권한에 대한 매장 등록")
     @PostMapping(value = "restaurants")
     public ResponseEntity<RestaurantDetailResponse> createRestaurant(
-            @Valid @RequestBody RestaurantCreateRequest restaurantCreateRequest
+            @Valid @RequestBody RestaurantRequest restaurantRequest
     ) {
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(restaurantCreateRequest);
+        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(restaurantRequest);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -55,5 +55,15 @@ public class AdminRestaurantController {
                 .toUri();
 
         return ResponseEntity.created(location).body(restaurantDetailResponse);
+    }
+
+    @Operation(summary = "매장 수정", description = "관리자 권한에 대한 매장 수정")
+    @PutMapping(value = "restaurants/{id}")
+    public ResponseEntity<RestaurantDetailResponse> modifyRestaurant(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody RestaurantRequest restaurantRequest
+    ) {
+        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+        return ResponseEntity.ok().body(restaurantDetailResponse);
     }
 }

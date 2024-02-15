@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "제조사 등록 요청 항목")
+@Schema(description = "제조사 입력 요청 항목")
 public class MakerRequest {
     @Schema(description = "이름")
     private String name;
