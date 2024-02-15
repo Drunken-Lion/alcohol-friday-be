@@ -23,4 +23,11 @@ public class MemberServiceImpl implements MemberService {
 
         return MemberResponse.of(member);
     }
+
+    // TODO 일단 보류
+    @Override
+    public Member findMember(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 계정입니다."));
+    }
 }
