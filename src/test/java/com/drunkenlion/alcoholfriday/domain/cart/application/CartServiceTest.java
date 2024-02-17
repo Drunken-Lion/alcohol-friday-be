@@ -3,8 +3,8 @@ package com.drunkenlion.alcoholfriday.domain.cart.application;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
-import com.drunkenlion.alcoholfriday.domain.cart.dto.CartDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartRequest;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.CartResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
@@ -104,6 +104,7 @@ class CartServiceTest {
     private final int size = 20;
 
     // Cart
+    private final Long cartId = 1L;
     private final Member member = getDataMember();
 
     // CartDetail
@@ -118,6 +119,8 @@ class CartServiceTest {
     @DisplayName("장바구니에 한 개 상품 담았을 경우")
     void addCartTest() {
         // given
+        when(cartRepository.findFirstByMember(member)).thenReturn(getOneCart());
+
         List<CartRequest> cartDetails = new ArrayList<>();
         CartRequest cartRequest = CartRequest.builder()
                 .itemId(itemId1)
@@ -135,17 +138,20 @@ class CartServiceTest {
         when(this.cartDetailRepository.save(any(CartDetail.class))).thenReturn(cartDetail);
 
         // when
-        List<CartDetailResponse> cartDetailResponses = this.cartService.addCartList(cartDetails, member);
+        CartResponse cartResponse = this.cartService.addCartList(cartDetails, member);
 
         // then
-        assertThat(cartDetailResponses.get(0).getItem().getName()).isEqualTo(itemName);
-        assertThat(cartDetailResponses.get(0).getQuantity()).isEqualTo(cartRequest.getQuantity());
+        assertThat(cartResponse.getCartId()).isEqualTo(cartId);
+        assertThat(cartResponse.getCartDetailResponseList().get(0).getItem().getName()).isEqualTo(itemName);
+        assertThat(cartResponse.getCartDetailResponseList().get(0).getQuantity()).isEqualTo(cartRequest.getQuantity());
     }
 
     @Test
     @DisplayName("장바구니에 한 개 이상 상품 담았을 경우")
     void addCartListTest() {
         // given
+        when(cartRepository.findFirstByMember(member)).thenReturn(getOneCart());
+
         List<CartRequest> cartDetails = new ArrayList<>();
         CartRequest cartRequest1 = CartRequest.builder()
                 .itemId(itemId1)
@@ -176,13 +182,14 @@ class CartServiceTest {
         when(this.cartDetailRepository.save(any(CartDetail.class))).thenReturn(cartDetail1).thenReturn(cartDetail2);
 
         // when
-        List<CartDetailResponse> cartDetailResponses = this.cartService.addCartList(cartDetails, member);
+        CartResponse cartResponse = this.cartService.addCartList(cartDetails, member);
 
         // then
-        assertThat(cartDetailResponses.get(0).getItem().getName()).isEqualTo(itemName);
-        assertThat(cartDetailResponses.get(0).getQuantity()).isEqualTo(cartRequest1.getQuantity());
-        assertThat(cartDetailResponses.get(1).getItem().getName()).isEqualTo(itemName2);
-        assertThat(cartDetailResponses.get(1).getQuantity()).isEqualTo(cartRequest2.getQuantity());
+        assertThat(cartResponse.getCartId()).isEqualTo(cartId);
+        assertThat(cartResponse.getCartDetailResponseList().get(0).getItem().getName()).isEqualTo(itemName);
+        assertThat(cartResponse.getCartDetailResponseList().get(0).getQuantity()).isEqualTo(cartRequest1.getQuantity());
+        assertThat(cartResponse.getCartDetailResponseList().get(1).getItem().getName()).isEqualTo(itemName2);
+        assertThat(cartResponse.getCartDetailResponseList().get(1).getQuantity()).isEqualTo(cartRequest2.getQuantity());
     }
 
     @Test
@@ -254,13 +261,14 @@ class CartServiceTest {
         when(this.cartDetailRepository.save(any(CartDetail.class))).thenReturn(cartDetail1).thenReturn(cartDetail2);
 
         // when
-        List<CartDetailResponse> cartDetailResponses = this.cartService.addCartList(cartDetails, member);
+        CartResponse cartResponse = this.cartService.addCartList(cartDetails, member);
 
         // then
-        assertThat(cartDetailResponses.get(0).getItem().getName()).isEqualTo(itemName);
-        assertThat(cartDetailResponses.get(0).getQuantity()).isEqualTo(cartRequest1.getQuantity());
-        assertThat(cartDetailResponses.get(1).getItem().getName()).isEqualTo(itemName2);
-        assertThat(cartDetailResponses.get(1).getQuantity()).isEqualTo(cartRequest2.getQuantity());
+        assertThat(cartResponse.getCartId()).isEqualTo(cartId);
+        assertThat(cartResponse.getCartDetailResponseList().get(0).getItem().getName()).isEqualTo(itemName);
+        assertThat(cartResponse.getCartDetailResponseList().get(0).getQuantity()).isEqualTo(cartRequest1.getQuantity());
+        assertThat(cartResponse.getCartDetailResponseList().get(1).getItem().getName()).isEqualTo(itemName2);
+        assertThat(cartResponse.getCartDetailResponseList().get(1).getQuantity()).isEqualTo(cartRequest2.getQuantity());
     }
 
 
@@ -270,6 +278,7 @@ class CartServiceTest {
 
     private Cart getDataCart() {
         return Cart.builder()
+                .id(cartId)
                 .member(member)
                 .build();
     }

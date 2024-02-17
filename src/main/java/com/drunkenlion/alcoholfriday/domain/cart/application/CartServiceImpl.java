@@ -2,12 +2,14 @@ package com.drunkenlion.alcoholfriday.domain.cart.application;
 
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
-import com.drunkenlion.alcoholfriday.domain.cart.dto.CartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.CartRequest;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.CartResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,22 +24,21 @@ public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartDetailRepository cartDetailRepository;
     private final ItemRepository itemRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     @Transactional
-    public List<CartDetailResponse> addCartList(List<CartRequest> cartRequestList, Member member) {
-        Cart cart = addFirstCart(member);
+    public CartResponse addCartList(List<CartRequest> cartRequestList, Member member) {
+        Cart cart = addFirstCart(member) != null ? addFirstCart(member) : cartRepository.save(Cart.create(member));
 
-        if (cart == null) {
-            cart = Cart.create(member);
-            cart = cartRepository.save(cart);
-        }
-
-        Cart memberCart = cart;
-
-        return cartRequestList.stream()
-                .map(cartRequest -> addCart(cartRequest, memberCart))
+        List<CartDetailResponse> cartDetailResponseList = cartRequestList.stream()
+                .map(cartRequest -> addCart(cartRequest, cart))
                 .toList();
+
+        return CartResponse.builder()
+                .cartId(cart.getId())
+                .cartDetailResponseList(cartDetailResponseList)
+                .build();
     }
 
     @Override
