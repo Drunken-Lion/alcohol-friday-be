@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.cart.application;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.CartDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
@@ -213,7 +214,7 @@ class CartServiceTest {
         when(this.cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getDataCartDetail());
 
         // when
-        CartDetail modifyCartItemDetail = this.cartService.modifyCartItemQuantity(cartRequest, member);
+        CartDetailResponse modifyCartItemDetail = this.cartService.modifyCartItemQuantity(cartRequest, member);
 
         // then
         assertThat(modifyCartItemDetail.getItem().getName()).isEqualTo(itemName);

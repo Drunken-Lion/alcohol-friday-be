@@ -1,5 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.cart.api;
 
+import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
+import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
+import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
@@ -8,6 +12,8 @@ import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
+import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserDetailsServiceImpl;
@@ -25,10 +31,12 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -51,6 +59,12 @@ class CartControllerTest {
     private CategoryRepository categoryRepository;
     @Autowired
     private CategoryClassRepository categoryClassRepository;
+    @Autowired
+    private CartRepository cartRepository;
+    @Autowired
+    private CartDetailRepository cartDetailRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -141,6 +155,8 @@ class CartControllerTest {
         productRepository.deleteAll();
         categoryRepository.deleteAll();
         categoryClassRepository.deleteAll();
+        cartRepository.deleteAll();
+        cartDetailRepository.deleteAll();
     }
 
 
@@ -213,5 +229,49 @@ class CartControllerTest {
                 .andExpect(jsonPath("$.cartDetailResponseList[0].quantity", notNullValue()))
                 .andExpect(jsonPath("$.cartDetailResponseList[1].item.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.cartDetailResponseList[1].quantity", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 수량 변경")
+    @WithAccount
+    void modifyCart() throws Exception {
+        // given
+        Optional<Member> member = memberRepository.findByEmail("test@example.com");
+        Cart cart = Cart.builder()
+                .member(member.get())
+                .build();
+        Cart userCart = cartRepository.save(cart);
+
+        Optional<Item> item = itemRepository.findById(1L);
+        CartDetail cartDetail = CartDetail.builder()
+                .cart(userCart)
+                .item(item.get())
+                .quantity(2L)
+                .build();
+        cartDetailRepository.save(cartDetail);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/carts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                    "itemId": "1",
+                                    "quantity": "5"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("modifyCart"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.cartId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.item.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.quantity", notNullValue()));
     }
 }
