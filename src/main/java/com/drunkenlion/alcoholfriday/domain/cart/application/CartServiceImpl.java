@@ -8,6 +8,7 @@ import com.drunkenlion.alcoholfriday.domain.cart.dto.CartResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
+import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -61,7 +62,7 @@ public class CartServiceImpl implements CartService {
     // 상품 수량만 변경할 경우
     @Override
     @Transactional
-    public CartDetail modifyCartItemQuantity(CartRequest modifyCart, Member member) {
+    public CartDetailResponse modifyCartItemQuantity(CartRequest modifyCart, Member member) {
         Cart cart = addFirstCart(member);
 
         Item item = itemRepository.findById(modifyCart.getItemId())
@@ -71,7 +72,11 @@ public class CartServiceImpl implements CartService {
 
         cartDetail.setQuantity(modifyCart.getQuantity());
 
-        return cartDetail;
+        return CartDetailResponse.builder()
+                .cartId(cart.getId())
+                .item(FindItemResponse.of(cartDetail.getItem()))
+                .quantity(cartDetail.getQuantity())
+                .build();
     }
 
     @Override

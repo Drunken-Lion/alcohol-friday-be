@@ -1,17 +1,16 @@
 package com.drunkenlion.alcoholfriday.domain.cart.api;
 
 import com.drunkenlion.alcoholfriday.domain.cart.application.CartService;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.CartDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartReqList;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.CartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -33,5 +32,13 @@ public class CartController {
                 .toUri();
 
         return ResponseEntity.created(location).body(cartResponse);
+    }
+
+    @Operation(summary = "장바구니 상품 수량 변경 API")
+    @PutMapping
+    public ResponseEntity<CartDetailResponse> modifyCart(@RequestBody CartRequest modifyCartRequest, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        CartDetailResponse cartDetailResponse = cartService.modifyCartItemQuantity(modifyCartRequest, userPrincipal.getMember());
+
+        return ResponseEntity.ok().body(cartDetailResponse);
     }
 }

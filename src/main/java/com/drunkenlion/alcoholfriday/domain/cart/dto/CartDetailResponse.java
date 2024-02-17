@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class CartDetailResponse {
+    private Long cartId;
     private FindItemResponse item;
     private Long quantity;
 
