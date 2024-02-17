@@ -63,6 +63,7 @@ class CartControllerTest {
                 .build();
         category.addCategoryClass(categoryClass);
 
+        // Item1
         Product product = Product.builder()
                 .name("test data")
                 .quantity(10L)
@@ -97,6 +98,40 @@ class CartControllerTest {
         productRepository.save(product);
         itemRepository.save(item);
         itemProductRepository.save(itemProduct);
+
+        // Item2
+        Product product2 = Product.builder()
+                .name("test data2")
+                .quantity(10L)
+                .alcohol(17L)
+                .ingredient("알콜 등등...")
+                .sweet(1L)
+                .sour(1L)
+                .cool(1L)
+                .body(1L)
+                .balence(1L)
+                .insense(1L)
+                .throat(1L)
+                .build();
+        product2.addCategory(category);
+
+        Item item2 = Item.builder()
+                .name("test dd")
+                .price(new BigDecimal(100000))
+                .info("이 상품은 테스트 상품2입니다.")
+                .build();
+        item2.addCategory(category);
+
+        ItemProduct itemProduct2 = ItemProduct.builder()
+                .item(item2)
+                .product(product2)
+                .build();
+        itemProduct2.addItem(item2);
+        itemProduct2.addProduct(product2);
+
+        productRepository.save(product2);
+        itemRepository.save(item2);
+        itemProductRepository.save(itemProduct2);
     }
 
     @AfterEach
@@ -112,7 +147,7 @@ class CartControllerTest {
     @Test
     @DisplayName("장바구니에 한 개 상품 등록")
     @WithAccount
-    void addOneItem() throws Exception {
+    void addCartOneItem() throws Exception {
         // when
         ResultActions resultActions = mvc
                 .perform(post("/v1/carts")
@@ -139,5 +174,44 @@ class CartControllerTest {
                 .andExpect(jsonPath("$.cartId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.cartDetailResponseList[0].item.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.cartDetailResponseList[0].quantity", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("장바구니에 한 개 이상 상품 등록")
+    @WithAccount
+    void addCartListItem() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/carts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "cartRequestList": [
+                                    {
+                                      "itemId": "1",
+                                      "quantity": "2"
+                                    },
+                                    {
+                                      "itemId": "2",
+                                      "quantity": "4"
+                                    }
+                                  ]
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isCreated())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("addCartList"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.cartId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.cartDetailResponseList[0].item.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.cartDetailResponseList[0].quantity", notNullValue()))
+                .andExpect(jsonPath("$.cartDetailResponseList[1].item.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.cartDetailResponseList[1].quantity", notNullValue()));
     }
 }
