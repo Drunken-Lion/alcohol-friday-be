@@ -2,8 +2,6 @@ package com.drunkenlion.alcoholfriday.domain.cart.api;
 
 import com.drunkenlion.alcoholfriday.domain.cart.application.CartService;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartResponse;
-import com.drunkenlion.alcoholfriday.domain.member.application.MemberService;
-import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,13 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "v1-cart-cartDetail-controller", description = "장바구니 컨트롤러")
 public class CartController {
     private final CartService cartService;
-    private final MemberService memberService;
 
     @Operation(summary = "장바구니 조회 API")
     @GetMapping("list")
     public ResponseEntity<CartResponse> getCartList(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Member member = memberService.findMember(userPrincipal.getUsername());
-        CartResponse cartList = cartService.getCartList(member);
+        CartResponse cartList = cartService.getCartList(userPrincipal.getMember());
 
         return ResponseEntity.ok().body(cartList);
     }
