@@ -99,6 +99,7 @@ class CartServiceTest {
     private final int size = 20;
 
     // Cart
+    private final Long cartId = 1L;
     private final Member member = getDataMember();
 
     // CartDetail
@@ -176,8 +177,7 @@ class CartServiceTest {
         // given
         when(cartRepository.findFirstByMember(any(Member.class))).thenReturn(this.getOneCart());
 
-        List<CartDetail> cartDetails = new ArrayList<>();
-        when(this.cartDetailRepository.findAllByCart(any(Cart.class))).thenReturn(cartDetails);
+        when(this.cartDetailRepository.findAllByCart(any(Cart.class))).thenReturn(Collections.EMPTY_LIST);
 
         // when
         CartResponse cartList = this.cartService.getCartList(getDataMember());
@@ -195,6 +195,7 @@ class CartServiceTest {
 
     private Cart getDataCart() {
         return Cart.builder()
+                .id(cartId)
                 .member(member)
                 .build();
     }
