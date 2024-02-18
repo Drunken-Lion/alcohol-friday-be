@@ -341,8 +341,7 @@ class CartServiceTest {
         // given
         when(cartRepository.findFirstByMember(any(Member.class))).thenReturn(this.getOneCart());
 
-        List<CartDetail> cartDetails = new ArrayList<>();
-        when(this.cartDetailRepository.findAllByCart(any(Cart.class))).thenReturn(cartDetails);
+        when(this.cartDetailRepository.findAllByCart(any(Cart.class))).thenReturn(Collections.EMPTY_LIST);
 
         // when
         CartResponse cartList = this.cartService.getCartList(getDataMember());
