@@ -5,8 +5,6 @@ import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
