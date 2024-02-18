@@ -14,6 +14,8 @@ import java.util.List;
 @Builder
 @Schema(description = "사용자의 장바구니 내역")
 public class CartResponse {
+    @Schema(description = "사용자의 장바구니 고유 번호")
+    private Long cartId;
     @Schema(description = "사용자의 장바구니 상품들")
     private List<CartDetailResponse> cartDetails;
     @Schema(description = "사용자의 장바구니 금액 총합")
@@ -23,6 +25,7 @@ public class CartResponse {
 
     public static CartResponse of(List<CartDetailResponse> cartDetails, Cart cart, List<CartDetail> cartDetailList) {
         return CartResponse.builder()
+                .cartId(cart.getId())
                 .cartDetails(cartDetails)
                 .totalCartPrice(cart.getTotalCartPrice(cartDetailList))
                 .totalCartQuantity(cart.getTotalCartQuantity(cartDetailList))
