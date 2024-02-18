@@ -27,11 +27,11 @@ public class CartServiceImpl implements CartService {
     public CartResponse getCartList(Member member) {
         Cart cart = addFirstCart(member);
 
-        if (cart== null) return getEmptyCart();
+        if (cart== null) return getEmptyCart(cart);
 
         List<CartDetail> cartDetailList = cartDetailRepository.findAllByCart(cart);
 
-        if (cartDetailList.isEmpty()) return getEmptyCart();
+        if (cartDetailList.isEmpty()) return getEmptyCart(cart);
 
         List<CartDetailResponse> cartDetails = cartDetailList.stream()
                                                             .map(CartDetailResponse::of)
@@ -40,8 +40,10 @@ public class CartServiceImpl implements CartService {
         return CartResponse.of(cartDetails, cart, cartDetailList);
     }
 
-    private static CartResponse getEmptyCart() {
+    private static CartResponse getEmptyCart(Cart cart) {
         return CartResponse.builder()
+                // TODO cartId null을 보내도 될지 물어보기
+                .cartId(cart == null ? -1 : cart.getId())
                 .cartDetails(Collections.EMPTY_LIST)
                 .totalCartPrice(BigDecimal.ZERO)
                 .totalCartQuantity(0L)
