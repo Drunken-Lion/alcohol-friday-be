@@ -24,7 +24,7 @@ public class Cart extends BaseEntity {
     private Member member;
 
     @Builder.Default
-    @Comment("장바구니에 담긴 상품")
+    @Comment("장바구니에 담긴 상품(들)")
     @OneToMany(mappedBy = "cart")
     private List<CartDetail> cartDetails = new ArrayList<>();
 

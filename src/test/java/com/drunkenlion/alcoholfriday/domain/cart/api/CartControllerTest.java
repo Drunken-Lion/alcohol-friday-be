@@ -278,7 +278,6 @@ class CartControllerTest {
                 .andExpect(handler().handlerType(CartController.class))
                 .andExpect(handler().methodName("modifyCart"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
-                .andExpect(jsonPath("$.cartId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.item.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.quantity", notNullValue()));
     }

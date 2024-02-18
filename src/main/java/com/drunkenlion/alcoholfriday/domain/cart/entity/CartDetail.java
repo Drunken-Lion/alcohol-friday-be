@@ -27,12 +27,12 @@ public class CartDetail extends BaseEntity {
     @JoinColumn(name = "cart_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Cart cart;
 
-    @Comment("장바구니 내 담긴 상품")
+    @Comment("장바구니에 담긴 상품")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id",foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Item item;
 
-    @Comment("상품 수량")
+    @Comment("장바구니에 담긴 상품 수량")
     @ColumnDefault("0")
     private Long quantity;
 

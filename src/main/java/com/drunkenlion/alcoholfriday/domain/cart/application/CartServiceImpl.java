@@ -75,7 +75,6 @@ public class CartServiceImpl implements CartService {
         cartDetail.setQuantity(modifyCart.getQuantity());
 
         return CartDetailResponse.builder()
-                .cartId(cart.getId())
                 .item(FindItemResponse.of(cartDetail.getItem()))
                 .quantity(cartDetail.getQuantity())
                 .build();
