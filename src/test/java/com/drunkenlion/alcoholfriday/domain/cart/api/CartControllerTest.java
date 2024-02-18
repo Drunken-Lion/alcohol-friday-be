@@ -321,6 +321,32 @@ class CartControllerTest {
     }
 
     @Test
+    @DisplayName("장바구니가 없는 경우_EmptyCart")
+    @WithAccount
+    void getCartList_EmptyCart() throws Exception {
+        // given
+        cartDetailRepository.deleteAll();
+        cartRepository.deleteAll();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/carts")
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("getCartList"))
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.cartId").value(-1))
+                .andExpect(jsonPath("$.cartDetails").isEmpty())
+                .andExpect(jsonPath("$.totalCartPrice").value(new BigDecimal("0")))
+                .andExpect(jsonPath("$.totalCartQuantity").value(0));
+    }
+
+    @Test
     @DisplayName("장바구니에 상품이 없는 경우_EmptyCartDetail")
     @WithAccount
     void getCartList_EmptyCartDetail() throws Exception {
