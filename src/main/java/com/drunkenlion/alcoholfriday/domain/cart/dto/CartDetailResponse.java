@@ -17,7 +17,6 @@ public class CartDetailResponse {
     private FindItemResponse item;
     @Schema(description = "장바구니의 상품 수량")
     private Long quantity;
-    private BigDecimal totalCartPrice;
 
     public static CartDetailResponse of(CartDetail cartDetail) {
         return CartDetailResponse.builder()
