@@ -12,6 +12,8 @@ import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +48,7 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public CartDetailResponse addCart(CartRequest addCart, Cart cart) {
         Item item = itemRepository.findById(addCart.getItemId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_ITEM));
 
         CartDetail cartDetail = CartDetail.builder()
                 .cart(cart)
@@ -66,7 +68,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = addFirstCart(member);
 
         Item item = itemRepository.findById(modifyCart.getItemId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_ITEM));
 
         CartDetail cartDetail = cartDetailRepository.findByItemAndCart(item, cart);
 
