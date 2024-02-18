@@ -16,7 +16,6 @@ import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.global.security.auth.UserDetailsServiceImpl;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,8 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
@@ -42,12 +43,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
+@Transactional
 class CartControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    private Long itemId; // 아이템의 ID를 저장할 변수
+    private Long itemId2;
 
     @Autowired
     private ItemRepository itemRepository;
@@ -67,6 +70,7 @@ class CartControllerTest {
     private MemberRepository memberRepository;
 
     @BeforeEach
+    @Transactional
     void beforeEach() {
         CategoryClass categoryClass = CategoryClass.builder()
                 .firstName("식품")
@@ -110,7 +114,8 @@ class CartControllerTest {
         categoryClassRepository.save(categoryClass);
         categoryRepository.save(category);
         productRepository.save(product);
-        itemRepository.save(item);
+        Item savedItem = itemRepository.save(item);
+        itemId = savedItem.getId();
         itemProductRepository.save(itemProduct);
 
         // Item2
@@ -144,11 +149,13 @@ class CartControllerTest {
         itemProduct2.addProduct(product2);
 
         productRepository.save(product2);
-        itemRepository.save(item2);
+        Item savedItem2 = itemRepository.save(item2);
+        itemId2 = savedItem2.getId();
         itemProductRepository.save(itemProduct2);
     }
 
     @AfterEach
+    @Transactional
     void afterEach() {
         itemProductRepository.deleteAll();
         itemRepository.deleteAll();
@@ -168,16 +175,17 @@ class CartControllerTest {
         ResultActions resultActions = mvc
                 .perform(post("/v1/carts")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
                         .content("""
                                 {
                                   "cartRequestList": [
                                     {
-                                      "itemId": "1",
+                                      "itemId": "%d",
                                       "quantity": "2"
                                     }
                                   ]
                                 }
-                                """)
+                                """.formatted(itemId))
                 )
                 .andDo(print());
 
@@ -205,16 +213,16 @@ class CartControllerTest {
                                 {
                                   "cartRequestList": [
                                     {
-                                      "itemId": "1",
+                                      "itemId": "%d",
                                       "quantity": "2"
                                     },
                                     {
-                                      "itemId": "2",
+                                      "itemId": "%d",
                                       "quantity": "4"
                                     }
                                   ]
                                 }
-                                """)
+                                """.formatted(itemId, itemId2))
                 )
                 .andDo(print());
 
@@ -242,7 +250,7 @@ class CartControllerTest {
                 .build();
         Cart userCart = cartRepository.save(cart);
 
-        Optional<Item> item = itemRepository.findById(1L);
+        Optional<Item> item = itemRepository.findById(itemId);
         CartDetail cartDetail = CartDetail.builder()
                 .cart(userCart)
                 .item(item.get())
@@ -257,10 +265,10 @@ class CartControllerTest {
                         .characterEncoding("UTF-8")
                         .content("""
                                 {
-                                    "itemId": "1",
+                                    "itemId": "%d",
                                     "quantity": "5"
                                 }
-                                """)
+                                """.formatted(itemId))
                 )
                 .andDo(print());
 
@@ -273,5 +281,35 @@ class CartControllerTest {
                 .andExpect(jsonPath("$.cartId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.item.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.quantity", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 상품일 경우")
+    @WithAccount
+    void addCartList_notFoundItem() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/carts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "cartRequestList": [
+                                    {
+                                      "itemId": "20",
+                                      "quantity": "2"
+                                    }
+                                  ]
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("addCartList"))
+                .andExpect(jsonPath("$.message").value("존재하지 않는 상품입니다."));
     }
 }
