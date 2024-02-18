@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/carts")
-@Tag(name = "v1-cart-cartDetail-controller", description = "장바구니 컨트롤러")
+@Tag(name = "v1-cart-cartDetail-controller", description = "장바구니 관련 API")
 public class CartController {
     private final CartService cartService;
 
-    @Operation(summary = "장바구니 조회 API")
+    @Operation(summary = "장바구니 조회")
     @GetMapping
     public ResponseEntity<CartResponse> getCartList(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         CartResponse cartList = cartService.getCartList(userPrincipal.getMember());
