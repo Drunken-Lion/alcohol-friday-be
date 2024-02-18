@@ -1,12 +1,16 @@
 package com.drunkenlion.alcoholfriday.domain.admin.dto;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.MemberRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import lombok.*;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
@@ -31,7 +35,7 @@ public class MemberDetailResponse {
     private String nickname;
 
     @Schema(description = "권한")
-    private String role;
+    private MemberRole role;
 
     @Schema(description = "연락처")
     private Long phone;

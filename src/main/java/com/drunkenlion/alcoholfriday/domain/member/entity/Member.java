@@ -1,8 +1,14 @@
 package com.drunkenlion.alcoholfriday.domain.member.entity;
 
+import com.drunkenlion.alcoholfriday.domain.member.util.MemberRoleConverter;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.MemberRole;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Converter;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -37,7 +43,8 @@ public class Member extends BaseEntity {
 
     @Comment("회원 권한")
     @Column(length = 50)
-    private String role;
+    @Convert(converter = MemberRoleConverter.class)
+    private MemberRole role;
 
     @Comment("회원 연락처")
     private Long phone;

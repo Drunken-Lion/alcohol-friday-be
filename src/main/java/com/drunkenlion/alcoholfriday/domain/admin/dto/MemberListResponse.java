@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.dto;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.MemberRole;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,7 @@ public class MemberListResponse {
     private String email;
 
     @Schema(description = "권한")
-    private String role;
+    private MemberRole role;
 
     @Schema(description = "생성일시")
     private LocalDateTime createdAt;
