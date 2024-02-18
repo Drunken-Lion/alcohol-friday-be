@@ -16,7 +16,7 @@ import java.util.List;
 public class CartResponse {
     @Schema(description = "사용자의 장바구니 고유 번호")
     private Long cartId;
-    @Schema(description = "사용자의 장바구니 상품들")
+    @Schema(description = "사용자의 장바구니 상품(들)")
     private List<CartDetailResponse> cartDetails;
     @Schema(description = "사용자의 장바구니 금액 총합")
     private BigDecimal totalCartPrice;
