@@ -20,7 +20,7 @@ public class CartController {
     private final CartService cartService;
 
     @Operation(summary = "장바구니 조회 API")
-    @GetMapping("list")
+    @GetMapping
     public ResponseEntity<CartResponse> getCartList(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         CartResponse cartList = cartService.getCartList(userPrincipal.getMember());
 
