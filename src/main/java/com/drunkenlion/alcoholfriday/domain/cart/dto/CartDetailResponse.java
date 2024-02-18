@@ -13,7 +13,7 @@ import lombok.*;
 public class CartDetailResponse {
     @Schema(description = "상품 정보")
     private FindItemResponse item;
-    @Schema(description = "장바구니에서 상품 수량")
+    @Schema(description = "장바구니의 상품 수량")
     private Long quantity;
 
     public static CartDetailResponse of(CartDetail cartDetail) {
