@@ -66,4 +66,13 @@ public class AdminRestaurantController {
         RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(id, restaurantRequest);
         return ResponseEntity.ok().body(restaurantDetailResponse);
     }
+
+    @Operation(summary = "매장 삭제", description = "관리자 권한에 대한 매장 삭제")
+    @DeleteMapping(value = "restaurants/{id}")
+    public ResponseEntity<Void> deleteRestaurant(
+            @PathVariable("id") Long id
+    ) {
+        adminRestaurantService.deleteRestaurant(id);
+        return ResponseEntity.noContent().build();
+    }
 }

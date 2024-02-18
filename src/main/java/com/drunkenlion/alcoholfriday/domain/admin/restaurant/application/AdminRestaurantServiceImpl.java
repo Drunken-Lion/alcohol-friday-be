@@ -7,7 +7,9 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantData
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +19,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AdminRestaurantServiceImpl implements AdminRestaurantService {
     private final RestaurantRepository restaurantRepository;
+    private final RestaurantStockRepository restaurantStockRepository;
     private final MemberRepository memberRepository;
 
     public Page<RestaurantListResponse> getRestaurants(int page, int size) {
@@ -97,5 +104,37 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
         restaurantRepository.save(restaurant);
 
         return RestaurantDetailResponse.of(restaurant);
+    }
+
+    @Transactional
+    public void deleteRestaurant(Long id) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
+                        .build());
+
+        if (restaurant.getDeletedAt() != null) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
+                    .build();
+        }
+
+        // 매장에 관련된 매장 재고 삭제 처리
+        List<RestaurantStock> restaurantStocks = restaurantStockRepository.findByRestaurantAndDeletedAtIsNull(restaurant);
+        if (!restaurantStocks.isEmpty()) {
+            restaurantStocks = restaurantStocks.stream()
+                    .map(restaurantStock -> restaurantStock.toBuilder()
+                            .deletedAt(LocalDateTime.now())
+                            .build())
+                    .collect(Collectors.toList());
+
+            restaurantStockRepository.saveAll(restaurantStocks);
+        }
+
+        restaurant = restaurant.toBuilder()
+                .deletedAt(LocalDateTime.now())
+                .build();
+
+        restaurantRepository.save(restaurant);
     }
 }
