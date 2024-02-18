@@ -115,7 +115,8 @@ public class GlobalExceptionHandler {
                 .status(HttpResponse.Fail.INTERNAL_SERVER_ERROR.getStatus())
                 .body(ErrorResponse.of(
                         HttpResponse.Fail.INTERNAL_SERVER_ERROR.getMessage(),
-                        request
+                        request,
+                        e
                 ));
     }
 }
