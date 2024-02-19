@@ -276,7 +276,6 @@ class CartServiceTest {
     @Test
     @DisplayName("장바구니에 한 개 상품 조회하는 경우")
     void getCartDetailOneTest() {
-        // given
         when(this.cartRepository.findFirstByMember(any(Member.class))).thenReturn(this.getOneCart());
 
         List<CartDetail> cartDetails = new ArrayList<>();
