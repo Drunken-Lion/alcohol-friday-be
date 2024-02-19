@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.cart.api;
 
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
