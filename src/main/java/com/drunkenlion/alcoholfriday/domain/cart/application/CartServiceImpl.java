@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,7 +33,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartResponse addCartList(List<CartRequest> cartRequestList, Member member) {
-        Cart cart = addFirstCart(member) != null ? addFirstCart(member) : cartRepository.save(Cart.create(member));
+        Cart cart = addFirstCart(member).orElseGet(() -> cartRepository.save(Cart.create(member)));
 
         List<CartDetailResponse> cartDetailResponseList = cartRequestList.stream()
                 .map(cartRequest -> addCart(cartRequest, cart))
@@ -47,8 +48,8 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartDetailResponse addCart(CartRequest addCart, Cart cart) {
-        Item item = itemRepository.findById(addCart.getItemId())
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_ITEM));
+        Item item = itemRepository.findById(addCart.getItemId()).orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
 
         CartDetail cartDetail = CartDetail.builder()
                 .cart(cart)
@@ -65,10 +66,11 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartDetailResponse modifyCartItemQuantity(CartRequest modifyCart, Member member) {
-        Cart cart = addFirstCart(member);
+        Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND).build());
 
-        Item item = itemRepository.findById(modifyCart.getItemId())
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_ITEM));
+        Item item = itemRepository.findById(modifyCart.getItemId()).orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
 
         CartDetail cartDetail = cartDetailRepository.findByItemAndCart(item, cart);
 
@@ -82,7 +84,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public Cart addFirstCart(Member member) {
-        return cartRepository.findFirstByMember(member).orElse(null);
+    public Optional<Cart> addFirstCart(Member member) {
+        return cartRepository.findFirstByMember(member);
     }
 }
