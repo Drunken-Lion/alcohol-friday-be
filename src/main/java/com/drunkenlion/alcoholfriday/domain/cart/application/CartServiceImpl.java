@@ -95,7 +95,7 @@ public class CartServiceImpl implements CartService {
     public CartResponse getCartList(Member member) {
         Cart cart = addFirstCart(member).orElse(null);
 
-        if (cart== null) return getEmptyCart(cart);
+        if (cart == null) return getEmptyCart(cart);
 
         List<CartDetail> cartDetailList = cartDetailRepository.findAllByCart(cart);
 
