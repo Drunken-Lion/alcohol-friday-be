@@ -341,7 +341,7 @@ class CartControllerTest {
                 .andExpect(handler().methodName("getCartList"))
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.cartId").value(-1))
-                .andExpect(jsonPath("$.cartDetails").isEmpty())
+                .andExpect(jsonPath("$.cartDetailResponseList").isEmpty())
                 .andExpect(jsonPath("$.totalCartPrice").value(new BigDecimal("0")))
                 .andExpect(jsonPath("$.totalCartQuantity").value(0));
     }
@@ -366,7 +366,7 @@ class CartControllerTest {
                 .andExpect(handler().methodName("getCartList"))
                 .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.cartId").value(cartId))
-                .andExpect(jsonPath("$.cartDetails").isEmpty())
+                .andExpect(jsonPath("$.cartDetailResponseList").isEmpty())
                 .andExpect(jsonPath("$.totalCartPrice").value(new BigDecimal("0")))
                 .andExpect(jsonPath("$.totalCartQuantity").value(0));
     }

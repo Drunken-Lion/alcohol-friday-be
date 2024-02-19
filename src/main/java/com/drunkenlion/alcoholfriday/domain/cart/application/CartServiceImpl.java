@@ -10,7 +10,6 @@ import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
-import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -30,7 +29,6 @@ public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartDetailRepository cartDetailRepository;
     private final ItemRepository itemRepository;
-    private final MemberRepository memberRepository;
 
     @Override
     @Transactional
