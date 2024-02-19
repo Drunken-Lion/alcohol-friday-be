@@ -29,7 +29,9 @@ import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
@@ -85,6 +87,7 @@ public class NotProd {
     private final ItemProductRepository itemProductRepository;
     private final CartRepository cartRepository;
     private final CartDetailRepository cartDetailRepository;
+    private final RestaurantStockRepository restaurantStockRepository;
 
 
     @Bean
@@ -1765,6 +1768,76 @@ public class NotProd {
                         .cart(장바구니_회원1)
                         .item(상품_4)
                         .quantity(100L)
+                        .build());
+
+        RestaurantStock 가게_상품1_1 = restaurantStockRepository.save(
+                RestaurantStock.builder()
+                        .item(상품_1)
+                        .quantity(100L)
+                        .restaurant(가게1)
+                        .build());
+
+        RestaurantStock 가게_상품1_2 = restaurantStockRepository.save(
+                RestaurantStock.builder()
+                        .item(상품_2)
+                        .quantity(100L)
+                        .restaurant(가게1)
+                        .build());
+
+        RestaurantStock 가게_상품2_1 = restaurantStockRepository.save(
+                RestaurantStock.builder()
+                        .item(상품_1)
+                        .quantity(100L)
+                        .restaurant(가게2)
+                        .build());
+
+        RestaurantStock 가게_상품2_2 = restaurantStockRepository.save(
+                RestaurantStock.builder()
+                        .item(상품_2)
+                        .quantity(100L)
+                        .restaurant(가게2)
+                        .build());
+
+        RestaurantStock 가게_상품3_1 = restaurantStockRepository.save(
+                RestaurantStock.builder()
+                        .item(상품_1)
+                        .quantity(100L)
+                        .restaurant(가게3)
+                        .build());
+
+        RestaurantStock 가게_상품3_2 = restaurantStockRepository.save(
+                RestaurantStock.builder()
+                        .item(상품_2)
+                        .quantity(100L)
+                        .restaurant(가게3)
+                        .build());
+
+        RestaurantStock 가게_상품4_1 = restaurantStockRepository.save(
+                RestaurantStock.builder()
+                        .item(상품_1)
+                        .quantity(100L)
+                        .restaurant(가게4)
+                        .build());
+
+        RestaurantStock 가게_상품4_2 = restaurantStockRepository.save(
+                RestaurantStock.builder()
+                        .item(상품_2)
+                        .quantity(100L)
+                        .restaurant(가게4)
+                        .build());
+
+        RestaurantStock 가게_상품5_1 = restaurantStockRepository.save(
+                RestaurantStock.builder()
+                        .item(상품_1)
+                        .quantity(100L)
+                        .restaurant(가게5)
+                        .build());
+
+        RestaurantStock 가게_상품5_2 = restaurantStockRepository.save(
+                RestaurantStock.builder()
+                        .item(상품_2)
+                        .quantity(100L)
+                        .restaurant(가게5)
                         .build());
     }
 }
