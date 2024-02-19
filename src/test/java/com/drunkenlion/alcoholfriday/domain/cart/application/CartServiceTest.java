@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -270,6 +271,35 @@ class CartServiceTest {
         assertThat(cartResponse.getCartDetailResponseList().get(0).getQuantity()).isEqualTo(cartRequest1.getQuantity());
         assertThat(cartResponse.getCartDetailResponseList().get(1).getItem().getName()).isEqualTo(itemName2);
         assertThat(cartResponse.getCartDetailResponseList().get(1).getQuantity()).isEqualTo(cartRequest2.getQuantity());
+    }
+
+    void getCartListTest() {
+        // given
+        when(this.cartRepository.findByMember(any(Member.class))).thenReturn(this.getOneCart());
+
+        List<CartDetail> cartDetails = new ArrayList<>();
+        cartDetails.add(getDataCartDetail());
+        when(this.cartDetailRepository.findAllByCart(any(Cart.class))).thenReturn(cartDetails);
+
+        // when
+        List<CartDetailResponse> cartList = this.cartService.getCartList(getDataMember());
+
+        // then
+        assertThat(cartList.get(0).getQuantity()).isEqualTo(2L);
+        assertThat(cartList.get(0).getItem().getName()).isEqualTo(itemName);
+        assertThat(cartList.get(0).getItem().getPrice()).isEqualTo(price);
+    }
+
+    @Test
+    @DisplayName("회원에게 카트가 없는 경우")
+    void getCartList_EmptyCart() {
+        // given
+        when(cartRepository.findByMember(any(Member.class))).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () -> {
+            cartService.getCartList(getDataMember());
+        });
     }
 
 

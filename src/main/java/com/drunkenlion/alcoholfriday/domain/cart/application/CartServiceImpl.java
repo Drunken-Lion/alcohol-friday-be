@@ -75,7 +75,7 @@ public class CartServiceImpl implements CartService {
 
         CartDetail cartDetail = cartDetailRepository.findByItemAndCart(item, cart);
 
-        cartDetail.setQuantity(modifyCart.getQuantity());
+        cartDetail.addQuantity(modifyCart.getQuantity());
 
         return CartDetailResponse.builder()
                 .item(FindItemResponse.of(cartDetail.getItem()))
@@ -101,7 +101,7 @@ public class CartServiceImpl implements CartService {
 
         // 클라이언트에게 보내기
         return cartDetailList.stream()
-                .map(CartDetailResponse::of)
+                .map(cartDetail -> CartDetailResponse.of(cartDetail, cart))
                 .collect(Collectors.toList());
     }
 }
