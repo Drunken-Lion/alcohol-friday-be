@@ -10,4 +10,5 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     Optional<Cart> findByMember(Member member);
 
     Optional<Cart> findFirstByMember(Member member);
+    Optional<Cart> findByMember(Member member);
 }
