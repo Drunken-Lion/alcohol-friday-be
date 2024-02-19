@@ -14,5 +14,5 @@ public interface CartService {
     CartDetailResponse addCart(CartRequest addCart, Cart cart);
     CartDetailResponse modifyCartItemQuantity(CartRequest modifyCart, Member member);
     Optional<Cart> addFirstCart(Member member);
-    List<CartDetailResponse> getCartList(Member member);
+    CartResponse getCartList(Member member);
 }

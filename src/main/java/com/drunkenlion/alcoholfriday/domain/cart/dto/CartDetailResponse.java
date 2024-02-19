@@ -1,12 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.cart.dto;
 
-import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-
-import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,13 +15,11 @@ public class CartDetailResponse {
     private FindItemResponse item;
     @Schema(description = "장바구니의 상품 수량")
     private Long quantity;
-    private BigDecimal totalCartPrice;
 
-    public static CartDetailResponse of(CartDetail cartDetail, Cart cart) {
+    public static CartDetailResponse of(CartDetail cartDetail) {
         return CartDetailResponse.builder()
                 .item(FindItemResponse.of(cartDetail.getItem()))
                 .quantity(cartDetail.getQuantity())
-                .totalCartPrice(cart.getTotalCartPrice())
                 .build();
     }
 }
