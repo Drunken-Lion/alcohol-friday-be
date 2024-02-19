@@ -1,10 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.member.enumerated;
 
-import java.util.Arrays;
-
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
-
+import java.util.Arrays;
 import lombok.Getter;
 
 @Getter

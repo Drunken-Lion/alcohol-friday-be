@@ -29,14 +29,19 @@ public class CartDetail extends BaseEntity {
 
     @Comment("장바구니에 담긴 상품")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id",foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "item_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Item item;
 
     @Comment("장바구니에 담긴 상품 수량")
     @ColumnDefault("0")
     private Long quantity;
 
-    public void setQuantity(Long quantity) {
+    public void addItem(Item item) {
+        this.item = item;
+        cart.getCartDetails().add(this);
+    }
+
+    public void addQuantity(Long quantity) {
         this.quantity = quantity;
     }
 }
