@@ -1,29 +1,30 @@
 package com.drunkenlion.alcoholfriday.domain.member.entity;
 
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.auth.util.ProviderTypeConverter;
 import com.drunkenlion.alcoholfriday.domain.member.util.MemberRoleConverter;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.MemberRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
-import jakarta.persistence.Converter;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDate;
 import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "member")
 public class Member extends BaseEntity {
     @Comment("회원 메일")
     @Column(unique = true, length = 50)
@@ -31,7 +32,8 @@ public class Member extends BaseEntity {
 
     @Comment("회원 가입 소셜 정보")
     @Column(length = 20)
-    private String provider;
+    @Convert(converter = ProviderTypeConverter.class)
+    private ProviderType provider;
 
     @Comment("회원 본명")
     @Column(length = 50)
@@ -43,7 +45,7 @@ public class Member extends BaseEntity {
 
     @Comment("회원 권한")
     @Column(length = 50)
-    // @Convert(converter = MemberRoleConverter.class)
+//     @Convert(converter = MemberRoleConverter.class)
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 

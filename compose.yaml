@@ -5,9 +5,10 @@ services:
     restart: always
     ports:
       - 80:80
+      - 443:443
   spring-docker:
     container_name: spring-server
-    image: spring-docker:0.0.1
+    image: alcohol-friday:0.0.1
     restart: always
     ports:
       - 8080:8080

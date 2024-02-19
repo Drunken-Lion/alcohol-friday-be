@@ -6,6 +6,7 @@ spring:
         - file
       test:
         - file
+        - secret
 logging:
   level:
     com.drunkenlion.alcoholfriday: DEBUG

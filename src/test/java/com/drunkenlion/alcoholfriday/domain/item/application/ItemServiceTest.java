@@ -4,11 +4,11 @@ import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
-import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemRequest;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.file.application.FileServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,6 +34,8 @@ import static org.mockito.ArgumentMatchers.any;
 class ItemServiceTest {
     @InjectMocks
     private ItemServiceImpl itemService;
+    @Mock
+    private FileServiceImpl fileService;
     @Mock
     private ItemRepository itemRepository;
 
@@ -63,14 +65,8 @@ class ItemServiceTest {
         List<String> list = new ArrayList<>();
         list.add("type");
         list.add("name");
-
-        SearchItemRequest searchItemRequest = SearchItemRequest.builder()
-                .size(10)
-                .keywordType(list)
-                .keyword("탁주")
-                .build();
         // when
-        Page<SearchItemResponse> search = this.itemService.search(searchItemRequest);
+        Page<SearchItemResponse> search = this.itemService.search(10, "탁주", list);
         // then
         List<SearchItemResponse> content = search.getContent();
 
@@ -78,7 +74,6 @@ class ItemServiceTest {
         assertThat(content.size()).isEqualTo(1);
         assertThat(content.get(0).getName()).isEqualTo(itemName);
         assertThat(content.get(0).getPrice()).isEqualTo(price);
-        assertThat(content.get(0).getInfo()).isEqualTo(info);
         assertThat(content.get(0).getCategory().getFirstName()).isEqualTo(firstName);
         assertThat(content.get(0).getCategory().getLastName()).isEqualTo(lastName);
     }

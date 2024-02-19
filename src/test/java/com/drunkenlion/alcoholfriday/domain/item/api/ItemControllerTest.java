@@ -110,14 +110,9 @@ class ItemControllerTest {
         // when
         ResultActions resultActions = mvc
                 .perform(get("/v1/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "size": 10,
-                                    "keywordType": [ "type", "name" ],
-                                    "keyword": "탁주"
-                                }
-                                """)
+                        .param("size", "10")
+                        .param("keywordType", "type,name")
+                        .param("keyword", "탁주")
                 )
                 .andDo(print());
 
@@ -131,7 +126,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.data[0].id", notNullValue()))
                 .andExpect(jsonPath("$.data[0].name", notNullValue()))
                 .andExpect(jsonPath("$.data[0].price", notNullValue()))
-                .andExpect(jsonPath("$.data[0].info", notNullValue()))
                 .andExpect(jsonPath("$.data[0].category.firstName", notNullValue()))
                 .andExpect(jsonPath("$.data[0].category.lastName", notNullValue()))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
@@ -146,9 +140,7 @@ class ItemControllerTest {
 
         // when
         ResultActions resultActions = mvc
-                .perform(get("/v1/items/" + saved.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
+                .perform(get("/v1/items/" + saved.getId()))
                 .andDo(print());
 
         // then
