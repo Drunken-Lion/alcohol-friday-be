@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,17 +93,26 @@ public class CartServiceImpl implements CartService {
     // 장바구니 조회
     @Override
     public CartResponse getCartList(Member member) {
-        Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
-                .response(HttpResponse.Fail.NOT_FOUND).build());
+        Cart cart = addFirstCart(member).orElse(null);
+
+        if (cart== null) return getEmptyCart();
 
         List<CartDetail> cartDetailList = cartDetailRepository.findAllByCart(cart);
 
-        if (cartDetailList.isEmpty()) throw new IllegalArgumentException("현재 장바구니에 상품이 없습니다.");
+        if (cartDetailList.isEmpty()) return getEmptyCart();
 
         List<CartDetailResponse> cartDetails = cartDetailList.stream()
                                                             .map(CartDetailResponse::of)
                                                             .toList();
 
         return CartResponse.of(cartDetails, cart, cartDetailList);
+    }
+
+    private static CartResponse getEmptyCart() {
+        return CartResponse.builder()
+                .cartDetailResponseList(Collections.EMPTY_LIST)
+                .totalCartPrice(BigDecimal.ZERO)
+                .totalCartQuantity(0L)
+                .build();
     }
 }
