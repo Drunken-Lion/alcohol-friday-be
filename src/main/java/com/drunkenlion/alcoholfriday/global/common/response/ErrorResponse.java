@@ -2,7 +2,6 @@ package com.drunkenlion.alcoholfriday.global.common.response;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.*;
-import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
@@ -15,12 +14,23 @@ public class ErrorResponse {
     private String path;
     private String message;
     private LocalDateTime timestamp;
+    private Exception error;
 
     public static ErrorResponse of(final String message, final HttpServletRequest request) {
         return ErrorResponse.builder()
                 .httpMethod(request.getMethod())
                 .path(request.getRequestURI())
                 .message(message)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    public static ErrorResponse of(final String message, final HttpServletRequest request, Exception error) {
+        return ErrorResponse.builder()
+                .httpMethod(request.getMethod())
+                .path(request.getRequestURI())
+                .message(message)
+                .error(error)
                 .timestamp(LocalDateTime.now())
                 .build();
     }
