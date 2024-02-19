@@ -101,7 +101,7 @@ public class CartServiceImpl implements CartService {
 
         // 클라이언트에게 보내기
         return cartDetailList.stream()
-                .map(CartDetailResponse::of)
+                .map(cartDetail -> CartDetailResponse.of(cartDetail, cart))
                 .collect(Collectors.toList());
     }
 }
