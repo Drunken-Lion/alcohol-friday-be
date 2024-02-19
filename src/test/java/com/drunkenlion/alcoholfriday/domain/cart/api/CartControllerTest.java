@@ -38,6 +38,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -51,6 +52,7 @@ class CartControllerTest {
 
     private Long itemId; // 아이템의 ID를 저장할 변수
     private Long itemId2;
+    private Long cartId;
 
     @Autowired
     private ItemRepository itemRepository;
@@ -159,6 +161,7 @@ class CartControllerTest {
                 .member(member.get())
                 .build();
         Cart savedCart = cartRepository.save(cart);
+        cartId = savedCart.getId();
 
         CartDetail cartDetail = CartDetail.builder()
                 .cart(savedCart)
@@ -315,5 +318,30 @@ class CartControllerTest {
                 .andExpect(handler().handlerType(CartController.class))
                 .andExpect(handler().methodName("addCartList"))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 상품입니다."));
+    }
+
+    @Test
+    @DisplayName("장바구니에 상품이 없는 경우_EmptyCartDetail")
+    @WithAccount
+    void getCartList_EmptyCartDetail() throws Exception {
+        // given
+        cartDetailRepository.deleteAll();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/carts")
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("getCartList"))
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.cartId").value(cartId))
+                .andExpect(jsonPath("$.cartDetails").isEmpty())
+                .andExpect(jsonPath("$.totalCartPrice").value(new BigDecimal("0")))
+                .andExpect(jsonPath("$.totalCartQuantity").value(0));
     }
 }
