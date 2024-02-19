@@ -1,18 +1,18 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.api;
 
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
-import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
+import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,8 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -270,5 +269,25 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @Test
+    @DisplayName("매장 삭제 성공")
+    void deleteRestaurantTest() throws Exception {
+        // given
+        Restaurant restaurant = this.restaurantRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(delete("/v1/admin/restaurants/" + restaurant.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(AdminRestaurantController.class))
+                .andExpect(handler().methodName("deleteRestaurant"));
     }
 }

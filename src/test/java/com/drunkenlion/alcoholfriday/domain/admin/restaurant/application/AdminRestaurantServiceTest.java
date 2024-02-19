@@ -3,11 +3,15 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.application;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
@@ -15,12 +19,11 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
-import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -29,6 +32,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Point;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -36,11 +40,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -49,6 +57,8 @@ public class AdminRestaurantServiceTest {
     private AdminRestaurantServiceImpl adminRestaurantService;
     @Mock
     private RestaurantRepository restaurantRepository;
+    @Mock
+    private RestaurantStockRepository restaurantStockRepository;
     @Mock
     private MemberRepository memberRepository;
 
@@ -122,10 +132,10 @@ public class AdminRestaurantServiceTest {
     private final String modifyCategory = "한식 수정";
     private final String modifyName = "맛있는 한식당 수정";
     private final String modifyAddress = "서울시 강남구 수정";
-    private final Point modifyLocation = new Point(10.0001,20.0002);
+    private final Point modifyLocation = new Point(10.0001, 20.0002);
     private final Long modifyContact = 1011112222L;
 
-    private Map<String, Object> getModifyMenuTest()  {
+    private Map<String, Object> getModifyMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
         frame.put("비빔밥 수정", 8000);
         frame.put("불고기 수정", 12000);
@@ -142,10 +152,10 @@ public class AdminRestaurantServiceTest {
         TimeData timeData = TimeData.builder()
                 .businessStatus(true)
                 .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(22,0))
+                .endTime(LocalTime.of(22, 0))
                 .breakBusinessStatus(true)
-                .breakStartTime(LocalTime.of(15,0))
-                .breakEndTime(LocalTime.of(17,0))
+                .breakStartTime(LocalTime.of(15, 0))
+                .breakEndTime(LocalTime.of(17, 0))
                 .build();
 
         for (DayInfo value : DayInfo.values()) {
@@ -172,7 +182,7 @@ public class AdminRestaurantServiceTest {
     @DisplayName("매장 목록 조회 성공")
     public void getRestaurantsTest() {
         // given
-        Mockito.when(this.restaurantRepository.findAll(any(Pageable.class))).thenReturn(this.getRestaurants());
+        when(this.restaurantRepository.findAll(any(Pageable.class))).thenReturn(this.getRestaurants());
 
         // when
         Page<RestaurantListResponse> restaurants = this.adminRestaurantService.getRestaurants(page, size);
@@ -194,7 +204,7 @@ public class AdminRestaurantServiceTest {
     @DisplayName("매장 상세 조회 성공")
     public void getRestaurantTest() {
         // given
-        Mockito.when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
 
         // when
         RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(id);
@@ -218,7 +228,7 @@ public class AdminRestaurantServiceTest {
     @DisplayName("매장 상세 조회 실패 - 찾을 수 없는 매장")
     public void getRestaurantFailNotFoundTest() {
         // given
-        Mockito.when(this.restaurantRepository.findById(any())).thenReturn(Optional.empty());
+        when(this.restaurantRepository.findById(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -246,8 +256,8 @@ public class AdminRestaurantServiceTest {
                 .provision(provision)
                 .build();
 
-        Mockito.when(memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
-        Mockito.when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+        when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
         RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(restaurantRequest);
@@ -281,7 +291,7 @@ public class AdminRestaurantServiceTest {
                 .provision(provision)
                 .build();
 
-        Mockito.when(this.memberRepository.findById(any())).thenReturn(Optional.empty());
+        when(this.memberRepository.findById(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -313,7 +323,7 @@ public class AdminRestaurantServiceTest {
                 .provision(provision)
                 .build();
 
-        Mockito.when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+        when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -337,10 +347,10 @@ public class AdminRestaurantServiceTest {
         TimeData timeData = TimeData.builder()
                 .businessStatus(true)
                 .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(22,0))
+                .endTime(LocalTime.of(22, 0))
                 .breakBusinessStatus(true)
-                .breakStartTime(LocalTime.of(15,0))
-                .breakEndTime(LocalTime.of(17,0))
+                .breakStartTime(LocalTime.of(15, 0))
+                .breakEndTime(LocalTime.of(17, 0))
                 .build();
 
         for (DayInfo value : DayInfo.values()) {
@@ -359,7 +369,7 @@ public class AdminRestaurantServiceTest {
                 .provision(provision)
                 .build();
 
-        Mockito.when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+        when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -393,7 +403,7 @@ public class AdminRestaurantServiceTest {
                 .provision(wrongProvision)
                 .build();
 
-        Mockito.when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+        when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -404,7 +414,7 @@ public class AdminRestaurantServiceTest {
         assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getStatus(), exception.getStatus());
         assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getMessage(), exception.getMessage());
     }
-    
+
     @Test
     @DisplayName("매장 수정 성공")
     public void modifyRestaurantTest() {
@@ -421,9 +431,9 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        Mockito.when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
-        Mockito.when(restaurantRepository.findById(any())).thenReturn(this.getOne());
-        Mockito.when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
         RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(id, restaurantRequest);
@@ -458,7 +468,7 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        Mockito.when(restaurantRepository.findById(any())).thenReturn(Optional.empty());
+        when(restaurantRepository.findById(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -486,8 +496,8 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        Mockito.when(restaurantRepository.findById(any())).thenReturn(this.getOne());
-        Mockito.when(memberRepository.findById(modifyMemberId)).thenReturn(Optional.empty());
+        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(memberRepository.findById(modifyMemberId)).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -519,8 +529,8 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        Mockito.when(restaurantRepository.findById(any())).thenReturn(this.getOne());
-        Mockito.when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -544,10 +554,10 @@ public class AdminRestaurantServiceTest {
         TimeData timeData = TimeData.builder()
                 .businessStatus(true)
                 .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(22,0))
+                .endTime(LocalTime.of(22, 0))
                 .breakBusinessStatus(true)
-                .breakStartTime(LocalTime.of(15,0))
-                .breakEndTime(LocalTime.of(17,0))
+                .breakStartTime(LocalTime.of(15, 0))
+                .breakEndTime(LocalTime.of(17, 0))
                 .build();
 
         for (DayInfo value : DayInfo.values()) {
@@ -566,8 +576,8 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        Mockito.when(restaurantRepository.findById(any())).thenReturn(this.getOne());
-        Mockito.when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -601,8 +611,8 @@ public class AdminRestaurantServiceTest {
                 .provision(wrongProvision)
                 .build();
 
-        Mockito.when(restaurantRepository.findById(any())).thenReturn(this.getOne());
-        Mockito.when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -612,6 +622,72 @@ public class AdminRestaurantServiceTest {
         // then
         assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getStatus(), exception.getStatus());
         assertEquals(HttpResponse.Fail.INVALID_INPUT_VALUE.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 삭제 성공")
+    public void deleteRestaurantTest() {
+        // given
+        Restaurant restaurant = getRestaurantData();
+        List<RestaurantStock> restaurantStocks = getRestaurantStocksData();
+
+        when(restaurantRepository.findById(id)).thenReturn(Optional.of(restaurant));
+        when(restaurantStockRepository.findByRestaurantAndDeletedAtIsNull(restaurant)).thenReturn(restaurantStocks);
+
+        ArgumentCaptor<Restaurant> restaurantCaptor = ArgumentCaptor.forClass(Restaurant.class);
+        ArgumentCaptor<List<RestaurantStock>> restaurantStocksCaptor = ArgumentCaptor.forClass(List.class);
+
+        // When
+        adminRestaurantService.deleteRestaurant(id);
+
+        // then
+        verify(restaurantRepository).save(restaurantCaptor.capture());
+        verify(restaurantStockRepository).saveAll(restaurantStocksCaptor.capture());
+
+        Restaurant savedRestaurant = restaurantCaptor.getValue();
+        List<RestaurantStock> savedRestaurantStocks = restaurantStocksCaptor.getValue();
+
+        assertThat(savedRestaurant.getDeletedAt()).isNotNull();
+        savedRestaurantStocks.forEach(restaurantStock -> {
+            assertThat(restaurantStock.getDeletedAt()).isNotNull();
+        });
+    }
+
+    @Test
+    @DisplayName("매장 삭제 실패 - 찾을 수 없는 매장")
+    public void deleteRestaurantFailNotFoundTest() {
+        // given
+        when(restaurantRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.deleteRestaurant(id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 삭제 실패 - 이미 삭제된 매장")
+    public void deleteRestaurantFailAlreadyDeletedTest() {
+        // given
+        Restaurant deletedRestaurant = this.getOne().get();
+        deletedRestaurant = deletedRestaurant.toBuilder()
+                .deletedAt(LocalDateTime.now())
+                .build();
+
+        when(restaurantRepository.findById(any())).thenReturn(Optional.of(deletedRestaurant));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.deleteRestaurant(id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getMessage(), exception.getMessage());
     }
 
     private Page<Restaurant> getRestaurants() {
@@ -682,5 +758,25 @@ public class AdminRestaurantServiceTest {
                 .agreedToServicePolicyUse(agreedToServicePolicyUse)
                 .createdAt(memberCreatedAt)
                 .build();
+    }
+
+    private List<RestaurantStock> getRestaurantStocksData() {
+        Restaurant restaurant = getRestaurantData();
+
+        return LongStream.rangeClosed(1, 2).mapToObj(i -> {
+            Item item = Item.builder()
+                    .name("itemName" + i)
+                    .price(BigDecimal.valueOf(i))
+                    .info("info")
+                    .build();
+
+            return RestaurantStock.builder()
+                    .id(i)
+                    .item(item)
+                    .restaurant(restaurant)
+                    .quantity(i)
+                    .createdAt(createdAt)
+                    .build();
+        }).collect(Collectors.toList());
     }
 }

@@ -13,4 +13,6 @@ public interface AdminRestaurantService {
     RestaurantDetailResponse createRestaurant(RestaurantRequest restaurantRequest);
 
     RestaurantDetailResponse modifyRestaurant(Long id, RestaurantRequest restaurantRequest);
+
+    void deleteRestaurant(Long id);
 }
