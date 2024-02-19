@@ -19,6 +19,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -33,26 +35,27 @@ public class AuthController {
         return ResponseEntity.ok().body(loginResponse);
     }
 
-    @Operation(summary = "소셜 로그인")
+    @Operation(summary = "소셜 로그인", description = "제공처의 액세스 토큰으로 회원 정보 조회, 로그인 처리 후 액세스 토큰과 회원 정보를 응답으로 전송")
     @PostMapping("/login/{provider}")
     public ResponseEntity<LoginResponse> login(@PathVariable ProviderType provider,
                                                @RequestBody String providerAccessToken) {
-        if (providerAccessToken == null) {
-            throw new BusinessException(HttpResponse.Fail.BAD_REQUEST);
-        }
+        validRequestToken(providerAccessToken);
 
         LoginResponse loginResponse = authService.socialLogin(provider, providerAccessToken);
         return ResponseEntity.ok().body(loginResponse);
     }
 
-    @Operation(summary = "액세스 토큰 재발급")
+    @Operation(summary = "액세스 토큰 재발급", description = "리프레시 토큰이 유효하다면, 새로운 액세스 토큰 발급")
     @PostMapping("/reissue-token")
     public ResponseEntity<JwtResponse> reissueToken(@RequestBody String refreshToken) {
-        if (refreshToken == null) {
-            throw new BusinessException(HttpResponse.Fail.BAD_REQUEST);
-        }
+        validRequestToken(refreshToken);
 
         JwtResponse jwtResponse = authService.reissueToken(refreshToken);
         return ResponseEntity.ok().body(jwtResponse);
+    }
+
+    private void validRequestToken(String token) {
+        Optional.ofNullable(token)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.BAD_REQUEST));
     }
 }
