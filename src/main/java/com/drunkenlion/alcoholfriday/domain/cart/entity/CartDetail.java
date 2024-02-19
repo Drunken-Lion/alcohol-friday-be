@@ -41,7 +41,7 @@ public class CartDetail extends BaseEntity {
         cart.getCartDetails().add(this);
     }
 
-    public void updateQuantity(Long quantity) {
+    public void addQuantity(Long quantity) {
         this.quantity = quantity;
     }
 }
