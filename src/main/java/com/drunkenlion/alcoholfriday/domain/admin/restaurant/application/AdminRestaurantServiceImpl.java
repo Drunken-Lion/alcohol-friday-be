@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.application;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantStockItemResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantDataValidator;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -10,8 +11,11 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +36,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
     private final RestaurantRepository restaurantRepository;
     private final RestaurantStockRepository restaurantStockRepository;
     private final MemberRepository memberRepository;
+    private final FileService fileService;
 
     public Page<RestaurantListResponse> getRestaurants(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -44,7 +51,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
 
-        return RestaurantDetailResponse.of(restaurant);
+        return RestaurantDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
     }
 
     public RestaurantDetailResponse createRestaurant(RestaurantRequest restaurantRequest) {
@@ -53,10 +60,9 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
-        if(!RestaurantDataValidator.isMenuDataValid(restaurantRequest.getMenu()) ||
+        if (!RestaurantDataValidator.isMenuDataValid(restaurantRequest.getMenu()) ||
                 !RestaurantDataValidator.isTimeDataValid(restaurantRequest.getTime()) ||
-                !RestaurantDataValidator.isProvisionDataValid(restaurantRequest.getProvision()))
-        {
+                !RestaurantDataValidator.isProvisionDataValid(restaurantRequest.getProvision())) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.INVALID_INPUT_VALUE)
                     .build();
@@ -65,7 +71,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
         Restaurant restaurant = RestaurantRequest.toEntity(restaurantRequest, member);
         restaurantRepository.save(restaurant);
 
-        return RestaurantDetailResponse.of(restaurant);
+        return RestaurantDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
     }
 
     @Transactional
@@ -80,10 +86,9 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
-        if(!RestaurantDataValidator.isMenuDataValid(restaurantRequest.getMenu()) ||
+        if (!RestaurantDataValidator.isMenuDataValid(restaurantRequest.getMenu()) ||
                 !RestaurantDataValidator.isTimeDataValid(restaurantRequest.getTime()) ||
-                !RestaurantDataValidator.isProvisionDataValid(restaurantRequest.getProvision()))
-        {
+                !RestaurantDataValidator.isProvisionDataValid(restaurantRequest.getProvision())) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.INVALID_INPUT_VALUE)
                     .build();
@@ -103,7 +108,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
 
         restaurantRepository.save(restaurant);
 
-        return RestaurantDetailResponse.of(restaurant);
+        return RestaurantDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
     }
 
     @Transactional
@@ -136,5 +141,28 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                 .build();
 
         restaurantRepository.save(restaurant);
+    }
+
+    private List<RestaurantStockItemResponse> getRestaurantStockItemResponseList(Restaurant restaurant) {
+        List<RestaurantStock> restaurantStocks = restaurantStockRepository.findByRestaurantAndDeletedAtIsNotNull(restaurant);
+        List<RestaurantStockItemResponse> stockItemInfos = new ArrayList<>();
+
+        if (!restaurantStocks.isEmpty()) {
+            List<Long> entityIds = restaurantStocks.stream()
+                    .map(rs -> rs.getItem().getId())
+                    .collect(Collectors.toList());
+
+            List<NcpFileResponse> ncpFiles = fileService.findAllByEntityIds(entityIds, EntityType.ITEM.getEntityName());
+
+            for (RestaurantStock restaurantStock : restaurantStocks) {
+                Optional<NcpFileResponse> targetFile = ncpFiles.stream()
+                        .filter(file -> file.getEntityId().equals(restaurantStock.getItem().getId()))
+                        .findFirst();
+
+                stockItemInfos.add(RestaurantStockItemResponse.of(restaurantStock, targetFile.get()));
+            }
+        }
+
+        return stockItemInfos;
     }
 }

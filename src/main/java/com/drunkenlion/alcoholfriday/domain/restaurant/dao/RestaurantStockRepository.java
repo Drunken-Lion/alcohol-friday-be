@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface RestaurantStockRepository extends JpaRepository<RestaurantStock, Long> {
     List<RestaurantStock> findByRestaurantAndDeletedAtIsNull(Restaurant restaurant);
+
+    List<RestaurantStock> findByRestaurantAndDeletedAtIsNotNull(Restaurant restaurant);
 }
