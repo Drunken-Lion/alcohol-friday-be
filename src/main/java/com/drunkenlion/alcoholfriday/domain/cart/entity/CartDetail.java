@@ -36,7 +36,12 @@ public class CartDetail extends BaseEntity {
     @ColumnDefault("0")
     private Long quantity;
 
-    public void setQuantity(Long quantity) {
+    public void addItem(Item item) {
+        this.item = item;
+        cart.getCartDetails().add(this);
+    }
+
+    public void addQuantity(Long quantity) {
         this.quantity = quantity;
     }
 }

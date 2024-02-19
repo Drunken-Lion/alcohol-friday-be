@@ -49,7 +49,7 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public CartDetailResponse addCart(CartRequest addCart, Cart cart) {
         Item item = itemRepository.findById(addCart.getItemId()).orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
+                .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
 
         CartDetail cartDetail = CartDetail.builder()
                 .cart(cart)
@@ -70,11 +70,11 @@ public class CartServiceImpl implements CartService {
                 .response(HttpResponse.Fail.NOT_FOUND).build());
 
         Item item = itemRepository.findById(modifyCart.getItemId()).orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
+                .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
 
         CartDetail cartDetail = cartDetailRepository.findByItemAndCart(item, cart);
 
-        cartDetail.setQuantity(modifyCart.getQuantity());
+        cartDetail.addQuantity(modifyCart.getQuantity());
 
         return CartDetailResponse.builder()
                 .item(FindItemResponse.of(cartDetail.getItem()))
@@ -85,7 +85,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public Optional<Cart> addFirstCart(Member member) {
-        return cartRepository.findFirstByMember(member);
+        return cartRepository.findByMember(member);
     }
 
     // 장바구니 조회
@@ -100,8 +100,8 @@ public class CartServiceImpl implements CartService {
         if (cartDetailList.isEmpty()) return getEmptyCart(cart);
 
         List<CartDetailResponse> cartDetails = cartDetailList.stream()
-                                                            .map(CartDetailResponse::of)
-                                                            .toList();
+                .map(CartDetailResponse::of)
+                .toList();
 
         return CartResponse.of(cartDetails, cart, cartDetailList);
     }

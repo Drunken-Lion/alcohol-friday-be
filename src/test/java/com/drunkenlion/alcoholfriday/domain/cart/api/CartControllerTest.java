@@ -321,6 +321,29 @@ class CartControllerTest {
     }
 
     @Test
+    @DisplayName("장바구니 조회")
+    @WithAccount
+    void getCartList() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/carts")
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("getCartList"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.cartId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.cartDetailResponseList[0].item.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.cartDetailResponseList[1].item.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.totalCartPrice", notNullValue()))
+                .andExpect(jsonPath("$.totalCartQuantity", notNullValue()));
+    }
+
+    @Test
     @DisplayName("장바구니가 없는 경우_EmptyCart")
     @WithAccount
     void getCartList_EmptyCart() throws Exception {
