@@ -1,6 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.member.util;
 
-import com.drunkenlion.alcoholfriday.global.common.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

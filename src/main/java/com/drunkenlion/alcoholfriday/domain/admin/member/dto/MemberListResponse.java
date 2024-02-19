@@ -2,9 +2,9 @@ package com.drunkenlion.alcoholfriday.domain.admin.member.dto;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.MemberRole;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -43,7 +43,7 @@ public class MemberListResponse {
                 .name(member.getName())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
-                .role(member.getRole().getRole())
+                .role(member.getRole())
                 .createdAt(member.getCreatedAt())
                 .deleted(member.getDeletedAt() != null)
                 .build();

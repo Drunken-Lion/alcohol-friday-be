@@ -2,9 +2,9 @@ package com.drunkenlion.alcoholfriday.domain.member.entity;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.auth.util.ProviderTypeConverter;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.member.util.MemberRoleConverter;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.MemberRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -45,8 +45,8 @@ public class Member extends BaseEntity {
 
     @Comment("회원 권한")
     @Column(length = 50)
-//     @Convert(converter = MemberRoleConverter.class)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = MemberRoleConverter.class)
+//    @Enumerated(EnumType.STRING)
     private MemberRole role;
 
     @Comment("회원 연락처")

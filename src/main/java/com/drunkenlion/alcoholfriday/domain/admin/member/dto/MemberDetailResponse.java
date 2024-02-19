@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.member.dto;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDate;
