@@ -1,6 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.member.application;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,9 +20,28 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberResponse getMember(String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 계정입니다."));
+        Member member = findMember(email);
 
         return MemberResponse.of(member);
+    }
+
+    @Transactional
+    @Override
+    public MemberResponse modifyMember(String email, MemberModifyRequest modifyRequest) {
+        Member member = findMember(email);
+
+        member = member.toBuilder()
+                .nickname(modifyRequest.getNickname())
+                .phone(modifyRequest.getPhone())
+                .build();
+
+        return MemberResponse.of(memberRepository.save(member));
+    }
+
+    private Member findMember(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
+                        .build());
     }
 }
