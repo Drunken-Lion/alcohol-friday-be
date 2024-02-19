@@ -1,7 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.auth.dto;
 
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
-import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.security.jwt.dto.JwtResponse;
 
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/auth")
-@Tag(name = "v1-auth-controller", description = "회원 인증을 담당하는 컨트롤러")
+@Tag(name = "v1-auth", description = "회원 인증을 담당하는 API")
 public class AuthController {
     private final AuthService authService;
 
