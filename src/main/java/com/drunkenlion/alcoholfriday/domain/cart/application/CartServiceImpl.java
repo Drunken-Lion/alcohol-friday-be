@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -86,5 +87,21 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public Optional<Cart> addFirstCart(Member member) {
         return cartRepository.findFirstByMember(member);
+    }
+
+    // 장바구니 조회
+    @Override
+    public List<CartDetailResponse> getCartList(Member member) {
+        // 멤버 카트 찾기
+        Cart cart = cartRepository.findByMember(member)
+                .orElseThrow(() -> new IllegalArgumentException("장바구니에 담은 술이 없습니다."));
+
+        // 멤버의 장바구니 내역 가져오기
+        List<CartDetail> cartDetailList = cartDetailRepository.findAllByCart(cart);
+
+        // 클라이언트에게 보내기
+        return cartDetailList.stream()
+                .map(CartDetailResponse::of)
+                .collect(Collectors.toList());
     }
 }
