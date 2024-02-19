@@ -1,6 +1,5 @@
 package com.drunkenlion.alcoholfriday.domain.cart.api;
 
-import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
@@ -153,6 +152,26 @@ class CartControllerTest {
         Item savedItem2 = itemRepository.save(item2);
         itemId2 = savedItem2.getId();
         itemProductRepository.save(itemProduct2);
+
+        Optional<Member> member = memberRepository.findByEmail("test@example.com");
+
+        Cart cart = Cart.builder()
+                .member(member.get())
+                .build();
+        Cart savedCart = cartRepository.save(cart);
+
+        CartDetail cartDetail = CartDetail.builder()
+                .cart(savedCart)
+                .item(savedItem)
+                .quantity(2L)
+                .build();
+        CartDetail cartDetail2 = CartDetail.builder()
+                .cart(savedCart)
+                .item(savedItem2)
+                .quantity(3L)
+                .build();
+        cartDetailRepository.save(cartDetail);
+        cartDetailRepository.save(cartDetail2);
     }
 
     @AfterEach
@@ -244,21 +263,6 @@ class CartControllerTest {
     @DisplayName("장바구니 상품 수량 변경")
     @WithAccount
     void modifyCart() throws Exception {
-        // given
-        Optional<Member> member = memberRepository.findByEmail("test@example.com");
-        Cart cart = Cart.builder()
-                .member(member.get())
-                .build();
-        Cart userCart = cartRepository.save(cart);
-
-        Optional<Item> item = itemRepository.findById(itemId);
-        CartDetail cartDetail = CartDetail.builder()
-                .cart(userCart)
-                .item(item.get())
-                .quantity(2L)
-                .build();
-        cartDetailRepository.save(cartDetail);
-
         // when
         ResultActions resultActions = mvc
                 .perform(put("/v1/carts")
