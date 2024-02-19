@@ -16,6 +16,7 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -286,15 +287,15 @@ class CartServiceTest {
         CartResponse cartList = this.cartService.getCartList(getDataMember());
 
         // then
-        assertThat(cartList.getCartDetails().get(0).getQuantity()).isEqualTo(2L);
-        assertThat(cartList.getCartDetails().get(0).getItem().getName()).isEqualTo(itemName);
-        assertThat(cartList.getCartDetails().get(0).getItem().getPrice()).isEqualTo(price);
+        assertThat(cartList.getCartDetailResponseList().get(0).getQuantity()).isEqualTo(2L);
+        assertThat(cartList.getCartDetailResponseList().get(0).getItem().getName()).isEqualTo(itemName);
+        assertThat(cartList.getCartDetailResponseList().get(0).getItem().getPrice()).isEqualTo(price);
         assertThat(cartList.getTotalCartPrice()).isEqualTo(new BigDecimal("50000"));
         assertThat(cartList.getTotalCartQuantity()).isEqualTo(2);
     }
 
     @Test
-    @DisplayName("장바구니에 한 개 이상 상품 담았을 경우")
+    @DisplayName("장바구니에 한 개 이상 조회하는 경우")
     void getCartListTest() {
         // given
         when(this.cartRepository.findFirstByMember(any(Member.class))).thenReturn(this.getOneCart());
@@ -308,31 +309,31 @@ class CartServiceTest {
         CartResponse cartList = this.cartService.getCartList(getDataMember());
 
         // then
-        assertThat(cartList.getCartDetails().get(0).getQuantity()).isEqualTo(2L);
-        assertThat(cartList.getCartDetails().get(0).getItem().getName()).isEqualTo(itemName);
-        assertThat(cartList.getCartDetails().get(0).getItem().getPrice()).isEqualTo(price);
-        assertThat(cartList.getCartDetails().get(1).getQuantity()).isEqualTo(1L);
-        assertThat(cartList.getCartDetails().get(1).getItem().getName()).isEqualTo(itemName2);
-        assertThat(cartList.getCartDetails().get(1).getItem().getPrice()).isEqualTo(price2);
+        assertThat(cartList.getCartDetailResponseList().get(0).getQuantity()).isEqualTo(2L);
+        assertThat(cartList.getCartDetailResponseList().get(0).getItem().getName()).isEqualTo(itemName);
+        assertThat(cartList.getCartDetailResponseList().get(0).getItem().getPrice()).isEqualTo(price);
+        assertThat(cartList.getCartDetailResponseList().get(1).getQuantity()).isEqualTo(1L);
+        assertThat(cartList.getCartDetailResponseList().get(1).getItem().getName()).isEqualTo(itemName2);
+        assertThat(cartList.getCartDetailResponseList().get(1).getItem().getPrice()).isEqualTo(price2);
         assertThat(cartList.getTotalCartPrice()).isEqualTo(new BigDecimal("150000"));
         assertThat(cartList.getTotalCartQuantity()).isEqualTo(3);
     }
 
     @Test
     @DisplayName("회원에게 카트가 없는 경우")
-    void getCartList_EmptyCart() {
+    void getCartList_EmptyCartTest() {
         // given
         when(cartRepository.findFirstByMember(any(Member.class))).thenReturn(Optional.empty());
 
         // when & then
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(BusinessException.class, () -> {
             cartService.getCartList(getDataMember());
         });
     }
 
     @Test
     @DisplayName("카트에 아무런 상품이 없는 경우")
-    void getCartList_EmptyCartDetail() {
+    void getCartList_EmptyCartDetailTest() {
         // given
         when(cartRepository.findFirstByMember(any(Member.class))).thenReturn(this.getOneCart());
 

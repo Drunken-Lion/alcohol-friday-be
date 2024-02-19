@@ -94,8 +94,6 @@ public class CartServiceImpl implements CartService {
         Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND).build());
 
-        if (cart== null) throw new IllegalArgumentException("현재 장바구니에 상품이 없습니다.");
-
         List<CartDetail> cartDetailList = cartDetailRepository.findAllByCart(cart);
 
         if (cartDetailList.isEmpty()) throw new IllegalArgumentException("현재 장바구니에 상품이 없습니다.");
