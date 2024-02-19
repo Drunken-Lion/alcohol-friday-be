@@ -43,7 +43,8 @@ public class Member extends BaseEntity {
 
     @Comment("회원 권한")
     @Column(length = 50)
-    @Convert(converter = MemberRoleConverter.class)
+    // @Convert(converter = MemberRoleConverter.class)
+    @Enumerated(EnumType.STRING)
     private MemberRole role;
 
     @Comment("회원 연락처")
