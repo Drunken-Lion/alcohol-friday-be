@@ -19,7 +19,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/carts")
-@Tag(name = "v1-cart-cartDetail-controller", description = "장바구니 관련 API")
+@Tag(name = "v1-cart-cartDetail", description = "장바구니 관련 API")
 public class CartController {
     private final CartService cartService;
 
