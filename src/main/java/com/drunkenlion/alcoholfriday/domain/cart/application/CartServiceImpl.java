@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -91,17 +90,20 @@ public class CartServiceImpl implements CartService {
 
     // 장바구니 조회
     @Override
-    public List<CartDetailResponse> getCartList(Member member) {
-        // 멤버 카트 찾기
-        Cart cart = cartRepository.findByMember(member)
-                .orElseThrow(() -> new IllegalArgumentException("장바구니에 담은 술이 없습니다."));
+    public CartResponse getCartList(Member member) {
+        Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND).build());
 
-        // 멤버의 장바구니 내역 가져오기
+        if (cart== null) throw new IllegalArgumentException("현재 장바구니에 상품이 없습니다.");
+
         List<CartDetail> cartDetailList = cartDetailRepository.findAllByCart(cart);
 
-        // 클라이언트에게 보내기
-        return cartDetailList.stream()
-                .map(cartDetail -> CartDetailResponse.of(cartDetail, cart))
-                .collect(Collectors.toList());
+        if (cartDetailList.isEmpty()) throw new IllegalArgumentException("현재 장바구니에 상품이 없습니다.");
+
+        List<CartDetailResponse> cartDetails = cartDetailList.stream()
+                                                            .map(CartDetailResponse::of)
+                                                            .toList();
+
+        return CartResponse.of(cartDetails, cart, cartDetailList);
     }
 }
