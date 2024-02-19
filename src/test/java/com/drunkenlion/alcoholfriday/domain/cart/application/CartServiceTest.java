@@ -277,7 +277,7 @@ class CartServiceTest {
     @DisplayName("장바구니에 한 개 상품 조회하는 경우")
     void getCartDetailOneTest() {
         // given
-        when(this.cartRepository.findFirstByMember(any(Member.class))).thenReturn(this.getOneCart());
+        when(this.cartRepository.findByMember(any(Member.class))).thenReturn(this.getOneCart());
 
         List<CartDetail> cartDetails = new ArrayList<>();
         cartDetails.add(getDataCartDetail());
@@ -323,7 +323,7 @@ class CartServiceTest {
     @DisplayName("회원에게 카트가 없는 경우")
     void getCartList_EmptyCartTest() {
         // given
-        when(cartRepository.findFirstByMember(any(Member.class))).thenReturn(Optional.empty());
+        when(cartRepository.findByMember(any(Member.class))).thenReturn(Optional.empty());
 
         // when
         CartResponse cartList = this.cartService.getCartList(getDataMember());
