@@ -1,16 +1,14 @@
 package com.drunkenlion.alcoholfriday.domain.admin.store.product.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.store.product.application.AdminStoreProductService;
+import com.drunkenlion.alcoholfriday.domain.admin.store.product.dto.ProductDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.store.product.dto.ProductListResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,4 +26,14 @@ public class AdminStoreProductController {
         PageResponse<ProductListResponse> pageResponse = PageResponse.of(this.adminStoreProductService.getProducts(page, size));
         return ResponseEntity.ok().body(pageResponse);
     }
+
+    @Operation(summary = "제품 상세 조회", description = "관리자 권한에 대한 제품 상세 조회")
+    @GetMapping(value = "products/{id}")
+    public ResponseEntity<ProductDetailResponse> getProduct(
+            @PathVariable("id") Long id
+    ) {
+        ProductDetailResponse productDetailResponse = adminStoreProductService.getProduct(id);
+        return ResponseEntity.ok().body(productDetailResponse);
+    }
+
 }
