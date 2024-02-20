@@ -27,7 +27,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("me")
-    public ResponseEntity<MemberResponse> getMember(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<MemberResponse> getAuthMember(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         Optional.ofNullable(userPrincipal)
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.UNAUTHORIZED));
 
