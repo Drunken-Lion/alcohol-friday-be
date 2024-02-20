@@ -75,7 +75,6 @@ public class AdminRestaurantControllerTest {
 
     // 날짜 패턴 정규식
     private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
-    private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
 
     private Map<String, Object> getMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
@@ -203,6 +202,7 @@ public class AdminRestaurantControllerTest {
     }
 
     @Test
+    @DisplayName("매장 목록 조회 성공")
     void getRestaurantsTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -230,6 +230,7 @@ public class AdminRestaurantControllerTest {
     }
 
     @Test
+    @DisplayName("매장 상세 조회 성공")
     void getRestaurantTest() throws Exception {
         // given
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
@@ -268,6 +269,7 @@ public class AdminRestaurantControllerTest {
     }
 
     @Test
+    @DisplayName("매장 등록 성공")
     void createRestaurantTest() throws Exception {
         // given
         Long memberId = this.memberRepository.findAll().get(0).getId();
