@@ -9,4 +9,5 @@ public interface AdminStoreProductService {
     Page<ProductListResponse> getProducts(int page, int size);
     ProductDetailResponse getProduct(Long id);
     ProductDetailResponse createProduct(ProductRequest productRequest);
+    ProductDetailResponse modifyProduct(Long id, ProductRequest productRequest);
 }
