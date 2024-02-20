@@ -36,7 +36,7 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 정보 수정", description = "마이페이지 회원 정보 수정")
-    @PutMapping
+    @PutMapping("me")
     public ResponseEntity<MemberResponse> modifyMember(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                        @RequestBody MemberModifyRequest modifyRequest) {
         validUserPrincipal(userPrincipal);
