@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.cart.application;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartResponse;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.DeleteCartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 
@@ -15,4 +16,6 @@ public interface CartService {
     CartDetailResponse modifyCartItemQuantity(CartRequest modifyCart, Member member);
     Optional<Cart> addFirstCart(Member member);
     CartResponse getCartList(Member member);
+    void deleteCart(List<DeleteCartRequest> cartRequest, Member member);
+    void deleteCart(DeleteCartRequest cartRequest, Cart cart);
 }
