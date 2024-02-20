@@ -10,4 +10,5 @@ public interface AdminStoreProductService {
     ProductDetailResponse getProduct(Long id);
     ProductDetailResponse createProduct(ProductRequest productRequest);
     ProductDetailResponse modifyProduct(Long id, ProductRequest productRequest);
+    void deleteProduct(Long id);
 }
