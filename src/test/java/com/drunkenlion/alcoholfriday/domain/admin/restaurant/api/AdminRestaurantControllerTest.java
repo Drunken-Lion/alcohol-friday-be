@@ -343,7 +343,91 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.provision", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.stockItemInfos", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("매장 수정 성공")
+    void modifyRestaurantTest() throws Exception {
+        // given
+        Long memberId = this.memberRepository.findAll().get(0).getId();
+        Restaurant restaurant = this.restaurantRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/restaurants/" + restaurant.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("""
+                                {
+                                  "memberId": %d,
+                                  "name": "test 매장",
+                                  "category": "test 카테고리",
+                                  "address": "test 주소",
+                                  "location": {
+                                    "x": 10.123456,
+                                    "y": 15.321654
+                                  },
+                                  "contact": 212354678,
+                                  "menu": {
+                                    "test 메뉴1": 10000,
+                                    "test 메뉴2": 20000,
+                                    "test 메뉴3": 30000
+                                  },
+                                  "time": {
+                                    "HOLIDAY": true,
+                                    "ETC": "명절 당일만 휴업",
+                                    "MONDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[11,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
+                                    "TUESDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
+                                    "WEDNESDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
+                                    "THURSDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
+                                    "FRIDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
+                                    "SATURDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
+                                    "SUNDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]}
+                                  },
+                                  "provision": {
+                                    "PET": true,
+                                    "PARKING": true,
+                                    "GROUP_MEETING": true,
+                                    "PHONE_RESERVATION": true,
+                                    "WIFI": true,
+                                    "GENDER_SEPARATED_RESTROOM": true,
+                                    "PACKAGING": true,
+                                    "WAITING_AREA": true,
+                                    "BABY_CHAIR": true,
+                                    "WHEELCHAIR_ACCESSIBLE_ENTRANCE": true,
+                                    "WHEELCHAIR_ACCESSIBLE_SEAT": true,
+                                    "DISABLED_PARKING_AREA": true
+                                  }
+                                }
+                                """, memberId))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminRestaurantController.class))
+                .andExpect(handler().methodName("modifyRestaurant"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.memberId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.memberNickname", notNullValue()))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.category", notNullValue()))
+                .andExpect(jsonPath("$.address", notNullValue()))
+                .andExpect(jsonPath("$.location", notNullValue()))
+                .andExpect(jsonPath("$.contact", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
+                .andExpect(jsonPath("$.time", instanceOf(Map.class)))
+                .andExpect(jsonPath("$.provision", instanceOf(Map.class)))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.stockItemInfos[0].stockItemId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockItemInfos[0].stockItemName", notNullValue()))
+                .andExpect(jsonPath("$.stockItemInfos[0].stockQuantity", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockItemInfos[0].stockItemFile", notNullValue()));
     }
 
     @Test
