@@ -40,6 +40,9 @@ public class ProductDetailResponse {
     @Schema(description = "재고 수량")
     private Long quantity;
 
+    @Schema(description = "술 도수")
+    private Long alcohol;
+
     @Schema(description = "제품 재료")
     private String ingredient;
 
@@ -84,6 +87,7 @@ public class ProductDetailResponse {
                 .makerName(product.getMaker().getName())
                 .price(product.getPrice())
                 .quantity(product.getQuantity())
+                .alcohol(product.getAlcohol())
                 .ingredient(product.getIngredient())
                 .sweet(product.getSweet())
                 .sour(product.getSour())
