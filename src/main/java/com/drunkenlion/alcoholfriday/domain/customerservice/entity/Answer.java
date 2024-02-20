@@ -29,4 +29,8 @@ public class Answer extends BaseEntity {
     @Comment("답변 내용")
     @Column(columnDefinition = "MEDIUMTEXT")
     private String content;
+
+    public void updateQuestion(Question question) {
+        this.question = question;
+    }
 }
