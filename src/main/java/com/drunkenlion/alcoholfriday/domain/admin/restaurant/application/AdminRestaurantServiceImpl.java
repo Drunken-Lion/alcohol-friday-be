@@ -144,7 +144,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
     }
 
     private List<RestaurantStockItemResponse> getRestaurantStockItemResponseList(Restaurant restaurant) {
-        List<RestaurantStock> restaurantStocks = restaurantStockRepository.findByRestaurantAndDeletedAtIsNotNull(restaurant);
+        List<RestaurantStock> restaurantStocks = restaurantStockRepository.findByRestaurantAndDeletedAtIsNull(restaurant);
         List<RestaurantStockItemResponse> stockItemInfos = new ArrayList<>();
 
         if (!restaurantStocks.isEmpty()) {
@@ -159,7 +159,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .filter(file -> file.getEntityId().equals(restaurantStock.getItem().getId()))
                         .findFirst();
 
-                stockItemInfos.add(RestaurantStockItemResponse.of(restaurantStock, targetFile.get()));
+                stockItemInfos.add(RestaurantStockItemResponse.of(restaurantStock, targetFile.orElse(null)));
             }
         }
 
