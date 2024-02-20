@@ -1,6 +1,5 @@
 package com.drunkenlion.alcoholfriday.global.user;
 
-import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
@@ -12,9 +11,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+@Component
 public class WithAccountSecurityContextFactory implements WithSecurityContextFactory<WithAccount> {
     @Autowired
     MemberRepository memberRepository;
@@ -25,7 +26,7 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
     public SecurityContext createSecurityContext(WithAccount annotation) {
         Member member = Member.builder()
                 .email(annotation.email())
-                .provider(ProviderType.KAKAO)
+                .provider(annotation.provider())
                 .name("테스트")
                 .nickname("test")
                 .role(MemberRole.MEMBER)
@@ -39,14 +40,15 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
                 .deletedAt(null)
                 .build();
 
-        memberRepository.save(member);
+        member = memberRepository.save(member);
 
-        UserPrincipal userPrincipal = UserPrincipal.create(member);
+        UserPrincipal userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(member.getEmail());
 
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(
                         userPrincipal, null, userPrincipal.getAuthorities()
                 );
+
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
 

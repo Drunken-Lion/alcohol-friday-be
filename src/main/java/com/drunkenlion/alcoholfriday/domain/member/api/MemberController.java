@@ -26,7 +26,7 @@ import java.util.Optional;
 public class MemberController {
     private final MemberService memberService;
 
-    @GetMapping
+    @GetMapping("me")
     public ResponseEntity<MemberResponse> getMember(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         Optional.ofNullable(userPrincipal)
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.UNAUTHORIZED));
