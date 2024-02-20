@@ -49,26 +49,6 @@ public class MemberServiceTest {
     private final Long modifyPhone = 1011112222L;
 
     @Test
-    @DisplayName("이메일로 회원 조회")
-    public void getMemberTest() {
-        // given
-        Mockito.when(this.memberRepository.findByEmail(any())).thenReturn(this.getOne());
-
-        // when
-        MemberResponse memberResponse = this.memberService.getMember(email);
-
-        // then
-        assertThat(memberResponse.getId()).isEqualTo(id);
-        assertThat(memberResponse.getEmail()).isEqualTo(email);
-        assertThat(memberResponse.getProvider()).isEqualTo(provider);
-        assertThat(memberResponse.getName()).isEqualTo(name);
-        assertThat(memberResponse.getNickname()).isEqualTo(nickname);
-        assertThat(memberResponse.getCreatedAt()).isEqualTo(createdAt);
-        assertThat(memberResponse.getUpdatedAt()).isEqualTo(updatedAt);
-        assertThat(memberResponse.getDeletedAt()).isEqualTo(deletedAt);
-    }
-
-    @Test
     @DisplayName("회원 정보 수정")
     public void modifyMemberTest() {
         // given
@@ -85,11 +65,10 @@ public class MemberServiceTest {
                 .phone(memberModifyRequest.getPhone())
                 .build();
 
-        Mockito.when(this.memberRepository.findByEmail(email)).thenReturn(Optional.of(member));
         Mockito.when(this.memberRepository.save(any(Member.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        MemberResponse memberResponse = this.memberService.modifyMember(email, memberModifyRequest);
+        MemberResponse memberResponse = this.memberService.modifyMember(member, memberModifyRequest);
 
         // then
         assertThat(memberResponse.getId()).isEqualTo(id);

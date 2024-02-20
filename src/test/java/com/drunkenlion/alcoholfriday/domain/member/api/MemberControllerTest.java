@@ -1,8 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.member.api;
 
-import com.drunkenlion.alcoholfriday.domain.admin.member.api.AdminMemberController;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
-import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +39,8 @@ public class MemberControllerTest {
 
     @BeforeEach
     @Transactional
-    void beforeEach() {}
+    void beforeEach() {
+    }
 
     @AfterEach
     @Transactional
@@ -62,7 +61,7 @@ public class MemberControllerTest {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(MemberController.class))
-                .andExpect(handler().methodName("getMember"))
+                .andExpect(handler().methodName("getAuthMember"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.email", notNullValue()))

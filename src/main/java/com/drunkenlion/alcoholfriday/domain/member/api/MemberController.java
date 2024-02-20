@@ -2,8 +2,6 @@ package com.drunkenlion.alcoholfriday.domain.member.api;
 
 import com.drunkenlion.alcoholfriday.domain.member.application.MemberService;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
-import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
-import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,8 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Optional;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +25,7 @@ public class MemberController {
     @Operation(summary = "회원 정보 조회", description = "마이페이지 회원 정보 조회")
     @GetMapping("me")
     public ResponseEntity<MemberResponse> getAuthMember(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        MemberResponse memberResponse = memberService.getMember(userPrincipal.getUsername());
+        MemberResponse memberResponse = MemberResponse.of(userPrincipal.getMember());
         return ResponseEntity.ok().body(memberResponse);
     }
 
@@ -37,7 +33,7 @@ public class MemberController {
     @PutMapping("me")
     public ResponseEntity<MemberResponse> modifyMember(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                        @RequestBody MemberModifyRequest modifyRequest) {
-        MemberResponse memberResponse = memberService.modifyMember(userPrincipal.getUsername(), modifyRequest);
+        MemberResponse memberResponse = memberService.modifyMember(userPrincipal.getMember(), modifyRequest);
         return ResponseEntity.ok().body(memberResponse);
     }
 }
