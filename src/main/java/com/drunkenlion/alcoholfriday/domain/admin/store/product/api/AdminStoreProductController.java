@@ -67,4 +67,12 @@ public class AdminStoreProductController {
         return ResponseEntity.ok().body(productDetailResponse);
     }
 
+    @Operation(summary = "제품 삭제", description = "관리자 권한에 대한 제품 삭제")
+    @DeleteMapping(value = "products/{id}")
+    public ResponseEntity<Void> deleteProduct(
+            @PathVariable("id") Long id
+    ) {
+        adminStoreProductService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
+    }
 }

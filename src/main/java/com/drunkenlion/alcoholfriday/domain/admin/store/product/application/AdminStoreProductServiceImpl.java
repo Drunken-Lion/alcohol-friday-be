@@ -18,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -96,5 +98,25 @@ public class AdminStoreProductServiceImpl implements AdminStoreProductService {
         productRepository.save(product);
 
         return ProductDetailResponse.of(product);
+    }
+
+    @Transactional
+    public void deleteProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
+                        .build());
+
+        if (product.getDeletedAt() != null) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
+                    .build();
+        }
+
+        product = product.toBuilder()
+                .deletedAt(LocalDateTime.now())
+                .build();
+
+        productRepository.save(product);
     }
 }
