@@ -1,5 +1,6 @@
-package com.drunkenlion.alcoholfriday.domain.admin.store.api;
+package com.drunkenlion.alcoholfriday.domain.admin.store.maker.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.api.AdminStoreMakerController;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import org.junit.jupiter.api.AfterEach;
@@ -25,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class AdminStoreControllerTest {
+public class AdminStoreMakerControllerTest {
     @Autowired
     private MockMvc mvc;
 
@@ -68,7 +69,7 @@ public class AdminStoreControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().handlerType(AdminStoreMakerController.class))
                 .andExpect(handler().methodName("getMakers"))
                 .andExpect(jsonPath("$.data", instanceOf(List.class)))
                 .andExpect(jsonPath("$.data.length()", is(1)))
@@ -98,7 +99,7 @@ public class AdminStoreControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().handlerType(AdminStoreMakerController.class))
                 .andExpect(handler().methodName("getMaker"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
@@ -132,7 +133,7 @@ public class AdminStoreControllerTest {
         // then
         resultActions
                 .andExpect(status().isCreated())
-                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().handlerType(AdminStoreMakerController.class))
                 .andExpect(handler().methodName("createMaker"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
@@ -169,7 +170,7 @@ public class AdminStoreControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().handlerType(AdminStoreMakerController.class))
                 .andExpect(handler().methodName("modifyMaker"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
@@ -198,7 +199,7 @@ public class AdminStoreControllerTest {
         // then
         resultActions
                 .andExpect(status().isNoContent())
-                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().handlerType(AdminStoreMakerController.class))
                 .andExpect(handler().methodName("deleteMaker"));
     }
 }

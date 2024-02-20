@@ -1,8 +1,8 @@
-package com.drunkenlion.alcoholfriday.domain.admin.store.application;
+package com.drunkenlion.alcoholfriday.domain.admin.store.maker.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.dto.MakerDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.dto.MakerListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class AdminStoreServiceImpl implements AdminStoreService {
+public class AdminStoreMakerServiceImpl implements AdminStoreMakerService {
     private final MakerRepository makerRepository;
     private final ProductRepository productRepository;
 
