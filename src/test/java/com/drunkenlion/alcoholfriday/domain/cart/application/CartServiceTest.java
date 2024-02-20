@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -120,7 +121,7 @@ class CartServiceTest {
     @DisplayName("장바구니에 한 개 상품 담았을 경우")
     void addCartTest() {
         // given
-        when(cartRepository.findFirstByMember(member)).thenReturn(getOneCart());
+        when(cartRepository.findByMember(member)).thenReturn(getOneCart());
 
         List<CartRequest> cartDetails = new ArrayList<>();
         CartRequest cartRequest = CartRequest.builder()
@@ -151,7 +152,7 @@ class CartServiceTest {
     @DisplayName("장바구니에 한 개 이상 상품 담았을 경우")
     void addCartListTest() {
         // given
-        when(cartRepository.findFirstByMember(member)).thenReturn(getOneCart());
+        when(cartRepository.findByMember(member)).thenReturn(getOneCart());
 
         List<CartRequest> cartDetails = new ArrayList<>();
         CartRequest cartRequest1 = CartRequest.builder()
@@ -197,8 +198,8 @@ class CartServiceTest {
     @DisplayName("장바구니에서 한 개 상품 수량 변경")
     void modifyCartItemQuantityTest() {
         // given
-        // cartRepository.findFirstByMember(member).orElse(null)
-        when(this.cartRepository.findFirstByMember(member)).thenReturn(getOneCart());
+        // cartRepository.findByMember(member).orElse(null)
+        when(this.cartRepository.findByMember(member)).thenReturn(getOneCart());
 
         // itemRepository.findById(modifyCart.getItemId())
         List<CartRequest> cartDetails = new ArrayList<>();
@@ -225,8 +226,8 @@ class CartServiceTest {
     @DisplayName("장바구니가 없는 경우")
     void noCartTest() {
         // given
-        // cartRepository.findFirstByMember(member).orElse(null)
-        when(this.cartRepository.findFirstByMember(member)).thenReturn(Optional.empty());
+        // cartRepository.findByMember(member).orElse(null)
+        when(this.cartRepository.findByMember(member)).thenReturn(Optional.empty());
 
         List<CartRequest> cartDetails = new ArrayList<>();
         CartRequest cartRequest1 = CartRequest.builder()
@@ -272,6 +273,84 @@ class CartServiceTest {
         assertThat(cartResponse.getCartDetailResponseList().get(1).getQuantity()).isEqualTo(cartRequest2.getQuantity());
     }
 
+    @Test
+    @DisplayName("장바구니에 한 개 상품 조회하는 경우")
+    void getCartDetailOneTest() {
+        // given
+        when(this.cartRepository.findByMember(any(Member.class))).thenReturn(this.getOneCart());
+
+        List<CartDetail> cartDetails = new ArrayList<>();
+        cartDetails.add(getDataCartDetail());
+        when(this.cartDetailRepository.findAllByCart(any(Cart.class))).thenReturn(cartDetails);
+
+        // when
+        CartResponse cartList = this.cartService.getCartList(getDataMember());
+
+        // then
+        assertThat(cartList.getCartDetailResponseList().get(0).getQuantity()).isEqualTo(2L);
+        assertThat(cartList.getCartDetailResponseList().get(0).getItem().getName()).isEqualTo(itemName);
+        assertThat(cartList.getCartDetailResponseList().get(0).getItem().getPrice()).isEqualTo(price);
+        assertThat(cartList.getTotalCartPrice()).isEqualTo(new BigDecimal("50000"));
+        assertThat(cartList.getTotalCartQuantity()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("장바구니에 한 개 이상 조회하는 경우")
+    void getCartListTest() {
+        // given
+        when(this.cartRepository.findByMember(any(Member.class))).thenReturn(this.getOneCart());
+
+        List<CartDetail> cartDetails = new ArrayList<>();
+        cartDetails.add(getDataCartDetail());
+        cartDetails.add(getDataCartDetail2());
+        when(this.cartDetailRepository.findAllByCart(any(Cart.class))).thenReturn(cartDetails);
+
+        // when
+        CartResponse cartList = this.cartService.getCartList(getDataMember());
+
+        // then
+        assertThat(cartList.getCartDetailResponseList().get(0).getQuantity()).isEqualTo(2L);
+        assertThat(cartList.getCartDetailResponseList().get(0).getItem().getName()).isEqualTo(itemName);
+        assertThat(cartList.getCartDetailResponseList().get(0).getItem().getPrice()).isEqualTo(price);
+        assertThat(cartList.getCartDetailResponseList().get(1).getQuantity()).isEqualTo(1L);
+        assertThat(cartList.getCartDetailResponseList().get(1).getItem().getName()).isEqualTo(itemName2);
+        assertThat(cartList.getCartDetailResponseList().get(1).getItem().getPrice()).isEqualTo(price2);
+        assertThat(cartList.getTotalCartPrice()).isEqualTo(new BigDecimal("150000"));
+        assertThat(cartList.getTotalCartQuantity()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("회원에게 카트가 없는 경우")
+    void getCartList_EmptyCartTest() {
+        // given
+        when(cartRepository.findByMember(any(Member.class))).thenReturn(Optional.empty());
+
+        // when
+        CartResponse cartList = this.cartService.getCartList(getDataMember());
+
+        // then
+        assertThat(cartList.getCartDetailResponseList()).isEqualTo(Collections.EMPTY_LIST);
+        assertThat(cartList.getTotalCartPrice()).isEqualTo(new BigDecimal("0"));
+        assertThat(cartList.getTotalCartQuantity()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("카트에 아무런 상품이 없는 경우")
+    void getCartList_EmptyCartDetailTest() {
+        // given
+        when(cartRepository.findByMember(any(Member.class))).thenReturn(this.getOneCart());
+
+        when(this.cartDetailRepository.findAllByCart(any(Cart.class))).thenReturn(Collections.EMPTY_LIST);
+
+        // when
+        CartResponse cartList = this.cartService.getCartList(getDataMember());
+
+        // then
+        assertThat(cartList.getCartDetailResponseList()).isEqualTo(Collections.EMPTY_LIST);
+        assertThat(cartList.getTotalCartPrice()).isEqualTo(new BigDecimal("0"));
+        assertThat(cartList.getTotalCartQuantity()).isEqualTo(0);
+    }
+
 
     private Optional<Cart> getOneCart() {
         return Optional.of(this.getDataCart());
@@ -307,6 +386,7 @@ class CartServiceTest {
                 .quantity(quantityCart2)
                 .build();
     }
+
     private Optional<Member> getOneMember() {
         return Optional.of(this.getDataMember());
     }

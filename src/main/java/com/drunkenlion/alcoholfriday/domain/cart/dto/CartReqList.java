@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Schema(description = "장바구니에 추가할 상품 리스트 요청 객체")
+@Schema(description = "장바구니에 추가할 상품 리스트 요청")
 public class CartReqList {
     @Schema(description = "장바구니에 추가할 상품 리스트")
     private List<CartRequest> cartRequestList;

@@ -38,6 +38,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -51,6 +52,7 @@ class CartControllerTest {
 
     private Long itemId; // 아이템의 ID를 저장할 변수
     private Long itemId2;
+    private Long cartId;
 
     @Autowired
     private ItemRepository itemRepository;
@@ -152,6 +154,27 @@ class CartControllerTest {
         Item savedItem2 = itemRepository.save(item2);
         itemId2 = savedItem2.getId();
         itemProductRepository.save(itemProduct2);
+
+        Optional<Member> member = memberRepository.findByEmail("test@example.com");
+
+        Cart cart = Cart.builder()
+                .member(member.get())
+                .build();
+        Cart savedCart = cartRepository.save(cart);
+        cartId = savedCart.getId();
+
+        CartDetail cartDetail = CartDetail.builder()
+                .cart(savedCart)
+                .item(savedItem)
+                .quantity(2L)
+                .build();
+        CartDetail cartDetail2 = CartDetail.builder()
+                .cart(savedCart)
+                .item(savedItem2)
+                .quantity(3L)
+                .build();
+        cartDetailRepository.save(cartDetail);
+        cartDetailRepository.save(cartDetail2);
     }
 
     @AfterEach
@@ -243,21 +266,6 @@ class CartControllerTest {
     @DisplayName("장바구니 상품 수량 변경")
     @WithAccount
     void modifyCart() throws Exception {
-        // given
-        Optional<Member> member = memberRepository.findByEmail("test@example.com");
-        Cart cart = Cart.builder()
-                .member(member.get())
-                .build();
-        Cart userCart = cartRepository.save(cart);
-
-        Optional<Item> item = itemRepository.findById(itemId);
-        CartDetail cartDetail = CartDetail.builder()
-                .cart(userCart)
-                .item(item.get())
-                .quantity(2L)
-                .build();
-        cartDetailRepository.save(cartDetail);
-
         // when
         ResultActions resultActions = mvc
                 .perform(put("/v1/carts")
@@ -310,5 +318,79 @@ class CartControllerTest {
                 .andExpect(handler().handlerType(CartController.class))
                 .andExpect(handler().methodName("addCartList"))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 상품입니다."));
+    }
+
+    @Test
+    @DisplayName("장바구니 조회")
+    @WithAccount
+    void getCartList() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/carts")
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("getCartList"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.cartId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.cartDetailResponseList[0].item.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.cartDetailResponseList[1].item.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.totalCartPrice", notNullValue()))
+                .andExpect(jsonPath("$.totalCartQuantity", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("장바구니가 없는 경우_EmptyCart")
+    @WithAccount
+    void getCartList_EmptyCart() throws Exception {
+        // given
+        cartDetailRepository.deleteAll();
+        cartRepository.deleteAll();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/carts")
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("getCartList"))
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.cartId").value(-1))
+                .andExpect(jsonPath("$.cartDetailResponseList").isEmpty())
+                .andExpect(jsonPath("$.totalCartPrice").value(new BigDecimal("0")))
+                .andExpect(jsonPath("$.totalCartQuantity").value(0));
+    }
+
+    @Test
+    @DisplayName("장바구니에 상품이 없는 경우_EmptyCartDetail")
+    @WithAccount
+    void getCartList_EmptyCartDetail() throws Exception {
+        // given
+        cartDetailRepository.deleteAll();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/carts")
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("getCartList"))
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.cartId").value(cartId))
+                .andExpect(jsonPath("$.cartDetailResponseList").isEmpty())
+                .andExpect(jsonPath("$.totalCartPrice").value(new BigDecimal("0")))
+                .andExpect(jsonPath("$.totalCartQuantity").value(0));
     }
 }
