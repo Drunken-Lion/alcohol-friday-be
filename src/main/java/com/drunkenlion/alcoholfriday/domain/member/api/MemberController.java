@@ -28,9 +28,6 @@ public class MemberController {
 
     @GetMapping("me")
     public ResponseEntity<MemberResponse> getAuthMember(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Optional.ofNullable(userPrincipal)
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.UNAUTHORIZED));
-
         MemberResponse memberResponse = memberService.getMember(userPrincipal.getUsername());
         return ResponseEntity.ok().body(memberResponse);
     }
