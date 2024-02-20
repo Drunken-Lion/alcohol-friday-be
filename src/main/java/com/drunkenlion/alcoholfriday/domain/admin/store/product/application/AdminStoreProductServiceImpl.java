@@ -58,4 +58,43 @@ public class AdminStoreProductServiceImpl implements AdminStoreProductService {
 
         return ProductDetailResponse.of(product);
     }
+
+    @Transactional
+    public ProductDetailResponse modifyProduct(Long id, ProductRequest productRequest) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
+                        .build());
+
+        Category category = categoryRepository.findById(productRequest.getCategoryLastId())
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_CATEGORY)
+                        .build());
+
+        Maker maker = makerRepository.findById(productRequest.getMakerId())
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_MAKER)
+                        .build());
+
+        product = product.toBuilder()
+                .name(productRequest.getName())
+                .price(productRequest.getPrice())
+                .quantity(productRequest.getQuantity())
+                .alcohol(productRequest.getAlcohol())
+                .ingredient(productRequest.getIngredient())
+                .sweet(productRequest.getSweet())
+                .sour(productRequest.getSour())
+                .cool(productRequest.getCool())
+                .body(productRequest.getBody())
+                .balence(productRequest.getBalence())
+                .insense(productRequest.getInsense())
+                .throat(productRequest.getThroat())
+                .category(category)
+                .maker(maker)
+                .build();
+
+        productRepository.save(product);
+
+        return ProductDetailResponse.of(product);
+    }
 }
