@@ -3,8 +3,8 @@ package com.drunkenlion.alcoholfriday.domain.admin.member.api;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

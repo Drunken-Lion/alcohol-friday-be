@@ -27,8 +27,8 @@ public class MemberController {
     private final MemberService memberService;
 
     @Operation(summary = "회원 정보 조회", description = "마이페이지 회원 정보 조회")
-    @GetMapping
-    public ResponseEntity<MemberResponse> getMember(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    @GetMapping("me")
+    public ResponseEntity<MemberResponse> getAuthMember(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         validUserPrincipal(userPrincipal);
 
         MemberResponse memberResponse = memberService.getMember(userPrincipal.getUsername());
