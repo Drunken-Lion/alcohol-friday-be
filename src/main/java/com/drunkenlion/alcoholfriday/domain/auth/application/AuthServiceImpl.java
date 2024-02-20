@@ -34,6 +34,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -130,13 +131,27 @@ public class AuthServiceImpl implements AuthService {
                     Member member = Member.builder()
                             .email(userInfo.getEmail())
                             .name(userInfo.getName())
-                            .nickname(userInfo.getNickname())
+                            .nickname(checkNicknameDuplicate(userInfo.getNickname()))
                             .role(MemberRole.MEMBER)
                             .provider(userInfo.getProvider())
                             .build();
 
                     return memberRepository.save(member);
                 });
+    }
+
+    private String checkNicknameDuplicate(String nickname) {
+        String newNickname = nickname;
+
+        if(memberRepository.existsByNickname(nickname)) {
+            newNickname = nickname + "_" + UUID.randomUUID();
+        }
+
+        if(newNickname.length() > 50) {
+            newNickname = newNickname.substring(0, 50);
+        }
+
+        return newNickname;
     }
 
     /**
