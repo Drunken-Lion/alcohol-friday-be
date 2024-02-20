@@ -30,13 +30,17 @@ public class Cart extends BaseEntity {
     @ToString.Exclude
     private List<CartDetail> cartDetails = new ArrayList<>();
 
-    // Member가 첫 장바구니 관련 기능을 사용할 때 추가해 주시면 됩니다.
+    /**
+     * @deprecated Builder로 객체가 생성되도록 하기 위해 삭제될 예정입니다.
+     */
+    @Deprecated
     public static Cart create(Member member) {
         Cart cart = new Cart();
         cart.createCart(member);
         return cart;
     }
 
+    @Deprecated
     private void createCart(Member member) {
         this.member = member;
     }

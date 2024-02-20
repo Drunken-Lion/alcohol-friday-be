@@ -41,7 +41,7 @@ public class AdminMemberServiceTest {
     private final String provider = ProviderType.KAKAO.getProviderName();
     private final String name = "테스트";
     private final String nickname = "test";
-    private final String role = MemberRole.MEMBER.getRole();
+    private final MemberRole role = MemberRole.MEMBER;
     private final Long phone = 1012345678L;
     private final LocalDate certifyAt = null;
     private final boolean agreedToServiceUse = false;
@@ -54,7 +54,7 @@ public class AdminMemberServiceTest {
     private final int size = 20;
 
     private final String modifyNickname = "test 수정";
-    private final String modifyRole = MemberRole.ADMIN.getRole();
+    private final MemberRole modifyRole = MemberRole.ADMIN;
     private final Long modifyPhone = 1011112222L;
 
     @Test
@@ -109,7 +109,7 @@ public class AdminMemberServiceTest {
         // given
         MemberModifyRequest memberModifyRequest = MemberModifyRequest.builder()
                 .nickname(modifyNickname)
-                .role(MemberRole.ofRole(modifyRole))
+                .role(modifyRole)
                 .phone(modifyPhone)
                 .build();
 
@@ -152,7 +152,7 @@ public class AdminMemberServiceTest {
                 .provider(ProviderType.ofProvider(provider))
                 .name(name)
                 .nickname(nickname)
-                .role(MemberRole.ofRole(role))
+                .role(role)
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)
