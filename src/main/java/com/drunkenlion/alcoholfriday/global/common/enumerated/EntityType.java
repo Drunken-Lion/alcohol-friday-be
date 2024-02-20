@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum EntityType {
     ITEM("item"),
     MEMBER("member"),
+    QUESTION("question"),
     TEST("test");
 
     private final String entityName;

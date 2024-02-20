@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.global.file.application;
 
+import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
@@ -31,12 +32,24 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * 하나의 게시물에 있는 모든 이미지 조회
+     * EntityType 매개변수로 받는 메서드를 이용해주세요.
+     * 2차 개발일정 시작 시 해당 메서드는 삭제 예정입니다. 하나의 게시물에 있는 모든 이미지 조회
      */
+    @Deprecated
     @Override
     public NcpFileResponse findByEntityId(Long entityId, String entityType) {
         NcpFile ncpFile = this.fileRepository.findByEntityIdAndEntityType(entityId, entityType).orElse(null);
 
+        return NcpFileResponse.of(ncpFile);
+    }
+
+    /**
+     * 하나의 게시물에 있는 모든 이미지 조회
+     */
+    @Override
+    public NcpFileResponse findByEntityId(Long entityId, EntityType entityType) {
+        NcpFile ncpFile = this.fileRepository.findByEntityIdAndEntityType(entityId, entityType.getEntityName())
+                .orElse(null);
         return NcpFileResponse.of(ncpFile);
     }
 
