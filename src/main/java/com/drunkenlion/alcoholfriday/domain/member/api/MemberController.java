@@ -29,8 +29,6 @@ public class MemberController {
     @Operation(summary = "회원 정보 조회", description = "마이페이지 회원 정보 조회")
     @GetMapping("me")
     public ResponseEntity<MemberResponse> getAuthMember(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        validUserPrincipal(userPrincipal);
-
         MemberResponse memberResponse = memberService.getMember(userPrincipal.getUsername());
         return ResponseEntity.ok().body(memberResponse);
     }
@@ -39,14 +37,7 @@ public class MemberController {
     @PutMapping("me")
     public ResponseEntity<MemberResponse> modifyMember(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                        @RequestBody MemberModifyRequest modifyRequest) {
-        validUserPrincipal(userPrincipal);
-
         MemberResponse memberResponse = memberService.modifyMember(userPrincipal.getUsername(), modifyRequest);
         return ResponseEntity.ok().body(memberResponse);
-    }
-
-    private void validUserPrincipal(UserPrincipal userPrincipal) {
-        Optional.ofNullable(userPrincipal)
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.UNAUTHORIZED));
     }
 }
