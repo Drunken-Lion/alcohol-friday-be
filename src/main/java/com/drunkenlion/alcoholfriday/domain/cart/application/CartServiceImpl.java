@@ -13,6 +13,7 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.DeleteCartRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,5 +115,18 @@ public class CartServiceImpl implements CartService {
                 .totalCartPrice(BigDecimal.ZERO)
                 .totalCartQuantity(0L)
                 .build();
+    }
+
+    @Override
+    public void deleteCart(List<DeleteCartRequest> cartRequests, Member member) {
+        Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND).build());
+
+        cartRequests.forEach(cartRequest -> deleteCart(cartRequest, cart));
+    }
+
+    @Override
+    public void deleteCart(DeleteCartRequest cartRequest, Cart cart) {
+        cartDetailRepository.deleteByIdAndCart(cartRequest.getItemId(), cart);
     }
 }
