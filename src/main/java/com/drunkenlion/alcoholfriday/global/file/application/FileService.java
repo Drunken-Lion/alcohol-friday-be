@@ -15,4 +15,5 @@ public interface FileService {
     NcpFileResponse findByEntityId(Long entityId, EntityType entityType);
 
     NcpFileResponse uploadFiles(List<MultipartFile> multipartFiles, Long entityId, String EntityType);
+    NcpFileResponse uploadFiles(List<MultipartFile> multipartFiles, Long entityId, EntityType entityType);
 }
