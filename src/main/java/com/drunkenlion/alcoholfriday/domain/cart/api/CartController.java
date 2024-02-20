@@ -43,4 +43,12 @@ public class CartController {
 
         return ResponseEntity.ok().body(cartDetailResponse);
     }
+
+    @Operation(summary = "장바구니 조회")
+    @GetMapping
+    public ResponseEntity<CartResponse> getCartList(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        CartResponse cartList = cartService.getCartList(userPrincipal.getMember());
+
+        return ResponseEntity.ok().body(cartList);
+    }
 }
