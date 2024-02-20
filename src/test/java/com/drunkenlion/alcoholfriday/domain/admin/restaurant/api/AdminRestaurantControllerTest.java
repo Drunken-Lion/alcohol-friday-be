@@ -1,15 +1,23 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
+import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
+import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
+import com.drunkenlion.alcoholfriday.global.ncp.application.NcpS3ServiceImpl;
+import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,15 +27,21 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.geo.Point;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -46,6 +60,18 @@ public class AdminRestaurantControllerTest {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private RestaurantStockRepository restaurantStockRepository;
+
+    @Autowired
+    private ItemRepository itemRepository;
+
+    @Autowired
+    private NcpS3ServiceImpl ncpS3Service;
+
+    @Autowired
+    private FileRepository fileRepository;
 
     // 날짜 패턴 정규식
     private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
@@ -124,6 +150,49 @@ public class AdminRestaurantControllerTest {
                 .build();
 
         restaurantRepository.save(restaurant);
+
+        List<Item> items = LongStream.rangeClosed(1, 2).mapToObj(i -> {
+            return Item.builder()
+                    .id(i)
+                    .name("itemName" + i)
+                    .price(BigDecimal.valueOf(i))
+                    .info("info")
+                    .build();
+        }).collect(Collectors.toList());
+
+        itemRepository.saveAll(items);
+
+        List<RestaurantStock> restaurantStocks = items.stream().map(item -> {
+            return RestaurantStock.builder()
+                    .id(item.getId())
+                    .item(item)
+                    .restaurant(restaurant)
+                    .quantity(100L)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+        }).collect(Collectors.toList());
+
+        restaurantStockRepository.saveAll(restaurantStocks);
+
+        List<NcpFile> ncpFiles = items.stream().map(item -> {
+            File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
+            InputStream fileInputStream = null;
+            try {
+                fileInputStream = new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            MultipartFile mpf = null;
+            try {
+                mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE, fileInputStream);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            List<MultipartFile> files = List.of(mpf);
+            return ncpS3Service.ncpUploadFiles(files, item.getId(), EntityType.ITEM.getEntityName());
+        }).collect(Collectors.toList());
+
+        fileRepository.saveAll(ncpFiles);
     }
 
     @AfterEach
@@ -191,7 +260,11 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.provision", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.stockItemInfos[0].stockItemId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockItemInfos[0].stockItemName", notNullValue()))
+                .andExpect(jsonPath("$.stockItemInfos[0].stockQuantity", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockItemInfos[0].stockItemFile", notNullValue()));
     }
 
     @Test
