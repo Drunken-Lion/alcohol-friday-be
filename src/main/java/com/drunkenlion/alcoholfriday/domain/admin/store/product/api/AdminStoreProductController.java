@@ -3,12 +3,17 @@ package com.drunkenlion.alcoholfriday.domain.admin.store.product.api;
 import com.drunkenlion.alcoholfriday.domain.admin.store.product.application.AdminStoreProductService;
 import com.drunkenlion.alcoholfriday.domain.admin.store.product.dto.ProductDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.store.product.dto.ProductListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.store.product.dto.ProductRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,4 +41,19 @@ public class AdminStoreProductController {
         return ResponseEntity.ok().body(productDetailResponse);
     }
 
+    @Operation(summary = "제품 등록", description = "관리자 권한에 대한 제품 등록")
+    @PostMapping(value = "products")
+    public ResponseEntity<ProductDetailResponse> createProduct(
+            @Valid @RequestBody ProductRequest productRequest
+    ) {
+        ProductDetailResponse productDetailResponse = adminStoreProductService.createProduct(productRequest);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(productDetailResponse.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(productDetailResponse);
+    }
 }
