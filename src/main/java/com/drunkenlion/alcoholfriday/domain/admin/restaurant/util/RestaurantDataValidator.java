@@ -44,6 +44,7 @@ public class RestaurantDataValidator {
                 if (!(entry.getValue() instanceof String)) return false;
             }
 
+            // TODO: DayInfo enum 내부에서 체크하는 방식으로 리팩토링
             if (DayInfo.MONDAY.name().equals(entry.getKey()) ||
                     DayInfo.TUESDAY.name().equals(entry.getKey()) ||
                     DayInfo.WEDNESDAY.name().equals(entry.getKey()) ||
