@@ -33,7 +33,7 @@ public class AdminStoreControllerTest {
     private MakerRepository makerRepository;
 
     // 날짜 패턴 정규식
-    private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
+    private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?";
     private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
 
     @BeforeEach

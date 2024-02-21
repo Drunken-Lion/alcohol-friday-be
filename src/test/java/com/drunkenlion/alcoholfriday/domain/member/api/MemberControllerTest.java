@@ -35,7 +35,7 @@ public class MemberControllerTest {
     @Autowired
     private MemberRepository memberRepository;
 
-    private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
+    private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?";
 
     @BeforeEach
     @Transactional
