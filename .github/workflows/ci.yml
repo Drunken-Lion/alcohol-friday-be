@@ -48,13 +48,17 @@ jobs:
         uses: actions/github-script@v1
         with:
           script: |
-            if (github.event.pull_request.head.sha !== github.sha) {
-              throw new Error('The pull request head SHA does not match the workflow run SHA.')
+            if (github.event && github.event.pull_request) {
+              if (github.event.pull_request.head.sha !== github.sha) {
+                throw new Error('The pull request head SHA does not match the workflow run SHA.')
+              }
+            
+              const testResults = await getTestResults()
+              if (!testResults.success) {
+                throw new Error('The tests failed.')
+              }
+            
+              console.log('The tests passed.')
+            } else {
+              // Handle non-Pull Request event
             }
-
-            const testResults = await getTestResults()
-            if (!testResults.success) {
-              throw new Error('The tests failed.')
-            }
-
-            console.log('The tests passed.')
