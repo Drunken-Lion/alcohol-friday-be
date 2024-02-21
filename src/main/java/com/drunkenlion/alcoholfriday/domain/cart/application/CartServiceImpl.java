@@ -34,7 +34,10 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartResponse addCartList(List<CartRequest> cartRequestList, Member member) {
-        Cart cart = addFirstCart(member).orElseGet(() -> cartRepository.save(Cart.create(member)));
+        Cart cart = addFirstCart(member).orElseGet(() ->
+                cartRepository.save(Cart.builder()
+                        .member(member)
+                        .build()));
 
         List<CartDetailResponse> cartDetailResponseList = cartRequestList.stream()
                 .map(cartRequest -> addCart(cartRequest, cart))

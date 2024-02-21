@@ -481,6 +481,6 @@ class CartControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(handler().handlerType(CartController.class))
                 .andExpect(handler().methodName("deleteCartList"))
-                .andExpect(jsonPath("$.message").value("존재하지 않는 리소스입니다."));
+                .andExpect(jsonPath("$.message").value("장바구니에 상품 내역이 없습니다."));
     }
 }

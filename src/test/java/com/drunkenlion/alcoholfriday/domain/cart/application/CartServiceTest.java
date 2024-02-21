@@ -226,7 +226,7 @@ class CartServiceTest {
     }
 
     @Test
-    @DisplayName("장바구니가 없는 경우")
+    @DisplayName("장바구니가 없는 경우_장바구니 만들어서 저장")
     void noCartTest() {
         // given
         // cartRepository.findByMember(member).orElse(null)
@@ -249,7 +249,9 @@ class CartServiceTest {
         when(this.itemRepository.findById(cartRequest2.getItemId())).thenReturn(this.getOneItem2());
 
         // 카트 만들기
-        Cart makeCart = Cart.create(member);
+        Cart makeCart = Cart.builder()
+                .member(member)
+                .build();
         when(this.cartRepository.save(makeCart)).thenReturn(cart);
 
         CartDetail cartDetail1 = CartDetail.builder()
@@ -463,7 +465,9 @@ class CartServiceTest {
                 .build();
 
         // 카트 만들기
-        Cart makeCart = Cart.create(member);
+        Cart makeCart = Cart.builder()
+                .member(member)
+                .build();
 
         // when & then
         Assertions.assertThrows(BusinessException.class, () -> {
