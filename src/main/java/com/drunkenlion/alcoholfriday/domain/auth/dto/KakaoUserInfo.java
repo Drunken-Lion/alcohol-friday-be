@@ -30,8 +30,7 @@ public class KakaoUserInfo extends SocialUserInfo {
 
     @Override
     public String getNickname() {
-        return Optional.ofNullable((String) profile.get("nickname"))
-                .orElseGet(() -> getEmail().split("@")[0]);
+        return ProviderType.KAKAO + "_" + attributes.get("id");
     }
 
     @Override

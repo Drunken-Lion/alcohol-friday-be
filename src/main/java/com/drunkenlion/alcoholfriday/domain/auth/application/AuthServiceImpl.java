@@ -109,6 +109,8 @@ public class AuthServiceImpl implements AuthService {
     public OAuth2User loadUser(ProviderType provider, String accessToken) {
         SocialUserInfo userInfo = getSocialUserInfoFactory(provider, this.getAttributes(provider, accessToken));
 
+        log.info(this.getAttributes(provider, accessToken).toString());
+
         if (!StringUtils.hasText(userInfo.getEmail())) {
             throw new OAuth2AuthenticationException(String.format("%s 이메일을 찾을 수 없습니다.", provider.getProviderName()));
         }
@@ -131,27 +133,13 @@ public class AuthServiceImpl implements AuthService {
                     Member member = Member.builder()
                             .email(userInfo.getEmail())
                             .name(userInfo.getName())
-                            .nickname(checkNicknameDuplicate(userInfo.getNickname()))
+                            .nickname(userInfo.getNickname())
                             .role(MemberRole.MEMBER)
                             .provider(userInfo.getProvider())
                             .build();
 
                     return memberRepository.save(member);
                 });
-    }
-
-    private String checkNicknameDuplicate(String nickname) {
-        String newNickname = nickname;
-
-        if(memberRepository.existsByNickname(nickname)) {
-            newNickname = nickname + "_" + UUID.randomUUID();
-        }
-
-        if(newNickname.length() > 50) {
-            newNickname = newNickname.substring(0, 50);
-        }
-
-        return newNickname;
     }
 
     /**
