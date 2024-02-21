@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.store.product.dto.ProductListR
 import com.drunkenlion.alcoholfriday.domain.admin.store.product.dto.ProductRequest;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
@@ -27,6 +28,7 @@ public class AdminStoreProductServiceImpl implements AdminStoreProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final MakerRepository makerRepository;
+    private final ItemProductRepository itemProductRepository;
 
     public Page<ProductListResponse> getProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -110,6 +112,13 @@ public class AdminStoreProductServiceImpl implements AdminStoreProductService {
         if (product.getDeletedAt() != null) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
+                    .build();
+        }
+
+        // product 와 관계가 있는 itemProduct 중 삭제 상태가 아닌 것이 있는지 확인
+        if (itemProductRepository.existsByProductAndDeletedAtIsNull(product)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.PRODUCT_IN_USE)
                     .build();
         }
 

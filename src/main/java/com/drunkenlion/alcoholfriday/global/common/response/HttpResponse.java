@@ -60,6 +60,7 @@ public class HttpResponse {
         // 409
         CONFLICT(HttpStatus.CONFLICT, "이미 리소스가 존재합니다."),
         MAKER_IN_USE(HttpStatus.CONFLICT, "사용중인 제조사입니다."),
+        PRODUCT_IN_USE(HttpStatus.CONFLICT, "사용중인 제품입니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");
