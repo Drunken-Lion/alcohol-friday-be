@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.auth.dto;
 
 import java.util.Map;
+import java.util.Optional;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 
@@ -29,7 +30,8 @@ public class KakaoUserInfo extends SocialUserInfo {
 
     @Override
     public String getNickname() {
-        return (String) profile.get("nickname");
+        return Optional.ofNullable((String) profile.get("nickname"))
+                .orElseGet(() -> getEmail().split("@")[0]);
     }
 
     @Override
