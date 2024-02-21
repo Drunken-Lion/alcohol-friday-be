@@ -6,36 +6,28 @@ on:
       - dev
 
 jobs:
-  test:
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Set up Java
+      - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'
+          distribution: 'adopt'
           java-version: '17'
 
-      - name: Use Gradle 8.5
-        uses: gradle/actions/setup-gradle@v3
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
         with:
-          gradle-wrapper-file: 'gradlew'
-          distribution: 'gradle-8.5'
-          arguments: test
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      - name: Check test results
-        uses: actions/github-script@v1
-        with:
-          script: |
-            if (github.event.pull_request.head.sha !== github.sha) {
-              throw new Error('The pull request head SHA does not match the workflow run SHA.')
-            }
-
-            const testResults = await getTestResults()
-            if (!testResults.success) {
-              throw new Error('The tests failed.')
-            }
-
-            console.log('The tests passed.')
+      - name: Run Gradle build and tests
+        run: |
+          ./gradlew test
