@@ -366,7 +366,7 @@ class CartServiceTest {
                 .build();
         cartDetailRepository.save(cartDetail);
 
-        // cartRepository.findFirstByMember(member)
+        // cartRepository.findByMember(member)
         when(cartRepository.findByMember(member)).thenReturn(getOneCart());
         // cartDetailRepository.deleteByIdAndCart(cartRequest.getItemId(), cart)
         List<DeleteCartRequest> cartRequests = new ArrayList<>();
@@ -403,7 +403,7 @@ class CartServiceTest {
         cartDetailRepository.save(cartDetail);
         cartDetailRepository.save(cartDetail2);
 
-        // cartRepository.findFirstByMember(member)
+        // cartRepository.findByMember(member)
         when(cartRepository.findByMember(member)).thenReturn(getOneCart());
         // cartDetailRepository.deleteByIdAndCart(cartRequest.getItemId(), cart)
         List<DeleteCartRequest> cartRequests = new ArrayList<>();
