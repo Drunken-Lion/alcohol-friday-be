@@ -23,10 +23,6 @@ jobs:
         with:
           gradle-wrapper-file: 'gradlew'
           distribution: 'gradle-8.5'
-
-      - name: Run tests
-        uses: gradle/actions@v3.1.0
-        with:
           arguments: test
 
       - name: Check test results
