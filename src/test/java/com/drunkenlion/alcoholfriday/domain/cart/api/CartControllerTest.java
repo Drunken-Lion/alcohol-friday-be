@@ -450,4 +450,38 @@ class CartControllerTest {
                 .andExpect(handler().handlerType(CartController.class))
                 .andExpect(handler().methodName("deleteCartList"));
     }
+
+    @Test
+    @DisplayName("삭제 시_장바구니가 없는 경우_EmptyCart")
+    @WithAccount
+    void deleteCartList_EmptyCart() throws Exception {
+        // given
+        cartDetailRepository.deleteAll();
+        cartRepository.deleteAll();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(delete("/v1/carts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "cartDeleteReqList": [
+                                    {
+                                      "itemId": "%d"
+                                    }
+                                  ]
+                                }
+                                """.formatted(itemId))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("deleteCartList"))
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.message").value("존재하지 않는 리소스입니다."));
+    }
 }
