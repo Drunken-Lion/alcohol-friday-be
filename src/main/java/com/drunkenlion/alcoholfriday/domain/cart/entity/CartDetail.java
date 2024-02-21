@@ -44,13 +44,4 @@ public class CartDetail extends BaseEntity {
     public void addQuantity(Long quantity) {
         this.quantity = quantity;
     }
-
-    /**
-     * @deprecated set 네이밍의 경우 Setter와 헷갈릴 수 있어 add로 변경되었습니다.
-     * 1차 개발기간 이후 삭제될 예정입니다.
-     */
-    @Deprecated
-    public void setQuantity(Long quantity) {
-        this.quantity = quantity;
-    }
 }
