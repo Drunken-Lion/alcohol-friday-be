@@ -57,7 +57,7 @@ public class AdminStoreProductController {
         return ResponseEntity.created(location).body(productDetailResponse);
     }
 
-    @Operation(summary = "제품 수정", description = "관리자 권한에 대한 제픔 수정")
+    @Operation(summary = "제품 수정", description = "관리자 권한에 대한 제품 수정")
     @PutMapping(value = "products/{id}")
     public ResponseEntity<ProductDetailResponse> modifyProduct(
             @PathVariable("id") Long id,
