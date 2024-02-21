@@ -121,6 +121,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public void deleteCartList(List<DeleteCartRequest> deleteCartRequests, Member member) {
         Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND_CART).build());
@@ -129,7 +130,6 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional
     public void deleteCart(DeleteCartRequest deleteCartItem, Cart cart) {
         Item item = itemRepository.findById(deleteCartItem.getItemId()).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
