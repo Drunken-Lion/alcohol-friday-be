@@ -30,7 +30,7 @@ public class Answer extends BaseEntity {
     @Column(columnDefinition = "MEDIUMTEXT")
     private String content;
 
-    public void updateQuestion(Question question) {
+    public void addQuestion(Question question) {
         this.question = question;
     }
 }
