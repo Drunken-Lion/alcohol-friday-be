@@ -18,8 +18,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Use Gradle 8.5
+        uses: gradle/wrapper-action@v3
+        with:
+          gradle-wrapper-file: 'gradlew'
+          distribution: 'gradle-8.5'
+
       - name: Run tests
-        run: ./gradlew test
+        uses: gradle/gradle-action@v1
+        with:
+          arguments: test
 
       - name: Check test results
         uses: actions/github-script@v1
