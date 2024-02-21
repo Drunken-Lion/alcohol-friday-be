@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.store.api;
 
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
+import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,10 +32,6 @@ public class AdminStoreControllerTest {
 
     @Autowired
     private MakerRepository makerRepository;
-
-    // 날짜 패턴 정규식
-    private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?";
-    private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
 
     @BeforeEach
     @Transactional
@@ -75,7 +72,7 @@ public class AdminStoreControllerTest {
                 .andExpect(jsonPath("$.data[0].id", notNullValue()))
                 .andExpect(jsonPath("$.data[0].name", notNullValue()))
                 .andExpect(jsonPath("$.data[0].region", notNullValue()))
-                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.data[0].deleted", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
@@ -106,9 +103,9 @@ public class AdminStoreControllerTest {
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.detail", notNullValue()))
                 .andExpect(jsonPath("$.region", notNullValue()))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
@@ -140,9 +137,9 @@ public class AdminStoreControllerTest {
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.detail", notNullValue()))
                 .andExpect(jsonPath("$.region", notNullValue()))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
@@ -177,9 +174,9 @@ public class AdminStoreControllerTest {
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.detail", notNullValue()))
                 .andExpect(jsonPath("$.region", notNullValue()))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test

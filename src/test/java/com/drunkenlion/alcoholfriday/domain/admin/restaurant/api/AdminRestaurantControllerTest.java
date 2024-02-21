@@ -18,6 +18,7 @@ import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
 import com.drunkenlion.alcoholfriday.global.ncp.application.NcpS3ServiceImpl;
 import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
+import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -72,9 +73,6 @@ public class AdminRestaurantControllerTest {
 
     @Autowired
     private FileRepository fileRepository;
-
-    // 날짜 패턴 정규식
-    private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?";
 
     private Map<String, Object> getMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
@@ -222,7 +220,7 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.data[0].memberNickname", notNullValue()))
                 .andExpect(jsonPath("$.data[0].name", notNullValue()))
                 .andExpect(jsonPath("$.data[0].category", notNullValue()))
-                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.data[0].deleted", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
@@ -259,9 +257,9 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.time", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.provision", instanceOf(Map.class)))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
                 .andExpect(jsonPath("$.stockItemInfos[0].stockItemId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.stockItemInfos[0].stockItemName", notNullValue()))
                 .andExpect(jsonPath("$.stockItemInfos[0].stockQuantity", instanceOf(Number.class)))
@@ -341,9 +339,9 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.time", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.provision", instanceOf(Map.class)))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
                 .andExpect(jsonPath("$.stockItemInfos", notNullValue()));
     }
 
@@ -421,9 +419,9 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.time", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.provision", instanceOf(Map.class)))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
                 .andExpect(jsonPath("$.stockItemInfos[0].stockItemId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.stockItemInfos[0].stockItemName", notNullValue()))
                 .andExpect(jsonPath("$.stockItemInfos[0].stockQuantity", instanceOf(Number.class)))
