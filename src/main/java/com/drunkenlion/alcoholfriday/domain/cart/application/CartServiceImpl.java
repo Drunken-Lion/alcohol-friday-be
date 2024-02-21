@@ -126,6 +126,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public void deleteCart(DeleteCartRequest cartRequest, Cart cart) {
         cartDetailRepository.deleteByIdAndCart(cartRequest.getItemId(), cart);
     }

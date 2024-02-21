@@ -16,6 +16,6 @@ public interface CartService {
     CartDetailResponse modifyCartItemQuantity(CartRequest modifyCart, Member member);
     Optional<Cart> addFirstCart(Member member);
     CartResponse getCartList(Member member);
-    void deleteCart(List<DeleteCartRequest> cartRequest, Member member);
+    void deleteCart(List<DeleteCartRequest> cartRequests, Member member);
     void deleteCart(DeleteCartRequest cartRequest, Cart cart);
 }
