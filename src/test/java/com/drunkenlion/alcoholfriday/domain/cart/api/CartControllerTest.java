@@ -289,7 +289,7 @@ class CartControllerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 상품일 경우")
+    @DisplayName("추가 시_존재하지 않는 상품일 경우")
     @WithAccount
     void addCartList_notFoundItem() throws Exception {
         // when
@@ -301,7 +301,7 @@ class CartControllerTest {
                                 {
                                   "cartRequestList": [
                                     {
-                                      "itemId": "20",
+                                      "itemId": "100",
                                       "quantity": "2"
                                     }
                                   ]
@@ -452,7 +452,7 @@ class CartControllerTest {
     }
 
     @Test
-    @DisplayName("삭제 시_장바구니가 없는 경우_EmptyCart")
+    @DisplayName("삭제 시_장바구니에 상품이 없는 경우_EmptyCart")
     @WithAccount
     void deleteCartList_EmptyCart() throws Exception {
         // given
@@ -481,7 +481,6 @@ class CartControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(handler().handlerType(CartController.class))
                 .andExpect(handler().methodName("deleteCartList"))
-                .andExpect(jsonPath("$").exists())
                 .andExpect(jsonPath("$.message").value("존재하지 않는 리소스입니다."));
     }
 }
