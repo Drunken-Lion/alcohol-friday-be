@@ -6,9 +6,8 @@ on:
       - dev
 
 jobs:
-  test:
+ test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
 
@@ -35,7 +34,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'
+          distribution: 'corretto'
           java-version: '17'
 
       - name: Use Gradle 7.4.2
