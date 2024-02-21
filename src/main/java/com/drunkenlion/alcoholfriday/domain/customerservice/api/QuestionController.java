@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.dto.request.Question
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.QuestionSaveResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RequestMapping("/v1/cs/question")
+@Tag(name = "v1-question", description = "문의사항에 대한 API")
 @RestController
 public class QuestionController {
     private final QuestionService questionService;
