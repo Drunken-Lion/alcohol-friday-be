@@ -34,7 +34,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
-          distribution: 'corretto'
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Use Gradle 7.4.2
