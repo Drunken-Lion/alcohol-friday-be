@@ -68,12 +68,13 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public CartDetailResponse modifyCartItemQuantity(CartRequest modifyCart, Member member) {
         Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
-                .response(HttpResponse.Fail.NOT_FOUND).build());
+                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
 
         Item item = itemRepository.findById(modifyCart.getItemId()).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
 
-        CartDetail cartDetail = cartDetailRepository.findByItemAndCart(item, cart);
+        CartDetail cartDetail = cartDetailRepository.findByItemAndCart(item, cart).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
 
         cartDetail.addQuantity(modifyCart.getQuantity());
 
@@ -107,7 +108,7 @@ public class CartServiceImpl implements CartService {
         return CartResponse.of(cartDetails, cart, cartDetailList);
     }
 
-    private static CartResponse getEmptyCart(Cart cart) {
+    private CartResponse getEmptyCart(Cart cart) {
         return CartResponse.builder()
                 .cartId(cart == null ? -1 : cart.getId())
                 .cartDetailResponseList(Collections.EMPTY_LIST)
@@ -117,16 +118,23 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void deleteCartList(List<DeleteCartRequest> cartRequests, Member member) {
+    public void deleteCartList(List<DeleteCartRequest> deleteCartRequests, Member member) {
         Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
-                .response(HttpResponse.Fail.NOT_FOUND).build());
+                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
 
-        cartRequests.forEach(cartRequest -> deleteCart(cartRequest, cart));
+        deleteCartRequests.forEach(deleteCartRequest -> deleteCart(deleteCartRequest, cart));
     }
 
     @Override
     @Transactional
-    public void deleteCart(DeleteCartRequest cartRequest, Cart cart) {
-        cartDetailRepository.deleteByIdAndCart(cartRequest.getItemId(), cart);
+    public void deleteCart(DeleteCartRequest deleteCartItem, Cart cart) {
+        Item item = itemRepository.findById(deleteCartItem.getItemId()).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
+
+        // 장바구니에 item이 없는 경우
+        cartDetailRepository.findByItemAndCart(item, cart).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
+
+        cartDetailRepository.deleteByIdAndCart(item.getId(), cart);
     }
 }
