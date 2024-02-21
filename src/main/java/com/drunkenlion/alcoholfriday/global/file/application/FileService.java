@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.global.file.application;
 
+import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +12,8 @@ public interface FileService {
     List<NcpFileResponse> findAllByEntityIds(List<Long> entityIds, String entityType);
 
     NcpFileResponse findByEntityId(Long entityId, String entityType);
+    NcpFileResponse findByEntityId(Long entityId, EntityType entityType);
 
     NcpFileResponse uploadFiles(List<MultipartFile> multipartFiles, Long entityId, String EntityType);
+    NcpFileResponse uploadFiles(List<MultipartFile> multipartFiles, Long entityId, EntityType entityType);
 }
