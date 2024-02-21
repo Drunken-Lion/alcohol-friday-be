@@ -1,10 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.admin.member.api;
 
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,10 +35,6 @@ public class AdminMemberControllerTest {
 
     @Autowired
     private MemberRepository memberRepository;
-
-    // 날짜 패턴 정규식
-    private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,9}";
-    private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
 
     @BeforeEach
     @Transactional
@@ -89,7 +85,7 @@ public class AdminMemberControllerTest {
                 .andExpect(jsonPath("$.data[0].nickname", notNullValue()))
                 .andExpect(jsonPath("$.data[0].email", notNullValue()))
                 .andExpect(jsonPath("$.data[0].role", notNullValue()))
-                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.data[0].deleted", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
@@ -121,13 +117,13 @@ public class AdminMemberControllerTest {
                 .andExpect(jsonPath("$.nickname", notNullValue()))
                 .andExpect(jsonPath("$.role", notNullValue()))
                 .andExpect(jsonPath("$.phone", notNullValue()))
-                .andExpect(jsonPath("$.certifyAt", anyOf(is(matchesPattern(DATE_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.certifyAt", anyOf(is(matchesPattern(TestUtil.DATE_PATTERN)), is(nullValue()))))
                 .andExpect(jsonPath("$.agreedToServiceUse", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.agreedToServicePolicy", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.agreedToServicePolicyUse", instanceOf(Boolean.class)))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
@@ -162,12 +158,12 @@ public class AdminMemberControllerTest {
                 .andExpect(jsonPath("$.nickname", notNullValue()))
                 .andExpect(jsonPath("$.role", notNullValue()))
                 .andExpect(jsonPath("$.phone", notNullValue()))
-                .andExpect(jsonPath("$.certifyAt", anyOf(is(matchesPattern(DATE_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.certifyAt", anyOf(is(matchesPattern(TestUtil.DATE_PATTERN)), is(nullValue()))))
                 .andExpect(jsonPath("$.agreedToServiceUse", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.agreedToServicePolicy", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.agreedToServicePolicyUse", instanceOf(Boolean.class)))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 }
