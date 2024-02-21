@@ -6,6 +6,7 @@ import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.CartResponse;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.DeleteCartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
@@ -16,6 +17,8 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +37,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -349,6 +352,96 @@ class CartServiceTest {
         assertThat(cartList.getCartDetailResponseList()).isEqualTo(Collections.EMPTY_LIST);
         assertThat(cartList.getTotalCartPrice()).isEqualTo(new BigDecimal("0"));
         assertThat(cartList.getTotalCartQuantity()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("장바구니에서 상품 한 개 삭제")
+    void deleteCartOneItemTest() {
+        // given
+        // 상품을 장바구니에 저장
+        CartDetail cartDetail = CartDetail.builder()
+                .cart(cart)
+                .item(item)
+                .quantity(quantityCart)
+                .build();
+        cartDetailRepository.save(cartDetail);
+
+        // cartRepository.findFirstByMember(member)
+        when(cartRepository.findByMember(member)).thenReturn(getOneCart());
+        // cartDetailRepository.deleteByIdAndCart(cartRequest.getItemId(), cart)
+        List<DeleteCartRequest> cartRequests = new ArrayList<>();
+        DeleteCartRequest cartRequest = DeleteCartRequest.builder()
+                .itemId(itemId1)
+                .build();
+        cartRequests.add(cartRequest);
+
+        doNothing().when(cartDetailRepository).deleteByIdAndCart(cartRequest.getItemId(), cart);
+
+        // when
+        cartService.deleteCartList(cartRequests, member);
+
+        // then
+        // 메서드 호출 여부를 검증
+        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest.getItemId(), cart);
+    }
+
+    @Test
+    @DisplayName("장바구니에서 상품 한 개 이상 삭제")
+    void deleteCartListTest() {
+        // given
+        // 상품을 장바구니에 저장
+        CartDetail cartDetail = CartDetail.builder()
+                .cart(cart)
+                .item(item)
+                .quantity(quantityCart)
+                .build();
+        CartDetail cartDetail2 = CartDetail.builder()
+                .cart(cart)
+                .item(item2)
+                .quantity(quantityCart2)
+                .build();
+        cartDetailRepository.save(cartDetail);
+        cartDetailRepository.save(cartDetail2);
+
+        // cartRepository.findFirstByMember(member)
+        when(cartRepository.findByMember(member)).thenReturn(getOneCart());
+        // cartDetailRepository.deleteByIdAndCart(cartRequest.getItemId(), cart)
+        List<DeleteCartRequest> cartRequests = new ArrayList<>();
+        DeleteCartRequest cartRequest = DeleteCartRequest.builder()
+                .itemId(itemId1)
+                .build();
+        DeleteCartRequest cartRequest2 = DeleteCartRequest.builder()
+                .itemId(itemId2)
+                .build();
+        cartRequests.add(cartRequest);
+        cartRequests.add(cartRequest2);
+
+        doNothing().when(cartDetailRepository).deleteByIdAndCart(cartRequest.getItemId(), cart);
+        doNothing().when(cartDetailRepository).deleteByIdAndCart(cartRequest2.getItemId(), cart);
+
+        // when
+        cartService.deleteCartList(cartRequests, member);
+
+        // then
+        // 메서드 호출 여부를 검증
+        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest.getItemId(), cart);
+        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest2.getItemId(), cart);
+    }
+
+    @Test
+    @DisplayName("장바구니에 상품이 없는 경우")
+    void deleteCartList_EmptyCartTest() {
+        // given
+        List<DeleteCartRequest> cartRequests = new ArrayList<>();
+        DeleteCartRequest cartRequest = DeleteCartRequest.builder()
+                .itemId(itemId1)
+                .build();
+        cartRequests.add(cartRequest);
+
+        // when & then
+        Assertions.assertThrows(BusinessException.class, () -> {
+            cartService.deleteCartList(cartRequests, member);
+        });
     }
 
 

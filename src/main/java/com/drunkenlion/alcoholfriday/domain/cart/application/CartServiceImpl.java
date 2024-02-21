@@ -109,7 +109,6 @@ public class CartServiceImpl implements CartService {
 
     private static CartResponse getEmptyCart(Cart cart) {
         return CartResponse.builder()
-                // TODO cartId null을 보내도 될지 물어보기
                 .cartId(cart == null ? -1 : cart.getId())
                 .cartDetailResponseList(Collections.EMPTY_LIST)
                 .totalCartPrice(BigDecimal.ZERO)
@@ -118,7 +117,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void deleteCart(List<DeleteCartRequest> cartRequests, Member member) {
+    public void deleteCartList(List<DeleteCartRequest> cartRequests, Member member) {
         Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND).build());
 
