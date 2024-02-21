@@ -41,6 +41,13 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew --info build
 
+    # 테스트 후 Result를 보기위해 Publish Unit Test Results step 추가
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: ${{ always() }}  # 테스트가 실패하여도 Report를 보기 위해 `always`로 설정
+      with:
+        files: build/test-results/**/*.xml
+        
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
     # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
     #
