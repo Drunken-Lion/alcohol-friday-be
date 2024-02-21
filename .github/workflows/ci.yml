@@ -42,7 +42,7 @@ jobs:
         with:
           gradle-wrapper-file: 'gradlew'
           distribution: 'gradle-7.4.2'
-          arguments: -s -w test
+          arguments: -i test
 
       - name: Check test results
         uses: actions/github-script@v1
