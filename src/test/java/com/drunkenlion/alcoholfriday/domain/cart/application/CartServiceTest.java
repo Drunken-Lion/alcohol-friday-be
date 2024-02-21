@@ -215,7 +215,7 @@ class CartServiceTest {
         when(this.itemRepository.findById(cartRequest.getItemId())).thenReturn(this.getOneItem());
 
         // cartDetailRepository.findByItemAndCart(item, cart)
-        when(this.cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getDataCartDetail());
+        when(this.cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getOneCartDetail());
 
         // when
         CartDetailResponse modifyCartItemDetail = this.cartService.modifyCartItemQuantity(cartRequest, member);
@@ -323,7 +323,7 @@ class CartServiceTest {
     }
 
     @Test
-    @DisplayName("회원에게 카트가 없는 경우")
+    @DisplayName("회원에게 장바구니가 없는 경우")
     void getCartList_EmptyCartTest() {
         // given
         when(cartRepository.findByMember(any(Member.class))).thenReturn(Optional.empty());
@@ -338,7 +338,7 @@ class CartServiceTest {
     }
 
     @Test
-    @DisplayName("카트에 아무런 상품이 없는 경우")
+    @DisplayName("장바구니에 아무런 상품이 없는 경우")
     void getCartList_EmptyCartDetailTest() {
         // given
         when(cartRepository.findByMember(any(Member.class))).thenReturn(this.getOneCart());
@@ -375,7 +375,11 @@ class CartServiceTest {
                 .build();
         cartRequests.add(cartRequest);
 
-        doNothing().when(cartDetailRepository).deleteByIdAndCart(cartRequest.getItemId(), cart);
+        when(itemRepository.findById(cartRequest.getItemId())).thenReturn(getOneItem());
+
+        when(cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getOneCartDetail());
+
+        doNothing().when(cartDetailRepository).deleteByIdAndCart(getDataItem().getId(), cart);
 
         // when
         cartService.deleteCartList(cartRequests, member);
@@ -416,8 +420,14 @@ class CartServiceTest {
         cartRequests.add(cartRequest);
         cartRequests.add(cartRequest2);
 
-        doNothing().when(cartDetailRepository).deleteByIdAndCart(cartRequest.getItemId(), cart);
-        doNothing().when(cartDetailRepository).deleteByIdAndCart(cartRequest2.getItemId(), cart);
+        when(itemRepository.findById(cartRequest.getItemId())).thenReturn(getOneItem());
+        when(itemRepository.findById(cartRequest2.getItemId())).thenReturn(getOneItem2());
+
+        when(cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getOneCartDetail());
+        when(cartDetailRepository.findByItemAndCart(item2, cart)).thenReturn(getOneCartDetail2());
+
+        doNothing().when(cartDetailRepository).deleteByIdAndCart(getDataItem().getId(), cart);
+        doNothing().when(cartDetailRepository).deleteByIdAndCart(getDataItem2().getId(), cart);
 
         // when
         cartService.deleteCartList(cartRequests, member);
@@ -429,7 +439,7 @@ class CartServiceTest {
     }
 
     @Test
-    @DisplayName("장바구니에 상품이 없는 경우")
+    @DisplayName("삭제 시_장바구니가 없는 경우")
     void deleteCartList_EmptyCartTest() {
         // given
         List<DeleteCartRequest> cartRequests = new ArrayList<>();
@@ -441,6 +451,23 @@ class CartServiceTest {
         // when & then
         Assertions.assertThrows(BusinessException.class, () -> {
             cartService.deleteCartList(cartRequests, member);
+        });
+    }
+
+    @Test
+    @DisplayName("삭제 시_장바구니 내역이 없는 경우")
+    void deleteCartList_EmptyCartDetailTest() {
+        // given
+        DeleteCartRequest cartRequest = DeleteCartRequest.builder()
+                .itemId(itemId1)
+                .build();
+
+        // 카트 만들기
+        Cart makeCart = Cart.create(member);
+
+        // when & then
+        Assertions.assertThrows(BusinessException.class, () -> {
+            cartService.deleteCart(cartRequest, makeCart);
         });
     }
 
@@ -533,6 +560,7 @@ class CartServiceTest {
         product.addCategory(category);
 
         Item item = Item.builder()
+                .id(itemId1)
                 .name(itemName)
                 .price(price)
                 .info(info)
@@ -579,6 +607,7 @@ class CartServiceTest {
         product.addCategory(category);
 
         Item item = Item.builder()
+                .id(itemId2)
                 .name(itemName2)
                 .price(price2)
                 .info(info2)
