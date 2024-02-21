@@ -46,6 +46,9 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -53,7 +56,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.geo.Point;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
@@ -88,7 +90,7 @@ public class NotProd {
     private final CartRepository cartRepository;
     private final CartDetailRepository cartDetailRepository;
     private final RestaurantStockRepository restaurantStockRepository;
-
+    private final GeometryFactory geometryFactory = new GeometryFactory();
 
     @Bean
     @Order(3)
@@ -614,12 +616,14 @@ public class NotProd {
                 .agreedToServicePolicyUse(true)
                 .build());
 
+        final Coordinate 가게1_좌표 = new Coordinate(126.983857, 37.569343);
+        final Point 가게1_위치 = geometryFactory.createPoint(가게1_좌표);
         Restaurant 가게1 = restaurantRepository.save(Restaurant.builder()// 1
                 .members(회원_사장1)
                 .category("퓨전 음식점")
                 .name("원주")
                 .address("서울특별시 종로구 종로8길 16")
-                .location(new Point(37.569343, 126.983857)) // 위도, 경도
+                .location(가게1_위치) // 위도, 경도
                 .contact(027331371L)
                 .menu(Map.of("김치찌개", 8000, "순두부", 8000, "제육볶음", 8000, "황태국", 8000))
                 .time(getTimeTest())
@@ -627,108 +631,126 @@ public class NotProd {
                 .provision(getProvisionTest())
                 .build());
 
+        final Coordinate 가게2_좌표 = new Coordinate(126.983857, 37.569343);
+        final Point 가게2_위치 = geometryFactory.createPoint(가게2_좌표);
         Restaurant 가게2 = restaurantRepository.save(Restaurant.builder()// 2
                 .members(회원_사장2)
                 .category("치킨 전문점")
                 .name("구도로통닭")
                 .address("서울특별시 종로구 우정국로2길 16")
-                .location(new Point(37.569457, 126.983908)) // 위도, 경도
+                .location(가게2_위치) // 위도, 경도
                 .contact(1041932693L)
                 .menu(Map.of("통닭구이", 11000, "양념통닭구이", 13000))
                 .time(getTimeTest())
                 .provision(getProvisionTest())
                 .build());
 
+        final Coordinate 가게3_좌표 = new Coordinate(126.983857, 37.569343);
+        final Point 가게3_위치 = geometryFactory.createPoint(가게3_좌표);
         Restaurant 가게3 = restaurantRepository.save(Restaurant.builder()// 3
                 .members(회원_사장3)
                 .category("해산물 요리 전문식당")
                 .name("금보포차")
                 .address("서울특별시 종로구 종로8길 13 2층")
-                .location(new Point(37.569442, 126.984159)) // 위도, 경도
+                .location(가게3_위치) // 위도, 경도
                 .contact(1041932693L)
                 .menu(Map.of("해신탕", 130000, "메로구이", 13000))
                 .time(getTimeTest())
                 .provision(getProvisionTest())
                 .build());
 
+        final Coordinate 가게4_좌표 = new Coordinate(126.983857, 37.569343);
+        final Point 가게4_위치 = geometryFactory.createPoint(가게4_좌표);
         Restaurant 가게4 = restaurantRepository.save(Restaurant.builder() // 4
                 .members(회원_사장4)
                 .category("음식점")
                 .name("종로삼계탕")
                 .address("서울특별시 종로구 종로8길 21")
-                .location(new Point(37.569251, 126.984151)) // 위도, 경도
+                .location(가게4_위치) // 위도, 경도
                 .contact(1041932693L)
                 .menu(Map.of("삼계탕", 16000, "한방삼계탕", 17000, "들깨삼계탕", 17000, "황태국", 8000))
                 .time(getTimeTest())
                 .provision(getProvisionTest())
                 .build());
 
+        final Coordinate 가게5_좌표 = new Coordinate(126.983857, 37.569343);
+        final Point 가게5_위치 = geometryFactory.createPoint(가게5_좌표);
         Restaurant 가게5 = restaurantRepository.save(Restaurant.builder() // 5
                 .members(회원_사장5)
                 .category("베트남 음식점")
                 .name("에머이")
                 .address("서울특별시 종로구 종로12길 6-20")
-                .location(new Point(37.569833, 126.984634)) // 위도, 경도
+                .location(가게5_위치) // 위도, 경도
                 .contact(27330588L)
                 .menu(Map.of("차돌 쌀국수", 13000, "불고기 쌀국수", 12000, "양지 쌀국수", 10900, "매운 쌀국수", 11900))
                 .time(getTimeTest())
                 .provision(getProvisionTest())
                 .build());
 
+        final Coordinate 가게6_좌표 = new Coordinate(126.984634, 37.569833);
+        final Point 가게6_위치 = geometryFactory.createPoint(가게6_좌표);
         Restaurant 가게6 = restaurantRepository.save(Restaurant.builder() // 6
                 .members(회원_사장6)
                 .category("베트남 음식점")
                 .name("에머이")
                 .address("서울특별시 종로구 종로12길 6-20")
-                .location(new Point(37.569833, 126.984634)) // 위도, 경도
+                .location(가게6_위치) // 위도, 경도
                 .contact(27330588L)
                 .menu(Map.of("차돌 쌀국수", 13000, "불고기 쌀국수", 12000, "양지 쌀국수", 10900, "매운 쌀국수", 11900))
                 .time(getTimeTest())
                 .provision(getProvisionTest())
                 .build());
 
+        final Coordinate 가게7_좌표 = new Coordinate(126.985152, 37.570418);
+        final Point 가게7_위치 = geometryFactory.createPoint(가게7_좌표);
         Restaurant 가게7 = restaurantRepository.save(Restaurant.builder() // 7
                 .members(회원_사장7)
                 .category("참치 전문점")
                 .name("이춘복참치")
                 .address("서울특별시 종로구 종로2가 9")
-                .location(new Point(37.570418, 126.985152)) // 위도, 경도
+                .location(가게7_위치) // 위도, 경도
                 .contact(27234558L)
                 .menu(Map.of("혼마구로정식", 30000, "특정식", 22000, "일반정식", 15000, "혼마구로초밥", 30000))
                 .time(getTimeTest())
                 .provision(getProvisionTest())
                 .build());
 
+        final Coordinate 가게8_좌표 = new Coordinate(126.986076, 37.570413);
+        final Point 가게8_위치 = geometryFactory.createPoint(가게8_좌표);
         Restaurant 가게8 = restaurantRepository.save(Restaurant.builder() // 8
                 .members(회원_사장8)
                 .category("샌드위치 가게")
                 .name("써브웨이")
                 .address("서울특별시 종로구 삼성로 151 통일빌딩")
-                .location(new Point(37.570413, 126.986076)) // 위도, 경도
+                .location(가게8_위치) // 위도, 경도
                 .contact(27370034L)
                 .menu(Map.of("혼마구로정식", 30000, "특정식", 22000, "일반정식", 15000, "혼마구로초밥", 30000))
                 .time(getTimeTest())
                 .provision(getProvisionTest())
                 .build());
 
+        final Coordinate 가게9_좌표 = new Coordinate(126.984152, 37.569940);
+        final Point 가게9_위치 = geometryFactory.createPoint(가게9_좌표);
         Restaurant 가게9 = restaurantRepository.save(Restaurant.builder() // 9
                 .members(회원_사장9)
                 .category("패스트푸드점")
                 .name("맘스터치")
                 .address("서울특별시 종로구 종로2가 102-1")
-                .location(new Point(37.569940, 126.984152)) // 위도, 경도
+                .location(가게9_위치) // 위도, 경도
                 .contact(27387771L)
                 .menu(Map.of("싸이버거", 7000, "불싸이버거", 7500, "치즈듬뿍싸이버거", 8000))
                 .time(getTimeTest())
                 .provision(getProvisionTest())
                 .build());
 
+        final Coordinate 가게10_좌표 = new Coordinate(126.988497, 37.569555);
+        final Point 가게10_위치 = geometryFactory.createPoint(가게8_좌표);
         Restaurant 가게10 = restaurantRepository.save(Restaurant.builder() // 10
                 .members(회원_사장10)
                 .category("한식당")
                 .name("뚝배기집")
                 .address("서울특별시 종로구 종로16길 12")
-                .location(new Point(37.569555, 126.988497)) // 위도, 경도
+                .location(가게10_위치) // 위도, 경도
                 .contact(222655744L)
                 .menu(Map.of("우렁된장", 5500, "김치찌개", 5500, "순두부찌개", 5000))
                 .time(getTimeTest())

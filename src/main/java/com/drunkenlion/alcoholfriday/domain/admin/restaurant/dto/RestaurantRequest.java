@@ -4,7 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.springframework.data.geo.Point;
+import org.locationtech.jts.geom.Point;
 
 import java.util.Map;
 

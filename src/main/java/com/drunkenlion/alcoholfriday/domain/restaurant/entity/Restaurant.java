@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.Type;
-import org.springframework.data.geo.Point;
+import org.locationtech.jts.geom.Point;
 
 import java.util.HashMap;
 import java.util.Map;

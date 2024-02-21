@@ -21,6 +21,9 @@ import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -29,7 +32,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.geo.Point;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -61,6 +63,7 @@ public class AdminRestaurantServiceTest {
     private RestaurantStockRepository restaurantStockRepository;
     @Mock
     private MemberRepository memberRepository;
+    final GeometryFactory geometryFactory = new GeometryFactory();
 
     private final Long memberId = 1L;
     private final String email = "test@example.com";
@@ -79,7 +82,8 @@ public class AdminRestaurantServiceTest {
     private final String category = "한식";
     private final String name = "맛있는 한식당";
     private final String address = "서울시 강남구";
-    private final Point location = new Point(37.4979, 127.0276);
+    final Coordinate coordinate1 = new Coordinate(127.0276, 37.4979);
+    private final Point location = geometryFactory.createPoint(coordinate1);
     private final Long contact = 1012345678L;
 
     private Map<String, Object> getMenuTest() {
@@ -132,7 +136,8 @@ public class AdminRestaurantServiceTest {
     private final String modifyCategory = "한식 수정";
     private final String modifyName = "맛있는 한식당 수정";
     private final String modifyAddress = "서울시 강남구 수정";
-    private final Point modifyLocation = new Point(10.0001, 20.0002);
+    final Coordinate coordinate2 = new Coordinate(20.0002, 10.0001);
+    private final Point modifyLocation = geometryFactory.createPoint(coordinate2);
     private final Long modifyContact = 1011112222L;
 
     private Map<String, Object> getModifyMenuTest() {

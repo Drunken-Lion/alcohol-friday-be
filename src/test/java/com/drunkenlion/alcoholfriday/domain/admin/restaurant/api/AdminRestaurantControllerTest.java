@@ -14,10 +14,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.geo.Point;
+
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -47,6 +50,7 @@ public class AdminRestaurantControllerTest {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    private final GeometryFactory geometryFactory = new GeometryFactory();
     // 날짜 패턴 정규식
     private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
     private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
@@ -110,12 +114,14 @@ public class AdminRestaurantControllerTest {
 
         memberRepository.save(member);
 
+        final Coordinate coordinate = new Coordinate(126.984634, 37.569833);
+        Point restaurant_location = geometryFactory.createPoint(coordinate);
         Restaurant restaurant = Restaurant.builder()
                 .members(member)
                 .category("한식")
                 .name("맛있는 한식당")
                 .address("서울시 강남구")
-                .location(new Point(37.4979, 127.0276))
+                .location(restaurant_location)
                 .contact(1012345678L)
                 .menu(getMenuTest())
                 .time(getTimeTest())
