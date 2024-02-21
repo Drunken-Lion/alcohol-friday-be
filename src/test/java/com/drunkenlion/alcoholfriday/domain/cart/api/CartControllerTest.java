@@ -36,9 +36,7 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -392,5 +390,64 @@ class CartControllerTest {
                 .andExpect(jsonPath("$.cartDetailResponseList").isEmpty())
                 .andExpect(jsonPath("$.totalCartPrice").value(new BigDecimal("0")))
                 .andExpect(jsonPath("$.totalCartQuantity").value(0));
+    }
+
+    @Test
+    @DisplayName("장바구니에 한 개 상품 삭제")
+    @WithAccount
+    void deleteCartOneItem() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(delete("/v1/carts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "cartDeleteReqList": [
+                                    {
+                                      "itemId": "%d"
+                                    }
+                                  ]
+                                }
+                                """.formatted(itemId))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("deleteCartList"));
+    }
+
+    @Test
+    @DisplayName("장바구니에 한 개 이상 상품 삭제")
+    @WithAccount
+    void deleteCartList() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(delete("/v1/carts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "cartDeleteReqList": [
+                                    {
+                                      "itemId": "%d"
+                                    },
+                                    {
+                                      "itemId": "%d"
+                                    }
+                                  ]
+                                }
+                                """.formatted(itemId, itemId2))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(CartController.class))
+                .andExpect(handler().methodName("deleteCartList"));
     }
 }
