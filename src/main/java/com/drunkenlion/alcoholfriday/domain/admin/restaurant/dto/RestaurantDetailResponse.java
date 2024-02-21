@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.data.geo.Point;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -56,10 +57,10 @@ public class RestaurantDetailResponse {
     @Schema(description = "삭제일시")
     private LocalDateTime deletedAt;
 
-// TODO: 판매하는 술정보 추가 필요
-//    private List<Item> item;
+    @Schema(description = "판매하는 상품 정보")
+    private List<RestaurantStockItemResponse> stockItemInfos;
 
-    public static RestaurantDetailResponse of(Restaurant restaurant) {
+    public static RestaurantDetailResponse of(Restaurant restaurant, List<RestaurantStockItemResponse> stockItemInfos) {
         return RestaurantDetailResponse.builder()
                 .id(restaurant.getId())
                 .memberId(restaurant.getMembers().getId())
@@ -75,6 +76,7 @@ public class RestaurantDetailResponse {
                 .createdAt(restaurant.getCreatedAt())
                 .updatedAt(restaurant.getUpdatedAt())
                 .deletedAt(restaurant.getDeletedAt())
+                .stockItemInfos(stockItemInfos)
                 .build();
     }
 }
