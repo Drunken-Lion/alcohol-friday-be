@@ -1,6 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.member.application;
 
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,10 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     @Override
     public MemberResponse modifyMember(Member member, MemberModifyRequest modifyRequest) {
+        if (memberRepository.existsByNickname(modifyRequest.getNickname())) {
+            throw new BusinessException(HttpResponse.Fail.NICKNAME_IN_USE);
+        }
+
         member = member.toBuilder()
                 .nickname(modifyRequest.getNickname())
                 .phone(modifyRequest.getPhone())
