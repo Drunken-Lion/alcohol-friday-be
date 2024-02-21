@@ -12,6 +12,26 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: get application.yml
+        run: |
+          touch src/test/resources/application.yml
+          echo '${{ secrets.TEST_APPLICATION_YML }}' >> src/test/resources/application.yml
+
+      - name: get application-file.yml
+        run: |
+          touch src/test/resources/application-file.yml
+          echo '${{ secrets.TEST_APPLICATION_FILE_YML }}' >> src/test/resources/application-file.yml
+
+      - name: get application-secret.yml
+        run: |
+          touch src/test/resources/application-secret.yml
+          echo '${{ secrets.TEST_APPLICATION_SECRET_YML }}' >> src/test/resources/application-secret.yml
+
+      - name: get application-test.yml
+        run: |
+          touch src/test/resources/application-test.yml
+          echo '${{ secrets.TEST_APPLICATION_TEST_YML }}' >> src/test/resources/application-test.yml
+
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
