@@ -1,6 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.member.application;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,18 +16,14 @@ import lombok.RequiredArgsConstructor;
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
 
+    @Transactional
     @Override
-    public MemberResponse getMember(String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 계정입니다."));
+    public MemberResponse modifyMember(Member member, MemberModifyRequest modifyRequest) {
+        member = member.toBuilder()
+                .nickname(modifyRequest.getNickname())
+                .phone(modifyRequest.getPhone())
+                .build();
 
-        return MemberResponse.of(member);
-    }
-
-    // TODO 일단 보류
-    @Override
-    public Member findMember(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 계정입니다."));
+        return MemberResponse.of(memberRepository.save(member));
     }
 }
