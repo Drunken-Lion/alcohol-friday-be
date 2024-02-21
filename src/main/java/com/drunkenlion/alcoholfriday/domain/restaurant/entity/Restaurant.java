@@ -4,10 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.Type;
@@ -48,15 +45,18 @@ public class Restaurant extends BaseEntity {
     @Type(JsonType.class)
     @Comment("메뉴")
     @Column(name = "menu", columnDefinition ="json")
+    @Builder.Default
     private Map<String, Object> menu = new HashMap<>();
 
     @Type(JsonType.class)
     @Comment("영업시간")
     @Column(name = "time", columnDefinition ="json")
+    @Builder.Default
     private Map<String, Object> time = new HashMap<>();
 
     @Type(JsonType.class)
     @Comment("레스토랑의 편의시설")
     @Column(name = "provision", columnDefinition ="json")
+    @Builder.Default
     private Map<String , Object> provision = new HashMap<>();
 }

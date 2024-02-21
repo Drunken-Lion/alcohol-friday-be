@@ -31,6 +31,9 @@ public class MemberResponse {
     @Schema(description = "닉네임", example = "닉네임")
     private String nickname;
 
+    @Schema(description = "연락처", example = "1012345678")
+    private Long phone;
+
     @Schema(description = "소셜 로그인 제공처", example = "kakao")
     private String provider;
 
@@ -49,6 +52,7 @@ public class MemberResponse {
                 .email(member.getEmail())
                 .name(member.getName())
                 .nickname(member.getNickname())
+                .phone(member.getPhone())
                 .provider(member.getProvider().getProviderName())
                 .createdAt(member.getCreatedAt())
                 .updatedAt(member.getUpdatedAt())
