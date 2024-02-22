@@ -16,14 +16,14 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/restaurants")
-@Tag(name = "v1-restaurants-controller", description = "관리자 매장관리에 대한 API")
+@Tag(name = "v1-restaurants-controller", description = "레스토랑 관련 API")
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
 
     @Operation(summary = "모든 레스토랑 정보 조회")
-    @GetMapping("/nearby-restaurant")
-    public ResponseEntity<List<RestaurantLocationResponse>> nearby(
+    @GetMapping
+    public ResponseEntity<List<RestaurantLocationResponse>> getRestaurants(
             @RequestParam(name = "neLatitude") double neLatitude,
             @RequestParam(name = "neLongitude")  double neLongitude,
             @RequestParam(name = "swLatitude") double swLatitude,

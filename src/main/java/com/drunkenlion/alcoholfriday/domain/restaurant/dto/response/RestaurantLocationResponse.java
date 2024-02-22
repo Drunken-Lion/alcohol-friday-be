@@ -32,7 +32,7 @@ public class RestaurantLocationResponse {
     @Schema(description = "매장 주소")
     private String address;
 
-    @Schema(description = "매장 위치(위도 , 경도")
+    @Schema(description = "매장 위치(위도 , 경도)")
     private Point location;
 
     @Schema(description = "매장 연락처")
