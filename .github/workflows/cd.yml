@@ -1,0 +1,74 @@
+name: cd
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: setup java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      - name: create application.yml
+        run: |
+          touch ./application.yml
+          echo '${{ secrets.TEST_APPLICATION_YML }}' >> ./application.yml
+
+      - name: create application-file.yml
+        run: |
+          touch ./application-file.yml
+          echo '${{ secrets.TEST_APPLICATION_FILE_YML }}' >> ./application-file.yml
+
+      - name: create application-secret.yml
+        run: |
+          touch ./application-secret.yml
+          echo '${{ secrets.TEST_APPLICATION_SECRET_YML }}' >> ./application-secret.yml
+
+      - name: create application-test.yml
+        run: |
+          touch ./application-test.yml
+          echo '${{ secrets.TEST_APPLICATION_TEST_YML }}' >> ./application-test.yml
+      
+      - name: Grant permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+
+      - name: web docker build and push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t ${{ secrets.DOCKER_REPO }}/my-project .
+          docker push ${{ secrets.DOCKER_REPO }}/my-project
+
+
+  deploy:
+  # needs를 통해 build job이 수행 성공시에 작업되도록 설정
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    # NCP 로그인 / docker image pull & run
+    - name: NCP login and docker image pull and run
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.NCP_HOST }}
+        username: ${{ secrets.NCP_USERNAME }}
+        password: ${{ secrets.NCP_PASSWORD }}
+        port: ${{ secrets.NCP_PORT }}
+        script: |
+          sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          sudo docker stop $(sudo docker ps -a -q)
+          sudo docker rm -f $(sudo docker ps -a -q)
+          sudo docker pull ${{ secrets.DOCKER_REPO }}/my-project
+          sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_REPO }}/my-project
+          sudo docker image prune -f
+          ps -ef | grep 
