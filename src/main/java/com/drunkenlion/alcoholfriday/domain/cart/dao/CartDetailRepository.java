@@ -6,8 +6,10 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CartDetailRepository extends JpaRepository<CartDetail, Long> {
-    CartDetail findByItemAndCart(Item item, Cart cart);
+    Optional<CartDetail> findByItemAndCart(Item item, Cart cart);
     List<CartDetail> findAllByCart(Cart cart);
+    void deleteByIdAndCart(Long itemId, Cart cart);
 }

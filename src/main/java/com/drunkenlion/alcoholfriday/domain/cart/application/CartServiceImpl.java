@@ -2,9 +2,9 @@ package com.drunkenlion.alcoholfriday.domain.cart.application;
 
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
-import com.drunkenlion.alcoholfriday.domain.cart.dto.CartDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.cart.dto.CartRequest;
-import com.drunkenlion.alcoholfriday.domain.cart.dto.CartResponse;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.request.CartRequest;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
@@ -13,6 +13,7 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.request.DeleteCartRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +34,10 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartResponse addCartList(List<CartRequest> cartRequestList, Member member) {
-        Cart cart = addFirstCart(member).orElseGet(() -> cartRepository.save(Cart.create(member)));
+        Cart cart = addFirstCart(member).orElseGet(() ->
+                cartRepository.save(Cart.builder()
+                        .member(member)
+                        .build()));
 
         List<CartDetailResponse> cartDetailResponseList = cartRequestList.stream()
                 .map(cartRequest -> addCart(cartRequest, cart))
@@ -67,12 +71,13 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public CartDetailResponse modifyCartItemQuantity(CartRequest modifyCart, Member member) {
         Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
-                .response(HttpResponse.Fail.NOT_FOUND).build());
+                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
 
         Item item = itemRepository.findById(modifyCart.getItemId()).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
 
-        CartDetail cartDetail = cartDetailRepository.findByItemAndCart(item, cart);
+        CartDetail cartDetail = cartDetailRepository.findByItemAndCart(item, cart).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
 
         cartDetail.addQuantity(modifyCart.getQuantity());
 
@@ -106,13 +111,34 @@ public class CartServiceImpl implements CartService {
         return CartResponse.of(cartDetails, cart, cartDetailList);
     }
 
-    private static CartResponse getEmptyCart(Cart cart) {
+    private CartResponse getEmptyCart(Cart cart) {
         return CartResponse.builder()
-                // TODO cartId null을 보내도 될지 물어보기
                 .cartId(cart == null ? -1 : cart.getId())
                 .cartDetailResponseList(Collections.EMPTY_LIST)
                 .totalCartPrice(BigDecimal.ZERO)
                 .totalCartQuantity(0L)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void deleteCartList(List<DeleteCartRequest> deleteCartRequests, Member member) {
+        Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
+
+        deleteCartRequests.forEach(deleteCartRequest -> deleteCart(deleteCartRequest, cart));
+    }
+
+    @Override
+    @Transactional
+    public void deleteCart(DeleteCartRequest deleteCartItem, Cart cart) {
+        Item item = itemRepository.findById(deleteCartItem.getItemId()).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
+
+        // 장바구니에 item이 없는 경우
+        cartDetailRepository.findByItemAndCart(item, cart).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
+
+        cartDetailRepository.deleteByIdAndCart(item.getId(), cart);
     }
 }

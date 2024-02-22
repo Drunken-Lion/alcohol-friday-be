@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.cart.dto;
+package com.drunkenlion.alcoholfriday.domain.cart.dto.response;
 
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
