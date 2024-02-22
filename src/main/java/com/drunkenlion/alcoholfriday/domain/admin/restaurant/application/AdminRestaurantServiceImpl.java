@@ -100,7 +100,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                 .name(restaurantRequest.getName())
                 .category(restaurantRequest.getCategory())
                 .address(restaurantRequest.getAddress())
-                .location(restaurantRequest.getLocation())
+                .location(Restaurant.genPoint(restaurantRequest.getLongitude(), restaurantRequest.getLatitude()))
                 .contact(restaurantRequest.getContact())
                 .menu(restaurantRequest.getMenu())
                 .time(restaurantRequest.getTime())

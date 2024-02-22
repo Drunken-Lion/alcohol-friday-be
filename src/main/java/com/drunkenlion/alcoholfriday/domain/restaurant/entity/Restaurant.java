@@ -8,7 +8,9 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.Type;
-import org.springframework.data.geo.Point;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,4 +61,12 @@ public class Restaurant extends BaseEntity {
     @Column(name = "provision", columnDefinition ="json")
     @Builder.Default
     private Map<String , Object> provision = new HashMap<>();
+
+    public static Point genPoint(Double longitude, Double latitude) {
+        GeometryFactory geometryFactory = new GeometryFactory();
+        //new Coordinate(경도, 위도)
+        Coordinate coordinate = new Coordinate(longitude, latitude);
+        //Point(위도 , 경도)
+        return geometryFactory.createPoint(coordinate);
+    }
 }
