@@ -23,10 +23,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.geo.Point;
+
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -61,6 +64,8 @@ public class AdminRestaurantControllerTest {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
+
+    private final GeometryFactory geometryFactory = new GeometryFactory();
 
     @Autowired
     private RestaurantStockRepository restaurantStockRepository;
@@ -133,12 +138,14 @@ public class AdminRestaurantControllerTest {
 
         memberRepository.save(member);
 
+        final Coordinate coordinate = new Coordinate(126.984634, 37.569833);
+        Point restaurant_location = geometryFactory.createPoint(coordinate);
         Restaurant restaurant = Restaurant.builder()
                 .members(member)
                 .category("한식")
                 .name("맛있는 한식당")
                 .address("서울시 강남구")
-                .location(new Point(37.4979, 127.0276))
+                .location(restaurant_location)
                 .contact(1012345678L)
                 .menu(getMenuTest())
                 .time(getTimeTest())
@@ -252,7 +259,8 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.name", notNullValue()))
                 .andExpect(jsonPath("$.category", notNullValue()))
                 .andExpect(jsonPath("$.address", notNullValue()))
-                .andExpect(jsonPath("$.location", notNullValue()))
+                .andExpect(jsonPath("$.longitude", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.latitude", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.contact", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.time", instanceOf(Map.class)))
@@ -282,10 +290,8 @@ public class AdminRestaurantControllerTest {
                                   "name": "test 매장",
                                   "category": "test 카테고리",
                                   "address": "test 주소",
-                                  "location": {
-                                    "x": 10.123456,
-                                    "y": 15.321654
-                                  },
+                                  "longitude": 10.123456,
+                                  "latitude": 15.321654,
                                   "contact": 212354678,
                                   "menu": {
                                     "test 메뉴1": 10000,
@@ -334,7 +340,8 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.name", notNullValue()))
                 .andExpect(jsonPath("$.category", notNullValue()))
                 .andExpect(jsonPath("$.address", notNullValue()))
-                .andExpect(jsonPath("$.location", notNullValue()))
+                .andExpect(jsonPath("$.longitude", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.latitude", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.contact", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.time", instanceOf(Map.class)))
@@ -361,11 +368,9 @@ public class AdminRestaurantControllerTest {
                                   "memberId": %d,
                                   "name": "test 매장",
                                   "category": "test 카테고리",
-                                  "address": "test 주소",
-                                  "location": {
-                                    "x": 10.123456,
-                                    "y": 15.321654
-                                  },
+                                  "address": "test 주소",         
+                                  "longitude": 10.123456,
+                                  "latitude": 15.321654,
                                   "contact": 212354678,
                                   "menu": {
                                     "test 메뉴1": 10000,
@@ -414,7 +419,8 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.name", notNullValue()))
                 .andExpect(jsonPath("$.category", notNullValue()))
                 .andExpect(jsonPath("$.address", notNullValue()))
-                .andExpect(jsonPath("$.location", notNullValue()))
+                .andExpect(jsonPath("$.longitude", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.latitude", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.contact", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.time", instanceOf(Map.class)))

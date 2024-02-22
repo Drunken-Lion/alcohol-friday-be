@@ -21,6 +21,7 @@ import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -29,7 +30,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.geo.Point;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -61,6 +61,7 @@ public class AdminRestaurantServiceTest {
     private RestaurantStockRepository restaurantStockRepository;
     @Mock
     private MemberRepository memberRepository;
+    final GeometryFactory geometryFactory = new GeometryFactory();
 
     private final Long memberId = 1L;
     private final String email = "test@example.com";
@@ -79,7 +80,8 @@ public class AdminRestaurantServiceTest {
     private final String category = "한식";
     private final String name = "맛있는 한식당";
     private final String address = "서울시 강남구";
-    private final Point location = new Point(37.4979, 127.0276);
+    private final Double longitude = 127.0276;
+    private final Double latitude = 37.4979;
     private final Long contact = 1012345678L;
 
     private Map<String, Object> getMenuTest() {
@@ -132,7 +134,8 @@ public class AdminRestaurantServiceTest {
     private final String modifyCategory = "한식 수정";
     private final String modifyName = "맛있는 한식당 수정";
     private final String modifyAddress = "서울시 강남구 수정";
-    private final Point modifyLocation = new Point(10.0001, 20.0002);
+    private final Double modifyLongitude = 20.0002;
+    private final Double modifyLatitude = 10.0001;
     private final Long modifyContact = 1011112222L;
 
     private Map<String, Object> getModifyMenuTest() {
@@ -216,7 +219,8 @@ public class AdminRestaurantServiceTest {
         assertThat(restaurantDetailResponse.getName()).isEqualTo(name);
         assertThat(restaurantDetailResponse.getCategory()).isEqualTo(category);
         assertThat(restaurantDetailResponse.getAddress()).isEqualTo(address);
-        assertThat(restaurantDetailResponse.getLocation()).isEqualTo(location);
+        assertThat(restaurantDetailResponse.getLongitude()).isEqualTo(longitude);
+        assertThat(restaurantDetailResponse.getLatitude()).isEqualTo(latitude);
         assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
         assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
         assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
@@ -249,7 +253,8 @@ public class AdminRestaurantServiceTest {
                 .name(name)
                 .category(category)
                 .address(address)
-                .location(location)
+                .longitude(longitude)
+                .latitude(latitude)
                 .contact(contact)
                 .menu(menu)
                 .time(time)
@@ -268,7 +273,8 @@ public class AdminRestaurantServiceTest {
         assertThat(restaurantDetailResponse.getName()).isEqualTo(name);
         assertThat(restaurantDetailResponse.getCategory()).isEqualTo(category);
         assertThat(restaurantDetailResponse.getAddress()).isEqualTo(address);
-        assertThat(restaurantDetailResponse.getLocation()).isEqualTo(location);
+        assertThat(restaurantDetailResponse.getLongitude()).isEqualTo(longitude);
+        assertThat(restaurantDetailResponse.getLatitude()).isEqualTo(latitude);
         assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
         assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
         assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
@@ -284,7 +290,8 @@ public class AdminRestaurantServiceTest {
                 .name(name)
                 .category(category)
                 .address(address)
-                .location(location)
+                .longitude(longitude)
+                .latitude(latitude)
                 .contact(contact)
                 .menu(menu)
                 .time(time)
@@ -316,7 +323,8 @@ public class AdminRestaurantServiceTest {
                 .name(name)
                 .category(category)
                 .address(address)
-                .location(location)
+                .longitude(longitude)
+                .latitude(latitude)
                 .contact(contact)
                 .menu(wrongMenu)
                 .time(time)
@@ -362,7 +370,8 @@ public class AdminRestaurantServiceTest {
                 .name(name)
                 .category(category)
                 .address(address)
-                .location(location)
+                .longitude(longitude)
+                .latitude(latitude)
                 .contact(contact)
                 .menu(menu)
                 .time(wrongTime)
@@ -396,7 +405,8 @@ public class AdminRestaurantServiceTest {
                 .name(name)
                 .category(category)
                 .address(address)
-                .location(location)
+                .longitude(longitude)
+                .latitude(latitude)
                 .contact(contact)
                 .menu(menu)
                 .time(time)
@@ -424,7 +434,8 @@ public class AdminRestaurantServiceTest {
                 .name(modifyName)
                 .category(modifyCategory)
                 .address(modifyAddress)
-                .location(modifyLocation)
+                .longitude(modifyLongitude)
+                .latitude(modifyLatitude)
                 .contact(modifyContact)
                 .menu(modifyMenu)
                 .time(modifyTime)
@@ -445,7 +456,8 @@ public class AdminRestaurantServiceTest {
         assertThat(restaurantDetailResponse.getName()).isEqualTo(modifyName);
         assertThat(restaurantDetailResponse.getCategory()).isEqualTo(modifyCategory);
         assertThat(restaurantDetailResponse.getAddress()).isEqualTo(modifyAddress);
-        assertThat(restaurantDetailResponse.getLocation()).isEqualTo(modifyLocation);
+        assertThat(restaurantDetailResponse.getLongitude()).isEqualTo(modifyLongitude);
+        assertThat(restaurantDetailResponse.getLatitude()).isEqualTo(modifyLatitude);
         assertThat(restaurantDetailResponse.getContact()).isEqualTo(modifyContact);
         assertThat(restaurantDetailResponse.getMenu()).isEqualTo(modifyMenu);
         assertThat(restaurantDetailResponse.getTime()).isEqualTo(modifyTime);
@@ -461,7 +473,8 @@ public class AdminRestaurantServiceTest {
                 .name(modifyName)
                 .category(modifyCategory)
                 .address(modifyAddress)
-                .location(modifyLocation)
+                .longitude(modifyLongitude)
+                .latitude(modifyLatitude)
                 .contact(modifyContact)
                 .menu(modifyMenu)
                 .time(modifyTime)
@@ -489,7 +502,8 @@ public class AdminRestaurantServiceTest {
                 .name(modifyName)
                 .category(modifyCategory)
                 .address(modifyAddress)
-                .location(modifyLocation)
+                .longitude(modifyLongitude)
+                .latitude(modifyLatitude)
                 .contact(modifyContact)
                 .menu(modifyMenu)
                 .time(modifyTime)
@@ -522,7 +536,8 @@ public class AdminRestaurantServiceTest {
                 .name(modifyName)
                 .category(modifyCategory)
                 .address(modifyAddress)
-                .location(modifyLocation)
+                .longitude(modifyLongitude)
+                .latitude(modifyLatitude)
                 .contact(modifyContact)
                 .menu(wrongMenu)
                 .time(modifyTime)
@@ -569,7 +584,8 @@ public class AdminRestaurantServiceTest {
                 .name(modifyName)
                 .category(modifyCategory)
                 .address(modifyAddress)
-                .location(modifyLocation)
+                .longitude(modifyLongitude)
+                .latitude(modifyLatitude)
                 .contact(modifyContact)
                 .menu(modifyMenu)
                 .time(wrongTime)
@@ -604,7 +620,8 @@ public class AdminRestaurantServiceTest {
                 .name(modifyName)
                 .category(modifyCategory)
                 .address(modifyAddress)
-                .location(modifyLocation)
+                .longitude(modifyLongitude)
+                .latitude(modifyLatitude)
                 .contact(modifyContact)
                 .menu(modifyMenu)
                 .time(modifyTime)
@@ -717,7 +734,7 @@ public class AdminRestaurantServiceTest {
                 .category(category)
                 .name(name)
                 .address(address)
-                .location(location)
+                .location(Restaurant.genPoint(longitude, latitude))
                 .contact(contact)
                 .menu(menu)
                 .time(time)

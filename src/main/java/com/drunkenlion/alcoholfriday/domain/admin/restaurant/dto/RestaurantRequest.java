@@ -4,7 +4,6 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.springframework.data.geo.Point;
 
 import java.util.Map;
 
@@ -26,8 +25,11 @@ public class RestaurantRequest {
     @Schema(description = "매장 주소")
     private String address;
 
-    @Schema(description = "매장 위치 (위도, 경도)")
-    private Point location;
+    @Schema(description = "위도")
+    private Double latitude;
+
+    @Schema(description = "경도")
+    private Double longitude;
 
     @Schema(description = "매장 연락처")
     private Long contact;
@@ -47,7 +49,7 @@ public class RestaurantRequest {
                 .category(request.getCategory())
                 .name(request.getName())
                 .address(request.getAddress())
-                .location(request.getLocation())
+                .location(Restaurant.genPoint(request.getLongitude(), request.getLatitude()))
                 .contact(request.getContact())
                 .menu(request.getMenu())
                 .time(request.getTime())
