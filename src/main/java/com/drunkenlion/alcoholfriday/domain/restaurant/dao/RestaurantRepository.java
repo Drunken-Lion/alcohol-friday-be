@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
 
-    @Query(value = "SELECT * FROM Restaurant r WHERE ST_Contains(" +
+    @Query(value = "SELECT * FROM restaurant r WHERE ST_Contains(" +
             "Polygon(LineString(" +
             "Point(:swLongitude, :neLatitude), " + // 북서(NW) 꼭짓점
             "Point(:neLongitude, :neLatitude), " + // 북동(NE) 꼭짓점
