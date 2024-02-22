@@ -5,9 +5,10 @@ import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListRespons
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
+import org.springframework.data.domain.Page;
 
 public interface MemberService {
     MemberResponse modifyMember(Member member, MemberModifyRequest modifyRequest);
 
-    PageResponse<MemberQuestionListResponse> getMyQuestions(Long memberId, int page, int size);
+    Page<MemberQuestionListResponse> getMyQuestions(Long memberId, int page, int size);
 }

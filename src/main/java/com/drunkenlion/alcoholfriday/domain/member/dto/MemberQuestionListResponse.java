@@ -19,7 +19,7 @@ public class MemberQuestionListResponse {
     private String title;
 
     @Schema(description = "답변 여부")
-    private String answerStatus;
+    private String questionStatus;
 
     @Schema(description = "문의 작성일")
     private LocalDateTime createdAt;
@@ -28,7 +28,7 @@ public class MemberQuestionListResponse {
         return MemberQuestionListResponse.builder()
                 .id(question.getId())
                 .title(question.getTitle())
-                .answerStatus(question.getStatus().getLabel())
+                .questionStatus(question.getStatus().getLabel())
                 .createdAt(question.getCreatedAt())
                 .build();
     }

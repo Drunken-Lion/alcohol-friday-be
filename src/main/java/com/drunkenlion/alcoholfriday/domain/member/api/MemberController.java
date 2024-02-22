@@ -6,6 +6,7 @@ import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -46,8 +47,10 @@ public class MemberController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "5") int size) {
-        PageResponse<MemberQuestionListResponse> pageResponse =
-                memberService.getMyQuestions(userPrincipal.getMember().getId(), page, size);
+
+        Page<MemberQuestionListResponse> pageQuestions = memberService.getMyQuestions(userPrincipal.getMember().getId(), page, size);
+        PageResponse<MemberQuestionListResponse> pageResponse = PageResponse.of(pageQuestions);
+
         return ResponseEntity.ok().body(pageResponse);
     }
 }
