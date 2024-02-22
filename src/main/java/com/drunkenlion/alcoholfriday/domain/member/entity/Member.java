@@ -8,8 +8,6 @@ import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -46,7 +44,6 @@ public class Member extends BaseEntity {
     @Comment("회원 권한")
     @Column(length = 50)
     @Convert(converter = MemberRoleConverter.class)
-//    @Enumerated(EnumType.STRING)
     private MemberRole role;
 
     @Comment("회원 연락처")

@@ -1,9 +1,9 @@
-package com.drunkenlion.alcoholfriday.domain.admin.store.api;
+package com.drunkenlion.alcoholfriday.domain.admin.store.maker.api;
 
-import com.drunkenlion.alcoholfriday.domain.admin.store.application.AdminStoreService;
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.application.AdminStoreMakerService;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.dto.MakerDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.dto.MakerListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,9 +18,9 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/admin/store")
-@Tag(name = "v1-admin-store", description = "관리자 스토어관리에 대한 API")
-public class AdminStoreController {
-    private final AdminStoreService adminStoreService;
+@Tag(name = "v1-admin-store-maker", description = "관리자 스토어 제조사 관리에 대한 API")
+public class AdminStoreMakerController {
+    private final AdminStoreMakerService adminStoreMakerService;
 
     @Operation(summary = "전체 제조사 조회", description = "관리자 권한에 대한 전체 제조사 조회")
     @GetMapping(value = "makers")
@@ -28,7 +28,7 @@ public class AdminStoreController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size
     ) {
-        PageResponse<MakerListResponse> pageResponse = PageResponse.of(this.adminStoreService.getMakers(page, size));
+        PageResponse<MakerListResponse> pageResponse = PageResponse.of(this.adminStoreMakerService.getMakers(page, size));
         return ResponseEntity.ok().body(pageResponse);
     }
 
@@ -37,7 +37,7 @@ public class AdminStoreController {
     public ResponseEntity<MakerDetailResponse> getMaker(
             @PathVariable("id") Long id
     ) {
-        MakerDetailResponse makerDetailResponse = adminStoreService.getMaker(id);
+        MakerDetailResponse makerDetailResponse = adminStoreMakerService.getMaker(id);
         return ResponseEntity.ok().body(makerDetailResponse);
     }
 
@@ -46,7 +46,7 @@ public class AdminStoreController {
     public ResponseEntity<MakerDetailResponse> createMaker(
             @Valid @RequestBody MakerRequest makerRequest
     ) {
-        MakerDetailResponse makerDetailResponse = adminStoreService.createMaker(makerRequest);
+        MakerDetailResponse makerDetailResponse = adminStoreMakerService.createMaker(makerRequest);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -63,7 +63,7 @@ public class AdminStoreController {
             @PathVariable("id") Long id,
             @Valid @RequestBody MakerRequest makerRequest
     ) {
-        MakerDetailResponse makerDetailResponse = adminStoreService.modifyMaker(id, makerRequest);
+        MakerDetailResponse makerDetailResponse = adminStoreMakerService.modifyMaker(id, makerRequest);
         return ResponseEntity.ok().body(makerDetailResponse);
     }
 
@@ -72,7 +72,7 @@ public class AdminStoreController {
     public ResponseEntity<Void> deleteMaker(
             @PathVariable("id") Long id
     ) {
-        adminStoreService.deleteMaker(id);
+        adminStoreMakerService.deleteMaker(id);
         return ResponseEntity.noContent().build();
     }
 }
