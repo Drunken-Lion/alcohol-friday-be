@@ -9,7 +9,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Coordinate;

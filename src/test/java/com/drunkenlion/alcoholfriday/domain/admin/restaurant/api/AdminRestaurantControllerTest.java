@@ -259,7 +259,8 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.name", notNullValue()))
                 .andExpect(jsonPath("$.category", notNullValue()))
                 .andExpect(jsonPath("$.address", notNullValue()))
-                .andExpect(jsonPath("$.location", notNullValue()))
+                .andExpect(jsonPath("$.longitude", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.latitude", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.contact", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.time", instanceOf(Map.class)))
@@ -289,10 +290,8 @@ public class AdminRestaurantControllerTest {
                                   "name": "test 매장",
                                   "category": "test 카테고리",
                                   "address": "test 주소",
-                                  "location": {
-                                    "x": 10.123456,
-                                    "y": 15.321654
-                                  },
+                                  "longitude": 10.123456,
+                                  "latitude": 15.321654,
                                   "contact": 212354678,
                                   "menu": {
                                     "test 메뉴1": 10000,
@@ -341,7 +340,8 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.name", notNullValue()))
                 .andExpect(jsonPath("$.category", notNullValue()))
                 .andExpect(jsonPath("$.address", notNullValue()))
-                .andExpect(jsonPath("$.location", notNullValue()))
+                .andExpect(jsonPath("$.longitude", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.latitude", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.contact", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.time", instanceOf(Map.class)))
@@ -368,11 +368,9 @@ public class AdminRestaurantControllerTest {
                                   "memberId": %d,
                                   "name": "test 매장",
                                   "category": "test 카테고리",
-                                  "address": "test 주소",
-                                  "location": {
-                                    "x": 10.123456,
-                                    "y": 15.321654
-                                  },
+                                  "address": "test 주소",         
+                                  "longitude": 10.123456,
+                                  "latitude": 15.321654,
                                   "contact": 212354678,
                                   "menu": {
                                     "test 메뉴1": 10000,
@@ -421,7 +419,8 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.name", notNullValue()))
                 .andExpect(jsonPath("$.category", notNullValue()))
                 .andExpect(jsonPath("$.address", notNullValue()))
-                .andExpect(jsonPath("$.location", notNullValue()))
+                .andExpect(jsonPath("$.longitude", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.latitude", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.contact", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.menu", instanceOf(Map.class)))
                 .andExpect(jsonPath("$.time", instanceOf(Map.class)))

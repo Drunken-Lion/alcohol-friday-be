@@ -3,7 +3,6 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,8 +32,11 @@ public class RestaurantDetailResponse {
     @Schema(description = "매장 주소")
     private String address;
 
-    @Schema(description = "매장 위치 (위도, 경도)")
-    private Point location;
+    @Schema(description = "위도")
+    private Double latitude;
+
+    @Schema(description = "경도")
+    private Double longitude;
 
     @Schema(description = "매장 연락처")
     private Long contact;
@@ -68,7 +70,8 @@ public class RestaurantDetailResponse {
                 .name(restaurant.getName())
                 .category(restaurant.getCategory())
                 .address(restaurant.getAddress())
-                .location(restaurant.getLocation())
+                .longitude(restaurant.getLocation().getX())
+                .latitude(restaurant.getLocation().getY())
                 .contact(restaurant.getContact())
                 .menu(restaurant.getMenu())
                 .time(restaurant.getTime())
