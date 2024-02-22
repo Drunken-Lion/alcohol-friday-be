@@ -28,4 +28,9 @@ public class Question extends BaseEntity {
     @Comment("문의사항 내용")
     @Column(columnDefinition = "MEDIUMTEXT")
     private String content;
+
+    public void addMember(Member member) {
+        this.member = member;
+        member.getQuestions().add(this);
+    }
 }

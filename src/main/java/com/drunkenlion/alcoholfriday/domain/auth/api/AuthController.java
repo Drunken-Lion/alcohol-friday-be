@@ -30,8 +30,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/test")
-    public ResponseEntity<LoginResponse> testLogin(@RequestBody String username) {
-        LoginResponse loginResponse = authService.testLogin(username);
+    public ResponseEntity<LoginResponse> testLogin(@RequestBody String email) {
+        LoginResponse loginResponse = authService.testLogin(email);
         return ResponseEntity.ok().body(loginResponse);
     }
 
