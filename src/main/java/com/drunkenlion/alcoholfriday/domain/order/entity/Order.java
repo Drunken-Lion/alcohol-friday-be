@@ -1,8 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.order.entity;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Getter
@@ -60,4 +61,28 @@ public class Order extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Member member;
+
+    public void addPrice(List<OrderDetail> orderDetailList) {
+        this.price = getTotalOrderPrice(orderDetailList);
+    }
+
+    public BigDecimal getTotalOrderPrice(List<OrderDetail> orderDetailList) {
+        if (orderDetailList.isEmpty()) {
+            return BigDecimal.ZERO;
+        } else {
+            return orderDetailList.stream()
+                    .map(OrderDetail::getTotalPrice)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+    }
+
+    public Long getTotalOrderQuantity(List<OrderDetail> orderDetailList) {
+        if (orderDetailList.isEmpty()) {
+            return 0L;
+        } else {
+            return orderDetailList.stream()
+                    .mapToLong(OrderDetail::getQuantity)
+                    .sum();
+        }
+    }
 }

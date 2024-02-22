@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "order_detail")
 public class OrderDetail extends BaseEntity {
+    // TODO 궁금 item의 가격이랑 같은건가?
     @Column(name = "item_price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("상품 단가")
     private BigDecimal itemPrice;
