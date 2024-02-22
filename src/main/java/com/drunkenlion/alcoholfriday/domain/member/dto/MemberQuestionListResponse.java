@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.member.dto;
 
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -9,9 +10,15 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Schema(description = "나의 문의 내역 리스트 항목")
 public class MemberQuestionListResponse {
+    @Schema(description = "문의 내역 고유 아이디")
     private Long id;
+
+    @Schema(description = "문의 제목")
     private String title;
+
+    @Schema(description = "문의 작성일")
     private LocalDateTime createdAt;
 
     public static MemberQuestionListResponse of(Question question) {
