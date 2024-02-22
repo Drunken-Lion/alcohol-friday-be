@@ -1,7 +1,9 @@
-package com.drunkenlion.alcoholfriday.domain.admin.store.api;
+package com.drunkenlion.alcoholfriday.domain.admin.store.maker.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.api.AdminStoreMakerController;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
+import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,16 +27,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class AdminStoreControllerTest {
+public class AdminStoreMakerControllerTest {
     @Autowired
     private MockMvc mvc;
 
     @Autowired
     private MakerRepository makerRepository;
-
-    // 날짜 패턴 정규식
-    private static final String DATETIME_PATTERN = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.?\\d{0,7}";
-    private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
 
     @BeforeEach
     @Transactional
@@ -68,14 +66,14 @@ public class AdminStoreControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().handlerType(AdminStoreMakerController.class))
                 .andExpect(handler().methodName("getMakers"))
                 .andExpect(jsonPath("$.data", instanceOf(List.class)))
                 .andExpect(jsonPath("$.data.length()", is(1)))
                 .andExpect(jsonPath("$.data[0].id", notNullValue()))
                 .andExpect(jsonPath("$.data[0].name", notNullValue()))
                 .andExpect(jsonPath("$.data[0].region", notNullValue()))
-                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.data[0].deleted", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
@@ -98,7 +96,7 @@ public class AdminStoreControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().handlerType(AdminStoreMakerController.class))
                 .andExpect(handler().methodName("getMaker"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
@@ -106,9 +104,9 @@ public class AdminStoreControllerTest {
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.detail", notNullValue()))
                 .andExpect(jsonPath("$.region", notNullValue()))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
@@ -132,7 +130,7 @@ public class AdminStoreControllerTest {
         // then
         resultActions
                 .andExpect(status().isCreated())
-                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().handlerType(AdminStoreMakerController.class))
                 .andExpect(handler().methodName("createMaker"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
@@ -140,9 +138,9 @@ public class AdminStoreControllerTest {
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.detail", notNullValue()))
                 .andExpect(jsonPath("$.region", notNullValue()))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
@@ -169,7 +167,7 @@ public class AdminStoreControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().handlerType(AdminStoreMakerController.class))
                 .andExpect(handler().methodName("modifyMaker"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
@@ -177,9 +175,9 @@ public class AdminStoreControllerTest {
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.detail", notNullValue()))
                 .andExpect(jsonPath("$.region", notNullValue()))
-                .andExpect(jsonPath("$.createdAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
@@ -198,7 +196,7 @@ public class AdminStoreControllerTest {
         // then
         resultActions
                 .andExpect(status().isNoContent())
-                .andExpect(handler().handlerType(AdminStoreController.class))
+                .andExpect(handler().handlerType(AdminStoreMakerController.class))
                 .andExpect(handler().methodName("deleteMaker"));
     }
 }

@@ -1,8 +1,9 @@
-package com.drunkenlion.alcoholfriday.domain.admin.store.application;
+package com.drunkenlion.alcoholfriday.domain.admin.store.maker.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.store.dto.MakerRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.application.AdminStoreMakerServiceImpl;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.dto.MakerDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.dto.MakerListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.store.maker.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
@@ -32,9 +33,9 @@ import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
-public class AdminStoreServiceTest {
+public class AdminStoreMakerServiceTest {
     @InjectMocks
-    private AdminStoreServiceImpl adminStoreService;
+    private AdminStoreMakerServiceImpl adminStoreService;
     @Mock
     private MakerRepository makerRepository;
     @Mock
