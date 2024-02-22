@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.cart.dto;
+package com.drunkenlion.alcoholfriday.domain.cart.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
