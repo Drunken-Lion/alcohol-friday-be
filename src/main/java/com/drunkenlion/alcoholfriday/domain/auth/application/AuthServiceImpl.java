@@ -34,6 +34,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -107,6 +108,8 @@ public class AuthServiceImpl implements AuthService {
 
     public OAuth2User loadUser(ProviderType provider, String accessToken) {
         SocialUserInfo userInfo = getSocialUserInfoFactory(provider, this.getAttributes(provider, accessToken));
+
+        log.info(this.getAttributes(provider, accessToken).toString());
 
         if (!StringUtils.hasText(userInfo.getEmail())) {
             throw new OAuth2AuthenticationException(String.format("%s 이메일을 찾을 수 없습니다.", provider.getProviderName()));

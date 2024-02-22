@@ -51,6 +51,8 @@ public class HttpResponse {
         NOT_FOUND_RESTAURANT(HttpStatus.NOT_FOUND, "존재하지 않는 매장입니다."),
         NOT_FOUND_MAKER(HttpStatus.NOT_FOUND, "존재하지 않는 제조사입니다."),
         NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."),
+        NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "존재하지 않는 제품입니다."),
+        NOT_FOUND_CATEGORY(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리 소분류입니다."),
 
         // 405
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP METHOD 입니다."),
@@ -58,6 +60,8 @@ public class HttpResponse {
         // 409
         CONFLICT(HttpStatus.CONFLICT, "이미 리소스가 존재합니다."),
         MAKER_IN_USE(HttpStatus.CONFLICT, "사용중인 제조사입니다."),
+        NICKNAME_IN_USE(HttpStatus.CONFLICT, "사용중인 닉네임입니다."),
+        PRODUCT_IN_USE(HttpStatus.CONFLICT, "사용중인 제품입니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");

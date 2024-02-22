@@ -1,0 +1,64 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+ test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: create application.yml
+        run: |
+          touch ./application.yml
+          echo '${{ secrets.TEST_APPLICATION_YML }}' >> ./application.yml
+
+      - name: create application-file.yml
+        run: |
+          touch ./application-file.yml
+          echo '${{ secrets.TEST_APPLICATION_FILE_YML }}' >> ./application-file.yml
+
+      - name: create application-secret.yml
+        run: |
+          touch ./application-secret.yml
+          echo '${{ secrets.TEST_APPLICATION_SECRET_YML }}' >> ./application-secret.yml
+
+      - name: create application-test.yml
+        run: |
+          touch ./application-test.yml
+          echo '${{ secrets.TEST_APPLICATION_TEST_YML }}' >> ./application-test.yml
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Use Gradle 7.4.2
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-wrapper-file: 'gradlew'
+          distribution: 'gradle-7.4.2'
+          arguments: -i test
+
+      - name: Check test results
+        uses: actions/github-script@v1
+        with:
+          script: |
+            if (github.event && github.event.pull_request) {
+              if (github.event.pull_request.head.sha !== github.sha) {
+                throw new Error('The pull request head SHA does not match the workflow run SHA.')
+              }
+            
+              const testResults = await getTestResults()
+              if (!testResults.success) {
+                throw new Error('The tests failed.')
+              }
+            
+              console.log('The tests passed.')
+            } else {
+              // Handle non-Pull Request event
+            }
