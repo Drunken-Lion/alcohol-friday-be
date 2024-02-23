@@ -327,6 +327,44 @@ class OrderServiceTest {
         assertThat(receive.getTotalQuantity()).isEqualTo(3L);
     }
 
+    @Test
+    @DisplayName("없는 상품 주문할 경우")
+    void orderReceive_noItem() {
+        // given
+        // orderRepository.save(order)
+        when(orderRepository.save(any(Order.class))).thenReturn(this.getDataOrder());
+
+        // itemRepository.findById(orderItemRequest.getItemId())
+        when(itemRepository.findById(100L)).thenReturn(Optional.empty());
+
+        List<OrderItemRequest> orderItemRequestList = new ArrayList<>();
+        OrderItemRequest orderItemRequest = OrderItemRequest.builder()
+                .itemId(100L)
+                .quantity(quantityItem)
+                .build();
+        orderItemRequestList.add(orderItemRequest);
+        OrderItemRequest orderItemRequest2 = OrderItemRequest.builder()
+                .itemId(itemId2)
+                .quantity(quantityItem2)
+                .build();
+        orderItemRequestList.add(orderItemRequest2);
+
+        OrderRequestList orderRequestList = OrderRequestList.builder()
+                .orderItemList(orderItemRequestList)
+                .recipient(recipient)
+                .phone(phone)
+                .address(address)
+                .detail(detail)
+                .description(description)
+                .postcode(postcode)
+                .build();
+
+        // when & then
+        Assertions.assertThrows(BusinessException.class, () -> {
+            orderService.receive(orderRequestList, getDataMember());
+        });
+    }
+
 
     private Optional<OrderDetail> getOneOrderDetail() {
         return Optional.of(this.getDataOrderDetail());
