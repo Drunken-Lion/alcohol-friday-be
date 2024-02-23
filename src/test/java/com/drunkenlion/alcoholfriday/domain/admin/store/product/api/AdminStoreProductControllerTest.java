@@ -101,7 +101,7 @@ public class AdminStoreProductControllerTest {
 
     @Test
     @DisplayName("제품 목록 조회 성공")
-    void getMakersTest() throws Exception {
+    void getProductsTest() throws Exception {
         // when
         ResultActions resultActions = mvc
                 .perform(get("/v1/admin/store/products")
@@ -232,7 +232,7 @@ public class AdminStoreProductControllerTest {
 
     @Test
     @DisplayName("제품 수정 성공")
-    void modifyMakerTest() throws Exception {
+    void modifyProductTest() throws Exception {
         // given
         Product product = this.productRepository.findAll().get(0);
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
