@@ -36,6 +36,7 @@ public class ItemListResponse {
                 .id(item.getId())
                 .categoryLastName(item.getCategory().getLastName())
                 .name(item.getName())
+                .price(item.getPrice())
                 .createdAt(item.getCreatedAt())
                 .deleted(item.getDeletedAt() != null)
                 .build();
