@@ -15,7 +15,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @ToString
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
