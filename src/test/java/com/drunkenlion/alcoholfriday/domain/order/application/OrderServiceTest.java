@@ -159,6 +159,7 @@ class OrderServiceTest {
         // then
         assertThat(receive.getRecipient()).isEqualTo(recipient);
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
+        assertThat(receive.getItemList().get(0).getItem().getPrice()).isEqualTo("50000");
         assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("100000"));
         assertThat(receive.getTotalQuantity()).isEqualTo(2L);
     }
@@ -168,11 +169,16 @@ class OrderServiceTest {
         return Optional.of(this.getDataOrderDetail());
     }
 
+    // Long 타입의 quantity를 BigDecimal로 변환
+    BigDecimal quantityBigDecimal = BigDecimal.valueOf(quantityItem);
+    // BigDecimal 타입의 price와 BigDecimal 타입의 quantity를 곱하기
+    BigDecimal totalItemPrice = quantityBigDecimal.multiply(price);
+
     private OrderDetail getDataOrderDetail() {
         return OrderDetail.builder()
                 .itemPrice(price)
                 .quantity(quantityItem)
-//                .totalPrice()
+                .totalPrice(totalItemPrice)
                 .item(getDataItem())
                 .order(getDataOrder())
                 .build();
