@@ -17,6 +17,8 @@ import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -210,6 +212,44 @@ class OrderServiceTest {
         assertThat(receive.getItemList().get(1).getItem().getPrice()).isEqualTo("100000");
         assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("200000"));
         assertThat(receive.getTotalQuantity()).isEqualTo(3L);
+    }
+
+    @Test
+    @DisplayName("없는 상품 주문할 경우")
+    void orderReceive_noItem() {
+        // given
+        // orderRepository.save(order)
+        when(orderRepository.save(any(Order.class))).thenReturn(this.getDataOrder());
+
+        // itemRepository.findById(orderItemRequest.getItemId())
+        when(itemRepository.findById(100L)).thenReturn(Optional.empty());
+
+        List<OrderItemRequest> orderItemRequestList = new ArrayList<>();
+        OrderItemRequest orderItemRequest = OrderItemRequest.builder()
+                .itemId(100L)
+                .quantity(quantityItem)
+                .build();
+        orderItemRequestList.add(orderItemRequest);
+        OrderItemRequest orderItemRequest2 = OrderItemRequest.builder()
+                .itemId(itemId2)
+                .quantity(quantityItem2)
+                .build();
+        orderItemRequestList.add(orderItemRequest2);
+
+        OrderRequestList orderRequestList = OrderRequestList.builder()
+                .orderItemList(orderItemRequestList)
+                .recipient(recipient)
+                .phone(phone)
+                .address(address)
+                .detail(detail)
+                .description(description)
+                .postcode(postcode)
+                .build();
+
+        // when & then
+        Assertions.assertThrows(BusinessException.class, () -> {
+            orderService.receive(orderRequestList, getDataMember());
+        });
     }
 
 
