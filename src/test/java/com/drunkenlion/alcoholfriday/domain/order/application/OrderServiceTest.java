@@ -164,6 +164,54 @@ class OrderServiceTest {
         assertThat(receive.getTotalQuantity()).isEqualTo(2L);
     }
 
+    @Test
+    @DisplayName("상품 한 개 이상 주문할 경우")
+    void orderReceive_itemList() {
+        // given
+        // orderRepository.save(order)
+        when(orderRepository.save(any(Order.class))).thenReturn(this.getDataOrder());
+
+        // itemRepository.findById(orderItemRequest.getItemId())
+        when(itemRepository.findById(itemId1)).thenReturn(this.getOneItem());
+        when(itemRepository.findById(itemId2)).thenReturn(this.getOneItem2());
+
+        // orderDetailRepository.save(orderDetail)
+        when(orderDetailRepository.save(any(OrderDetail.class))).thenReturn(this.getDataOrderDetail()).thenReturn(this.getDataOrderDetail2());
+
+        List<OrderItemRequest> orderItemRequestList = new ArrayList<>();
+        OrderItemRequest orderItemRequest = OrderItemRequest.builder()
+                .itemId(itemId1)
+                .quantity(quantityItem)
+                .build();
+        orderItemRequestList.add(orderItemRequest);
+        OrderItemRequest orderItemRequest2 = OrderItemRequest.builder()
+                .itemId(itemId2)
+                .quantity(quantityItem2)
+                .build();
+        orderItemRequestList.add(orderItemRequest2);
+
+        OrderRequestList orderRequestList = OrderRequestList.builder()
+                .orderItemList(orderItemRequestList)
+                .recipient(recipient)
+                .phone(phone)
+                .address(address)
+                .detail(detail)
+                .description(description)
+                .postcode(postcode)
+                .build();
+
+        // when
+        OrderResponseList receive = this.orderService.receive(orderRequestList, getDataMember());
+
+        // then
+        assertThat(receive.getRecipient()).isEqualTo(recipient);
+        assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
+        assertThat(receive.getItemList().get(0).getItem().getPrice()).isEqualTo("50000");
+        assertThat(receive.getItemList().get(1).getItem().getPrice()).isEqualTo("100000");
+        assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("200000"));
+        assertThat(receive.getTotalQuantity()).isEqualTo(3L);
+    }
+
 
     private Optional<OrderDetail> getOneOrderDetail() {
         return Optional.of(this.getDataOrderDetail());
@@ -180,6 +228,25 @@ class OrderServiceTest {
                 .quantity(quantityItem)
                 .totalPrice(totalItemPrice)
                 .item(getDataItem())
+                .order(getDataOrder())
+                .build();
+    }
+
+    private Optional<OrderDetail> getOneOrderDetail2() {
+        return Optional.of(this.getDataOrderDetail2());
+    }
+
+    // Long 타입의 quantity를 BigDecimal로 변환
+    BigDecimal quantityBigDecimal2 = BigDecimal.valueOf(quantityItem2);
+    // BigDecimal 타입의 price와 BigDecimal 타입의 quantity를 곱하기
+    BigDecimal totalItemPrice2 = quantityBigDecimal2.multiply(price2);
+
+    private OrderDetail getDataOrderDetail2() {
+        return OrderDetail.builder()
+                .itemPrice(price2)
+                .quantity(quantityItem2)
+                .totalPrice(totalItemPrice2)
+                .item(getDataItem2())
                 .order(getDataOrder())
                 .build();
     }
