@@ -331,4 +331,40 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.itemList[1].item.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.itemList[1].item.price").value(100000L));
     }
+
+    @Test
+    @DisplayName("없는 상품 주문 접수")
+    @WithAccount
+    void orderReceive_noItem() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "orderItemList": [
+                                    {
+                                      "itemId": "100",
+                                      "quantity": "2"
+                                    }
+                                  ],
+                                  "recipient" : "홍길동",
+                                  "phone" : "1012345678",
+                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
+                                  "detail" : "서울특별시청 103호",
+                                  "description" : "부재시 문앞에 놓아주세요.",
+                                  "postcode" : "04524"
+                                }
+                                """.formatted(itemId))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("receive"))
+                .andExpect(jsonPath("$.message").value("존재하지 않는 상품입니다."));
+    }
 }
