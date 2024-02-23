@@ -72,15 +72,11 @@ public class OrderServiceImpl implements OrderService {
         OrderDetail orderDetail = OrderDetail.builder()
                 .itemPrice(item.getPrice())
                 .quantity(orderItemRequest.getQuantity())
-                .totalPrice(new BigDecimal("0"))
+                .totalPrice(totalItemPrice)
                 .item(item)
                 .order(order)
                 .build();
-        
 
-        OrderDetail save = orderDetailRepository.save(orderDetail);
-        save.addItemTotalPrice(totalItemPrice);
-
-        return save;
+        return orderDetailRepository.save(orderDetail);
     }
 }
