@@ -30,6 +30,7 @@ public class HttpResponse {
         // 400
         BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청 입니다."),
         INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "잘못된 입력값 입니다."),
+        PRODUCT_NOT_INCLUDED(HttpStatus.BAD_REQUEST, "제품 정보가 포함되어 있지 않습니다."),
 
         // 401
         UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 접근입니다."),
