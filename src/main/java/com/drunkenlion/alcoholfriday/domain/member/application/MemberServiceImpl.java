@@ -45,7 +45,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Page<MemberQuestionListResponse> getMyQuestions(Long memberId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Question> questionPage = questionRepository.findByMember_IdOrderByCreatedAtDesc(memberId, pageable);
+        Page<Question> questionPage = questionRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable);
 
         return questionPage.map(MemberQuestionListResponse::of);
     }
