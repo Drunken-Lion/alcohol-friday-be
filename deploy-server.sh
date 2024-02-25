@@ -9,12 +9,12 @@ fi
 
 IMAGE_NAME="alcohol-friday"
 
-docker login -u $1 -p $2 $3
-
 docker pull ngnix
+
+docker login -u $1 -p $2 $3
 docker pull $3/$IMAGE_NAME:$4
 docker tag $3/$IMAGE_NAME:$4 $IMAGE_NAME:$5
 
-docker compose -p $IMAGE_NAME -d
+docker compose -p $IMAGE_NAME up -d
 
 docker image prune -a -f
