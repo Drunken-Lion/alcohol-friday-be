@@ -37,7 +37,7 @@ jobs:
 
       - name: Make Docker Image
         run: |
-          docker build --build-arg PROFILE=dev -t alcohol-friday:${GITHUB_SHA::8}
+          docker build --build-arg PROFILE=dev -t alcohol-friday:${GITHUB_SHA::8} ./Dockerfile
 
       - name: Docker Image Push To ECR
         run: |
