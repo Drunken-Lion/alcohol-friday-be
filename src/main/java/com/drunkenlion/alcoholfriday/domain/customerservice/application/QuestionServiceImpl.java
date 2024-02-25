@@ -5,7 +5,6 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.dto.request.Question
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.QuestionSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +24,8 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional
     public QuestionSaveResponse saveQuestion(QuestionSaveRequest request, List<MultipartFile> files, Member member) {
-        Question question = QuestionSaveRequest.toEntity(request, member);
-        fileService.uploadFiles(files, question.getId(), EntityType.QUESTION);
-        return QuestionSaveResponse.of(questionRepository.save(question));
+        Question question = questionRepository.save(QuestionSaveRequest.toEntity(request, member));
+        fileService.saveFiles(question, files);
+        return QuestionSaveResponse.of(question);
     }
 }
