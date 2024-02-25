@@ -12,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Entity
@@ -61,6 +62,14 @@ public class Order extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Member member;
+
+    public void genOrderNo(Long id) {
+        // TODO orderNo를 주문 접수할 때 만들고 클라이언트에 내려주기 (결제 요청 전)
+        // yyyy-MM-dd 형식의 DateTimeFormatter 생성
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        this.orderNo = getCreatedAt().format(formatter) + "__" + id;
+    }
 
     public void addPrice(List<OrderDetail> orderDetailList) {
         this.price = getTotalOrderPrice(orderDetailList);

@@ -31,11 +31,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponseList receive(OrderRequestList orderRequestList, Member member) {
-        // TODO 주문 고유번호 만들기
-        // TODO 주문 총금액은 프론트에서 주는건가? -> 서버에서도 한번 검사해야 할 텐데
-
         Order order = Order.builder()
-//                .orderNo()
                 .orderStatus(OrderStatus.ORDER_RECEIVED)
                 .price(new BigDecimal("0"))
                 .recipient(orderRequestList.getRecipient())
@@ -53,6 +49,9 @@ public class OrderServiceImpl implements OrderService {
                 .map(orderItemRequest -> orderDetailSave(orderItemRequest, savedOrder))
                 .toList();
 
+        // 주문 고유번호 만들기
+        savedOrder.genOrderNo(savedOrder.getId());
+        // 주문 총 금액
         savedOrder.addPrice(orderDetailList);
 
         return OrderResponseList.of(savedOrder, orderDetailList);
