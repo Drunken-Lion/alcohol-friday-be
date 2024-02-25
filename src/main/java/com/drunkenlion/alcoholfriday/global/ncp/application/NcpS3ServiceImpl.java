@@ -6,22 +6,24 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityTypeV2;
 import com.drunkenlion.alcoholfriday.global.ncp.config.NcpS3Properties;
 import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
-
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NcpS3ServiceImpl implements NcpS3Service {
@@ -29,10 +31,51 @@ public class NcpS3ServiceImpl implements NcpS3Service {
     private final AmazonS3Client amazonS3Client;
 
     /**
-     * Ncp Object Storage 파일 업로드
+     * NCP S3 bucket save
      */
     @Override
+    public NcpFile saveFilesToNCP(BaseEntity entity, List<MultipartFile> files) {
+        int seq = 1;
+        List<Map<String, Object>> fileMaps = new ArrayList<>();
+        String entityType = EntityTypeV2.getEntityType(entity);
+
+        for (MultipartFile file : files) {
+            ObjectMetadata objectMetadata = buildObjectMetadata(file);
+            String keyName = generateFileName(entityType, entity.getId(), file);
+
+            try (InputStream inputStream = file.getInputStream()) {
+                amazonS3Client.putObject(
+                        new PutObjectRequest(
+                                ncpS3Properties.getS3().getBucketName(), keyName, inputStream, objectMetadata)
+                                .withCannedAcl(CannedAccessControlList.PublicRead));
+
+                String uploadPath = amazonS3Client.getUrl(ncpS3Properties.getS3().getBucketName(), keyName).toString();
+                fileMaps.add(createMap(seq, keyName, uploadPath));
+                seq++;
+
+            } catch (SdkClientException e) {
+                log.info("[NcpS3ServiceImpl.saveFilesToNCP] SdkClientException");
+                throw new SdkClientException(e);
+            } catch (IOException e) {
+                log.info("[NcpS3ServiceImpl.saveFilesToNCP] IOException");
+                throw new RuntimeException(e);
+            }
+        }
+
+        return NcpFile.builder()
+                .entityId(entity.getId())
+                .entityType(entityType)
+                .s3Files(fileMaps)
+                .build();
+    }
+
+    /**
+     * 2024.03.01 삭제 예정
+     */
+    @Deprecated
+    @Override
     public NcpFile ncpUploadFiles(List<MultipartFile> multipartFiles, Long entityId, String entityType) {
+
         List<Map<String, Object>> fileMaps = new ArrayList<>();
 
         int seq = 1;
@@ -80,17 +123,10 @@ public class NcpS3ServiceImpl implements NcpS3Service {
                 .build();
     }
 
-    private String createFolderNameWithTodayDate() {
-        LocalDateTime now = LocalDateTime.now();
-        String year = String.valueOf(now.getYear());
-        String month = String.format("%02d", now.getMonthValue());
-
-        return year + "/" + month;
-    }
-
     /**
-     * Ncp Object Storage 파일 삭제
+     * 2024.03.01 삭제 예정
      */
+    @Deprecated
     @Override
     public void ncpDeleteFile(String keyName) {
         try {
@@ -100,5 +136,35 @@ public class NcpS3ServiceImpl implements NcpS3Service {
         } catch (SdkClientException e) {
             throw new SdkClientException(e.getMessage());
         }
+    }
+
+    private String createFolderNameWithTodayDate() {
+        LocalDateTime now = LocalDateTime.now();
+        String year = String.valueOf(now.getYear());
+        String month = String.format("%02d", now.getMonthValue());
+        return year + "/" + month;
+    }
+
+    private ObjectMetadata buildObjectMetadata(MultipartFile file) {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(file.getSize());
+        objectMetadata.setContentType(file.getContentType());
+        return objectMetadata;
+    }
+
+    private String generateFileName(String entityType, Long entityId, MultipartFile file) {
+        String folderName = createFolderNameWithTodayDate();
+        String originalFileName = file.getOriginalFilename();
+        String newFileName =
+                "%s+%d_%s_%s".formatted(entityType, entityId, UUID.randomUUID(), originalFileName);
+        return entityType + "/" + folderName + "/" + newFileName;
+    }
+
+    private Map<String, Object> createMap(int seq, String keyName, String path) {
+        Map<String, Object> fileMap = new LinkedHashMap<>();
+        fileMap.put("seq", seq);
+        fileMap.put("key_name", keyName);
+        fileMap.put("path", path);
+        return fileMap;
     }
 }
