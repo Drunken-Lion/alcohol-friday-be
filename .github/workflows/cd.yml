@@ -37,7 +37,11 @@ jobs:
 
       - name: Make Docker Image
         run: |
-          docker build --build-arg PROFILE=dev -t alcohol-friday:${GITHUB_SHA::8}
+          docker build --build-arg PROFILE=dev -t alcohol-friday:${GITHUB_SHA::8} .
+
+      - name: Tag Docker Image
+        run: |
+          docker tag alcohol-friday:${GITHUB_SHA::8} ${{ secrets.NCP_ECR_URL }}/alcohol-friday:${GITHUB_SHA::8}
 
       - name: Docker Image Push To ECR
         run: |
@@ -46,13 +50,6 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
-    steps:
-      - name: send Docker Compose And Deploy Script
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | ssh -i /dev/stdin -o StrictHostKeyChecking=no ${{ secrets.NCP_USERNAME }}@${{ secrets.NCP_HOST }} "scp -i /dev/stdin deploy-server.sh /usr/local/docker/"
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | ssh -i /dev/stdin -o StrictHostKeyChecking=no ${{ secrets.NCP_USERNAME }}@${{ secrets.NCP_HOST }} "scp -i /dev/stdin compose.yaml /usr/local/docker/"
-
       - name: NCP Login And Deploy Script Run
         uses: appleboy/ssh-action@master
         with:
