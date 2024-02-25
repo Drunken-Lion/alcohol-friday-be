@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
-@RequestMapping("/v1/cs/question")
-@Tag(name = "v1-question", description = "문의사항에 대한 API")
+@RequestMapping("/v1/questions")
+@Tag(name = "v1-question", description = "문의사항 API")
 @RestController
 public class QuestionController {
     private final QuestionService questionService;
 
-    @PostMapping("/save")
+    @PostMapping
     @Operation(summary = "문의사항 등록")
     public ResponseEntity<QuestionSaveResponse> saveQuestion(@RequestPart @Valid QuestionSaveRequest request,
                                                              @RequestPart List<MultipartFile> files,
