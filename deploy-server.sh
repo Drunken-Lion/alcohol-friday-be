@@ -1,4 +1,5 @@
 #!/bin/sh
+# GitHub에 저장하기 위한 용도, 스크립트는 서버에 따로 올려둔다.
 
 ### Check Argument
 if [ $# -ne 5 ]; then

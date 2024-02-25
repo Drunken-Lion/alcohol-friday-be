@@ -52,11 +52,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: send Docker Compose And Deploy Script
-        run: |
-          sudo echo "${{ secrets.SSH_PRIVATE_KEY }}" | sudo ssh -i /dev/stdin -o StrictHostKeyChecking=no ${{ secrets.NCP_USERNAME }}@${{ secrets.NCP_HOST }} "sudo scp -i /dev/stdin deploy-server.sh /usr/local/docker/"
-          sudo echo "${{ secrets.SSH_PRIVATE_KEY }}" | sudo ssh -i /dev/stdin -o StrictHostKeyChecking=no ${{ secrets.NCP_USERNAME }}@${{ secrets.NCP_HOST }} "sudo scp -i /dev/stdin compose.yaml /usr/local/docker/"
-
       - name: NCP Login And Deploy Script Run
         uses: appleboy/ssh-action@master
         with:
