@@ -1,8 +1,5 @@
 #!/bin/sh
-<<<<<<< HEAD
 # GitHub에 저장하기 위한 용도, 스크립트는 서버에 따로 올려둔다.
-=======
->>>>>>> 757b570f66da1e3311c4a7e57f8502b39dc5a0a7
 
 ### Check Argument
 if [ $# -ne 5 ]; then
