@@ -3,8 +3,6 @@ package com.drunkenlion.alcoholfriday.global.file.application;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
-import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
-import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
 import com.drunkenlion.alcoholfriday.global.ncp.application.NcpS3Service;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
@@ -39,7 +37,7 @@ public class FileServiceImpl implements FileService {
             return null;
         }
 
-        NcpFile ncpFile = ncpS3Service.saveFilesToNCP(entity, multipartFiles);
+        NcpFile ncpFile = ncpS3Service.saveFiles(entity, multipartFiles);
         return NcpFileResponse.of(fileRepository.save(ncpFile));
     }
 

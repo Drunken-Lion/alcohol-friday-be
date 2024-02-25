@@ -34,7 +34,7 @@ public class NcpS3ServiceImpl implements NcpS3Service {
      * NCP S3 bucket save
      */
     @Override
-    public NcpFile saveFilesToNCP(BaseEntity entity, List<MultipartFile> files) {
+    public NcpFile saveFiles(BaseEntity entity, List<MultipartFile> files) {
         int seq = 1;
         List<Map<String, Object>> fileMaps = new ArrayList<>();
         String entityType = EntityTypeV2.getEntityType(entity);

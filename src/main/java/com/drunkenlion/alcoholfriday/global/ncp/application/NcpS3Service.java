@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface NcpS3Service {
-    NcpFile saveFilesToNCP(BaseEntity entity, List<MultipartFile> files);
+    NcpFile saveFiles(BaseEntity entity, List<MultipartFile> files);
 
     NcpFile ncpUploadFiles(List<MultipartFile> multipartFiles, Long entityId, String entityType);
 
