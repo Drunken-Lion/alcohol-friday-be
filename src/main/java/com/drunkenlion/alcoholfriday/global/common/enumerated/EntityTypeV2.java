@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.global.common.enumerated;
 
+import com.amazonaws.services.kms.model.NotFoundException;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
@@ -30,6 +31,6 @@ public enum EntityTypeV2 {
                 return entity.entityType;
             }
         }
-        throw new IllegalArgumentException("찾는 entity 정보가 존재하지 않습니다.");
+        throw new NotFoundException("Entity does not exist");
     }
 }
