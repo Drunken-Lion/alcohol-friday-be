@@ -15,7 +15,7 @@ services:
 
   spring-docker:
     container_name: spring-server
-    image: alcohol-friday:${ENV}
+    image: alcohol-friday:dev
     restart: always
     ports:
       - 8080:8080
