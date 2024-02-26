@@ -7,6 +7,8 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 
 public enum EntityTypeV2 {
 
@@ -31,6 +33,6 @@ public enum EntityTypeV2 {
                 return entity.entityType;
             }
         }
-        throw new NotFoundException("Entity does not exist");
+        throw new BusinessException(HttpResponse.Fail.NOT_FOUND);
     }
 }

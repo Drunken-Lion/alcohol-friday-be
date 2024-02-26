@@ -3,6 +3,8 @@ package com.drunkenlion.alcoholfriday.global.file.application;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
 import com.drunkenlion.alcoholfriday.global.ncp.application.NcpS3Service;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
@@ -30,7 +32,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public NcpFileResponse saveFiles(BaseEntity entity, List<MultipartFile> multipartFiles) {
         if (entity.getId() == null || entity.getId() == 0) {
-            throw new NotFoundException("Entity does not have an id");
+            throw new BusinessException(HttpResponse.Fail.NOT_FOUND);
         }
 
         if (multipartFiles.get(0).isEmpty()) { // MultipartFile 빈 값일 경우 배열의 0번째 값이 empty이다.
