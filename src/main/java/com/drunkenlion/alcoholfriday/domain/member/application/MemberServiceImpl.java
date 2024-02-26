@@ -5,12 +5,10 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
-import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
