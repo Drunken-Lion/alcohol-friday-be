@@ -61,7 +61,7 @@ public class AdminStoreItemServiceImpl implements AdminStoreItemService {
                 .response(HttpResponse.Fail.PRODUCT_NOT_INCLUDED)
                 .build();
 
-        Category category = categoryRepository.findById(itemRequest.getCategoryLastId())
+        Category category = categoryRepository.findByIdAndDeletedAtIsNull(itemRequest.getCategoryLastId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_CATEGORY)
                         .build());
@@ -71,7 +71,7 @@ public class AdminStoreItemServiceImpl implements AdminStoreItemService {
 
         List<ItemProduct> itemProducts = new ArrayList<>();
         for (ItemProductInfo itemProductInfo : itemRequest.getItemProductInfos()) {
-            Product product = productRepository.findById(itemProductInfo.getProductId())
+            Product product = productRepository.findByIdAndDeletedAtIsNull(itemProductInfo.getProductId())
                     .orElseThrow(() -> BusinessException.builder()
                             .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
                             .build());
@@ -100,7 +100,7 @@ public class AdminStoreItemServiceImpl implements AdminStoreItemService {
                         .response(HttpResponse.Fail.NOT_FOUND_ITEM)
                         .build());
 
-        Category category = categoryRepository.findById(itemRequest.getCategoryLastId())
+        Category category = categoryRepository.findByIdAndDeletedAtIsNull(itemRequest.getCategoryLastId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_CATEGORY)
                         .build());
@@ -120,7 +120,7 @@ public class AdminStoreItemServiceImpl implements AdminStoreItemService {
         // 새 itemProduct 등록 처리
         List<ItemProduct> newItemProducts = new ArrayList<>();
         for (ItemProductInfo itemProductInfo : itemRequest.getItemProductInfos()) {
-            Product product = productRepository.findById(itemProductInfo.getProductId())
+            Product product = productRepository.findByIdAndDeletedAtIsNull(itemProductInfo.getProductId())
                     .orElseThrow(() -> BusinessException.builder()
                             .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
                             .build());
