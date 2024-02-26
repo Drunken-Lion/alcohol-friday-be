@@ -32,6 +32,10 @@ public class OrderDetail extends BaseEntity {
     @Comment("상품의 총 금액")
     private BigDecimal totalPrice;
 
+    @Column(name = "is_reviewed", columnDefinition = "TINYINT(1)")
+    @Comment("리뷰 작성 여부")
+    private Boolean reviewed = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Item item;
