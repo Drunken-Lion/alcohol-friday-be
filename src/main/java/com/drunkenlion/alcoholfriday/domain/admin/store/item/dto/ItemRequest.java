@@ -4,6 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import java.util.List;
 @Schema(description = "상품 입력 요청 항목")
 public class ItemRequest {
     @Schema(description = "상품의 판매 제품의 정보들")
+    @NotEmpty
     private List<ItemProductInfo> itemProductInfos;
 
     @Schema(description = "카테고리 소분류 고유 아이디")

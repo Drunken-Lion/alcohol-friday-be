@@ -56,11 +56,6 @@ public class AdminStoreItemServiceImpl implements AdminStoreItemService {
 
     @Transactional
     public ItemDetailResponse createItem(ItemRequest itemRequest) {
-        // 상품 등록 시 제품을 포함하지 않으면 예외처리
-        if (itemRequest.getItemProductInfos().isEmpty()) throw BusinessException.builder()
-                .response(HttpResponse.Fail.PRODUCT_NOT_INCLUDED)
-                .build();
-
         Category category = categoryRepository.findByIdAndDeletedAtIsNull(itemRequest.getCategoryLastId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_CATEGORY)
@@ -90,11 +85,6 @@ public class AdminStoreItemServiceImpl implements AdminStoreItemService {
 
     @Transactional
     public ItemDetailResponse modifyItem(Long id, ItemRequest itemRequest) {
-        // 상품 등록 시 제품을 포함하지 않으면 예외처리
-        if (itemRequest.getItemProductInfos().isEmpty()) throw BusinessException.builder()
-                .response(HttpResponse.Fail.PRODUCT_NOT_INCLUDED)
-                .build();
-
         Item item = itemRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_ITEM)

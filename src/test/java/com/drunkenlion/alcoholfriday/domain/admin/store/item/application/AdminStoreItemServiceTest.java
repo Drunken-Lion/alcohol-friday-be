@@ -236,29 +236,6 @@ public class AdminStoreItemServiceTest {
     }
 
     @Test
-    @DisplayName("상품 등록 실패 - 제품 정보가 포함되지 않음")
-    public void createItemFailProductNotIncludedTest() {
-        // given
-        ItemRequest itemRequest = ItemRequest.builder()
-                .categoryLastId(categoryLastId)
-                .itemProductInfos(List.of())
-                .name(itemName)
-                .price(itemPrice)
-                .info(itemInfo)
-                .type(itemType)
-                .build();
-
-        // when
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminStoreItemService.createItem(itemRequest);
-        });
-
-        // then
-        assertEquals(HttpResponse.Fail.PRODUCT_NOT_INCLUDED.getStatus(), exception.getStatus());
-        assertEquals(HttpResponse.Fail.PRODUCT_NOT_INCLUDED.getMessage(), exception.getMessage());
-    }
-
-    @Test
     @DisplayName("상품 등록 실패 - 찾을 수 없는 카테고리 소분류")
     public void createItemFailCategoryNotFoundTest() {
         // given
@@ -352,29 +329,6 @@ public class AdminStoreItemServiceTest {
         assertThat(itemDetailResponse.getPrice()).isEqualTo(modifyItemPrice);
         assertThat(itemDetailResponse.getInfo()).isEqualTo(modifyItemInfo);
         assertThat(itemDetailResponse.getType()).isEqualTo(modifyItemType);
-    }
-
-    @Test
-    @DisplayName("상품 수정 실패 - 제품 정보가 포함되지 않음")
-    public void modifyItemFailProductNotIncludedTest() {
-        // given
-        ItemRequest itemRequest = ItemRequest.builder()
-                .categoryLastId(modifyCategoryLastId)
-                .itemProductInfos(List.of())
-                .name(modifyItemName)
-                .price(modifyItemPrice)
-                .info(modifyItemInfo)
-                .type(modifyItemType)
-                .build();
-
-        // when
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminStoreItemService.modifyItem(itemId, itemRequest);
-        });
-
-        // then
-        assertEquals(HttpResponse.Fail.PRODUCT_NOT_INCLUDED.getStatus(), exception.getStatus());
-        assertEquals(HttpResponse.Fail.PRODUCT_NOT_INCLUDED.getMessage(), exception.getMessage());
     }
 
     @Test
