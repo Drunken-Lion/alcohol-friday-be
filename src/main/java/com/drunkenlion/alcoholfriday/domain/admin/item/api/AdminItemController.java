@@ -32,7 +32,7 @@ public class AdminItemController {
         return ResponseEntity.ok().body(pageResponse);
     }
 
-    @Operation(summary = "상품 상세 상품", description = "관리자 권한에 대한 상품 상세 조회")
+    @Operation(summary = "상품 상세 조회", description = "관리자 권한에 대한 상품 상세 조회")
     @GetMapping(value = "items/{id}")
     public ResponseEntity<ItemDetailResponse> getItem(
             @PathVariable("id") Long id
