@@ -58,7 +58,7 @@ public class AdminCategoryController {
     }
 
     @Operation(summary = "카테고리 대분류 수정", description = "관리자 권한에 대한 카테고리 대분류 수정")
-    @PostMapping(value = "category-classes/{id}")
+    @PutMapping(value = "category-classes/{id}")
     public ResponseEntity<CategoryClassDetailResponse> modifyCategoryClass(
             @PathVariable("id") Long id,
             @Valid @RequestBody CategoryClassRequest categoryClassRequest
@@ -68,7 +68,7 @@ public class AdminCategoryController {
     }
 
     @Operation(summary = "카테고리 대분류 삭제", description = "관리자 권한에 대한 카테고리 대분류 삭제")
-    @DeleteMapping(value = "categoryClasses/{id}")
+    @DeleteMapping(value = "category-classes/{id}")
     public ResponseEntity<Void> deleteCategoryClass(
             @PathVariable("id") Long id
     ) {
@@ -113,7 +113,7 @@ public class AdminCategoryController {
     }
 
     @Operation(summary = "카테고리 소분류 수정", description = "관리자 권한에 대한 카테고리 소분류 수정")
-    @PostMapping(value = "categories/{id}")
+    @PutMapping(value = "categories/{id}")
     public ResponseEntity<CategoryDetailResponse> modifyCategory(
             @PathVariable("id") Long id,
             @Valid @RequestBody CategoryRequest categoryRequest
