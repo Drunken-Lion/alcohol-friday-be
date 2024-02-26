@@ -10,13 +10,11 @@ import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListRespons
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
-import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -101,7 +99,7 @@ public class MemberServiceTest {
     @DisplayName("나의 문의내역 조회")
     public void getMyQuestions() {
         // given
-        when(this.questionRepository.findByMember_IdOrderByCreatedAtDesc(any(), any(Pageable.class))).thenReturn(this.getQuestions());
+        when(this.questionRepository.findByMemberIdOrderByCreatedAtDesc(any(), any(Pageable.class))).thenReturn(this.getQuestions());
 
         // when
         Page<MemberQuestionListResponse> questions = this.memberService.getMyQuestions(memberId, page, size);
