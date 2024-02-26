@@ -1,6 +1,12 @@
 package com.drunkenlion.alcoholfriday.domain.member.api;
 
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -16,7 +22,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.nullValue;
@@ -36,15 +44,49 @@ public class MemberControllerTest {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private QuestionRepository questionRepository;
+
+    public static final String EMAIL = "test@example.com";
+
     @BeforeEach
     @Transactional
     void beforeEach() {
+        Member member = memberRepository.findByEmail(EMAIL)
+                .orElseGet(() -> memberRepository.save(Member.builder()
+                        .email(EMAIL)
+                        .provider(ProviderType.KAKAO)
+                        .name("테스트")
+                        .nickname("test")
+                        .role(MemberRole.MEMBER)
+                        .phone(1012345678L)
+                        .certifyAt(null)
+                        .agreedToServiceUse(true)
+                        .agreedToServicePolicy(true)
+                        .agreedToServicePolicyUse(true)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(null)
+                        .deletedAt(null)
+                        .build()));
+
+        Question question = Question.builder()
+                .member(member)
+                .title("문의 제목1")
+                .content("문의 내용1")
+                .status(QuestionStatus.COMPLETE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(null)
+                .deletedAt(null)
+                .build();
+
+        questionRepository.save(question);
     }
 
     @AfterEach
     @Transactional
     void afterEach() {
         memberRepository.deleteAll();
+        questionRepository.deleteAll();
     }
 
     @Test
@@ -104,5 +146,31 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @Test
+    @DisplayName("나의 문의내역 조회")
+    @WithAccount
+    void getMyQuestionsTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/members/me/questions")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMyQuestions"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].title", notNullValue()))
+                .andExpect(jsonPath("$.data[0].questionStatus", notNullValue()))
+                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
     }
 }

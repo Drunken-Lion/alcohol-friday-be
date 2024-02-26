@@ -29,12 +29,25 @@ public class QuestionSaveResponse {
     @Schema(description = "문의사항 내용")
     private String content;
 
+    @Schema(description = "등록된 사진 정보")
+    private NcpFileResponse files;
+
     public static QuestionSaveResponse of(Question question) {
         return QuestionSaveResponse.builder()
                 .id(question.getId())
                 .member(question.getMember())
                 .title(question.getTitle())
                 .content(question.getContent())
+                .build();
+    }
+
+    public static QuestionSaveResponse of(Question question, NcpFileResponse files) {
+        return QuestionSaveResponse.builder()
+                .id(question.getId())
+                .member(question.getMember())
+                .title(question.getTitle())
+                .content(question.getContent())
+                .files(files)
                 .build();
     }
 }
