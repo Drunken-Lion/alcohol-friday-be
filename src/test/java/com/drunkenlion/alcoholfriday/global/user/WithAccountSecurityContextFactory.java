@@ -24,23 +24,22 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
 
     @Override
     public SecurityContext createSecurityContext(WithAccount annotation) {
-        Member member = Member.builder()
-                .email(annotation.email())
-                .provider(annotation.provider())
-                .name("테스트")
-                .nickname("test")
-                .role(MemberRole.MEMBER)
-                .phone(1012345678L)
-                .certifyAt(null)
-                .agreedToServiceUse(true)
-                .agreedToServicePolicy(true)
-                .agreedToServicePolicyUse(true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(null)
-                .deletedAt(null)
-                .build();
-
-        member = memberRepository.save(member);
+        Member member = memberRepository.findByEmail(annotation.email())
+                .orElseGet(() -> memberRepository.save(Member.builder()
+                        .email(annotation.email())
+                        .provider(annotation.provider())
+                        .name("테스트")
+                        .nickname("test")
+                        .role(MemberRole.MEMBER)
+                        .phone(1012345678L)
+                        .certifyAt(null)
+                        .agreedToServiceUse(true)
+                        .agreedToServicePolicy(true)
+                        .agreedToServicePolicyUse(true)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(null)
+                        .deletedAt(null)
+                        .build()));
 
         UserPrincipal userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(member.getEmail());
 

@@ -17,6 +17,7 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionReposito
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
@@ -38,12 +39,14 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import com.drunkenlion.alcoholfriday.global.file.application.FileServiceImpl;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
@@ -63,6 +66,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -1110,6 +1114,7 @@ public class NotProd {
                         .member(회원_일반회원1)
                         .title("일반 문의 제목 1")
                         .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
                         .build());
 
         Question 문의_일반2 = questionRepository.save(
@@ -1117,6 +1122,7 @@ public class NotProd {
                         .member(회원_일반회원2)
                         .title("일반 문의 제목 2")
                         .content("일반 문의 내용 2")
+                        .status(QuestionStatus.COMPLETE)
                         .build());
 
         Question 문의_일반3 = questionRepository.save(
@@ -1124,6 +1130,7 @@ public class NotProd {
                         .member(회원_일반회원3)
                         .title("일반 문의 제목 3")
                         .content("일반 문의 내용 3")
+                        .status(QuestionStatus.COMPLETE)
                         .build());
 
         Question 문의_일반4 = questionRepository.save(
@@ -1131,6 +1138,7 @@ public class NotProd {
                         .member(회원_일반회원4)
                         .title("일반 문의 제목 4")
                         .content("일반 문의 내용 4")
+                        .status(QuestionStatus.COMPLETE)
                         .build());
 
         Question 문의_일반5 = questionRepository.save(
@@ -1138,6 +1146,7 @@ public class NotProd {
                         .member(회원_일반회원5)
                         .title("일반 문의 제목 5")
                         .content("일반 문의 내용 5")
+                        .status(QuestionStatus.COMPLETE)
                         .build());
 
         Question 문의_일반6 = questionRepository.save(
@@ -1145,6 +1154,7 @@ public class NotProd {
                         .member(회원_일반회원6)
                         .title("일반 문의 제목 6")
                         .content("일반 문의 내용 6")
+                        .status(QuestionStatus.INCOMPLETE)
                         .build());
 
         Question 문의_일반7 = questionRepository.save(
@@ -1152,6 +1162,7 @@ public class NotProd {
                         .member(회원_일반회원7)
                         .title("일반 문의 제목 7")
                         .content("일반 문의 내용 7")
+                        .status(QuestionStatus.INCOMPLETE)
                         .build());
 
         Question 문의_일반8 = questionRepository.save(
@@ -1159,6 +1170,7 @@ public class NotProd {
                         .member(회원_일반회원8)
                         .title("일반 문의 제목 8")
                         .content("일반 문의 내용 8")
+                        .status(QuestionStatus.INCOMPLETE)
                         .build());
 
         Question 문의_일반9 = questionRepository.save(
@@ -1166,6 +1178,7 @@ public class NotProd {
                         .member(회원_일반회원9)
                         .title("일반 문의 제목 9")
                         .content("일반 문의 내용 9")
+                        .status(QuestionStatus.INCOMPLETE)
                         .build());
 
         Question 문의_일반10 = questionRepository.save(
@@ -1173,6 +1186,7 @@ public class NotProd {
                         .member(회원_일반회원10)
                         .title("일반 문의 제목 10")
                         .content("일반 문의 내용 10")
+                        .status(QuestionStatus.INCOMPLETE)
                         .build());
 
         // Insert Answer
