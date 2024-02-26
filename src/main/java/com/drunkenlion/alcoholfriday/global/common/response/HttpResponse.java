@@ -53,6 +53,7 @@ public class HttpResponse {
         NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."),
         NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "존재하지 않는 제품입니다."),
         NOT_FOUND_CATEGORY(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리 소분류입니다."),
+        NOT_FOUND_CATEGORY_CLASS(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리 대분류입니다."),
         NOT_FOUND_CART(HttpStatus.NOT_FOUND, "장바구니에 상품 내역이 없습니다."),
         NOT_FOUND_PROVIDER(HttpStatus.NOT_FOUND, "지원하지 않는 로그인입니다."),
 
@@ -64,6 +65,7 @@ public class HttpResponse {
         MAKER_IN_USE(HttpStatus.CONFLICT, "사용중인 제조사입니다."),
         NICKNAME_IN_USE(HttpStatus.CONFLICT, "사용중인 닉네임입니다."),
         PRODUCT_IN_USE(HttpStatus.CONFLICT, "사용중인 제품입니다."),
+        CATEGORY_IN_USE(HttpStatus.CONFLICT, "사용중인 카테고리입니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");
