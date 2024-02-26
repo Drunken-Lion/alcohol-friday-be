@@ -24,7 +24,7 @@ COPY settings.gradle .
 COPY src src
 
 # 실행 권한 주고 gradle 실행
-RUN chmod +x ./gradlew && ./gradlew bootJar
+RUN chmod +x ./gradlew && ./gradlew bootJar -x test
 
 # 나머지 빌드를 위한 스테이지
 FROM alpine:3.19
