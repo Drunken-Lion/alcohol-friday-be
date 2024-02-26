@@ -1,13 +1,18 @@
-package com.drunkenlion.alcoholfriday.domain.admin.store.product.api;
+package com.drunkenlion.alcoholfriday.domain.admin.store.item.api;
 
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
+import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,12 +38,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class AdminStoreProductControllerTest {
+public class AdminStoreItemControllerTest {
     @Autowired
     private MockMvc mvc;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ItemRepository itemRepository;
+
+    @Autowired
+    private CategoryClassRepository categoryClassRepository;
 
     @Autowired
     private MakerRepository makerRepository;
@@ -47,7 +55,10 @@ public class AdminStoreProductControllerTest {
     private CategoryRepository categoryRepository;
 
     @Autowired
-    private CategoryClassRepository categoryClassRepository;
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ItemProductRepository itemProductRepository;
 
     @BeforeEach
     @Transactional
@@ -69,8 +80,8 @@ public class AdminStoreProductControllerTest {
                 Category.builder()
                         .lastName("테스트 카테고리 소분류1")
                         .categoryClass(카테고리_대분류1)
-                        .build()
-        );
+                        .build());
+
 
         Product 제품_국순당_프리바이오 = productRepository.save(Product.builder()
                 .name("1000억 막걸리 프리바이오")
@@ -88,6 +99,22 @@ public class AdminStoreProductControllerTest {
                 .maker(제조사_국순당)
                 .category(카테고리_소분류1)
                 .build());
+
+        Item 상품_1 = itemRepository.save(
+                Item.builder()
+                        .type(ItemType.REGULAR)
+                        .name("프리바이오 막걸리 10개")
+                        .price(BigDecimal.valueOf(20000))
+                        .info("국순당 프리바이오 막걸리 10개입")
+                        .category(카테고리_소분류1)
+                        .build());
+
+        ItemProduct 상품상세1 = itemProductRepository.save(
+                ItemProduct.builder()
+                        .item(상품_1)
+                        .product(제품_국순당_프리바이오)
+                        .quantity(100L)
+                        .build());
     }
 
     @AfterEach
@@ -97,14 +124,16 @@ public class AdminStoreProductControllerTest {
         categoryClassRepository.deleteAll();
         categoryRepository.deleteAll();
         productRepository.deleteAll();
+        itemRepository.deleteAll();
+        itemProductRepository.deleteAll();
     }
 
     @Test
-    @DisplayName("제품 목록 조회 성공")
-    void getProductsTest() throws Exception {
+    @DisplayName("상품 목록 조회 성공")
+    void getItemsTest() throws Exception {
         // when
         ResultActions resultActions = mvc
-                .perform(get("/v1/admin/store/products")
+                .perform(get("/v1/admin/store/items")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
@@ -112,14 +141,14 @@ public class AdminStoreProductControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminStoreProductController.class))
-                .andExpect(handler().methodName("getProducts"))
+                .andExpect(handler().handlerType(AdminStoreItemController.class))
+                .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.data", instanceOf(List.class)))
                 .andExpect(jsonPath("$.data.length()", is(1)))
                 .andExpect(jsonPath("$.data[0].id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.data[0].categoryLastName", notNullValue()))
                 .andExpect(jsonPath("$.data[0].name", notNullValue()))
-                .andExpect(jsonPath("$.data[0].makerName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].price", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.data[0].deleted", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
@@ -128,14 +157,14 @@ public class AdminStoreProductControllerTest {
     }
 
     @Test
-    @DisplayName("제품 상세 조회 성공")
-    void getProductTest() throws Exception {
+    @DisplayName("상품 상세 조회 성공")
+    void getItemTest() throws Exception {
         // given
-        Product product = this.productRepository.findAll().get(0);
+        Item item = this.itemRepository.findAll().get(0);
 
         // when
         ResultActions resultActions = mvc
-                .perform(get("/v1/admin/store/products/" + product.getId())
+                .perform(get("/v1/admin/store/items/" + item.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
@@ -143,164 +172,131 @@ public class AdminStoreProductControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminStoreProductController.class))
-                .andExpect(handler().methodName("getProduct"))
+                .andExpect(handler().handlerType(AdminStoreItemController.class))
+                .andExpect(handler().methodName("getItem"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.itemProductInfos", notNullValue()))
                 .andExpect(jsonPath("$.categoryLastId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.categoryFirstName", notNullValue()))
                 .andExpect(jsonPath("$.categoryLastName", notNullValue()))
                 .andExpect(jsonPath("$.name", notNullValue()))
-                .andExpect(jsonPath("$.makerId", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.makerName", notNullValue()))
                 .andExpect(jsonPath("$.price", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.quantity", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.alcohol", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.ingredient", notNullValue()))
-                .andExpect(jsonPath("$.sweet", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.sour", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.cool", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.body", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.balence", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.insense", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.throat", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.info", notNullValue()))
+                .andExpect(jsonPath("$.type", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
-    @DisplayName("제품 등록 성공")
-    void createProductTest() throws Exception {
+    @DisplayName("상품 등록 성공")
+    void createItemTest() throws Exception {
         // given
+        Long productId = this.productRepository.findAll().get(0).getId();
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
-        Long makerId = this.makerRepository.findAll().get(0).getId();
 
         // when
         ResultActions resultActions = mvc
-                .perform(post("/v1/admin/store/products")
+                .perform(post("/v1/admin/store/items")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(String.format("""
                                 {
+                                  "itemProductInfos": [
+                                   {
+                                     "productId": %d,
+                                     "quantity": 0
+                                   }
+                                  ],
                                   "categoryLastId": %d,
                                   "name": "test 제품명",
-                                  "makerId": %d,
                                   "price": 100000,
-                                  "quantity": 1000,
-                                  "alcohol": 0,
-                                  "ingredient": "test 쌀(국내산), 밀(국내산), 누룩, 정제수",
-                                  "sweet": 0,
-                                  "sour": 0,
-                                  "cool": 0,
-                                  "body": 0,
-                                  "balence": 0,
-                                  "insense": 0,
-                                  "throat": 0
+                                  "info": "test 정보",
+                                  "type": "PROMOTION"
                                 }
-                                """, categoryLastId, makerId))
+                                """, productId, categoryLastId))
                 )
                 .andDo(print());
 
         // then
         resultActions
                 .andExpect(status().isCreated())
-                .andExpect(handler().handlerType(AdminStoreProductController.class))
-                .andExpect(handler().methodName("createProduct"))
+                .andExpect(handler().handlerType(AdminStoreItemController.class))
+                .andExpect(handler().methodName("createItem"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.itemProductInfos", notNullValue()))
                 .andExpect(jsonPath("$.categoryLastId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.categoryFirstName", notNullValue()))
                 .andExpect(jsonPath("$.categoryLastName", notNullValue()))
                 .andExpect(jsonPath("$.name", notNullValue()))
-                .andExpect(jsonPath("$.makerId", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.makerName", notNullValue()))
                 .andExpect(jsonPath("$.price", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.quantity", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.alcohol", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.ingredient", notNullValue()))
-                .andExpect(jsonPath("$.sweet", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.sour", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.cool", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.body", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.balence", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.insense", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.throat", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.info", notNullValue()))
+                .andExpect(jsonPath("$.type", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
-    @DisplayName("제품 수정 성공")
-    void modifyProductTest() throws Exception {
+    @DisplayName("상품 수정 성공")
+    void modifyItemTest() throws Exception {
         // given
-        Product product = this.productRepository.findAll().get(0);
+        Item item = this.itemRepository.findAll().get(0);
+        Long productId = this.productRepository.findAll().get(0).getId();
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
-        Long makerId = this.makerRepository.findAll().get(0).getId();
 
         // when
         ResultActions resultActions = mvc
-                .perform(put("/v1/admin/store/products/" + product.getId())
+                .perform(put("/v1/admin/store/items/" + item.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(String.format("""
                                 {
+                                  "itemProductInfos": [
+                                   {
+                                     "productId": %d,
+                                     "quantity": 0
+                                   }
+                                  ],
                                   "categoryLastId": %d,
-                                  "name": "test 제품명",
-                                  "makerId": %d,
-                                  "price": 100000,
-                                  "quantity": 1000,
-                                  "alcohol": 0,
-                                  "ingredient": "test 쌀(국내산), 밀(국내산), 누룩, 정제수",
-                                  "sweet": 0,
-                                  "sour": 0,
-                                  "cool": 0,
-                                  "body": 0,
-                                  "balence": 0,
-                                  "insense": 0,
-                                  "throat": 0
+                                  "name": "test 제품명 수정",
+                                  "price": 2000,
+                                  "info": "test 정보 수정",
+                                  "type": "PROMOTION"
                                 }
-                                """, categoryLastId, makerId))
+                                """, productId, categoryLastId))
                 )
                 .andDo(print());
 
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminStoreProductController.class))
-                .andExpect(handler().methodName("modifyProduct"))
+                .andExpect(handler().handlerType(AdminStoreItemController.class))
+                .andExpect(handler().methodName("modifyItem"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.itemProductInfos", notNullValue()))
                 .andExpect(jsonPath("$.categoryLastId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.categoryFirstName", notNullValue()))
                 .andExpect(jsonPath("$.categoryLastName", notNullValue()))
                 .andExpect(jsonPath("$.name", notNullValue()))
-                .andExpect(jsonPath("$.makerId", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.makerName", notNullValue()))
                 .andExpect(jsonPath("$.price", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.quantity", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.alcohol", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.ingredient", notNullValue()))
-                .andExpect(jsonPath("$.sweet", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.sour", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.cool", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.body", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.balence", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.insense", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.throat", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.info", notNullValue()))
+                .andExpect(jsonPath("$.type", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
-    @DisplayName("제품 삭제 성공")
-    void deleteProductTest() throws Exception {
+    @DisplayName("상품 삭제 성공")
+    void deleteItemTest() throws Exception {
         // given
-        Product product = this.productRepository.findAll().get(0);
+        Item item = this.itemRepository.findAll().get(0);
 
         // when
         ResultActions resultActions = mvc
-                .perform(delete("/v1/admin/store/products/" + product.getId())
+                .perform(delete("/v1/admin/store/items/" + item.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
@@ -308,7 +304,7 @@ public class AdminStoreProductControllerTest {
         // then
         resultActions
                 .andExpect(status().isNoContent())
-                .andExpect(handler().handlerType(AdminStoreProductController.class))
-                .andExpect(handler().methodName("deleteProduct"));
+                .andExpect(handler().handlerType(AdminStoreItemController.class))
+                .andExpect(handler().methodName("deleteItem"));
     }
 }
