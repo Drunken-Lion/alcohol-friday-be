@@ -54,6 +54,7 @@ public class MemberController {
         return ResponseEntity.ok().body(pageResponse);
     }
 
+    @Operation(summary = "나의 주문 내역", description = "내가 주문한 내역 목록")
     @GetMapping("me/orders")
     public ResponseEntity<PageResponse<MemberOrderListResponse>> getMyOrders(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
