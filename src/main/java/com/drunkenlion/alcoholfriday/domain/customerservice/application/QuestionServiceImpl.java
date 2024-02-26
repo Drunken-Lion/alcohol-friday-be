@@ -6,6 +6,7 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.Questio
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Transactional
     public QuestionSaveResponse saveQuestion(QuestionSaveRequest request, List<MultipartFile> files, Member member) {
         Question question = questionRepository.save(QuestionSaveRequest.toEntity(request, member));
-        fileService.saveFiles(question, files);
-        return QuestionSaveResponse.of(question);
+        NcpFileResponse ncpFileResponse = fileService.saveFiles(question, files);
+        return QuestionSaveResponse.of(question, ncpFileResponse);
     }
 }
