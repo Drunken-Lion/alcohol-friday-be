@@ -1,8 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.member.api;
 
-import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.application.MemberService;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,10 +46,22 @@ public class MemberController {
     public ResponseEntity<PageResponse<MemberQuestionListResponse>> getMyQuestions(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "5") int size) {
+            @RequestParam(name = "size", defaultValue = "10") int size) {
 
         Page<MemberQuestionListResponse> pageQuestions = memberService.getMyQuestions(userPrincipal.getMember().getId(), page, size);
         PageResponse<MemberQuestionListResponse> pageResponse = PageResponse.of(pageQuestions);
+
+        return ResponseEntity.ok().body(pageResponse);
+    }
+
+    @GetMapping("me/orders")
+    public ResponseEntity<PageResponse<MemberOrderListResponse>> getMyOrders(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+
+        Page<MemberOrderListResponse> pageOrders = memberService.getMyOrders(userPrincipal.getMember().getId(), page, size);
+        PageResponse<MemberOrderListResponse> pageResponse = PageResponse.of(pageOrders);
 
         return ResponseEntity.ok().body(pageResponse);
     }
