@@ -1,3 +1,4 @@
+# GitHub에 저장하기 위한 용도, 스크립트는 서버에 따로 올려둔다.
 services:
   nginx:
     container_name: nginx
@@ -6,9 +7,17 @@ services:
     ports:
       - 80:80
       - 443:443
+    volumes:
+      - /usr/local/docker/data/nginx/build:/home
+      - /usr/local/docker/data/nginx/logs:/logs
+      - /usr/local/docker/data/nginx/conf:/etc/nginx/conf.d
+      - /usr/local/docker/data/nginx/ssl:/etc/letsencrypt
+
   spring-docker:
     container_name: spring-server
-    image: alcohol-friday:0.0.1
+    image: alcohol-friday:dev
     restart: always
     ports:
       - 8080:8080
+    volumes:
+      - /usr/local/docker/data/app/logs:/home/spring/logs
