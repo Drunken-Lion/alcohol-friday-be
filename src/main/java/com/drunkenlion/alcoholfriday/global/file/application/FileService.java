@@ -8,8 +8,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface FileService {
     NcpFileResponse saveFiles(BaseEntity entity, List<MultipartFile> multipartFiles);
+
     NcpFileResponse findAll(BaseEntity entity);
+
     NcpFileResponse findOne(BaseEntity entity);
+
+    NcpFileResponse updateFiles(BaseEntity entity, List<Integer> removeSeq, List<MultipartFile> multipartFiles);
+
     List<NcpFileResponse> findAllByEntityIds(List<Long> entityIds, String entityType);
 
     NcpFileResponse findByEntityId(Long entityId, String entityType);

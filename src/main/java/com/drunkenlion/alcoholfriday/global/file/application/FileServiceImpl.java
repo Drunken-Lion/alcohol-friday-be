@@ -1,18 +1,19 @@
 package com.drunkenlion.alcoholfriday.global.file.application;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityTypeV2;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
 import com.drunkenlion.alcoholfriday.global.ncp.application.NcpS3Service;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,8 +29,9 @@ public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
 
     /**
-     * new 파일 저장 (Ncp & DB) Entity 데이터 save 후 id 값이 발급된 이후 저장 필요 반환 객체에 대해 null 체크 필요
+     * 파일 저장 (Ncp & DB)
      */
+    @Transactional
     @Override
     public NcpFileResponse saveFiles(BaseEntity entity, List<MultipartFile> multipartFiles) {
         if (entity.getId() == null || entity.getId() == 0) {
@@ -61,7 +63,8 @@ public class FileServiceImpl implements FileService {
     @Override
     public NcpFileResponse findOne(BaseEntity entity) {
         NcpFile ncpFile1 =
-                fileRepository.findByEntityIdAndEntityType(entity.getId(), EntityTypeV2.getEntityType(entity)).orElse(null);
+                fileRepository.findByEntityIdAndEntityType(entity.getId(), EntityTypeV2.getEntityType(entity))
+                        .orElse(null);
 
         if (ncpFile1 == null) {
             return null;
@@ -72,8 +75,45 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * old 여러개의 게시물에 있는 모든 이미지 조회
+     * entity 이미지에서 List로 전달받은 번호를 통해 동일한 seq 삭제
      */
+    @Transactional
+    @Override
+    public NcpFileResponse updateFiles(BaseEntity entity, List<Integer> removeSeq, List<MultipartFile> multipartFiles) {
+        NcpFile ncpFile =
+                fileRepository.findByEntityIdAndEntityType(entity.getId(), EntityTypeV2.getEntityType(entity))
+                        .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND));
+
+        // removeSeq 내 seq 값과 일치하는 이미지 삭제
+        if (!removeSeq.isEmpty()) {
+            removeSeq.forEach(seq -> ncpFile.getS3Files().stream()
+                    .filter(files -> Objects.equals(seq, files.get("seq")))
+                    .findFirst()
+                    .ifPresent(file -> {
+                        ncpS3Service.ncpDeleteFile((String) file.get("keyName"));
+                        ncpFile.getS3Files().remove(file);
+                    }));
+
+            // seq 재정렬
+            AtomicInteger seq = new AtomicInteger(1);
+            ncpFile.getS3Files().forEach(file -> file.put("seq", seq.getAndIncrement()));
+        }
+
+        // 추가 이미지 저장
+        if (!multipartFiles.get(0).isEmpty()) {
+            AtomicInteger seq = new AtomicInteger(ncpFile.getS3Files().size() + 1);
+            multipartFiles.forEach(
+                    file -> ncpFile.getS3Files().add(ncpS3Service.updateFile(entity, seq.getAndIncrement(), file)));
+        }
+
+        fileRepository.save(ncpFile);
+        return NcpFileResponse.of(ncpFile);
+    }
+
+    /**
+     * 2024.03.01 삭제) 여러개의 게시물에 있는 모든 이미지 조회
+     */
+    @Deprecated
     @Override
     public List<NcpFileResponse> findAllByEntityIds(List<Long> entityIds, String entityType) {
         List<NcpFile> ncpFiles =
@@ -82,8 +122,9 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * old 하나의 게시물에 있는 모든 이미지 조회
+     * 2024.03.01 삭제) old 하나의 게시물에 있는 모든 이미지 조회
      */
+    @Deprecated
     @Override
     public NcpFileResponse findByEntityId(Long entityId, EntityType entityType) {
         NcpFile ncpFile =
@@ -92,8 +133,9 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * old 파일 저장 (Ncp & DB)
+     * 2024.03.01 삭제) old 파일 저장 (Ncp & DB)
      */
+    @Deprecated
     @Transactional
     @Override
     public NcpFileResponse uploadFiles(List<MultipartFile> multipartFiles, Long entityId, EntityType entityType) {
@@ -102,7 +144,7 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * EntityType 매개변수로 받는 메서드를 이용해주세요. 2차 개발일정 시작 시 해당 메서드는 삭제 예정입니다. 하나의 게시물에 있는 모든 이미지 조회
+     * 2024.03.01 삭제) EntityType 매개변수로 받는 메서드를 이용해주세요. 2차 개발일정 시작 시 해당 메서드는 삭제 예정입니다. 하나의 게시물에 있는 모든 이미지 조회
      */
     @Deprecated
     @Override
@@ -113,7 +155,7 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * EntityType 매개변수로 받는 메서드를 이용해주세요. 2차 개발일정 시작 시 해당 메서드는 삭제 예정입니다. 파일 저장 (Ncp & DB)
+     * 2024.03.01 삭제) EntityType 매개변수로 받는 메서드를 이용해주세요. 2차 개발일정 시작 시 해당 메서드는 삭제 예정입니다. 파일 저장 (Ncp & DB)
      */
     @Deprecated
     @Transactional

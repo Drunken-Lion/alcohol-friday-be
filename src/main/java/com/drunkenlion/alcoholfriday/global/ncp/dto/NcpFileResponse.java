@@ -3,9 +3,13 @@ package com.drunkenlion.alcoholfriday.global.ncp.dto;
 import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
 import com.drunkenlion.alcoholfriday.global.ncp.util.vo.FileInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @Builder
@@ -36,7 +40,7 @@ public class NcpFileResponse {
         if (ncpFile != null && ncpFile.getS3Files() != null) {
             files = ncpFile.getS3Files().stream()
                     .map(json -> FileInfo.builder()
-                            .keyName((String) json.get("key_name"))
+                            .keyName((String) json.get("keyName"))
                             .path((String) json.get("path"))
                             .seq((Integer) json.get("seq"))
                             .build()
