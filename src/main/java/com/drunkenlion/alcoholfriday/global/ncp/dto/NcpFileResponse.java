@@ -40,9 +40,9 @@ public class NcpFileResponse {
         if (ncpFile != null && ncpFile.getS3Files() != null) {
             files = ncpFile.getS3Files().stream()
                     .map(json -> FileInfo.builder()
+                            .seq((Integer) json.get("seq"))
                             .keyName((String) json.get("keyName"))
                             .path((String) json.get("path"))
-                            .seq((Integer) json.get("seq"))
                             .build()
                     ).toList();
         }
