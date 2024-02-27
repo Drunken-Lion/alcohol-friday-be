@@ -54,15 +54,13 @@ public class AuthServiceImpl implements AuthService {
      */
     @Transactional
     @Override
-    public LoginResponse testLogin(String username) {
-        String email = username + "@kakao.com";
-
+    public LoginResponse testLogin(String email) {
         Member member = this.memberRepository.findByEmail(email)
                 .orElseGet(() -> {
                     Member saveMember = Member.builder()
                             .email(email)
-                            .name(username)
-                            .nickname(username)
+                            .name(email.split("@")[0])
+                            .nickname(email.split("@")[0])
                             .role(MemberRole.MEMBER)
                             .provider(ProviderType.KAKAO)
                             .build();

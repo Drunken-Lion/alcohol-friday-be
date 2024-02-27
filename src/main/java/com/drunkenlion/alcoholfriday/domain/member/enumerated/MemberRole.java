@@ -2,7 +2,9 @@ package com.drunkenlion.alcoholfriday.domain.member.enumerated;
 
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+
 import java.util.Arrays;
+
 import lombok.Getter;
 
 @Getter
@@ -42,6 +44,8 @@ public enum MemberRole {
         return Arrays.stream(MemberRole.values())
                 .filter(value -> value.role.equals(role))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_ROLE));
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_ROLE)
+                        .build());
     }
 }

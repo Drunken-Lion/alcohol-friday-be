@@ -2,18 +2,17 @@ package com.drunkenlion.alcoholfriday.domain.member.entity;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.auth.util.ProviderTypeConverter;
+import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.member.util.MemberRoleConverter;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
@@ -60,4 +59,9 @@ public class Member extends BaseEntity {
 
     @Comment("개인정보 활용 동의")
     private Boolean agreedToServicePolicyUse;
+
+    @Comment("회원의 문의 내역")
+    @OneToMany(mappedBy = "member")
+    @Builder.Default
+    private List<Question> questions = new ArrayList<>();
 }

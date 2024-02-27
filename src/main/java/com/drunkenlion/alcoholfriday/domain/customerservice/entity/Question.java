@@ -1,8 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.customerservice.entity;
 
+import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
+import com.drunkenlion.alcoholfriday.domain.customerservice.util.QuestionStatusConverter;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,4 +31,13 @@ public class Question extends BaseEntity {
     @Comment("문의사항 내용")
     @Column(columnDefinition = "MEDIUMTEXT")
     private String content;
+
+    @Comment("답변 여부")
+    @Convert(converter = QuestionStatusConverter.class)
+    private QuestionStatus status;
+
+    public void addMember(Member member) {
+        this.member = member;
+        member.getQuestions().add(this);
+    }
 }
