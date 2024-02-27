@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.global.file.application;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityTypeV2;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
@@ -10,6 +11,8 @@ import com.drunkenlion.alcoholfriday.global.ncp.application.NcpS3Service;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,9 +28,7 @@ public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
 
     /**
-     * new 파일 저장 (Ncp & DB)
-     * Entity 데이터 save 후 id 값이 발급된 이후 저장 필요
-     * 반환 객체에 대해 null 체크 필요
+     * new 파일 저장 (Ncp & DB) Entity 데이터 save 후 id 값이 발급된 이후 저장 필요 반환 객체에 대해 null 체크 필요
      */
     @Override
     public NcpFileResponse saveFiles(BaseEntity entity, List<MultipartFile> multipartFiles) {
@@ -41,6 +42,33 @@ public class FileServiceImpl implements FileService {
 
         NcpFile ncpFile = ncpS3Service.saveFiles(entity, multipartFiles);
         return NcpFileResponse.of(fileRepository.save(ncpFile));
+    }
+
+    /**
+     * entity 이미지 전체 조회
+     */
+    @Override
+    public NcpFileResponse findAll(BaseEntity entity) {
+        Optional<NcpFile> opFile =
+                fileRepository.findByEntityIdAndEntityType(entity.getId(), EntityTypeV2.getEntityType(entity));
+
+        return opFile.map(NcpFileResponse::of).orElse(null);
+    }
+
+    /**
+     * entity 이미지의 'seq : 1' 조회
+     */
+    @Override
+    public NcpFileResponse findOne(BaseEntity entity) {
+        NcpFile ncpFile1 =
+                fileRepository.findByEntityIdAndEntityType(entity.getId(), EntityTypeV2.getEntityType(entity)).orElse(null);
+
+        if (ncpFile1 == null) {
+            return null;
+        }
+
+        ncpFile1.updateFiles(List.of(ncpFile1.getS3Files().get(0)));
+        return NcpFileResponse.of(ncpFile1);
     }
 
     /**
