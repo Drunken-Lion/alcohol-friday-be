@@ -46,4 +46,14 @@ public class OrderDetail extends BaseEntity {
 
     @OneToOne(mappedBy = "orderDetail")
     private Review review;
+
+    public void addItem(Item item) {
+        this.item = item;
+        item.getOrderDetails().add(this);
+    }
+
+    public void addOrder(Order order) {
+        this.order = order;
+        order.getOrderDetails().add(this);
+    }
 }

@@ -1,12 +1,27 @@
 package com.drunkenlion.alcoholfriday.domain.member.api;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
+import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
+import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
+import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
+import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
+import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +37,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,12 +56,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class MemberControllerTest {
     @Autowired
     private MockMvc mvc;
-
     @Autowired
     private MemberRepository memberRepository;
-
     @Autowired
     private QuestionRepository questionRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private ItemProductRepository itemProductRepository;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryClassRepository categoryClassRepository;
+
 
     public static final String EMAIL = "test@example.com";
 
@@ -78,8 +107,78 @@ public class MemberControllerTest {
                 .updatedAt(null)
                 .deletedAt(null)
                 .build();
-
         questionRepository.save(question);
+
+        CategoryClass categoryClass =
+                categoryClassRepository.save(
+                        CategoryClass.builder()
+                                .firstName("식품")
+                                .build());
+
+
+        Category category =
+                categoryRepository.save(
+                        Category.builder()
+                                .lastName("탁주")
+                                .build());
+        category.addCategoryClass(categoryClass);
+
+        Product product =
+                productRepository.save(
+                        Product.builder()
+                                .name("테스트 상품")
+                                .quantity(10L)
+                                .alcohol(17L)
+                                .ingredient("알콜, 누룩 등등...")
+                                .sweet(1L)
+                                .sour(1L)
+                                .cool(1L)
+                                .body(1L)
+                                .balence(1L)
+                                .insense(1L)
+                                .throat(1L)
+                                .build());
+        product.addCategory(category);
+
+        Item item =
+                itemRepository.save(
+                        Item.builder()
+                                .name("테스트 술")
+                                .price(new BigDecimal(50000))
+                                .info("이 상품은 테스트 상품입니다.")
+                                .build());
+        item.addCategory(category);
+
+        ItemProduct itemProduct = itemProductRepository.save(ItemProduct.builder()
+                .item(item)
+                .product(product)
+                .build());
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product);
+
+        Order order =
+                orderRepository.save(Order.builder()
+                        .orderNo("order_no")
+                        .orderStatus(OrderStatus.PAYMENT_COMPLETED)
+                        .price(BigDecimal.valueOf(20000L))
+                        .recipient("테스트1")
+                        .phone(1012345678L)
+                        .address("서울특별시 마포구 연남동")
+                        .detail("123-12")
+                        .description("부재시 연락주세요.")
+                        .postcode(123123L)
+                        .build());
+        order.addMember(member);
+
+        OrderDetail orderDetail =
+                orderDetailRepository.save(
+                        OrderDetail.builder()
+                                .itemPrice(item.getPrice())
+                                .quantity(2L)
+                                .totalPrice(BigDecimal.valueOf(100000))
+                                .build());
+        orderDetail.addItem(item);
+        orderDetail.addOrder(order);
     }
 
     @AfterEach
@@ -87,6 +186,13 @@ public class MemberControllerTest {
     void afterEach() {
         memberRepository.deleteAll();
         questionRepository.deleteAll();
+        orderRepository.deleteAll();
+        orderDetailRepository.deleteAll();
+        itemRepository.deleteAll();
+        itemProductRepository.deleteAll();
+        productRepository.deleteAll();
+        categoryRepository.deleteAll();
+        categoryClassRepository.deleteAll();
     }
 
     @Test
@@ -172,5 +278,36 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
                 .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("나의 주문내역 조회")
+    @WithAccount
+    void getMyOrdersTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/members/me/orders")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMyOrders"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].orderNo", notNullValue()))
+                .andExpect(jsonPath("$.data[0].orderStatus", notNullValue()))
+                .andExpect(jsonPath("$.data[0].orderPrice", notNullValue()))
+                .andExpect(jsonPath("$.data[0].recipient", notNullValue()))
+                .andExpect(jsonPath("$.data[0].phone", notNullValue()))
+                .andExpect(jsonPath("$.data[0].postcode", notNullValue()))
+                .andExpect(jsonPath("$.data[0].address", notNullValue()))
+                .andExpect(jsonPath("$.data[0].addressDetail", notNullValue()))
+                .andExpect(jsonPath("$.data[0].description", notNullValue()))
+                .andExpect(jsonPath("$.data[0].orderDetails", instanceOf(List.class)))
+        ;
     }
 }
