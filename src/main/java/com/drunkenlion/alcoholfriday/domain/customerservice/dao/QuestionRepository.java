@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-    Page<Question> findByMember_IdOrderByCreatedAtDesc(Long memberId, Pageable pageable);
+    Page<Question> findByMemberIdOrderByCreatedAtDesc(Long memberId, Pageable pageable);
 }

@@ -5,12 +5,10 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
-import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +43,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Page<MemberQuestionListResponse> getMyQuestions(Long memberId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Question> questionPage = questionRepository.findByMember_IdOrderByCreatedAtDesc(memberId, pageable);
+        Page<Question> questionPage = questionRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable);
 
         return questionPage.map(MemberQuestionListResponse::of);
     }
