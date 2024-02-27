@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -38,10 +39,13 @@ public class MemberOrderListResponse {
     private String address;
 
     @Schema(description = "배송지 상세 주소")
-    private String detailAddress;
+    private String addressDetail;
 
     @Schema(description = "배송 시 주의사항")
     private String description;
+
+    @Schema(description = "주문 일자")
+    private LocalDateTime createdAt;
 
     @Schema(description = "주문한 상품 정보 목록")
     private List<MemberOrderDetailResponse> orderDetails;
@@ -59,8 +63,9 @@ public class MemberOrderListResponse {
                 .phone(order.getPhone())
                 .postcode(order.getPostcode())
                 .address(order.getAddress())
-                .detailAddress(order.getDetail())
+                .addressDetail(order.getDetail())
                 .description(order.getDescription())
+                .createdAt(order.getCreatedAt())
                 .orderDetails(orderDetailResponses)
                 .build();
     }

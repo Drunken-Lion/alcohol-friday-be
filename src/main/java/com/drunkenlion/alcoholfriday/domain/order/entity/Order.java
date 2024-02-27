@@ -63,4 +63,9 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order")
     @Builder.Default
     private List<OrderDetail> orderDetails = new ArrayList<>();
+
+    public void addMember(Member member) {
+        this.member = member;
+        member.getOrders().add(this);
+    }
 }
