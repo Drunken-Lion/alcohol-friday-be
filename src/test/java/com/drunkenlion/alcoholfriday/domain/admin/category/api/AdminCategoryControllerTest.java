@@ -1,0 +1,338 @@
+package com.drunkenlion.alcoholfriday.domain.admin.category.api;
+
+import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
+import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
+import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
+import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
+import com.drunkenlion.alcoholfriday.global.util.TestUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
+public class AdminCategoryControllerTest {
+    @Autowired
+    private MockMvc mvc;
+
+    @Autowired
+    private CategoryClassRepository categoryClassRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @BeforeEach
+    @Transactional
+    void beforeEach() {
+        CategoryClass 카테고리_대분류1 = categoryClassRepository.save(
+                CategoryClass.builder()
+                        .firstName("테스트 카테고리 대분류 1")
+                        .build());
+
+        Category 카테고리_소분류1 = categoryRepository.save(
+                Category.builder()
+                        .lastName("테스트 카테고리 소분류1")
+                        .categoryClass(카테고리_대분류1)
+                        .build());
+    }
+
+    @AfterEach
+    @Transactional
+    void afterEach() {
+        categoryClassRepository.deleteAll();
+        categoryRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("카테고리 대분류 목록 조회 성공")
+    void getCategoryClassesTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/admin/category-classes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminCategoryController.class))
+                .andExpect(handler().methodName("getCategoryClasses"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].categoryFirstName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].deleted", instanceOf(Boolean.class)))
+                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("카테고리 대분류 상세 조회 성공")
+    void getCategoryClassTest() throws Exception {
+        // given
+        CategoryClass categoryClass = this.categoryClassRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/admin/category-classes/" + categoryClass.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminCategoryController.class))
+                .andExpect(handler().methodName("getCategoryClass"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.categoryFirstName", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @Test
+    @DisplayName("카테고리 대분류 등록 성공")
+    void createCategoryClassTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/admin/category-classes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "categoryFirstName": "테스트 카테고리 대분류 1"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isCreated())
+                .andExpect(handler().handlerType(AdminCategoryController.class))
+                .andExpect(handler().methodName("createCategoryClass"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.categoryFirstName", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @Test
+    @DisplayName("카테고리 대분류 수정 성공")
+    void modifyCategoryClassTest() throws Exception {
+        // given
+        CategoryClass categoryClass = this.categoryClassRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/category-classes/" + categoryClass.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "categoryFirstName": "테스트 카테고리 대분류 1 수정"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminCategoryController.class))
+                .andExpect(handler().methodName("modifyCategoryClass"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.categoryFirstName", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @Test
+    @DisplayName("카테고리 대분류 삭제 성공")
+    void deleteCategoryClassTest() throws Exception {
+        // given
+        CategoryClass categoryClass = this.categoryClassRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(delete("/v1/admin/category-classes/" + categoryClass.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(AdminCategoryController.class))
+                .andExpect(handler().methodName("deleteCategoryClass"));
+    }
+
+
+    @Test
+    @DisplayName("카테고리 소분류 목록 조회 성공")
+    void getCategoriesTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/admin/categories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminCategoryController.class))
+                .andExpect(handler().methodName("getCategories"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].categoryFirstName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].categoryLastName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].deleted", instanceOf(Boolean.class)))
+                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("카테고리 소분류 상세 조회 성공")
+    void getCategoryTest() throws Exception {
+        // given
+        Category category = this.categoryRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/admin/categories/" + category.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminCategoryController.class))
+                .andExpect(handler().methodName("getCategory"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.categoryFirstId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.categoryFirstName", notNullValue()))
+                .andExpect(jsonPath("$.categoryLastName", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @Test
+    @DisplayName("카테고리 소분류 등록 성공")
+    void createCategoryTest() throws Exception {
+        // then
+        Long categoryFirstId = this.categoryClassRepository.findAll().get(0).getId();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/admin/categories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("""
+                                {
+                                  "categoryFirstId": %d,
+                                  "categoryLastName": "테스트 카테고리 소분류1"
+                                }
+                                """, categoryFirstId))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isCreated())
+                .andExpect(handler().handlerType(AdminCategoryController.class))
+                .andExpect(handler().methodName("createCategory"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.categoryFirstId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.categoryFirstName", notNullValue()))
+                .andExpect(jsonPath("$.categoryLastName", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @Test
+    @DisplayName("카테고리 소분류 수정 성공")
+    void modifyCategoryTest() throws Exception {
+        // given
+        Long categoryFirstId = this.categoryClassRepository.findAll().get(0).getId();
+        Category category = this.categoryRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/categories/" + category.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("""
+                                {
+                                  "categoryFirstId": %d,
+                                  "categoryLastName": "테스트 카테고리 소분류1 수정"
+                                }
+                                """, categoryFirstId))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminCategoryController.class))
+                .andExpect(handler().methodName("modifyCategory"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.categoryFirstId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.categoryFirstName", notNullValue()))
+                .andExpect(jsonPath("$.categoryLastName", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @Test
+    @DisplayName("카테고리 소분류 삭제 성공")
+    void deleteCategoryTest() throws Exception {
+        // given
+        Category category = this.categoryRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(delete("/v1/admin/categories/" + category.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(AdminCategoryController.class))
+                .andExpect(handler().methodName("deleteCategory"));
+    }
+}
