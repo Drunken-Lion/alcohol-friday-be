@@ -12,7 +12,7 @@ import lombok.*;
 public class FileInfo {
     @Schema(description = "file의 순번")
     private Integer seq;
-    
+
     @Schema(description = "file의 keyName")
     private String keyName;
 
