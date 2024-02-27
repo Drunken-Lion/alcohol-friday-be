@@ -142,10 +142,10 @@ public class AdminItemServiceTest {
         when(this.itemRepository.findAll(any(Pageable.class))).thenReturn(this.getItems());
 
         // when
-        Page<ItemListResponse> products = this.adminItemService.getItems(page, size);
+        Page<ItemListResponse> items = this.adminItemService.getItems(page, size);
 
         // then
-        List<ItemListResponse> content = products.getContent();
+        List<ItemListResponse> content = items.getContent();
 
         assertThat(content).isInstanceOf(List.class);
         assertThat(content.size()).isEqualTo(1);
