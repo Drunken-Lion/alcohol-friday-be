@@ -17,9 +17,6 @@ public class ProductDetailResponse {
     @Schema(description = "고유 아이디")
     private Long id;
 
-    @Schema(description = "제품 이미지")
-    private NcpFileResponse productFiles;
-
     @Schema(description = "카테고리 소분류 고유 아이디")
     private Long categoryLastId;
 
@@ -80,10 +77,12 @@ public class ProductDetailResponse {
     @Schema(description = "삭제일시")
     private LocalDateTime deletedAt;
 
+    @Schema(description = "제품 이미지")
+    private NcpFileResponse productFiles;
+
     public static ProductDetailResponse of(Product product, NcpFileResponse file) {
         return ProductDetailResponse.builder()
                 .id(product.getId())
-                .productFiles(file)
                 .categoryLastId(product.getCategory().getId())
                 .categoryFirstName(product.getCategory().getCategoryClass().getFirstName())
                 .categoryLastName(product.getCategory().getLastName())
@@ -104,6 +103,7 @@ public class ProductDetailResponse {
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .deletedAt(product.getDeletedAt())
+                .productFiles(file)
                 .build();
     }
 }
