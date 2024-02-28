@@ -262,7 +262,10 @@ public class AdminItemControllerTest {
                                   "name": "test 제품명 수정",
                                   "price": 2000,
                                   "info": "test 정보 수정",
-                                  "type": "PROMOTION"
+                                  "type": "PROMOTION",
+                                  "remove": [
+                                        1
+                                      ]
                                 }
                                 """, productId, categoryLastId))
                 )
