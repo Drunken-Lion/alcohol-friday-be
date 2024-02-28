@@ -10,12 +10,12 @@ import lombok.*;
 @ToString(callSuper = true)
 @Schema(description = "file 객체")
 public class FileInfo {
+    @Schema(description = "file의 순번")
+    private Integer seq;
+
     @Schema(description = "file의 keyName")
     private String keyName;
 
     @Schema(description = "file의 full path")
     private String path;
-
-    @Schema(description = "file의 순번")
-    private Integer seq;
 }
