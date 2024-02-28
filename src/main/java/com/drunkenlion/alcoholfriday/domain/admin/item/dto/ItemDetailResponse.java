@@ -20,9 +20,6 @@ public class ItemDetailResponse {
     @Schema(description = "고유 아이디")
     private Long id;
 
-    @Schema(description = "제품 이미지")
-    private NcpFileResponse productFiles;
-
     @Schema(description = "상품의 판매 제품들")
     private List<ItemProductInfo> itemProductInfos;
 
@@ -56,6 +53,9 @@ public class ItemDetailResponse {
     @Schema(description = "삭제일시")
     private LocalDateTime deletedAt;
 
+    @Schema(description = "상품 이미지")
+    private NcpFileResponse itemFiles;
+
     public static ItemDetailResponse of(Item item, NcpFileResponse file) {
         List<ItemProductInfo> itemProductInfos = item.getItemProducts().stream()
                 .map(ItemProductInfo::of)
@@ -63,7 +63,6 @@ public class ItemDetailResponse {
 
         return ItemDetailResponse.builder()
                 .id(item.getId())
-                .productFiles(file)
                 .itemProductInfos(itemProductInfos)
                 .categoryLastId(item.getCategory().getId())
                 .categoryFirstName(item.getCategory().getCategoryClass().getFirstName())
@@ -75,6 +74,7 @@ public class ItemDetailResponse {
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
                 .deletedAt(item.getDeletedAt())
+                .itemFiles(file)
                 .build();
     }
 }

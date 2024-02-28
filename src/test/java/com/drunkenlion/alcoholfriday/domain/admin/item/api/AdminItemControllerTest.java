@@ -13,6 +13,7 @@ import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,10 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,6 +63,9 @@ public class AdminItemControllerTest {
 
     @Autowired
     private ItemProductRepository itemProductRepository;
+
+    @Autowired
+    private FileService fileService;
 
     @BeforeEach
     @Transactional
@@ -109,12 +116,31 @@ public class AdminItemControllerTest {
                         .category(카테고리_소분류1)
                         .build());
 
+        File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
+        fileService.saveFiles(상품_1, getMultipartFiles(file));
+
         ItemProduct 상품상세1 = itemProductRepository.save(
                 ItemProduct.builder()
                         .item(상품_1)
                         .product(제품_국순당_프리바이오)
                         .quantity(100L)
                         .build());
+    }
+
+    private static List<MultipartFile> getMultipartFiles(File file) {
+        InputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        MultipartFile mpf = null;
+        try {
+            mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE, fileInputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return List.of(mpf);
     }
 
     @AfterEach
@@ -186,7 +212,8 @@ public class AdminItemControllerTest {
                 .andExpect(jsonPath("$.type", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.itemFiles", notNullValue()));
     }
 
     @Test
@@ -235,7 +262,8 @@ public class AdminItemControllerTest {
                 .andExpect(jsonPath("$.type", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.itemFiles", notNullValue()));
     }
 
     @Test
@@ -288,7 +316,8 @@ public class AdminItemControllerTest {
                 .andExpect(jsonPath("$.type", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.itemFiles", notNullValue()));
     }
 
     @Test
