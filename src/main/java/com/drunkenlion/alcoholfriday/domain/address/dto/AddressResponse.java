@@ -9,13 +9,24 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "")
+@Schema(description = "배송지 응답 항목")
 public class AddressResponse {
+    @Schema(description = "배송지 고유 아이디")
     private Long id;
+
+    @Schema(description = "해당 배송지를 가진 회원 정보")
     private MemberResponse member;
+
+    @Schema(description = "대표 주소 여부")
     private Boolean isPrimary;
+
+    @Schema(description = "주소")
     private String address;
+
+    @Schema(description = "상세 주소")
     private String addressDetail;
+
+    @Schema(description = "우편번호")
     private Long postcode;
 
     public static AddressResponse of(Address address) {
