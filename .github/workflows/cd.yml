@@ -61,4 +61,4 @@ jobs:
           port: ${{ secrets.NCP_PORT }}
           script: |
             cd /usr/local/docker
-            ./deploy-server.sh "${{ secrets.NCP_ACCESS_KEY }}" "${{ secrets.NCP_SECRET_KEY }}" "${{ secrets.NCP_ECR_URL }}" ${GITHUB_SHA::8} "dev"
+            ./deploy-server.sh ${GITHUB_SHA::8} "dev"
