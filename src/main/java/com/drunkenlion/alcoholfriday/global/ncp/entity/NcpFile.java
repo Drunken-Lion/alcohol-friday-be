@@ -34,4 +34,8 @@ public class NcpFile extends BaseEntity {
     @Column(name = "entity_type", columnDefinition = "VARCHAR(20)")
     @Comment("파일이 저장되는 entity 이름")
     private String entityType;
+
+    public void updateFiles(List<Map<String, Object>> files) {
+        this.s3Files = files;
+    }
 }
