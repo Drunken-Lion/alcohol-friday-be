@@ -15,7 +15,9 @@ docker pull $URL/$IMAGE_NAME:$3
 docker tag $IMAGE_NAME:$4 $URL/$IMAGE_NAME:$3
 
 docker compose down
+
 docker compose -p $IMAGE_NAME up -d
+
 docker compose ps
 
 docker image prune -a -f
