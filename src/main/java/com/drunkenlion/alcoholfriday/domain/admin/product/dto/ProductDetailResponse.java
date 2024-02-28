@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.dto;
 
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -15,6 +16,9 @@ import java.time.LocalDateTime;
 public class ProductDetailResponse {
     @Schema(description = "고유 아이디")
     private Long id;
+
+    @Schema(description = "제품 이미지")
+    private NcpFileResponse productFiles;
 
     @Schema(description = "카테고리 소분류 고유 아이디")
     private Long categoryLastId;
@@ -76,9 +80,10 @@ public class ProductDetailResponse {
     @Schema(description = "삭제일시")
     private LocalDateTime deletedAt;
 
-    public static ProductDetailResponse of(Product product) {
+    public static ProductDetailResponse of(Product product, NcpFileResponse file) {
         return ProductDetailResponse.builder()
                 .id(product.getId())
+                .productFiles(file)
                 .categoryLastId(product.getCategory().getId())
                 .categoryFirstName(product.getCategory().getCategoryClass().getFirstName())
                 .categoryLastName(product.getCategory().getLastName())

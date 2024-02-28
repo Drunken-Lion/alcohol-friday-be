@@ -1,9 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.product.application.AdminProductService;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreatRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,9 +12,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,9 +47,10 @@ public class AdminProductController {
     @Operation(summary = "제품 등록", description = "관리자 권한에 대한 제품 등록")
     @PostMapping(value = "products")
     public ResponseEntity<ProductDetailResponse> createProduct(
-            @Valid @RequestBody ProductRequest productRequest
+            @Valid @RequestPart("productRequest") ProductCreatRequest productCreateRequest,
+            @RequestPart("files") List<MultipartFile> files
     ) {
-        ProductDetailResponse productDetailResponse = adminProductService.createProduct(productRequest);
+        ProductDetailResponse productDetailResponse = adminProductService.createProduct(productCreateRequest, files);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -61,9 +65,10 @@ public class AdminProductController {
     @PutMapping(value = "products/{id}")
     public ResponseEntity<ProductDetailResponse> modifyProduct(
             @PathVariable("id") Long id,
-            @Valid @RequestBody ProductRequest productRequest
+            @Valid @RequestPart("productRequest") ProductModifyRequest productModifyRequest,
+            @RequestPart("files") List<MultipartFile> files
     ) {
-        ProductDetailResponse productDetailResponse = adminProductService.modifyProduct(id, productRequest);
+        ProductDetailResponse productDetailResponse = adminProductService.modifyProduct(id, productModifyRequest, productModifyRequest.getRemove(), files);
         return ResponseEntity.ok().body(productDetailResponse);
     }
 

@@ -257,7 +257,10 @@ public class AdminProductControllerTest {
                                   "body": 0,
                                   "balence": 0,
                                   "insense": 0,
-                                  "throat": 0
+                                  "throat": 0,
+                                  "remove": [
+                                        1
+                                      ]
                                 }
                                 """, categoryLastId, makerId))
                 )
