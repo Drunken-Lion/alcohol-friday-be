@@ -60,4 +60,5 @@ jobs:
           password: ${{ secrets.NCP_PASSWORD }}
           port: ${{ secrets.NCP_PORT }}
           script: |
-            sh /usr/local/docker/deploy-server.sh -c "${{ GITHUB_SHA::8 }}" "dev"
+            cd /usr/local/docker
+            ./deploy-server.sh "${GITHUB_SHA::8}" "dev"
