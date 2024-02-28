@@ -33,7 +33,7 @@ class FileServiceImplTest {
     private NcpS3ServiceImpl ncpS3Service;
 
     // test를 위한 임의 변수
-    private final String key_name = "test";
+    private final String keyName = "test";
     private final String path = "src/test/java/com/drunkenlion/alcoholfriday/test.jpg";
     private final List<Long> entityIds = List.of(1L, 2L, 3L);
 
@@ -49,7 +49,7 @@ class FileServiceImplTest {
         for (NcpFileResponse fileResponse : files) {
             assertThat(fileResponse.getFile()).isNotNull();
             assertThat(fileResponse.getFile()).isInstanceOf(List.class);
-            assertThat(fileResponse.getFile().get(0).getKeyName()).isEqualTo(key_name);
+            assertThat(fileResponse.getFile().get(0).getKeyName()).isEqualTo(keyName);
             assertThat(fileResponse.getFile().get(0).getPath()).isEqualTo(path);
             assertThat(fileResponse.getFile().get(0).getSeq()).isEqualTo(1L);
         }
@@ -78,7 +78,7 @@ class FileServiceImplTest {
         // when
         NcpFileResponse ncpFileResponse = this.fileService.findByEntityId(entityIds.get(0), EntityType.ITEM.getEntityName());
         // then
-        assertThat(ncpFileResponse.getFile().get(0).getKeyName()).isEqualTo(key_name);
+        assertThat(ncpFileResponse.getFile().get(0).getKeyName()).isEqualTo(keyName);
         assertThat(ncpFileResponse.getFile().get(0).getPath()).isEqualTo(path);
         assertThat(ncpFileResponse.getFile().get(0).getSeq()).isEqualTo(1L);
     }
@@ -125,7 +125,7 @@ class FileServiceImplTest {
 
         for (int seq = 1; seq < 3; seq++) {
             Map<String, Object> map = new HashMap<>();
-            map.put("key_name", key_name);
+            map.put("keyName", keyName);
             map.put("path", path);
             map.put("seq", seq);
             s3Files.add(map);
