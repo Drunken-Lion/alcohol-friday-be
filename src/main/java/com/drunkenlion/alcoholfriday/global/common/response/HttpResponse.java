@@ -30,6 +30,7 @@ public class HttpResponse {
         // 400
         BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청 입니다."),
         INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "잘못된 입력값 입니다."),
+        ADDRESS_LIMIT_OVER(HttpStatus.BAD_REQUEST, "주소는 3개까지 등록할 수 있습니다."),
 
         // 401
         UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 접근입니다."),
@@ -56,6 +57,7 @@ public class HttpResponse {
         NOT_FOUND_CATEGORY_CLASS(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리 대분류입니다."),
         NOT_FOUND_CART(HttpStatus.NOT_FOUND, "장바구니에 상품 내역이 없습니다."),
         NOT_FOUND_PROVIDER(HttpStatus.NOT_FOUND, "지원하지 않는 로그인입니다."),
+        NOT_FOUND_ADDRESSES(HttpStatus.NOT_FOUND, "등록된 주소가 없습니다."),
 
         // 405
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP METHOD 입니다."),

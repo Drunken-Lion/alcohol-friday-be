@@ -1,5 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.member.application;
 
+import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
+import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
@@ -19,6 +22,9 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -26,6 +32,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final QuestionRepository questionRepository;
     private final OrderRepository orderRepository;
+    private final AddressRepository addressRepository;
 
     @Transactional
     @Override
@@ -56,5 +63,14 @@ public class MemberServiceImpl implements MemberService {
         Page<Order> orderPage = orderRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable);
 
         return orderPage.map(MemberOrderListResponse::of);
+    }
+
+    @Override
+    public List<AddressResponse> getMyAddresses(Long memberId) {
+        List<Address> addresses = addressRepository.findAllByMemberIdOrderByIsPrimaryDescCreatedAtDesc(memberId);
+
+        if (addresses.isEmpty()) throw new BusinessException(HttpResponse.Fail.NOT_FOUND_ADDRESSES);
+
+        return addresses.stream().map(AddressResponse::of).toList();
     }
 }
