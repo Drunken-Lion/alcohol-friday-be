@@ -7,6 +7,7 @@ import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -51,7 +52,7 @@ public class AdminMemberControllerTest {
                 .agreedToServicePolicy(true)
                 .agreedToServicePolicyUse(true)
                 .createdAt(LocalDateTime.now())
-                .updatedAt(null)
+                .updatedAt(LocalDateTime.now())
                 .deletedAt(null)
                 .build();
 
@@ -65,6 +66,7 @@ public class AdminMemberControllerTest {
     }
 
     @Test
+    @DisplayName("회원 목록 조회 성공")
     void getMembersTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -93,6 +95,7 @@ public class AdminMemberControllerTest {
     }
 
     @Test
+    @DisplayName("회원 상세 조회 성공")
     void getMemberTest() throws Exception {
         // given
         Member member = this.memberRepository.findAll().get(0);
@@ -127,6 +130,7 @@ public class AdminMemberControllerTest {
     }
 
     @Test
+    @DisplayName("회원 수정 성공")
     void modifyMemberTest() throws Exception {
         // given
         Member member = this.memberRepository.findAll().get(0);

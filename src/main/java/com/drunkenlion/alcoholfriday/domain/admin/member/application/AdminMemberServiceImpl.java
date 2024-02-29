@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminMemberServiceImpl implements AdminMemberService{
     private final MemberRepository memberRepository;
 
+    @Override
     public Page<MemberListResponse> getMembers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Member> members = memberRepository.findAll(pageable);
@@ -27,6 +28,7 @@ public class AdminMemberServiceImpl implements AdminMemberService{
         return members.map(MemberListResponse::of);
     }
 
+    @Override
     public MemberDetailResponse getMember(Long id) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> BusinessException.builder()
@@ -36,9 +38,10 @@ public class AdminMemberServiceImpl implements AdminMemberService{
         return MemberDetailResponse.of(member);
     }
 
+    @Override
     @Transactional
     public MemberDetailResponse modifyMember(Long id, MemberModifyRequest memberModifyRequest) {
-        Member member = memberRepository.findById(id)
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());

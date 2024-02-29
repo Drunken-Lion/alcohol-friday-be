@@ -7,8 +7,6 @@ import org.springframework.data.domain.Page;
 
 public interface AdminMemberService {
     Page<MemberListResponse> getMembers(int page, int size);
-
     MemberDetailResponse getMember(Long id);
-
     MemberDetailResponse modifyMember(Long id, MemberModifyRequest memberModifyRequest);
 }

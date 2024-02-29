@@ -8,6 +8,9 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +29,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,13 +48,14 @@ public class AdminMemberServiceTest {
     private final String nickname = "test";
     private final MemberRole role = MemberRole.MEMBER;
     private final Long phone = 1012345678L;
-    private final LocalDate certifyAt = null;
+    private final LocalDate certifyAt = LocalDate.now();
     private final boolean agreedToServiceUse = false;
     private final boolean agreedToServicePolicy = false;
     private final boolean agreedToServicePolicyUse = false;
+
     private final LocalDateTime createdAt = LocalDateTime.now();
-    private final LocalDateTime updatedAt = null;
-    private final LocalDateTime deletedAt = null;
+    private final LocalDateTime updatedAt = LocalDateTime.now();
+
     private final int page = 0;
     private final int size = 20;
 
@@ -58,6 +64,7 @@ public class AdminMemberServiceTest {
     private final Long modifyPhone = 1011112222L;
 
     @Test
+    @DisplayName("회원 목록 조회 성공")
     public void getMembersTest() {
         // given
         Mockito.when(this.memberRepository.findAll(any(Pageable.class))).thenReturn(this.getMembers());
@@ -80,6 +87,7 @@ public class AdminMemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원 상세 조회 성공")
     public void getMemberTest() {
         // given
         Mockito.when(this.memberRepository.findById(any())).thenReturn(this.getOne());
@@ -101,10 +109,26 @@ public class AdminMemberServiceTest {
         assertThat(memberDetailResponse.getAgreedToServicePolicyUse()).isEqualTo(agreedToServicePolicyUse);
         assertThat(memberDetailResponse.getCreatedAt()).isEqualTo(createdAt);
         assertThat(memberDetailResponse.getUpdatedAt()).isEqualTo(updatedAt);
-        assertThat(memberDetailResponse.getDeletedAt()).isEqualTo(deletedAt);
     }
 
     @Test
+    @DisplayName("회원 상세 조회 실패 - 찾을 수 없는 회원")
+    public void getMemberFailNotFoundTest() {
+        // given
+        Mockito.when(this.memberRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminMemberService.getMember(id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MEMBER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MEMBER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("회원 수정 성공")
     public void modifyMemberTest() {
         // given
         MemberModifyRequest memberModifyRequest = MemberModifyRequest.builder()
@@ -113,16 +137,7 @@ public class AdminMemberServiceTest {
                 .phone(modifyPhone)
                 .build();
 
-        // When
-        Member member = Member.builder()
-                .id(id)
-                .nickname(memberModifyRequest.getNickname())
-                .provider(ProviderType.ofProvider(provider))
-                .role(memberModifyRequest.getRole())
-                .phone(memberModifyRequest.getPhone())
-                .build();
-
-        Mockito.when(this.memberRepository.findById(id)).thenReturn(Optional.of(member));
+        Mockito.when(this.memberRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(this.getOne());
         Mockito.when(this.memberRepository.save(any(Member.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
@@ -133,6 +148,28 @@ public class AdminMemberServiceTest {
         assertThat(modifiedMember.getNickname()).isEqualTo(modifyNickname);
         assertThat(modifiedMember.getRole()).isEqualTo(modifyRole);
         assertThat(modifiedMember.getPhone()).isEqualTo(modifyPhone);
+    }
+
+    @Test
+    @DisplayName("회원 수정 조회 실패 - 찾을 수 없는 회원")
+    public void modifyMemberFailNotFoundTest() {
+        // given
+        MemberModifyRequest memberModifyRequest = MemberModifyRequest.builder()
+                .nickname(modifyNickname)
+                .role(modifyRole)
+                .phone(modifyPhone)
+                .build();
+
+        Mockito.when(this.memberRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminMemberService.modifyMember(id, memberModifyRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MEMBER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_MEMBER.getMessage(), exception.getMessage());
     }
 
     private Page<Member> getMembers() {
@@ -160,7 +197,6 @@ public class AdminMemberServiceTest {
                 .agreedToServicePolicyUse(agreedToServicePolicyUse)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
-                .deletedAt(deletedAt)
                 .build();
     }
 }
