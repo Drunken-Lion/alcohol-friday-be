@@ -2,8 +2,8 @@ package com.drunkenlion.alcoholfriday.domain.member.api;
 
 import com.drunkenlion.alcoholfriday.domain.member.application.MemberService;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
-import com.drunkenlion.alcoholfriday.domain.member.dto.MemberOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
+import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
@@ -56,13 +56,13 @@ public class MemberController {
 
     @Operation(summary = "나의 주문 내역", description = "내가 주문한 내역 목록")
     @GetMapping("me/orders")
-    public ResponseEntity<PageResponse<MemberOrderListResponse>> getMyOrders(
+    public ResponseEntity<PageResponse<OrderResponse>> getMyOrders(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        Page<MemberOrderListResponse> pageOrders = memberService.getMyOrders(userPrincipal.getMember().getId(), page, size);
-        PageResponse<MemberOrderListResponse> pageResponse = PageResponse.of(pageOrders);
+        Page<OrderResponse> pageOrders = memberService.getMyOrders(userPrincipal.getMember().getId(), page, size);
+        PageResponse<OrderResponse> pageResponse = PageResponse.of(pageOrders);
 
         return ResponseEntity.ok().body(pageResponse);
     }
