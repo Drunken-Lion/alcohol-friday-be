@@ -18,14 +18,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -96,24 +99,10 @@ public class AdminProductControllerTest {
                 .category(카테고리_소분류1)
                 .build());
 
-        File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
-        fileService.saveFiles(제품_국순당_프리바이오, getMultipartFiles(file));
-    }
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile multipartFile2 = new MockMultipartFile("files", "test2.txt", "text/plain", "test2 file".getBytes(StandardCharsets.UTF_8));
 
-    private static List<MultipartFile> getMultipartFiles(File file) {
-        InputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        MultipartFile mpf = null;
-        try {
-            mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE, fileInputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return List.of(mpf);
+        fileService.saveFiles(제품_국순당_프리바이오, List.of(multipartFile1, multipartFile2));
     }
 
     @AfterEach
@@ -200,31 +189,37 @@ public class AdminProductControllerTest {
     @DisplayName("제품 등록 성공")
     void createProductTest() throws Exception {
         // given
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "create-test1.txt", "text/plain", "create-test1 file".getBytes(StandardCharsets.UTF_8));
+
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
         Long makerId = this.makerRepository.findAll().get(0).getId();
 
+        String productCreateRequestJson = String.format("""
+                {
+                  "categoryLastId": %d,
+                  "name": "test 제품명",
+                  "makerId": %d,
+                  "price": 100000,
+                  "quantity": 1000,
+                  "alcohol": 0,
+                  "ingredient": "test 쌀(국내산), 밀(국내산), 누룩, 정제수",
+                  "sweet": 0,
+                  "sour": 0,
+                  "cool": 0,
+                  "body": 0,
+                  "balence": 0,
+                  "insense": 0,
+                  "throat": 0
+                }
+                """, categoryLastId, makerId);
+
+        MockMultipartFile itemRequest = new MockMultipartFile("productRequest", "productRequest", "application/json", productCreateRequestJson.getBytes(StandardCharsets.UTF_8));
+
         // when
         ResultActions resultActions = mvc
-                .perform(post("/v1/admin/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "categoryLastId": %d,
-                                  "name": "test 제품명",
-                                  "makerId": %d,
-                                  "price": 100000,
-                                  "quantity": 1000,
-                                  "alcohol": 0,
-                                  "ingredient": "test 쌀(국내산), 밀(국내산), 누룩, 정제수",
-                                  "sweet": 0,
-                                  "sour": 0,
-                                  "cool": 0,
-                                  "body": 0,
-                                  "balence": 0,
-                                  "insense": 0,
-                                  "throat": 0
-                                }
-                                """, categoryLastId, makerId))
+                .perform(multipart("/v1/admin/products")
+                        .file(multipartFile1)
+                        .file(itemRequest)
                 )
                 .andDo(print());
 
@@ -262,35 +257,50 @@ public class AdminProductControllerTest {
     @DisplayName("제품 수정 성공")
     void modifyProductTest() throws Exception {
         // given
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "modify-test1.txt", "text/plain", "modify-test1 file".getBytes(StandardCharsets.UTF_8));
+
         Product product = this.productRepository.findAll().get(0);
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
         Long makerId = this.makerRepository.findAll().get(0).getId();
 
+        String productCreateRequestJson = String.format("""
+                {
+                  "categoryLastId": %d,
+                  "name": "test 제품명",
+                  "makerId": %d,
+                  "price": 100000,
+                  "quantity": 1000,
+                  "alcohol": 0,
+                  "ingredient": "test 쌀(국내산), 밀(국내산), 누룩, 정제수",
+                  "sweet": 0,
+                  "sour": 0,
+                  "cool": 0,
+                  "body": 0,
+                  "balence": 0,
+                  "insense": 0,
+                  "throat": 0,
+                  "remove": [
+                        1
+                      ]
+                }
+                """, categoryLastId, makerId);
+
+        MockMultipartFile itemRequest = new MockMultipartFile("productRequest", "productRequest", "application/json", productCreateRequestJson.getBytes(StandardCharsets.UTF_8));
+
+        MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart("/v1/admin/products/" + product.getId());
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+
         // when
         ResultActions resultActions = mvc
-                .perform(put("/v1/admin/products/" + product.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "categoryLastId": %d,
-                                  "name": "test 제품명",
-                                  "makerId": %d,
-                                  "price": 100000,
-                                  "quantity": 1000,
-                                  "alcohol": 0,
-                                  "ingredient": "test 쌀(국내산), 밀(국내산), 누룩, 정제수",
-                                  "sweet": 0,
-                                  "sour": 0,
-                                  "cool": 0,
-                                  "body": 0,
-                                  "balence": 0,
-                                  "insense": 0,
-                                  "throat": 0,
-                                  "remove": [
-                                        1
-                                      ]
-                                }
-                                """, categoryLastId, makerId))
+                .perform(builder
+                        .file(multipartFile1)
+                        .file(itemRequest)
                 )
                 .andDo(print());
 
