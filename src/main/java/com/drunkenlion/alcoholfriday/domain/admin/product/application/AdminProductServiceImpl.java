@@ -1,6 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreatRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
@@ -58,18 +58,18 @@ public class AdminProductServiceImpl implements AdminProductService {
 
     @Override
     @Transactional
-    public ProductDetailResponse createProduct(ProductCreatRequest productCreatRequest, List<MultipartFile> files) {
-        Category category = categoryRepository.findById(productCreatRequest.getCategoryLastId())
+    public ProductDetailResponse createProduct(ProductCreateRequest productCreateRequest, List<MultipartFile> files) {
+        Category category = categoryRepository.findById(productCreateRequest.getCategoryLastId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_CATEGORY)
                         .build());
 
-        Maker maker = makerRepository.findById(productCreatRequest.getMakerId())
+        Maker maker = makerRepository.findById(productCreateRequest.getMakerId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MAKER)
                         .build());
 
-        Product product = ProductCreatRequest.toEntity(productCreatRequest, category, maker);
+        Product product = ProductCreateRequest.toEntity(productCreateRequest, category, maker);
         productRepository.save(product);
 
         NcpFileResponse file = fileService.saveFiles(product, files);

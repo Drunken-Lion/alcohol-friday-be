@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "제품 입력 요청 항목")
-public class ProductCreatRequest {
+public class ProductCreateRequest {
     @Schema(description = "카테고리 소분류 고유 아이디")
     private Long categoryLastId;
 
@@ -56,7 +56,7 @@ public class ProductCreatRequest {
     @Schema(description = "술 목넘김")
     private Long throat;
 
-    public static Product toEntity(ProductCreatRequest request, Category category, Maker maker) {
+    public static Product toEntity(ProductCreateRequest request, Category category, Maker maker) {
         return Product.builder()
                 .name(request.getName())
                 .price(request.getPrice())

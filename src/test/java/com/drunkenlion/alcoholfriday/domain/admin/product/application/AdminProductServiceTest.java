@@ -1,6 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreatRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
@@ -189,7 +189,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 등록 성공")
     public void createProductTest() {
         // given
-        ProductCreatRequest productCreatRequest = ProductCreatRequest.builder()
+        ProductCreateRequest productCreateRequest = ProductCreateRequest.builder()
                 .categoryLastId(categoryLastId)
                 .name(name)
                 .makerId(makerId)
@@ -213,7 +213,7 @@ public class AdminProductServiceTest {
         Mockito.when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        ProductDetailResponse productDetailResponse = adminProductService.createProduct(productCreatRequest, files);
+        ProductDetailResponse productDetailResponse = adminProductService.createProduct(productCreateRequest, files);
 
         // then
         assertThat(productDetailResponse.getCategoryLastId()).isEqualTo(categoryLastId);
@@ -239,7 +239,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 등록 실패 - 찾을 수 없는 카테고리 소분류")
     public void createProductFailCategoryNotFoundTest() {
         // given
-        ProductCreatRequest productCreatRequest = ProductCreatRequest.builder()
+        ProductCreateRequest productCreateRequest = ProductCreateRequest.builder()
                 .categoryLastId(categoryLastId)
                 .makerId(makerId)
                 .build();
@@ -248,7 +248,7 @@ public class AdminProductServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminProductService.createProduct(productCreatRequest, any());
+            adminProductService.createProduct(productCreateRequest, any());
         });
 
         // then
@@ -260,7 +260,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 등록 실패 - 찾을 수 없는 제조사")
     public void createProductFailMakerNotFoundTest() {
         // given
-        ProductCreatRequest productCreatRequest = ProductCreatRequest.builder()
+        ProductCreateRequest productCreateRequest = ProductCreateRequest.builder()
                 .categoryLastId(categoryLastId)
                 .makerId(makerId)
                 .build();
@@ -270,7 +270,7 @@ public class AdminProductServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminProductService.createProduct(productCreatRequest, any());
+            adminProductService.createProduct(productCreateRequest, any());
         });
 
         // then

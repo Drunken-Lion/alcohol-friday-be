@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.product.application.AdminProductService;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreatRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
@@ -47,7 +47,7 @@ public class AdminProductController {
     @Operation(summary = "제품 등록", description = "관리자 권한에 대한 제품 등록")
     @PostMapping(value = "products")
     public ResponseEntity<ProductDetailResponse> createProduct(
-            @Valid @RequestPart("productRequest") ProductCreatRequest productCreateRequest,
+            @Valid @RequestPart("productRequest") ProductCreateRequest productCreateRequest,
             @RequestPart("files") List<MultipartFile> files
     ) {
         ProductDetailResponse productDetailResponse = adminProductService.createProduct(productCreateRequest, files);
