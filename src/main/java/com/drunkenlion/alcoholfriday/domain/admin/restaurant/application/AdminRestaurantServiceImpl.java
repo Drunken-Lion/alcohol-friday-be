@@ -5,13 +5,13 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListR
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantStockItemResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantDataValidator;
+import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -149,18 +148,11 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
         List<RestaurantStockItemResponse> stockItemInfos = new ArrayList<>();
 
         if (!restaurantStocks.isEmpty()) {
-            List<Long> entityIds = restaurantStocks.stream()
-                    .map(rs -> rs.getItem().getId())
-                    .collect(Collectors.toList());
+            for (RestaurantStock restaurantStock: restaurantStocks) {
+                Item item = restaurantStock.getItem();
+                NcpFileResponse ncpResponse = fileService.findOne(item);
 
-            List<NcpFileResponse> ncpFiles = fileService.findAllByEntityIds(entityIds, EntityType.ITEM.getEntityName());
-
-            for (RestaurantStock restaurantStock : restaurantStocks) {
-                Optional<NcpFileResponse> targetFile = ncpFiles.stream()
-                        .filter(file -> file.getEntityId().equals(restaurantStock.getItem().getId()))
-                        .findFirst();
-
-                stockItemInfos.add(RestaurantStockItemResponse.of(restaurantStock, targetFile.orElse(null)));
+                stockItemInfos.add(RestaurantStockItemResponse.of(restaurantStock, ncpResponse));
             }
         }
 
