@@ -23,14 +23,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -116,8 +119,10 @@ public class AdminItemControllerTest {
                         .category(카테고리_소분류1)
                         .build());
 
-        File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
-        fileService.saveFiles(상품_1, getMultipartFiles(file));
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile multipartFile2 = new MockMultipartFile("files", "test2.txt", "text/plain", "test2 file".getBytes(StandardCharsets.UTF_8));
+
+        fileService.saveFiles(상품_1, List.of(multipartFile1, multipartFile2));
 
         ItemProduct 상품상세1 = itemProductRepository.save(
                 ItemProduct.builder()
@@ -125,22 +130,6 @@ public class AdminItemControllerTest {
                         .product(제품_국순당_프리바이오)
                         .quantity(100L)
                         .build());
-    }
-
-    private static List<MultipartFile> getMultipartFiles(File file) {
-        InputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        MultipartFile mpf = null;
-        try {
-            mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE, fileInputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return List.of(mpf);
     }
 
     @AfterEach
@@ -220,28 +209,34 @@ public class AdminItemControllerTest {
     @DisplayName("상품 등록 성공")
     void createItemTest() throws Exception {
         // given
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "create-test1.txt", "text/plain", "create-test1 file".getBytes(StandardCharsets.UTF_8));
+
         Long productId = this.productRepository.findAll().get(0).getId();
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
 
+        String itemCreateRequestJson = String.format("""
+                {
+                  "itemProductInfos": [
+                   {
+                     "productId": %d,
+                     "quantity": 0
+                   }
+                  ],
+                  "categoryLastId": %d,
+                  "name": "test 제품명",
+                  "price": 100000,
+                  "info": "test 정보",
+                  "type": "PROMOTION"
+                }
+                """, productId, categoryLastId);
+
+        MockMultipartFile itemRequest = new MockMultipartFile("itemRequest", "itemRequest", "application/json", itemCreateRequestJson.getBytes(StandardCharsets.UTF_8));
+
         // when
         ResultActions resultActions = mvc
-                .perform(post("/v1/admin/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "itemProductInfos": [
-                                   {
-                                     "productId": %d,
-                                     "quantity": 0
-                                   }
-                                  ],
-                                  "categoryLastId": %d,
-                                  "name": "test 제품명",
-                                  "price": 100000,
-                                  "info": "test 정보",
-                                  "type": "PROMOTION"
-                                }
-                                """, productId, categoryLastId))
+                .perform(multipart("/v1/admin/items")
+                        .file(multipartFile1)
+                        .file(itemRequest)
                 )
                 .andDo(print());
 
@@ -270,32 +265,47 @@ public class AdminItemControllerTest {
     @DisplayName("상품 수정 성공")
     void modifyItemTest() throws Exception {
         // given
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "modify-test1.txt", "text/plain", "modify-test1 file".getBytes(StandardCharsets.UTF_8));
+
         Item item = this.itemRepository.findAll().get(0);
         Long productId = this.productRepository.findAll().get(0).getId();
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
 
+        String itemModifyRequestJson = String.format("""
+                {
+                  "itemProductInfos": [
+                   {
+                     "productId": %d,
+                     "quantity": 0
+                   }
+                  ],
+                  "categoryLastId": %d,
+                  "name": "test 제품명 수정",
+                  "price": 2000,
+                  "info": "test 정보 수정",
+                  "type": "PROMOTION",
+                  "remove": [
+                        1
+                      ]
+                }
+                """, productId, categoryLastId);
+
+        MockMultipartFile itemRequest = new MockMultipartFile("itemRequest", "itemRequest", "application/json", itemModifyRequestJson.getBytes(StandardCharsets.UTF_8));
+
+        MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart("/v1/admin/items/" + item.getId());
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+
         // when
         ResultActions resultActions = mvc
-                .perform(put("/v1/admin/items/" + item.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "itemProductInfos": [
-                                   {
-                                     "productId": %d,
-                                     "quantity": 0
-                                   }
-                                  ],
-                                  "categoryLastId": %d,
-                                  "name": "test 제품명 수정",
-                                  "price": 2000,
-                                  "info": "test 정보 수정",
-                                  "type": "PROMOTION",
-                                  "remove": [
-                                        1
-                                      ]
-                                }
-                                """, productId, categoryLastId))
+                .perform(builder
+                        .file(multipartFile1)
+                        .file(itemRequest)
                 )
                 .andDo(print());
 
