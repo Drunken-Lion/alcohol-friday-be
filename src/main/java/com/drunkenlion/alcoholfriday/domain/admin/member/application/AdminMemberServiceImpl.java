@@ -47,9 +47,10 @@ public class AdminMemberServiceImpl implements AdminMemberService{
                         .build());
 
         member = member.toBuilder()
+                .name(memberModifyRequest.getName())
                 .nickname(memberModifyRequest.getNickname())
-                .role(memberModifyRequest.getRole())
                 .phone(memberModifyRequest.getPhone())
+                .role(memberModifyRequest.getRole())
                 .build();
 
         memberRepository.save(member);

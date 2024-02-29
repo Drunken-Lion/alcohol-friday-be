@@ -59,6 +59,7 @@ public class AdminMemberServiceTest {
     private final int page = 0;
     private final int size = 20;
 
+    private final String modifyName = "테스트 수정";
     private final String modifyNickname = "test 수정";
     private final MemberRole modifyRole = MemberRole.ADMIN;
     private final Long modifyPhone = 1011112222L;
@@ -132,9 +133,10 @@ public class AdminMemberServiceTest {
     public void modifyMemberTest() {
         // given
         MemberModifyRequest memberModifyRequest = MemberModifyRequest.builder()
+                .name(modifyName)
                 .nickname(modifyNickname)
-                .role(modifyRole)
                 .phone(modifyPhone)
+                .role(modifyRole)
                 .build();
 
         Mockito.when(this.memberRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(this.getOne());
@@ -145,9 +147,10 @@ public class AdminMemberServiceTest {
 
         // then
         assertThat(modifiedMember.getId()).isEqualTo(id);
+        assertThat(modifiedMember.getName()).isEqualTo(modifyName);
         assertThat(modifiedMember.getNickname()).isEqualTo(modifyNickname);
-        assertThat(modifiedMember.getRole()).isEqualTo(modifyRole);
         assertThat(modifiedMember.getPhone()).isEqualTo(modifyPhone);
+        assertThat(modifiedMember.getRole()).isEqualTo(modifyRole);
     }
 
     @Test
@@ -155,9 +158,10 @@ public class AdminMemberServiceTest {
     public void modifyMemberFailNotFoundTest() {
         // given
         MemberModifyRequest memberModifyRequest = MemberModifyRequest.builder()
+                .name(modifyName)
                 .nickname(modifyNickname)
-                .role(modifyRole)
                 .phone(modifyPhone)
+                .role(modifyRole)
                 .build();
 
         Mockito.when(this.memberRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());

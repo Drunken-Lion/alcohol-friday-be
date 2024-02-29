@@ -141,9 +141,10 @@ public class AdminMemberControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
+                                   "name": "테스트 수정",
                                    "nickname": "test 수정",
-                                   "role": "ADMIN",
-                                   "phone": 1011112222
+                                   "phone": 1011112222,
+                                   "role": "ADMIN"
                                 }
                                 """)
                 )
