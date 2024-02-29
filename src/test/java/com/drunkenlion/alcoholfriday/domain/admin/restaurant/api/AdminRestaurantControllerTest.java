@@ -31,10 +31,10 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
@@ -158,8 +158,9 @@ public class AdminRestaurantControllerTest {
 
             itemRepository.save(item);
 
-            File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
-            fileService.saveFiles(item, getMultipartFiles(file));
+            MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
+
+            fileService.saveFiles(item, List.of(multipartFile1));
 
             return item;
         }).toList();
@@ -175,22 +176,6 @@ public class AdminRestaurantControllerTest {
         }).collect(Collectors.toList());
 
         restaurantStockRepository.saveAll(restaurantStocks);
-    }
-
-    private static List<MultipartFile> getMultipartFiles(File file) {
-        InputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        MultipartFile mpf = null;
-        try {
-            mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE, fileInputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return List.of(mpf);
     }
 
     @AfterEach
