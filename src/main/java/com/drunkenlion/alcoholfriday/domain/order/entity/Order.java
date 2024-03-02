@@ -30,8 +30,16 @@ public class Order extends BaseEntity {
     private OrderStatus orderStatus;
 
     @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
-    @Comment("주문 총 금액")
+    @Comment("주문 상품 총 금액")
     private BigDecimal price;
+
+    @Column(name = "delivery_price", columnDefinition = "DECIMAL(64, 3)")
+    @Comment("배송 금액")
+    private BigDecimal deliveryPrice;
+
+    @Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
+    @Comment("배송비 포함 주문 총 금액")
+    private BigDecimal totalPrice;
 
     @Column(name = "recipient", columnDefinition = "VARCHAR(50)")
     @Comment("배송받는 사람")
@@ -45,9 +53,9 @@ public class Order extends BaseEntity {
     @Comment("배송지 주소")
     private String address;
 
-    @Column(name = "detail", columnDefinition = "VARCHAR(200)")
+    @Column(name = "address_detail", columnDefinition = "VARCHAR(200)")
     @Comment("배송지 상세 주소")
-    private String detail;
+    private String addressDetail ;
 
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
     @Comment("배송시 주의사항")

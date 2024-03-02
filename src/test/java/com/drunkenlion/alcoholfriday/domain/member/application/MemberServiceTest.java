@@ -280,7 +280,7 @@ public class MemberServiceTest {
                         .recipient(recipient)
                         .phone(recipientPhone)
                         .address(address)
-                        .detail(addressDetail)
+                        .addressDetail(addressDetail)
                         .description(description)
                         .postcode(postcode)
                         .createdAt(createdAt)

@@ -62,7 +62,7 @@ public class OrderResponse {
                 .phone(order.getPhone())
                 .postcode(order.getPostcode())
                 .address(order.getAddress())
-                .addressDetail(order.getDetail())
+                .addressDetail(order.getAddressDetail())
                 .description(order.getDescription())
                 .createdAt(order.getCreatedAt())
                 .orderDetails(orderDetailResponses)

@@ -169,7 +169,7 @@ public class MemberControllerTest {
                         .recipient("테스트1")
                         .phone(1012345678L)
                         .address("서울특별시 마포구 연남동")
-                        .detail("123-12")
+                        .addressDetail("123-12")
                         .description("부재시 연락주세요.")
                         .postcode(123123L)
                         .build());
