@@ -10,6 +10,7 @@ import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Entity
@@ -67,5 +68,37 @@ public class Order extends BaseEntity {
     public void addMember(Member member) {
         this.member = member;
         member.getOrders().add(this);
+    }
+
+    public void genOrderNo(Long id) {
+        // TODO orderNo를 주문 접수할 때 만들고 클라이언트에 내려주기 (결제 요청 전)
+        // yyyy-MM-dd 형식의 DateTimeFormatter 생성
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        this.orderNo = getCreatedAt().format(formatter) + "__" + id;
+    }
+
+    public void addPrice(List<OrderDetail> orderDetailList) {
+        this.price = getTotalOrderPrice(orderDetailList);
+    }
+
+    public BigDecimal getTotalOrderPrice(List<OrderDetail> orderDetailList) {
+        if (orderDetailList.isEmpty()) {
+            return BigDecimal.ZERO;
+        } else {
+            return orderDetailList.stream()
+                    .map(OrderDetail::getTotalPrice)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+    }
+
+    public Long getTotalOrderQuantity(List<OrderDetail> orderDetailList) {
+        if (orderDetailList.isEmpty()) {
+            return 0L;
+        } else {
+            return orderDetailList.stream()
+                    .mapToLong(OrderDetail::getQuantity)
+                    .sum();
+        }
     }
 }
