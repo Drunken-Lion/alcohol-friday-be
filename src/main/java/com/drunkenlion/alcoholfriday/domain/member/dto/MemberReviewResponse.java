@@ -15,10 +15,10 @@ public class MemberReviewResponse<T> {
     @Schema(description = "리뷰 미작성인 주문 상품 정보 or 작성한 리뷰 정보")
     private T response;
 
-    public static <T> MemberReviewResponse<T> of(String status, T review) {
+    public static <T> MemberReviewResponse<T> of(String status, T response) {
         return MemberReviewResponse.<T>builder()
                 .status(status)
-                .response(review)
+                .response(response)
                 .build();
     }
 
