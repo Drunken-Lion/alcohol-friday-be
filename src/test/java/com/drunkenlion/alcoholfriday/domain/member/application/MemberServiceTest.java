@@ -12,8 +12,9 @@ import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.dto.*;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
-import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dto.OrderDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
@@ -158,11 +159,12 @@ public class MemberServiceTest {
         when(this.orderRepository.findByMemberIdOrderByCreatedAtDesc(any(), any(Pageable.class))).thenReturn(this.getOrders());
 
         // when
-        Page<MemberOrderListResponse> orders = this.memberService.getMyOrders(memberId, page, size);
+        Page<OrderResponse> orders = this.memberService.getMyOrders(memberId, page, size);
+
 
         // then
-        List<MemberOrderListResponse> content = orders.getContent();
-        List<MemberOrderDetailResponse> orderDetails = content.get(0).getOrderDetails();
+        List<OrderResponse> content = orders.getContent();
+        List<OrderDetailResponse> orderDetails = content.get(0).getOrderDetails();
 
         assertThat(content).isInstanceOf(List.class);
         assertThat(content.size()).isEqualTo(1);

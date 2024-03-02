@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.member.dto;
+package com.drunkenlion.alcoholfriday.domain.order.dto;
 
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,8 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "한 건의 주문 내역")
-public class MemberOrderListResponse {
+public class OrderResponse {
     @Schema(description = "주문 내역 고유 아이디")
     private Long id;
 
@@ -48,13 +47,13 @@ public class MemberOrderListResponse {
     private LocalDateTime createdAt;
 
     @Schema(description = "주문한 상품 정보 목록")
-    private List<MemberOrderDetailResponse> orderDetails;
+    private List<OrderDetailResponse> orderDetails;
 
-    public static MemberOrderListResponse of(Order order) {
-        List<MemberOrderDetailResponse> orderDetailResponses =
-                order.getOrderDetails().stream().map(MemberOrderDetailResponse::of).toList();
+    public static OrderResponse of(Order order) {
+        List<OrderDetailResponse> orderDetailResponses =
+                order.getOrderDetails().stream().map(OrderDetailResponse::of).toList();
 
-        return MemberOrderListResponse.builder()
+        return OrderResponse.builder()
                 .id(order.getId())
                 .orderNo(order.getOrderNo())
                 .orderStatus(order.getOrderStatus().name())

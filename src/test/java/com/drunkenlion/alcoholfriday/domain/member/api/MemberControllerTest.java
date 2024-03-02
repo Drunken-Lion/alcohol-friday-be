@@ -111,6 +111,7 @@ public class MemberControllerTest {
                 .updatedAt(null)
                 .deletedAt(null)
                 .build();
+
         questionRepository.save(question);
 
         CategoryClass categoryClass =
