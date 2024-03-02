@@ -1,5 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.member.api;
 
+import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
+import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
@@ -74,6 +76,8 @@ public class MemberControllerTest {
     private CategoryRepository categoryRepository;
     @Autowired
     private CategoryClassRepository categoryClassRepository;
+    @Autowired
+    private AddressRepository addressRepository;
 
 
     public static final String EMAIL = "test@example.com";
@@ -107,6 +111,7 @@ public class MemberControllerTest {
                 .updatedAt(null)
                 .deletedAt(null)
                 .build();
+
         questionRepository.save(question);
 
         CategoryClass categoryClass =
@@ -179,6 +184,15 @@ public class MemberControllerTest {
                                 .build());
         orderDetail.addItem(item);
         orderDetail.addOrder(order);
+
+        Address address = Address.builder()
+                .member(member)
+                .isPrimary(true)
+                .address("서울시 마포구 연남동")
+                .detail("123-12번지")
+                .postcode(123123L)
+                .build();
+        addressRepository.save(address);
     }
 
     @AfterEach
@@ -193,6 +207,7 @@ public class MemberControllerTest {
         productRepository.deleteAll();
         categoryRepository.deleteAll();
         categoryClassRepository.deleteAll();
+        addressRepository.deleteAll();
     }
 
     @Test
@@ -309,5 +324,36 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$.data[0].description", notNullValue()))
                 .andExpect(jsonPath("$.data[0].orderDetails", instanceOf(List.class)))
         ;
+    }
+
+    @Test
+    @DisplayName("나의 배송지 목록 조회")
+    @WithAccount
+    void getMyAddressesTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/members/me/addresses")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMyAddresses"))
+                .andExpect(jsonPath("$", instanceOf(List.class)))
+                .andExpect(jsonPath("$.length()", is(1)))
+                .andExpect(jsonPath("$[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$[0].member.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$[0].member.email", notNullValue()))
+                .andExpect(jsonPath("$[0].member.nickname", notNullValue()))
+                .andExpect(jsonPath("$[0].member.phone", notNullValue()))
+                .andExpect(jsonPath("$[0].member.provider", notNullValue()))
+                .andExpect(jsonPath("$[0].member.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$[0].member.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$[0].member.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$[0].address", notNullValue()))
+                .andExpect(jsonPath("$[0].addressDetail", notNullValue()))
+                .andExpect(jsonPath("$[0].postcode", notNullValue()));
     }
 }

@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.member.api;
 
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
 import com.drunkenlion.alcoholfriday.domain.member.application.MemberService;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
@@ -17,6 +18,8 @@ import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -65,5 +68,12 @@ public class MemberController {
         PageResponse<OrderResponse> pageResponse = PageResponse.of(pageOrders);
 
         return ResponseEntity.ok().body(pageResponse);
+    }
+
+    @Operation(summary = "나의 배송지 목록", description = "내가 등록한 배송지 목록 (최대3개)")
+    @GetMapping("me/addresses")
+    public ResponseEntity<List<AddressResponse>> getMyAddresses(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<AddressResponse> addressResponses = memberService.getMyAddresses(userPrincipal.getMember().getId());
+        return ResponseEntity.ok().body(addressResponses);
     }
 }

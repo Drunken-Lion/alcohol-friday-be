@@ -1,5 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.member.application;
 
+import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
+import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
@@ -9,7 +12,6 @@ import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.dto.*;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
-import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
@@ -48,6 +50,8 @@ public class MemberServiceTest {
     private QuestionRepository questionRepository;
     @Mock
     private OrderRepository orderRepository;
+    @Mock
+    private AddressRepository addressRepository;
 
     private final Long memberId = 1L;
     private final String email = "test@example.com";
@@ -82,12 +86,16 @@ public class MemberServiceTest {
     private final BigDecimal orderPrice = BigDecimal.valueOf(100000);
     private final String recipient = "테스트";
     private final Long recipientPhone = 1012345678L;
-    private final String address = "서울시 마포구 연남동";
-    private final String addressDetail = "123-12";
     private final String description = "부재시 연락주세요.";
-    private final Long postcode = 123123L;
 
     private final Long orderDetailId = 1L;
+
+    private final Long addressId = 1L;
+    private final Boolean isPrimary = true;
+
+    private final String address = "서울시 마포구 연남동";
+    private final String addressDetail = "123-12";
+    private final Long postcode = 123123L;
 
     private final LocalDateTime createdAt = LocalDateTime.now();
     private final LocalDateTime updatedAt = null;
@@ -180,6 +188,34 @@ public class MemberServiceTest {
         assertThat(orderDetails.get(0).getTotalPrice()).isEqualTo(totalPrice);
     }
 
+    @Test
+    @DisplayName("나의 배송지 목록 조회")
+    public void getMyAddressesTest() {
+        // given
+        when(this.addressRepository.findAllByMemberIdOrderByIsPrimaryDescCreatedAtDesc(any())).thenReturn(List.of(this.getAddressData()));
+
+        // when
+        List<AddressResponse> addressResponses = this.memberService.getMyAddresses(memberId);
+
+        // then
+        assertThat(addressResponses).isInstanceOf(List.class);
+        assertThat(addressResponses.size()).isEqualTo(1);
+        assertThat(addressResponses.get(0).getId()).isEqualTo(addressId);
+        assertThat(addressResponses.get(0).getMember().getId()).isEqualTo(memberId);
+        assertThat(addressResponses.get(0).getMember().getEmail()).isEqualTo(email);
+        assertThat(addressResponses.get(0).getMember().getName()).isEqualTo(name);
+        assertThat(addressResponses.get(0).getMember().getNickname()).isEqualTo(nickname);
+        assertThat(addressResponses.get(0).getMember().getPhone()).isEqualTo(phone);
+        assertThat(addressResponses.get(0).getMember().getProvider()).isEqualTo(provider);
+        assertThat(addressResponses.get(0).getMember().getCreatedAt()).isEqualTo(createdAt);
+        assertThat(addressResponses.get(0).getMember().getUpdatedAt()).isEqualTo(updatedAt);
+        assertThat(addressResponses.get(0).getMember().getDeletedAt()).isEqualTo(deletedAt);
+        assertThat(addressResponses.get(0).getIsPrimary()).isEqualTo(isPrimary);
+        assertThat(addressResponses.get(0).getAddress()).isEqualTo(address);
+        assertThat(addressResponses.get(0).getAddressDetail()).isEqualTo(addressDetail);
+        assertThat(addressResponses.get(0).getPostcode()).isEqualTo(postcode);
+    }
+
     private Page<Question> getQuestions() {
         List<Question> list = List.of(this.getQuestionData());
         Pageable pageable = PageRequest.of(page, size);
@@ -216,11 +252,9 @@ public class MemberServiceTest {
     }
 
     private Question getQuestionData() {
-        Member member = getMemberData();
-
         return Question.builder()
                 .id(questionId)
-                .member(member)
+                .member(this.getMemberData())
                 .title(title)
                 .content(content)
                 .status(QuestionStatus.ofStatus(questionStatus))
@@ -268,5 +302,16 @@ public class MemberServiceTest {
         orderDetail.addOrder(this.getOrderData());
 
         return orderDetail;
+    }
+
+    private Address getAddressData() {
+        return Address.builder()
+                .id(addressId)
+                .member(this.getMemberData())
+                .isPrimary(isPrimary)
+                .address(address)
+                .detail(addressDetail)
+                .postcode(postcode)
+                .build();
     }
 }

@@ -1,8 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
@@ -12,14 +13,18 @@ import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,7 +34,9 @@ public class AdminProductServiceImpl implements AdminProductService {
     private final CategoryRepository categoryRepository;
     private final MakerRepository makerRepository;
     private final ItemProductRepository itemProductRepository;
+    private final FileService fileService;
 
+    @Override
     public Page<ProductListResponse> getProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> products = productRepository.findAll(pageable);
@@ -37,71 +44,82 @@ public class AdminProductServiceImpl implements AdminProductService {
         return products.map(ProductListResponse::of);
     }
 
+    @Override
     public ProductDetailResponse getProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
                         .build());
 
-        return ProductDetailResponse.of(product);
+        NcpFileResponse ncpFileResponse = fileService.findAll(product);
+
+        return ProductDetailResponse.of(product, ncpFileResponse);
     }
 
-    public ProductDetailResponse createProduct(ProductRequest productRequest) {
-        Category category = categoryRepository.findById(productRequest.getCategoryLastId())
+    @Override
+    @Transactional
+    public ProductDetailResponse createProduct(ProductCreateRequest productCreateRequest, List<MultipartFile> files) {
+        Category category = categoryRepository.findById(productCreateRequest.getCategoryLastId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_CATEGORY)
                         .build());
 
-        Maker maker = makerRepository.findById(productRequest.getMakerId())
+        Maker maker = makerRepository.findById(productCreateRequest.getMakerId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MAKER)
                         .build());
 
-        Product product = ProductRequest.toEntity(productRequest, category, maker);
+        Product product = ProductCreateRequest.toEntity(productCreateRequest, category, maker);
         productRepository.save(product);
 
-        return ProductDetailResponse.of(product);
+        NcpFileResponse file = fileService.saveFiles(product, files);
+
+        return ProductDetailResponse.of(product, file);
     }
 
+    @Override
     @Transactional
-    public ProductDetailResponse modifyProduct(Long id, ProductRequest productRequest) {
+    public ProductDetailResponse modifyProduct(Long id, ProductModifyRequest productModifyRequest, List<Integer> remove, List<MultipartFile> files) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
                         .build());
 
-        Category category = categoryRepository.findById(productRequest.getCategoryLastId())
+        Category category = categoryRepository.findById(productModifyRequest.getCategoryLastId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_CATEGORY)
                         .build());
 
-        Maker maker = makerRepository.findById(productRequest.getMakerId())
+        Maker maker = makerRepository.findById(productModifyRequest.getMakerId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MAKER)
                         .build());
 
         product = product.toBuilder()
-                .name(productRequest.getName())
-                .price(productRequest.getPrice())
-                .quantity(productRequest.getQuantity())
-                .alcohol(productRequest.getAlcohol())
-                .ingredient(productRequest.getIngredient())
-                .sweet(productRequest.getSweet())
-                .sour(productRequest.getSour())
-                .cool(productRequest.getCool())
-                .body(productRequest.getBody())
-                .balence(productRequest.getBalence())
-                .insense(productRequest.getInsense())
-                .throat(productRequest.getThroat())
+                .name(productModifyRequest.getName())
+                .price(productModifyRequest.getPrice())
+                .quantity(productModifyRequest.getQuantity())
+                .alcohol(productModifyRequest.getAlcohol())
+                .ingredient(productModifyRequest.getIngredient())
+                .sweet(productModifyRequest.getSweet())
+                .sour(productModifyRequest.getSour())
+                .cool(productModifyRequest.getCool())
+                .body(productModifyRequest.getBody())
+                .balence(productModifyRequest.getBalence())
+                .insense(productModifyRequest.getInsense())
+                .throat(productModifyRequest.getThroat())
                 .category(category)
                 .maker(maker)
                 .build();
 
         productRepository.save(product);
 
-        return ProductDetailResponse.of(product);
+        NcpFileResponse file = fileService.updateFiles(product, remove, files);
+
+        return ProductDetailResponse.of(product, file);
     }
 
+    @Override
     @Transactional
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)

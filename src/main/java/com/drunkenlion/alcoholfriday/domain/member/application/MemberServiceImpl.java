@@ -1,12 +1,15 @@
 package com.drunkenlion.alcoholfriday.domain.member.application;
 
+import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
+import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
-import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
+import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.springframework.data.domain.*;
@@ -19,6 +22,8 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -26,6 +31,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final QuestionRepository questionRepository;
     private final OrderRepository orderRepository;
+    private final AddressRepository addressRepository;
 
     @Transactional
     @Override
@@ -56,5 +62,14 @@ public class MemberServiceImpl implements MemberService {
         Page<Order> orderPage = orderRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable);
 
         return orderPage.map(OrderResponse::of);
+    }
+
+    @Override
+    public List<AddressResponse> getMyAddresses(Long memberId) {
+        List<Address> addresses = addressRepository.findAllByMemberIdOrderByIsPrimaryDescCreatedAtDesc(memberId);
+
+        if (addresses.isEmpty()) throw new BusinessException(HttpResponse.Fail.NOT_FOUND_ADDRESSES);
+
+        return addresses.stream().map(AddressResponse::of).toList();
     }
 }
