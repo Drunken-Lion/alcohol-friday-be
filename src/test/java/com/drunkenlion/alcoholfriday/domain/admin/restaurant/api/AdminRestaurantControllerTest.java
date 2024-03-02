@@ -14,10 +14,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
-import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
-import com.drunkenlion.alcoholfriday.global.ncp.application.NcpS3ServiceImpl;
-import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,16 +26,15 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
@@ -74,10 +70,7 @@ public class AdminRestaurantControllerTest {
     private ItemRepository itemRepository;
 
     @Autowired
-    private NcpS3ServiceImpl ncpS3Service;
-
-    @Autowired
-    private FileRepository fileRepository;
+    private FileService fileService;
 
     private Map<String, Object> getMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
@@ -119,7 +112,7 @@ public class AdminRestaurantControllerTest {
 
     @BeforeEach
     @Transactional
-    void beforeEach() {
+    void beforeEach() throws IOException {
         Member member = Member.builder()
                 .email("test@example.com")
                 .provider(ProviderType.KAKAO)
@@ -156,15 +149,21 @@ public class AdminRestaurantControllerTest {
         restaurantRepository.save(restaurant);
 
         List<Item> items = LongStream.rangeClosed(1, 2).mapToObj(i -> {
-            return Item.builder()
+            Item item =  Item.builder()
                     .id(i)
                     .name("itemName" + i)
                     .price(BigDecimal.valueOf(i))
                     .info("info")
                     .build();
-        }).collect(Collectors.toList());
 
-        itemRepository.saveAll(items);
+            itemRepository.save(item);
+
+            MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
+
+            fileService.saveFiles(item, List.of(multipartFile1));
+
+            return item;
+        }).toList();
 
         List<RestaurantStock> restaurantStocks = items.stream().map(item -> {
             return RestaurantStock.builder()
@@ -177,26 +176,6 @@ public class AdminRestaurantControllerTest {
         }).collect(Collectors.toList());
 
         restaurantStockRepository.saveAll(restaurantStocks);
-
-        List<NcpFile> ncpFiles = items.stream().map(item -> {
-            File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
-            InputStream fileInputStream = null;
-            try {
-                fileInputStream = new FileInputStream(file);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            MultipartFile mpf = null;
-            try {
-                mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE, fileInputStream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            List<MultipartFile> files = List.of(mpf);
-            return ncpS3Service.ncpUploadFiles(files, item.getId(), EntityType.ITEM.getEntityName());
-        }).collect(Collectors.toList());
-
-        fileRepository.saveAll(ncpFiles);
     }
 
     @AfterEach
@@ -368,7 +347,7 @@ public class AdminRestaurantControllerTest {
                                   "memberId": %d,
                                   "name": "test 매장",
                                   "category": "test 카테고리",
-                                  "address": "test 주소",         
+                                  "address": "test 주소",
                                   "longitude": 10.123456,
                                   "latitude": 15.321654,
                                   "contact": 212354678,

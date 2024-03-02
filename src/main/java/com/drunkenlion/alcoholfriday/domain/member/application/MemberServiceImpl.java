@@ -11,6 +11,7 @@ import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
+import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
 import com.drunkenlion.alcoholfriday.domain.review.dto.ReviewResponse;
@@ -63,11 +64,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Page<MemberOrderListResponse> getMyOrders(Long memberId, int page, int size) {
+    public Page<OrderResponse> getMyOrders(Long memberId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Order> orderPage = orderRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable);
 
-        return orderPage.map(MemberOrderListResponse::of);
+        return orderPage.map(OrderResponse::of);
     }
 
     @Override
