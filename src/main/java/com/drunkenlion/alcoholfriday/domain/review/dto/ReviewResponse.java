@@ -9,11 +9,18 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "")
+@Schema(description = "리뷰 정보")
 public class ReviewResponse {
+    @Schema(description = "리뷰 고유 아이디")
     private Long id;
+
+    @Schema(description = "별점")
     private Long score;
+
+    @Schema(description = "리뷰 내용")
     private String content;
+
+    @Schema(description = "해당 리뷰가 작성된 상품 정보")
     private OrderDetailResponse productInfo;
 
     public static ReviewResponse of(Review review) {
