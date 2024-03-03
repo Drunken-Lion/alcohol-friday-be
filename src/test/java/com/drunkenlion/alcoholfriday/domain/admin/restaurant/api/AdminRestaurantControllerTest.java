@@ -339,6 +339,7 @@ public class AdminRestaurantControllerTest {
 
     @Test
     @DisplayName("매장 수정 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void modifyRestaurantTest() throws Exception {
         // given
         Long memberId = this.memberRepository.findAll().get(0).getId();
