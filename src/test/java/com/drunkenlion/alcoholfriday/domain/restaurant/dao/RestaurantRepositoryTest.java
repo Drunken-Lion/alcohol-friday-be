@@ -16,9 +16,13 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
@@ -86,7 +90,7 @@ public class RestaurantRepositoryTest {
     @Transactional
     void beforeEach() {
         Member member = Member.builder()
-                .email("toss@example.com")
+                .email("owner1@example.com")
                 .provider(ProviderType.KAKAO)
                 .name("toss")
                 .nickname("toss")
@@ -103,7 +107,8 @@ public class RestaurantRepositoryTest {
 
         memberRepository.save(member);
 
-        final Coordinate coordinate = new Coordinate(126.842299, 37.549636);        Point restaurant_location = geometryFactory.createPoint(coordinate);
+        final Coordinate coordinate = new Coordinate(126.842299, 37.549636);
+        Point restaurant_location = geometryFactory.createPoint(coordinate);
         Restaurant restaurant = Restaurant.builder()
                 .members(member)
                 .category("학식")
@@ -118,8 +123,71 @@ public class RestaurantRepositoryTest {
                 .build();
 
         restaurantRepository.save(restaurant);
+
+        Member 회원_관리자 = memberRepository.save(Member.builder()
+                .email("admin1@example.com")
+                .provider(ProviderType.KAKAO)
+                .name("관리자")
+                .nickname("admin")
+                .role(MemberRole.ADMIN)
+                .phone(1041932693L)
+                .certifyAt(LocalDate.now())
+                .agreedToServiceUse(true)
+                .agreedToServicePolicy(true)
+                .agreedToServicePolicyUse(true)
+                .build());
+
+        final Coordinate 가게1_좌표 = new Coordinate(0, 0);
+        final Point 가게1_위치 = geometryFactory.createPoint(가게1_좌표);
+        Restaurant 가게1 = restaurantRepository.save(Restaurant.builder()// 1
+                .members(회원_관리자)
+                .category("퓨전 음식점")
+                .name("원주")
+                .address("서울특별시 종로구 종로8길 16")
+                .location(가게1_위치) // 위도, 경도
+                .contact(027331371L)
+                .menu(Map.of("김치찌개", 8000, "순두부", 8000, "제육볶음", 8000, "황태국", 8000))
+                .time(getTimeTest())
+                .createdAt(LocalDateTime.now())
+                .provision(getProvisionTest())
+                .build());
     }
 
+    @AfterEach
+    void afterEach() {
+        memberRepository.deleteAll();
+        restaurantRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("전체 매장 조회 - ADMIN")
+    void findAllBasedAuthAdminTest() {
+        // given
+        Member 회원_관리자 = memberRepository.findByEmail("admin1@example.com").get();
+        Pageable pageable = PageRequest.of(0, 20);
+
+        // when
+        Page<Restaurant> search = restaurantRepository.findAllBasedAuth(회원_관리자, pageable);
+
+        // then
+        assertThat(search.getContent()).isInstanceOf(List.class);
+        assertThat(search.getContent().size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("전체 매장 조회 - OWNER")
+    void findAllBasedAuthOwnerTest() {
+        // given
+        Member 회원_사장1 = memberRepository.findByEmail("owner1@example.com").get();
+        Pageable pageable = PageRequest.of(0, 20);
+
+        // when
+        Page<Restaurant> search = restaurantRepository.findAllBasedAuth(회원_사장1, pageable);
+
+        // then
+        assertThat(search.getContent()).isInstanceOf(List.class);
+        assertThat(search.getContent().size()).isEqualTo(1);
+    }
 
     @Test
     @DisplayName("범위 내의 모든 레스토랑 정보 찾기")
@@ -137,11 +205,5 @@ public class RestaurantRepositoryTest {
         assertThat(polygon.get(0).getAddress()).isEqualTo("우정산 서울강서 캠퍼스");;
         assertThat(polygon.get(0).getLocation().getX()).isEqualTo(restaurantLongitude);;
         assertThat(polygon.get(0).getLocation().getY()).isEqualTo(restaurantLatitude);;
-    }
-
-    @AfterEach
-    void afterEach() {
-        memberRepository.deleteAll();
-        restaurantRepository.deleteAll();
     }
 }

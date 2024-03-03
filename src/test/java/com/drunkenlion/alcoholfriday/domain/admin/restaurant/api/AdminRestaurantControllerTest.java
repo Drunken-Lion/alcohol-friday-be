@@ -15,6 +15,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +51,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 @Transactional
 public class AdminRestaurantControllerTest {
     @Autowired
@@ -114,11 +117,11 @@ public class AdminRestaurantControllerTest {
     @Transactional
     void beforeEach() throws IOException {
         Member member = Member.builder()
-                .email("test@example.com")
+                .email("member@example.com")
                 .provider(ProviderType.KAKAO)
                 .name("테스트")
                 .nickname("test")
-                .role(MemberRole.MEMBER)
+                .role(MemberRole.OWNER)
                 .phone(1012345678L)
                 .certifyAt(null)
                 .agreedToServiceUse(true)
@@ -187,6 +190,7 @@ public class AdminRestaurantControllerTest {
 
     @Test
     @DisplayName("매장 목록 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getRestaurantsTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -215,6 +219,7 @@ public class AdminRestaurantControllerTest {
 
     @Test
     @DisplayName("매장 상세 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getRestaurantTest() throws Exception {
         // given
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
@@ -255,6 +260,7 @@ public class AdminRestaurantControllerTest {
 
     @Test
     @DisplayName("매장 등록 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void createRestaurantTest() throws Exception {
         // given
         Long memberId = this.memberRepository.findAll().get(0).getId();
@@ -415,6 +421,7 @@ public class AdminRestaurantControllerTest {
 
     @Test
     @DisplayName("매장 삭제 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void deleteRestaurantTest() throws Exception {
         // given
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
