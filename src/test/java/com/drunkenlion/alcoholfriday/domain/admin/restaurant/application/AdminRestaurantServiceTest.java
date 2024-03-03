@@ -443,7 +443,7 @@ public class AdminRestaurantServiceTest {
                 .build();
 
         when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
-        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -481,7 +481,7 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        when(restaurantRepository.findById(any())).thenReturn(Optional.empty());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -510,7 +510,7 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(memberRepository.findById(modifyMemberId)).thenReturn(Optional.empty());
 
         // when
@@ -544,7 +544,7 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
@@ -592,7 +592,7 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
@@ -628,7 +628,7 @@ public class AdminRestaurantServiceTest {
                 .provision(wrongProvision)
                 .build();
 
-        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
@@ -648,7 +648,7 @@ public class AdminRestaurantServiceTest {
         Restaurant restaurant = getRestaurantData();
         List<RestaurantStock> restaurantStocks = getRestaurantStocksData();
 
-        when(restaurantRepository.findById(id)).thenReturn(Optional.of(restaurant));
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(Optional.of(restaurant));
         when(restaurantStockRepository.findByRestaurantAndDeletedAtIsNull(restaurant)).thenReturn(restaurantStocks);
 
         ArgumentCaptor<Restaurant> restaurantCaptor = ArgumentCaptor.forClass(Restaurant.class);
@@ -674,28 +674,7 @@ public class AdminRestaurantServiceTest {
     @DisplayName("매장 삭제 실패 - 찾을 수 없는 매장")
     public void deleteRestaurantFailNotFoundTest() {
         // given
-        when(restaurantRepository.findById(any())).thenReturn(Optional.empty());
-
-        // when
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.deleteRestaurant(id);
-        });
-
-        // then
-        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getStatus(), exception.getStatus());
-        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getMessage(), exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("매장 삭제 실패 - 이미 삭제된 매장")
-    public void deleteRestaurantFailAlreadyDeletedTest() {
-        // given
-        Restaurant deletedRestaurant = this.getOne().get();
-        deletedRestaurant = deletedRestaurant.toBuilder()
-                .deletedAt(LocalDateTime.now())
-                .build();
-
-        when(restaurantRepository.findById(any())).thenReturn(Optional.of(deletedRestaurant));
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {

@@ -76,7 +76,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
 
     @Transactional
     public RestaurantDetailResponse modifyRestaurant(Long id, RestaurantRequest restaurantRequest) {
-        Restaurant restaurant = restaurantRepository.findById(id)
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
@@ -113,16 +113,10 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
 
     @Transactional
     public void deleteRestaurant(Long id) {
-        Restaurant restaurant = restaurantRepository.findById(id)
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
-
-        if (restaurant.getDeletedAt() != null) {
-            throw BusinessException.builder()
-                    .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
-                    .build();
-        }
 
         // 매장에 관련된 매장 재고 삭제 처리
         List<RestaurantStock> restaurantStocks = restaurantStockRepository.findByRestaurantAndDeletedAtIsNull(restaurant);
