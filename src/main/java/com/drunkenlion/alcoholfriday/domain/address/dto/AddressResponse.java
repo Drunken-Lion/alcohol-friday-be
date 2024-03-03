@@ -1,7 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.address.dto;
 
 import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
-import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -13,9 +12,6 @@ import lombok.*;
 public class AddressResponse {
     @Schema(description = "배송지 고유 아이디")
     private Long id;
-
-    @Schema(description = "해당 배송지를 가진 회원 정보")
-    private MemberResponse member;
 
     @Schema(description = "대표 주소 여부")
     private Boolean isPrimary;
@@ -29,14 +25,25 @@ public class AddressResponse {
     @Schema(description = "우편번호")
     private Long postcode;
 
+    @Schema(description = "받는 사람")
+    private String recipient;
+
+    @Schema(description = "받는 사람 연락처")
+    private Long phone;
+
+    @Schema(description = "배송시 요청사항")
+    private String request;
+
     public static AddressResponse of(Address address) {
         return AddressResponse.builder()
                 .id(address.getId())
-                .member(MemberResponse.of(address.getMember()))
-                .isPrimary(address.getIsPrimary())
+                .recipient(address.getRecipient())
+                .phone(address.getPhone())
+                .request(address.getRequest())
                 .address(address.getAddress())
                 .addressDetail(address.getDetail())
                 .postcode(address.getPostcode())
+                .isPrimary(address.getIsPrimary())
                 .build();
     }
 }

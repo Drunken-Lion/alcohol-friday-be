@@ -199,15 +199,6 @@ public class MemberServiceTest {
         assertThat(addressResponses).isInstanceOf(List.class);
         assertThat(addressResponses.size()).isEqualTo(1);
         assertThat(addressResponses.get(0).getId()).isEqualTo(addressId);
-        assertThat(addressResponses.get(0).getMember().getId()).isEqualTo(memberId);
-        assertThat(addressResponses.get(0).getMember().getEmail()).isEqualTo(email);
-        assertThat(addressResponses.get(0).getMember().getName()).isEqualTo(name);
-        assertThat(addressResponses.get(0).getMember().getNickname()).isEqualTo(nickname);
-        assertThat(addressResponses.get(0).getMember().getPhone()).isEqualTo(phone);
-        assertThat(addressResponses.get(0).getMember().getProvider()).isEqualTo(provider);
-        assertThat(addressResponses.get(0).getMember().getCreatedAt()).isEqualTo(createdAt);
-        assertThat(addressResponses.get(0).getMember().getUpdatedAt()).isEqualTo(updatedAt);
-        assertThat(addressResponses.get(0).getMember().getDeletedAt()).isEqualTo(deletedAt);
         assertThat(addressResponses.get(0).getIsPrimary()).isEqualTo(isPrimary);
         assertThat(addressResponses.get(0).getAddress()).isEqualTo(address);
         assertThat(addressResponses.get(0).getAddressDetail()).isEqualTo(addressDetail);

@@ -15,6 +15,7 @@ import org.hibernate.annotations.Comment;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "address")
 public class Address extends BaseEntity {
     @Comment("주소 소유자")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,4 +35,17 @@ public class Address extends BaseEntity {
 
     @Comment("우편번호")
     private Long postcode;
+
+    @Comment("받는 사람")
+    private String recipient;
+
+    @Comment("받는 사람 연락처")
+    private Long phone;
+
+    @Comment("배송시 요청사항")
+    private String request;
+    
+    public void changePrimary(Boolean isPrimary) {
+        this.isPrimary = isPrimary;
+    }
 }
