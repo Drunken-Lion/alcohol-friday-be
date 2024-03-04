@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
+public interface RestaurantRepository extends JpaRepository<Restaurant, Long>, RestaurantRepositoryCustom {
+    Optional<Restaurant> findByIdAndDeletedAtIsNull(Long id);
 
     @Query(value = "SELECT * FROM restaurant r WHERE ST_Contains(" +
             "Polygon(LineString(" +
@@ -22,6 +24,4 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
             @Param("neLongitude") double neLongitude,
             @Param("swLatitude") double swLatitude,
             @Param("swLongitude") double swLongitude);
-
-
 }

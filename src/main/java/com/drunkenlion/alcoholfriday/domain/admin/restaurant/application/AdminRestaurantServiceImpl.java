@@ -8,6 +8,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantData
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -37,23 +38,35 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
     private final MemberRepository memberRepository;
     private final FileService fileService;
 
-    public Page<RestaurantListResponse> getRestaurants(int page, int size) {
+    public Page<RestaurantListResponse> getRestaurants(Member authMember, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Restaurant> restaurants = restaurantRepository.findAll(pageable);
+        Page<Restaurant> restaurants = restaurantRepository.findAllBasedAuth(authMember, pageable);
 
         return restaurants.map(RestaurantListResponse::of);
     }
 
-    public RestaurantDetailResponse getRestaurant(Long id) {
+    public RestaurantDetailResponse getRestaurant(Member authMember, Long id) {
         Restaurant restaurant = restaurantRepository.findById(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
 
+        if (!authMember.getRole().equals(MemberRole.ADMIN) && !authMember.getId().equals(restaurant.getMembers().getId())) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.FORBIDDEN)
+                    .build();
+        }
+
         return RestaurantDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
     }
 
-    public RestaurantDetailResponse createRestaurant(RestaurantRequest restaurantRequest) {
+    public RestaurantDetailResponse createRestaurant(Member authMember, RestaurantRequest restaurantRequest) {
+        if (!authMember.getRole().equals(MemberRole.ADMIN)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.FORBIDDEN)
+                    .build();
+        }
+
         Member member = memberRepository.findById(restaurantRequest.getMemberId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
@@ -75,8 +88,8 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
     }
 
     @Transactional
-    public RestaurantDetailResponse modifyRestaurant(Long id, RestaurantRequest restaurantRequest) {
-        Restaurant restaurant = restaurantRepository.findById(id)
+    public RestaurantDetailResponse modifyRestaurant(Member authMember, Long id, RestaurantRequest restaurantRequest) {
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
@@ -85,6 +98,12 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
+
+        if (!authMember.getRole().equals(MemberRole.ADMIN) && !authMember.getId().equals(member.getId())) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.FORBIDDEN)
+                    .build();
+        }
 
         if (!RestaurantDataValidator.isMenuDataValid(restaurantRequest.getMenu()) ||
                 !RestaurantDataValidator.isTimeDataValid(restaurantRequest.getTime()) ||
@@ -95,7 +114,6 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
         }
 
         restaurant = restaurant.toBuilder()
-                .members(member)
                 .name(restaurantRequest.getName())
                 .category(restaurantRequest.getCategory())
                 .address(restaurantRequest.getAddress())
@@ -106,23 +124,29 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                 .provision(restaurantRequest.getProvision())
                 .build();
 
+        if (authMember.getRole().equals(MemberRole.ADMIN)) {
+            restaurant = restaurant.toBuilder()
+                    .members(member)
+                    .build();
+        }
+
         restaurantRepository.save(restaurant);
 
         return RestaurantDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
     }
 
     @Transactional
-    public void deleteRestaurant(Long id) {
-        Restaurant restaurant = restaurantRepository.findById(id)
+    public void deleteRestaurant(Member authMember, Long id) {
+        if (!authMember.getRole().equals(MemberRole.ADMIN)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.FORBIDDEN)
+                    .build();
+        }
+
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
-
-        if (restaurant.getDeletedAt() != null) {
-            throw BusinessException.builder()
-                    .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
-                    .build();
-        }
 
         // 매장에 관련된 매장 재고 삭제 처리
         List<RestaurantStock> restaurantStocks = restaurantStockRepository.findByRestaurantAndDeletedAtIsNull(restaurant);
