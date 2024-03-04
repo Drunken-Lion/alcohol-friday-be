@@ -1,9 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.item.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemProductInfo;
-import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.item.dto.*;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
@@ -19,6 +16,7 @@ import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,9 +30,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,6 +61,8 @@ public class AdminItemServiceTest {
     private ItemRepository itemRepository;
     @Mock
     private CartDetailRepository cartDetailRepository;
+    @Mock
+    private FileService fileService;
 
     private final Long makerId = 1L;
     private final String makerName = "(주)국순당";
@@ -142,10 +144,10 @@ public class AdminItemServiceTest {
         when(this.itemRepository.findAll(any(Pageable.class))).thenReturn(this.getItems());
 
         // when
-        Page<ItemListResponse> products = this.adminItemService.getItems(page, size);
+        Page<ItemListResponse> items = this.adminItemService.getItems(page, size);
 
         // then
-        List<ItemListResponse> content = products.getContent();
+        List<ItemListResponse> content = items.getContent();
 
         assertThat(content).isInstanceOf(List.class);
         assertThat(content.size()).isEqualTo(1);
@@ -201,7 +203,7 @@ public class AdminItemServiceTest {
     @DisplayName("상품 등록 성공")
     public void createItemTest() {
         // given
-        ItemRequest itemRequest = ItemRequest.builder()
+        ItemCreateRequest itemCreateRequest = ItemCreateRequest.builder()
                 .itemProductInfos(List.of(
                         ItemProductInfo.builder()
                                 .productId(productId)
@@ -215,13 +217,15 @@ public class AdminItemServiceTest {
                 .type(itemType)
                 .build();
 
+        List<MultipartFile> files = new ArrayList<>();
+
         when(categoryRepository.findByIdAndDeletedAtIsNull(categoryLastId)).thenReturn(this.getCategoryOne());
         when(productRepository.findByIdAndDeletedAtIsNull(productId)).thenReturn(this.getProductOne());
         when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(itemProductRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        ItemDetailResponse itemDetailResponse = adminItemService.createItem(itemRequest);
+        ItemDetailResponse itemDetailResponse = adminItemService.createItem(itemCreateRequest, files);
 
         // then
         assertThat(itemDetailResponse.getItemProductInfos().get(0).getProductId()).isEqualTo(itemProductId);
@@ -239,7 +243,7 @@ public class AdminItemServiceTest {
     @DisplayName("상품 등록 실패 - 찾을 수 없는 카테고리 소분류")
     public void createItemFailCategoryNotFoundTest() {
         // given
-        ItemRequest itemRequest = ItemRequest.builder()
+        ItemCreateRequest itemCreateRequest = ItemCreateRequest.builder()
                 .itemProductInfos(List.of(
                         ItemProductInfo.builder()
                                 .productId(productId)
@@ -253,7 +257,7 @@ public class AdminItemServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminItemService.createItem(itemRequest);
+            adminItemService.createItem(itemCreateRequest, any());
         });
 
         // then
@@ -265,7 +269,7 @@ public class AdminItemServiceTest {
     @DisplayName("상품 등록 실패 - 찾을 수 없는 제품")
     public void createItemFailProductNotFoundTest() {
         // given
-        ItemRequest itemRequest = ItemRequest.builder()
+        ItemCreateRequest itemCreateRequest = ItemCreateRequest.builder()
                 .itemProductInfos(List.of(
                         ItemProductInfo.builder()
                                 .productId(productId)
@@ -285,7 +289,7 @@ public class AdminItemServiceTest {
 
         // When
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminItemService.createItem(itemRequest);
+            adminItemService.createItem(itemCreateRequest, any());
         });
         // then
         assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getStatus(), exception.getStatus());
@@ -296,7 +300,7 @@ public class AdminItemServiceTest {
     @DisplayName("상품 수정 성공")
     public void modifyItemTest() {
         // given
-        ItemRequest itemRequest = ItemRequest.builder()
+        ItemModifyRequest itemModifyRequest = ItemModifyRequest.builder()
                 .itemProductInfos(List.of(
                         ItemProductInfo.builder()
                                 .productId(modifyProductId)
@@ -310,6 +314,9 @@ public class AdminItemServiceTest {
                 .type(modifyItemType)
                 .build();
 
+        List<Integer> remove = new ArrayList<>();
+        List<MultipartFile> files = new ArrayList<>();
+
         when(itemRepository.findByIdAndDeletedAtIsNull(itemId)).thenReturn(this.getItemOne());
         when(categoryRepository.findByIdAndDeletedAtIsNull(modifyCategoryLastId)).thenReturn(this.getModifyCategoryOne());
         when(productRepository.findByIdAndDeletedAtIsNull(modifyProductId)).thenReturn(this.getModifyProductOne());
@@ -317,7 +324,7 @@ public class AdminItemServiceTest {
         when(itemProductRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        ItemDetailResponse itemDetailResponse = adminItemService.modifyItem(itemId, itemRequest);
+        ItemDetailResponse itemDetailResponse = adminItemService.modifyItem(itemId, itemModifyRequest, remove, files);
 
         // then
         assertThat(itemDetailResponse.getItemProductInfos().get(0).getProductId()).isEqualTo(modifyItemProductId);
@@ -335,7 +342,7 @@ public class AdminItemServiceTest {
     @DisplayName("상품 수정 실패 - 찾을 수 없는 상품")
     public void modifyItemFailItemNotFoundTest() {
         // given
-        ItemRequest itemRequest = ItemRequest.builder()
+        ItemModifyRequest itemModifyRequest = ItemModifyRequest.builder()
                 .itemProductInfos(List.of(
                         ItemProductInfo.builder()
                                 .productId(modifyProductId)
@@ -348,7 +355,7 @@ public class AdminItemServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminItemService.modifyItem(itemId, itemRequest);
+            adminItemService.modifyItem(itemId, itemModifyRequest, null, null);
         });
 
         // then
@@ -360,7 +367,7 @@ public class AdminItemServiceTest {
     @DisplayName("상품 수정 실패 - 찾을 수 없는 카테고리 소분류")
     public void modifyItemFailCategoryNotFoundTest() {
         // given
-        ItemRequest itemRequest = ItemRequest.builder()
+        ItemModifyRequest itemModifyRequest = ItemModifyRequest.builder()
                 .itemProductInfos(List.of(
                         ItemProductInfo.builder()
                                 .productId(modifyProductId)
@@ -375,7 +382,7 @@ public class AdminItemServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminItemService.modifyItem(itemId, itemRequest);
+            adminItemService.modifyItem(itemId, itemModifyRequest, null, null);
         });
 
         // then
@@ -387,7 +394,7 @@ public class AdminItemServiceTest {
     @DisplayName("상품 수정 실패 - 찾을 수 없는 제품")
     public void modifyItemFailProductNotFoundTest() {
         // given
-        ItemRequest itemRequest = ItemRequest.builder()
+        ItemModifyRequest itemModifyRequest = ItemModifyRequest.builder()
                 .itemProductInfos(List.of(
                         ItemProductInfo.builder()
                                 .productId(modifyProductId)
@@ -403,7 +410,7 @@ public class AdminItemServiceTest {
 
         // When
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminItemService.modifyItem(itemId, itemRequest);
+            adminItemService.modifyItem(itemId, itemModifyRequest, null, null);
         });
         // then
         assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getStatus(), exception.getStatus());

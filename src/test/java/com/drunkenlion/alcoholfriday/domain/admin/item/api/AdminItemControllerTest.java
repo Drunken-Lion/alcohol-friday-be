@@ -13,6 +13,7 @@ import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,11 +23,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -59,6 +66,9 @@ public class AdminItemControllerTest {
 
     @Autowired
     private ItemProductRepository itemProductRepository;
+
+    @Autowired
+    private FileService fileService;
 
     @BeforeEach
     @Transactional
@@ -108,6 +118,11 @@ public class AdminItemControllerTest {
                         .info("국순당 프리바이오 막걸리 10개입")
                         .category(카테고리_소분류1)
                         .build());
+
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile multipartFile2 = new MockMultipartFile("files", "test2.txt", "text/plain", "test2 file".getBytes(StandardCharsets.UTF_8));
+
+        fileService.saveFiles(상품_1, List.of(multipartFile1, multipartFile2));
 
         ItemProduct 상품상세1 = itemProductRepository.save(
                 ItemProduct.builder()
@@ -186,35 +201,42 @@ public class AdminItemControllerTest {
                 .andExpect(jsonPath("$.type", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.itemFiles", notNullValue()));
     }
 
     @Test
     @DisplayName("상품 등록 성공")
     void createItemTest() throws Exception {
         // given
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "create-test1.txt", "text/plain", "create-test1 file".getBytes(StandardCharsets.UTF_8));
+
         Long productId = this.productRepository.findAll().get(0).getId();
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
 
+        String itemCreateRequestJson = String.format("""
+                {
+                  "itemProductInfos": [
+                   {
+                     "productId": %d,
+                     "quantity": 0
+                   }
+                  ],
+                  "categoryLastId": %d,
+                  "name": "test 제품명",
+                  "price": 100000,
+                  "info": "test 정보",
+                  "type": "PROMOTION"
+                }
+                """, productId, categoryLastId);
+
+        MockMultipartFile itemRequest = new MockMultipartFile("itemRequest", "itemRequest", "application/json", itemCreateRequestJson.getBytes(StandardCharsets.UTF_8));
+
         // when
         ResultActions resultActions = mvc
-                .perform(post("/v1/admin/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "itemProductInfos": [
-                                   {
-                                     "productId": %d,
-                                     "quantity": 0
-                                   }
-                                  ],
-                                  "categoryLastId": %d,
-                                  "name": "test 제품명",
-                                  "price": 100000,
-                                  "info": "test 정보",
-                                  "type": "PROMOTION"
-                                }
-                                """, productId, categoryLastId))
+                .perform(multipart("/v1/admin/items")
+                        .file(multipartFile1)
+                        .file(itemRequest)
                 )
                 .andDo(print());
 
@@ -235,36 +257,55 @@ public class AdminItemControllerTest {
                 .andExpect(jsonPath("$.type", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.itemFiles", notNullValue()));
     }
 
     @Test
     @DisplayName("상품 수정 성공")
     void modifyItemTest() throws Exception {
         // given
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "modify-test1.txt", "text/plain", "modify-test1 file".getBytes(StandardCharsets.UTF_8));
+
         Item item = this.itemRepository.findAll().get(0);
         Long productId = this.productRepository.findAll().get(0).getId();
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
 
+        String itemModifyRequestJson = String.format("""
+                {
+                  "itemProductInfos": [
+                   {
+                     "productId": %d,
+                     "quantity": 0
+                   }
+                  ],
+                  "categoryLastId": %d,
+                  "name": "test 제품명 수정",
+                  "price": 2000,
+                  "info": "test 정보 수정",
+                  "type": "PROMOTION",
+                  "remove": [
+                        1
+                      ]
+                }
+                """, productId, categoryLastId);
+
+        MockMultipartFile itemRequest = new MockMultipartFile("itemRequest", "itemRequest", "application/json", itemModifyRequestJson.getBytes(StandardCharsets.UTF_8));
+
+        MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart("/v1/admin/items/" + item.getId());
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+
         // when
         ResultActions resultActions = mvc
-                .perform(put("/v1/admin/items/" + item.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "itemProductInfos": [
-                                   {
-                                     "productId": %d,
-                                     "quantity": 0
-                                   }
-                                  ],
-                                  "categoryLastId": %d,
-                                  "name": "test 제품명 수정",
-                                  "price": 2000,
-                                  "info": "test 정보 수정",
-                                  "type": "PROMOTION"
-                                }
-                                """, productId, categoryLastId))
+                .perform(builder
+                        .file(multipartFile1)
+                        .file(itemRequest)
                 )
                 .andDo(print());
 
@@ -285,7 +326,8 @@ public class AdminItemControllerTest {
                 .andExpect(jsonPath("$.type", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.itemFiles", notNullValue()));
     }
 
     @Test
