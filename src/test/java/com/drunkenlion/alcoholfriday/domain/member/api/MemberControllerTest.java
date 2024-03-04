@@ -23,6 +23,8 @@ import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
+import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
@@ -78,6 +80,8 @@ public class MemberControllerTest {
     private CategoryClassRepository categoryClassRepository;
     @Autowired
     private AddressRepository addressRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
 
     public static final String EMAIL = "test@example.com";
@@ -111,6 +115,7 @@ public class MemberControllerTest {
                 .updatedAt(null)
                 .deletedAt(null)
                 .build();
+
         questionRepository.save(question);
 
         CategoryClass categoryClass =
@@ -153,6 +158,15 @@ public class MemberControllerTest {
                                 .build());
         item.addCategory(category);
 
+        Item item2 =
+                itemRepository.save(
+                        Item.builder()
+                                .name("테스트 술2")
+                                .price(new BigDecimal(20000))
+                                .info("이 상품은 테스트 상품입니다2")
+                                .build());
+        item2.addCategory(category);
+
         ItemProduct itemProduct = itemProductRepository.save(ItemProduct.builder()
                 .item(item)
                 .product(product)
@@ -184,6 +198,17 @@ public class MemberControllerTest {
         orderDetail.addItem(item);
         orderDetail.addOrder(order);
 
+        OrderDetail orderDetail2 =
+                orderDetailRepository.save(
+                        OrderDetail.builder()
+                                .itemPrice(item2.getPrice())
+                                .quantity(1L)
+                                .totalPrice(BigDecimal.valueOf(20000))
+                                .build()
+                );
+        orderDetail2.addItem(item2);
+        orderDetail2.addOrder(order);
+
         Address address = Address.builder()
                 .member(member)
                 .isPrimary(true)
@@ -192,6 +217,15 @@ public class MemberControllerTest {
                 .postcode(123123L)
                 .build();
         addressRepository.save(address);
+
+        Review review = reviewRepository.save(
+                Review.builder()
+                        .score(5L)
+                        .content("맛있어요")
+                        .item(item)
+                        .member(member)
+                        .build());
+        review.addOrderDetail(orderDetail);
     }
 
     @AfterEach
@@ -207,6 +241,7 @@ public class MemberControllerTest {
         categoryRepository.deleteAll();
         categoryClassRepository.deleteAll();
         addressRepository.deleteAll();
+        reviewRepository.deleteAll();
     }
 
     @Test
@@ -354,5 +389,57 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$[0].address", notNullValue()))
                 .andExpect(jsonPath("$[0].addressDetail", notNullValue()))
                 .andExpect(jsonPath("$[0].postcode", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("나의 작성할 리뷰 목록 조회")
+    @WithAccount
+    void getMyPendingReviewsTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/members/me/reviews")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMyReviews"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].status", notNullValue()))
+                .andExpect(jsonPath("$.data[0].response.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.name", notNullValue()))
+                .andExpect(jsonPath("$.data[0].response.quantity", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.totalPrice", instanceOf(Number.class)));
+    }
+
+    @Test
+    @DisplayName("나의 작성한 리뷰 목록 조회")
+    @WithAccount
+    void getMyCompleteReviewsTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/members/me/reviews")
+                        .param("status", "complete")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMyReviews"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].status", notNullValue()))
+                .andExpect(jsonPath("$.data[0].response.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.score", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.content", notNullValue()))
+                .andExpect(jsonPath("$.data[0].response.productInfo.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.productInfo.name", notNullValue()))
+                .andExpect(jsonPath("$.data[0].response.productInfo.quantity", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.productInfo.totalPrice", instanceOf(Number.class)));
     }
 }
