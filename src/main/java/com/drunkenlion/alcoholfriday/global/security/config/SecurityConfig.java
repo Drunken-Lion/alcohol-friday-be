@@ -3,12 +3,14 @@ package com.drunkenlion.alcoholfriday.global.security.config;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -19,7 +21,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.drunkenlion.alcoholfriday.global.security.jwt.JwtAuthenticationFilter;
 
+@Slf4j
 @Configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -50,6 +54,10 @@ public class SecurityConfig {
                         .hasAnyRole(MemberRole.ADMIN.getRole())
                         .requestMatchers(HttpMethod.GET, "/v1/admin/restaurants/**")
                         .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurants/**")
+                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.DELETE, "/v1/admin/restaurants/**")
+                        .hasAnyRole(MemberRole.ADMIN.getRole())
 
                         // 관리자 - 제품, 상품, 제조사, 카테고리 관리
                         .requestMatchers(
@@ -70,7 +78,7 @@ public class SecurityConfig {
                                 MemberRole.STORE_MANAGER.getRole())
 
                         // 고객센터 - 질문
-                        .requestMatchers(HttpMethod.GET, "/v1/questions").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/questions/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/v1/questions").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/v1/questions/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/v1/questions/**").authenticated()
@@ -89,8 +97,10 @@ public class SecurityConfig {
                                 MemberRole.ADMIN.getRole(),
                                 MemberRole.SUPER_VISOR.getRole())
 
-                        .requestMatchers(HttpMethod.GET, "/v1/restaurants").permitAll()
                         .requestMatchers("/v1/members/me/**", "/v1/orders/**", "/v1/carts/**").authenticated()
+
+                        .requestMatchers(HttpMethod.GET, "/v1/restaurants", "/v1/items", "/v1/items/**").permitAll()
+                        .requestMatchers("/v1/auth/**", "/error").permitAll()
 
                         .anyRequest().authenticated()
                 );
