@@ -1243,7 +1243,7 @@ public class NotProd {
                         .member(회원_일반회원1)
                         .isPrimary(true)
                         .address("경기도 포천시 일동면 운악청계로 1597")
-                        .detail("101호")
+                        .addressDetail("101호")
                         .postcode(1234L)
                         .build());
 
@@ -1252,7 +1252,7 @@ public class NotProd {
                         .member(회원_일반회원1)
                         .isPrimary(false)
                         .address("경기도 포천시 일동면 운악청계로 1598")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1261,7 +1261,7 @@ public class NotProd {
                         .member(회원_일반회원2)
                         .isPrimary(true)
                         .address("강원도 홍천군 남면 어두원이길 143")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1270,7 +1270,7 @@ public class NotProd {
                         .member(회원_일반회원2)
                         .isPrimary(false)
                         .address("강원도 홍천군 남면 어두원이길 143")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1279,7 +1279,7 @@ public class NotProd {
                         .member(회원_일반회원3)
                         .isPrimary(true)
                         .address("전라남도 장성군 장성읍 남양촌길 (백계리) 19")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1288,7 +1288,7 @@ public class NotProd {
                         .member(회원_일반회원3)
                         .isPrimary(false)
                         .address("전라남도 장성군 장성읍 남양촌길 (백계리) 19")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1297,7 +1297,7 @@ public class NotProd {
                         .member(회원_일반회원4)
                         .isPrimary(true)
                         .address("강원도 양구군 방산면 칠전길 12-7")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1306,7 +1306,7 @@ public class NotProd {
                         .member(회원_일반회원4)
                         .isPrimary(false)
                         .address("강원도 양구군 방산면 칠전길 12-7")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1315,7 +1315,7 @@ public class NotProd {
                         .member(회원_일반회원5)
                         .isPrimary(true)
                         .address("경상북도 의성군 단촌면 일직점곡로 755")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1324,7 +1324,7 @@ public class NotProd {
                         .member(회원_일반회원5)
                         .isPrimary(false)
                         .address("경상북도 의성군 단촌면 일직점곡로 755")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
