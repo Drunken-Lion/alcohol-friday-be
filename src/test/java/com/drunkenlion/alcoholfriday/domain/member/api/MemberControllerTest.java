@@ -215,6 +215,9 @@ public class MemberControllerTest {
                 .address("서울시 마포구 연남동")
                 .addressDetail("123-12번지")
                 .postcode(123123L)
+                .recipient("테스트유저55")
+                .phone(1012345678L)
+                .request("부재시 문 앞")
                 .build();
         addressRepository.save(address);
 
@@ -378,17 +381,13 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$", instanceOf(List.class)))
                 .andExpect(jsonPath("$.length()", is(1)))
                 .andExpect(jsonPath("$[0].id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$[0].member.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$[0].member.email", notNullValue()))
-                .andExpect(jsonPath("$[0].member.nickname", notNullValue()))
-                .andExpect(jsonPath("$[0].member.phone", notNullValue()))
-                .andExpect(jsonPath("$[0].member.provider", notNullValue()))
-                .andExpect(jsonPath("$[0].member.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$[0].member.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$[0].member.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$[0].isPrimary", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$[0].address", notNullValue()))
                 .andExpect(jsonPath("$[0].addressDetail", notNullValue()))
-                .andExpect(jsonPath("$[0].postcode", notNullValue()));
+                .andExpect(jsonPath("$[0].postcode", notNullValue()))
+                .andExpect(jsonPath("$[0].recipient", notNullValue()))
+                .andExpect(jsonPath("$[0].phone", instanceOf(Number.class)))
+                .andExpect(jsonPath("$[0].request", notNullValue()));
     }
 
     @Test
