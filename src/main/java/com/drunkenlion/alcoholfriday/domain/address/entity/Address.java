@@ -23,28 +23,33 @@ public class Address extends BaseEntity {
     private Member member;
 
     @Comment("대표 주소 여부")
+    @Column(name = "is_primary", columnDefinition = "TINYINT")
     private Boolean isPrimary;
 
     @Comment("주소")
-    @Column(length = 200)
+    @Column(name = "address", columnDefinition = "VARCHAR(200)")
     private String address;
 
     @Comment("상세 주소")
-    @Column(length = 200)
-    private String detail;
+    @Column(name = "address_detail", columnDefinition = "VARCHAR(200)")
+    private String addressDetail;
 
     @Comment("우편번호")
+    @Column(name = "postcode", columnDefinition = "BIGINT")
     private Long postcode;
 
     @Comment("받는 사람")
+    @Column(name = "recipient", columnDefinition = "VARCHAR(50)")
     private String recipient;
 
     @Comment("받는 사람 연락처")
+    @Column(name = "phone", columnDefinition = "BIGINT")
     private Long phone;
 
     @Comment("배송시 요청사항")
+    @Column(name = "request", columnDefinition = "MEDIUMTEXT")
     private String request;
-    
+
     public void changePrimary(Boolean isPrimary) {
         this.isPrimary = isPrimary;
     }
