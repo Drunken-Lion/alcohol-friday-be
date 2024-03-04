@@ -381,7 +381,7 @@ public class MemberServiceTest {
                 .member(this.getMemberData())
                 .isPrimary(isPrimary)
                 .address(address)
-                .detail(addressDetail)
+                .addressDetail(addressDetail)
                 .postcode(postcode)
                 .build();
     }

@@ -213,7 +213,7 @@ public class MemberControllerTest {
                 .member(member)
                 .isPrimary(true)
                 .address("서울시 마포구 연남동")
-                .detail("123-12번지")
+                .addressDetail("123-12번지")
                 .postcode(123123L)
                 .build();
         addressRepository.save(address);

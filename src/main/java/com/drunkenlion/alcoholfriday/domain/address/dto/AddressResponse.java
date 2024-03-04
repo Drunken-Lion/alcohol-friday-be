@@ -41,7 +41,7 @@ public class AddressResponse {
                 .phone(address.getPhone())
                 .request(address.getRequest())
                 .address(address.getAddress())
-                .addressDetail(address.getDetail())
+                .addressDetail(address.getAddressDetail())
                 .postcode(address.getPostcode())
                 .isPrimary(address.getIsPrimary())
                 .build();

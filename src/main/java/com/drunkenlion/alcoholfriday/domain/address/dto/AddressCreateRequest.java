@@ -38,7 +38,7 @@ public class AddressCreateRequest {
                 .phone(request.getPhone())
                 .request(request.getRequest())
                 .address(request.getAddress())
-                .detail(request.getDetail())
+                .addressDetail(request.getDetail())
                 .postcode(request.getPostcode())
                 .isPrimary(request.getIsPrimary())
                 .member(member)

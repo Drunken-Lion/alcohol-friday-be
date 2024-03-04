@@ -119,7 +119,7 @@ public class AddressServiceTest {
                 .member(this.getMemberData())
                 .isPrimary(isPrimary)
                 .address(address)
-                .detail(addressDetail)
+                .addressDetail(addressDetail)
                 .postcode(postcode)
                 .recipient(recipient)
                 .phone(recipientPhone)
