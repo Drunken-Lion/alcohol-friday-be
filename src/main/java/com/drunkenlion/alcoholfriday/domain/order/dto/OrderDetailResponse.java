@@ -14,8 +14,8 @@ public class OrderDetailResponse {
     @Schema(description = "주문한 상품 정보 고유 아이디")
     private Long id;
 
-    @Schema(description = "상품 단가")
-    private BigDecimal itemPrice;
+    @Schema(description = "상품 이름")
+    private String name;
 
     @Schema(description = "주문 수량")
     private Long quantity;
@@ -26,7 +26,7 @@ public class OrderDetailResponse {
     public static OrderDetailResponse of(OrderDetail orderDetail) {
         return OrderDetailResponse.builder()
                 .id(orderDetail.getId())
-                .itemPrice(orderDetail.getItemPrice())
+                .name(orderDetail.getItem().getName())
                 .quantity(orderDetail.getQuantity())
                 .totalPrice(orderDetail.getTotalPrice())
                 .build();

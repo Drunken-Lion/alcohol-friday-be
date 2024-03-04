@@ -27,6 +27,9 @@ import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
@@ -36,8 +39,11 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
+import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.file.application.FileServiceImpl;
 
 import java.io.File;
@@ -49,6 +55,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.IntegerRange;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -66,6 +73,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -95,6 +103,10 @@ public class NotProd {
     private final CartDetailRepository cartDetailRepository;
     private final RestaurantStockRepository restaurantStockRepository;
     private final GeometryFactory geometryFactory = new GeometryFactory();
+
+    private final OrderRepository orderRepository;
+    private final OrderDetailRepository orderDetailRepository;
+    private final ReviewRepository reviewRepository;
 
     @Bean
     @Order(3)
@@ -1875,5 +1887,85 @@ public class NotProd {
                         .quantity(100L)
                         .restaurant(가게5)
                         .build());
+
+        // Order 테스트 데이터
+        com.drunkenlion.alcoholfriday.domain.order.entity.Order 주문_1 =
+                orderRepository.save(
+                        com.drunkenlion.alcoholfriday.domain.order.entity.Order.builder()
+                                .orderNo("주문_1")
+                                .orderStatus(OrderStatus.PAYMENT_COMPLETED)
+                                .price(BigDecimal.valueOf(20000))
+                                .recipient("테스트회원5")
+                                .phone(1012345678L)
+                                .address("서울시 마포구 연남동")
+                                .detail("123-12번지")
+                                .description("부재 시 문앞에 놓아주세요.")
+                                .postcode(123123L)
+                                .member(회원_일반회원5)
+                                .build()
+                );
+
+        com.drunkenlion.alcoholfriday.domain.order.entity.Order 주문_2 =
+                orderRepository.save(
+                        com.drunkenlion.alcoholfriday.domain.order.entity.Order.builder()
+                                .orderNo("주문_2")
+                                .orderStatus(OrderStatus.PAYMENT_COMPLETED)
+                                .price(BigDecimal.valueOf(20000))
+                                .recipient("테스트회원5")
+                                .phone(1012345678L)
+                                .address("서울시 마포구 연남동")
+                                .detail("123-12번지")
+                                .description("부재 시 문앞에 놓아주세요.")
+                                .postcode(123123L)
+                                .member(회원_일반회원5)
+                                .build()
+                );
+
+        // OrderDetail 테스트 데이터
+        OrderDetail 주문상품_1 = orderDetailRepository.save(
+                OrderDetail.builder()
+                        .itemPrice(상품_1.getPrice())
+                        .quantity(1L)
+                        .totalPrice(상품_1.getPrice())
+                        .item(상품_1)
+                        .order(주문_1)
+                        .review(null)
+                        .build()
+        );
+
+        OrderDetail 주문상품_2 = orderDetailRepository.save(
+                OrderDetail.builder()
+                        .itemPrice(상품_2.getPrice())
+                        .quantity(1L)
+                        .totalPrice(상품_2.getPrice())
+                        .item(상품_2)
+                        .order(주문_1)
+                        .review(null)
+                        .build()
+        );
+
+        OrderDetail 주문상품_3 = orderDetailRepository.save(
+                OrderDetail.builder()
+                        .itemPrice(상품_3.getPrice())
+                        .quantity(1L)
+                        .totalPrice(상품_3.getPrice())
+                        .item(상품_3)
+                        .order(주문_1)
+                        .review(null)
+                        .build()
+        );
+
+        // Review 테스트 데이터
+        Review 리뷰_1 = reviewRepository.save(
+                Review.builder()
+                        .score(5L)
+                        .content("맛있어요")
+                        .item(상품_1)
+                        .orderDetail(주문상품_1)
+                        .member(회원_일반회원5)
+                        .build()
+        );
+
     }
+
 }

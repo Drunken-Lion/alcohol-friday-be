@@ -2,6 +2,8 @@ package com.drunkenlion.alcoholfriday.domain.member.api;
 
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
 import com.drunkenlion.alcoholfriday.domain.member.application.MemberService;
+import com.drunkenlion.alcoholfriday.domain.member.dto.*;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.ReviewStatus;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
@@ -12,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -75,5 +76,20 @@ public class MemberController {
     public ResponseEntity<List<AddressResponse>> getMyAddresses(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<AddressResponse> addressResponses = memberService.getMyAddresses(userPrincipal.getMember().getId());
         return ResponseEntity.ok().body(addressResponses);
+    }
+
+    @GetMapping("me/reviews")
+    public ResponseEntity<PageResponse<MemberReviewResponse<?>>> getMyReviews(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(name = "status", defaultValue = "pending") ReviewStatus reviewStatus,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+
+        Page<MemberReviewResponse<?>> pageReviews = memberService.getMyReviews(
+                userPrincipal.getMember().getId(), reviewStatus, page, size);
+
+        PageResponse<MemberReviewResponse<?>> pageResponse = PageResponse.of(pageReviews);
+
+        return ResponseEntity.ok().body(pageResponse);
     }
 }

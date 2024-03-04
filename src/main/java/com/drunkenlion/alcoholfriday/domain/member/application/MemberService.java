@@ -1,10 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.member.application;
 
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
-import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
-import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
-import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
+import com.drunkenlion.alcoholfriday.domain.member.dto.*;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.ReviewStatus;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import org.springframework.data.domain.Page;
 
@@ -18,4 +17,6 @@ public interface MemberService {
     Page<OrderResponse> getMyOrders(Long memberId, int page, int size);
 
     List<AddressResponse> getMyAddresses(Long memberId);
+
+    Page<MemberReviewResponse<?>> getMyReviews(Long memberId, ReviewStatus reviewStatus, int page, int size);
 }
