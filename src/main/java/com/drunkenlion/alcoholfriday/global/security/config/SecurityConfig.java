@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,17 +41,58 @@ public class SecurityConfig {
                                 )
                 )
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        // 관리자 - 회원 관리
                         .requestMatchers("/v1/admin/members/**")
                         .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.SUPER_VISOR.getRole())
 
-                        .requestMatchers("/v1/admin/restaurants/**")
+                        // 관리자 - 매장 관리
+                        .requestMatchers(HttpMethod.POST, "/v1/admin/restaurants")
+                        .hasAnyRole(MemberRole.ADMIN.getRole())
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurants/**")
                         .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.OWNER.getRole())
 
-                        .requestMatchers("/v1/admin/store/**")
+                        // 관리자 - 제품, 상품, 제조사, 카테고리 관리
+                        .requestMatchers(
+                                "/v1/admin/items/**",
+                                "/v1/admin/products/**",
+                                "/v1/admin/makers/**",
+                                "/v1/admin/category-classes/**",
+                                "/v1/admin/categories/**",
+                                "/v1/admin/orders/**")
                         .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
 
+                        // 관리자
+                        .requestMatchers("/v1/admin/**")
+                        .hasAnyRole(
+                                MemberRole.ADMIN.getRole(),
+                                MemberRole.SUPER_VISOR.getRole(),
+                                MemberRole.OWNER.getRole(),
+                                MemberRole.STORE_MANAGER.getRole())
+
+                        // 고객센터 - 질문
+                        .requestMatchers(HttpMethod.GET, "/v1/questions").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/questions").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/v1/questions/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/v1/questions/**").authenticated()
+
+                        // 고객센터 - 답변
+                        .requestMatchers(HttpMethod.POST, "/v1/admin/answers")
+                        .hasAnyRole(
+                                MemberRole.ADMIN.getRole(),
+                                MemberRole.SUPER_VISOR.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/answers/**")
+                        .hasAnyRole(
+                                MemberRole.ADMIN.getRole(),
+                                MemberRole.SUPER_VISOR.getRole())
+                        .requestMatchers(HttpMethod.DELETE, "/v1/admin/answers/**")
+                        .hasAnyRole(
+                                MemberRole.ADMIN.getRole(),
+                                MemberRole.SUPER_VISOR.getRole())
+
+                        .requestMatchers(HttpMethod.GET, "/v1/restaurants").permitAll()
                         .requestMatchers("/v1/members/me/**", "/v1/orders/**", "/v1/carts/**").authenticated()
-                        .anyRequest().permitAll()
+
+                        .anyRequest().authenticated()
                 );
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
