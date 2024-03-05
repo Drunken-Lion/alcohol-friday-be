@@ -48,10 +48,10 @@ public class ProductCreateRequest {
     private Long body;
 
     @Schema(description = "술 밸런스")
-    private Long balence;
+    private Long balance;
 
     @Schema(description = "술 향기")
-    private Long insense;
+    private Long incense;
 
     @Schema(description = "술 목넘김")
     private Long throat;
@@ -67,8 +67,8 @@ public class ProductCreateRequest {
                 .sour(request.getSour())
                 .cool(request.getCool())
                 .body(request.getBody())
-                .balence(request.getBalence())
-                .insense(request.getInsense())
+                .balance(request.getBalance())
+                .incense(request.getIncense())
                 .throat(request.getThroat())
                 .category(category)
                 .maker(maker)

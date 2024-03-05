@@ -53,8 +53,8 @@ class ItemServiceTest {
     private final Long sour = 10L;
     private final Long cool = 10L;
     private final Long body = 10L;
-    private final Long balence = 10L;
-    private final Long insense = 10L;
+    private final Long balance = 10L;
+    private final Long incense = 10L;
     private final Long throat = 10L;
 
     @Test
@@ -97,8 +97,8 @@ class ItemServiceTest {
         assertThat(findItemResponse.getProducts().get(0).getSour()).isEqualTo(sour);
         assertThat(findItemResponse.getProducts().get(0).getCool()).isEqualTo(cool);
         assertThat(findItemResponse.getProducts().get(0).getBody()).isEqualTo(body);
-        assertThat(findItemResponse.getProducts().get(0).getBalence()).isEqualTo(balence);
-        assertThat(findItemResponse.getProducts().get(0).getInsense()).isEqualTo(insense);
+        assertThat(findItemResponse.getProducts().get(0).getBalance()).isEqualTo(balance);
+        assertThat(findItemResponse.getProducts().get(0).getIncense()).isEqualTo(incense);
         assertThat(findItemResponse.getProducts().get(0).getThroat()).isEqualTo(throat);
         assertThat(findItemResponse.getCategory().getFirstName()).isEqualTo(firstName);
         assertThat(findItemResponse.getCategory().getLastName()).isEqualTo(lastName);
@@ -133,8 +133,8 @@ class ItemServiceTest {
                 .sour(sour)
                 .cool(cool)
                 .body(body)
-                .balence(balence)
-                .insense(insense)
+                .balance(balance)
+                .incense(incense)
                 .throat(throat)
                 .build();
         product.addCategory(category);
