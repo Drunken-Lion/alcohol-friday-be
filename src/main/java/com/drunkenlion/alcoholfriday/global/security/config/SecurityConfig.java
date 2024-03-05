@@ -78,8 +78,8 @@ public class SecurityConfig {
                                 MemberRole.STORE_MANAGER.getRole())
 
                         // 고객센터 - 질문
-                        .requestMatchers(HttpMethod.GET, "/v1/questions/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/v1/questions").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/v1/questions/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/v1/questions/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/v1/questions/**").authenticated()
 
@@ -97,7 +97,7 @@ public class SecurityConfig {
                                 MemberRole.ADMIN.getRole(),
                                 MemberRole.SUPER_VISOR.getRole())
 
-                        .requestMatchers("/v1/members/me/**", "/v1/orders/**", "/v1/carts/**").authenticated()
+                        .requestMatchers("/v1/members/me/**", "/v1/addresses/**", "/v1/orders/**", "/v1/carts/**").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/v1/restaurants", "/v1/items", "/v1/items/**").permitAll()
                         .requestMatchers("/v1/auth/**", "/error").permitAll()
