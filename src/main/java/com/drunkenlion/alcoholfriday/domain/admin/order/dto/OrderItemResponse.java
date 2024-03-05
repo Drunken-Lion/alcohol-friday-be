@@ -30,7 +30,7 @@ public class OrderItemResponse {
 
     public static OrderItemResponse of(OrderDetail orderDetail, NcpFileResponse file) {
         return OrderItemResponse.builder()
-                .name(orderDetail.getOrder().getOrderNo())
+                .name(orderDetail.getItem().getName())
                 .quantity(orderDetail.getQuantity())
                 .price(orderDetail.getItemPrice())
                 .totalPrice(orderDetail.getTotalPrice())
