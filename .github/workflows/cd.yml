@@ -13,23 +13,23 @@ jobs:
 
       - name: create application.yml
         run: |
-          touch application.yml
-          echo '${{ secrets.DEV_APPLICATION_YML }}' >> application.yml
+          touch src/main/resources/application.yml
+          echo '${{ secrets.DEV_APPLICATION_YML }}' >> src/main/resources/application.yml
 
       - name: create application-dev.yml
         run: |
-          touch application-dev.yml
-          echo '${{ secrets.DEV_APPLICATION_DEV_YML }}' >> application-dev.yml
+          touch src/main/resources/application-dev.yml
+          echo '${{ secrets.DEV_APPLICATION_DEV_YML }}' >> src/main/resources/application-dev.yml
 
       - name: create application-file.yml
         run: |
-          touch application-file.yml
-          echo '${{ secrets.DEV_APPLICATION_FILE_YML }}' >> application-file.yml
+          touch src/main/resources/application-file.yml
+          echo '${{ secrets.DEV_APPLICATION_FILE_YML }}' >> src/main/resources/application-file.yml
 
       - name: create application-secret.yml
         run: |
-          touch application-secret.yml
-          echo '${{ secrets.DEV_APPLICATION_SECRET_YML }}' >> application-secret.yml
+          touch src/main/resources/application-secret.yml
+          echo '${{ secrets.DEV_APPLICATION_SECRET_YML }}' >> src/main/resources/application-secret.yml
 
       - name: Login ECR
         run: |
