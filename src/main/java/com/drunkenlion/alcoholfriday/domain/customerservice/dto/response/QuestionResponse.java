@@ -1,10 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.customerservice.dto.response;
 
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
-import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,29 +21,44 @@ public class QuestionResponse {
     @Schema(description = "문의사항 고유 식별 번호")
     private Long id;
 
-    @Schema(description = "문의사항 작성자")
-    private Member member;
-
     @Schema(description = "문의사항 제목")
     private String title;
 
     @Schema(description = "문의사항 내용")
     private String content;
 
+    @Schema(description = "문의사항 내용")
+    private QuestionStatus status;
+
+    @Schema(description = "문의사항 작성자")
+    private CsMemberResponse member;
+
     @Schema(description = "문의사항 등록 이미지")
-    private List<NcpFileResponse> files;
+    private NcpFileResponse file;
 
-     @Schema(description = "문의사항에 등록된 답변")
-     private List<AnswerResponse> answers;
+    @Schema(description = "문의사항에 등록된 답변")
+    private List<AnswerResponse> answers;
 
-    public static QuestionResponse of(Question question, List<AnswerResponse> answers, List<NcpFileResponse> files) {
+    public static QuestionResponse of(Question question) {
         return QuestionResponse.builder()
                 .id(question.getId())
-                .member(question.getMember())
+                .member(CsMemberResponse.of(question.getMember()))
                 .title(question.getTitle())
                 .content(question.getContent())
-                .files(files)
-                .answers(answers)
+                .status(question.getStatus())
+                .answers(question.getAnswers().stream().map(AnswerResponse::of).collect(Collectors.toList()))
+                .build();
+    }
+
+    public static QuestionResponse of(Question question, NcpFileResponse file) {
+        return QuestionResponse.builder()
+                .id(question.getId())
+                .member(CsMemberResponse.of(question.getMember()))
+                .title(question.getTitle())
+                .content(question.getContent())
+                .status(question.getStatus())
+                .answers(question.getAnswers().stream().map(AnswerResponse::of).collect(Collectors.toList()))
+                .file(file)
                 .build();
     }
 }

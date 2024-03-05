@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.customerservice.dto.response;
 
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,14 +21,14 @@ public class QuestionSaveResponse {
     @Schema(description = "문의사항 고유 식별 번호")
     private Long id;
 
-    @Schema(description = "문의사항 작성자")
-    private Member member;
-
     @Schema(description = "문의사항 제목")
     private String title;
 
     @Schema(description = "문의사항 내용")
     private String content;
+
+    @Schema(description = "문의사항 작성자")
+    private CsMemberResponse member;
 
     @Schema(description = "등록된 사진 정보")
     private NcpFileResponse files;
@@ -35,7 +36,7 @@ public class QuestionSaveResponse {
     public static QuestionSaveResponse of(Question question) {
         return QuestionSaveResponse.builder()
                 .id(question.getId())
-                .member(question.getMember())
+                .member(CsMemberResponse.of(question.getMember()))
                 .title(question.getTitle())
                 .content(question.getContent())
                 .build();
@@ -44,7 +45,7 @@ public class QuestionSaveResponse {
     public static QuestionSaveResponse of(Question question, NcpFileResponse files) {
         return QuestionSaveResponse.builder()
                 .id(question.getId())
-                .member(question.getMember())
+                .member(CsMemberResponse.of(question.getMember()))
                 .title(question.getTitle())
                 .content(question.getContent())
                 .files(files)
