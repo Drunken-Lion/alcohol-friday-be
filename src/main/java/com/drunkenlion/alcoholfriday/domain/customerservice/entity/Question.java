@@ -5,12 +5,16 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.util.QuestionStatusC
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Array;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -36,8 +40,21 @@ public class Question extends BaseEntity {
     @Convert(converter = QuestionStatusConverter.class)
     private QuestionStatus status;
 
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "question")
+    private List<Answer> answers = new ArrayList<>();
+
     public void addMember(Member member) {
         this.member = member;
         member.getQuestions().add(this);
+    }
+
+    public void updateQuestion(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public void updateStatus(QuestionStatus status) {
+        this.status = status;
     }
 }
