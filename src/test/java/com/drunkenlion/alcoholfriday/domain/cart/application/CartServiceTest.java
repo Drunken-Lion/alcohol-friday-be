@@ -67,8 +67,8 @@ class CartServiceTest {
     private final Long sour = 10L;
     private final Long cool = 10L;
     private final Long body = 10L;
-    private final Long balence = 10L;
-    private final Long insense = 10L;
+    private final Long balance = 10L;
+    private final Long incense = 10L;
     private final Long throat = 10L;
 
     // Item2
@@ -86,8 +86,8 @@ class CartServiceTest {
     private final Long sour2 = 10L;
     private final Long cool2 = 10L;
     private final Long body2 = 10L;
-    private final Long balence2 = 10L;
-    private final Long insense2 = 10L;
+    private final Long balance2 = 10L;
+    private final Long incense2 = 10L;
     private final Long throat2 = 10L;
 
     // Member
@@ -557,8 +557,8 @@ class CartServiceTest {
                 .sour(sour)
                 .cool(cool)
                 .body(body)
-                .balence(balence)
-                .insense(insense)
+                .balance(balance)
+                .incense(incense)
                 .throat(throat)
                 .build();
         product.addCategory(category);
@@ -604,8 +604,8 @@ class CartServiceTest {
                 .sour(sour2)
                 .cool(cool2)
                 .body(body2)
-                .balence(balence2)
-                .insense(insense2)
+                .balance(balance2)
+                .incense(incense2)
                 .throat(throat2)
                 .build();
         product.addCategory(category);

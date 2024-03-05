@@ -95,8 +95,8 @@ public class AdminItemServiceTest {
     private final Long sour = 10L;
     private final Long cool = 10L;
     private final Long body = 10L;
-    private final Long balence = 10L;
-    private final Long insense = 10L;
+    private final Long balance = 10L;
+    private final Long incense = 10L;
     private final Long throat = 10L;
 
     private final Long modifyProductId = 2L;
@@ -562,8 +562,8 @@ public class AdminItemServiceTest {
                 .sour(sour)
                 .cool(cool)
                 .body(body)
-                .balence(balence)
-                .insense(insense)
+                .balance(balance)
+                .incense(incense)
                 .throat(throat)
                 .maker(maker)
                 .category(category)
@@ -587,8 +587,8 @@ public class AdminItemServiceTest {
                 .sour(modifySour)
                 .cool(modifyCool)
                 .body(modifyBody)
-                .balence(modifyBalence)
-                .insense(modifyInsense)
+                .balance(modifyBalence)
+                .incense(modifyInsense)
                 .throat(modifyThroat)
                 .maker(modifyMaker)
                 .category(modifyCategory)
