@@ -41,7 +41,8 @@ class FileServiceImplTest {
     @DisplayName("여러 EntityId를 가진 file이 있을 경우의 테스트")
     void listTest() {
         // given
-        when(this.fileRepository.findAllByEntityIdInAndEntityType(anyList(), anyString())).thenReturn(this.getList(entityIds, EntityType.ITEM.getEntityName()));
+        when(this.fileRepository.findAllByEntityIdInAndEntityType(anyList(), anyString())).thenReturn(
+                this.getList(entityIds, EntityType.ITEM.getEntityName()));
         // when
         List<NcpFileResponse> files = this.fileService.findAllByEntityIds(entityIds, EntityType.ITEM.getEntityName());
         // then
@@ -59,7 +60,8 @@ class FileServiceImplTest {
     @DisplayName("여러 EntityId를 가진 file이 없을 경우 테스트")
     void listEmptyTest() {
         // given
-        when(this.fileRepository.findAllByEntityIdInAndEntityType(anyList(), anyString())).thenReturn(this.getEmptyList());
+        when(this.fileRepository.findAllByEntityIdInAndEntityType(anyList(), anyString())).thenReturn(
+                this.getEmptyList());
         // when
         List<NcpFileResponse> files = this.fileService.findAllByEntityIds(entityIds, EntityType.ITEM.getEntityName());
         // then
@@ -76,7 +78,8 @@ class FileServiceImplTest {
         when(this.fileRepository.findByEntityIdAndEntityType(anyLong(), anyString()))
                 .thenReturn(Optional.ofNullable(this.getNcpFile(entityIds.get(0), EntityType.ITEM.getEntityName())));
         // when
-        NcpFileResponse ncpFileResponse = this.fileService.findByEntityId(entityIds.get(0), EntityType.ITEM.getEntityName());
+        NcpFileResponse ncpFileResponse = this.fileService.findByEntityId(entityIds.get(0),
+                EntityType.ITEM.getEntityName());
         // then
         assertThat(ncpFileResponse.getFile().get(0).getKeyName()).isEqualTo(keyName);
         assertThat(ncpFileResponse.getFile().get(0).getPath()).isEqualTo(path);
@@ -88,7 +91,8 @@ class FileServiceImplTest {
     void getEmptyTest() {
         // given
         when(this.fileRepository.findByEntityIdAndEntityType(anyLong(), anyString()))
-                .thenReturn(Optional.ofNullable(this.getEmptyNcpFile(entityIds.get(0), EntityType.ITEM.getEntityName())));
+                .thenReturn(
+                        Optional.ofNullable(this.getEmptyNcpFile(entityIds.get(0), EntityType.ITEM.getEntityName())));
         // when
         BusinessException businessException = assertThrows(BusinessException.class,
                 () -> this.fileService.findByEntityId(entityIds.get(0), EntityType.ITEM.getEntityName()));
@@ -108,7 +112,7 @@ class FileServiceImplTest {
         List<NcpFile> list = new ArrayList<>();
 
         int count = 0;
-        while(count < 3) {
+        while (count < 3) {
             list.add(this.getNcpFile(entityIds.get(count), entityType));
             count++;
         }

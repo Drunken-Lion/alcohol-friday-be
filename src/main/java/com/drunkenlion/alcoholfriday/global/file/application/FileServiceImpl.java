@@ -80,9 +80,14 @@ public class FileServiceImpl implements FileService {
     @Transactional
     @Override
     public NcpFileResponse updateFiles(BaseEntity entity, List<Integer> removeSeq, List<MultipartFile> multipartFiles) {
-        NcpFile ncpFile =
-                fileRepository.findByEntityIdAndEntityType(entity.getId(), EntityTypeV2.getEntityType(entity))
-                        .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND));
+        Optional<NcpFile> opNcpFile = fileRepository.findByEntityIdAndEntityType(entity.getId(),
+                EntityTypeV2.getEntityType(entity));
+
+        if (opNcpFile.isEmpty()) {
+            return saveFiles(entity, multipartFiles);
+        }
+
+        NcpFile ncpFile = opNcpFile.get();
 
         // removeSeq 내 seq 값과 일치하는 이미지 삭제
         if (!removeSeq.isEmpty()) {
