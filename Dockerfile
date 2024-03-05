@@ -19,6 +19,7 @@ COPY --from=builder build/libs/*.jar app.jar
 # RUNTIME 환경변수 인자 설정
 ARG PROFILE
 ENV SPRING_PROFILES_ACTIVE=${PROFILE}
+ENV SPRING_PROFILES_INCLUDE=file,secret
 
 # Java 실행
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}, file, secret", "app.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE},${SPRING_PROFILES_INCLUDE}", "app.jar"]
