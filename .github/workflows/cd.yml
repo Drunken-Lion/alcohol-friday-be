@@ -16,6 +16,11 @@ jobs:
           touch application.yml
           echo '${{ secrets.DEV_APPLICATION_YML }}' >> application.yml
 
+      - name: create application-dev.yml
+        run: |
+          touch application-dev.yml
+          echo '${{ secrets.DEV_APPLICATION_DEV_YML }}' >> application-dev.yml
+
       - name: create application-file.yml
         run: |
           touch application-file.yml
@@ -25,11 +30,6 @@ jobs:
         run: |
           touch application-secret.yml
           echo '${{ secrets.DEV_APPLICATION_SECRET_YML }}' >> application-secret.yml
-
-      - name: create application-dev.yml
-        run: |
-          touch application-dev.yml
-          echo '${{ secrets.DEV_APPLICATION_DEV_YML }}' >> application-dev.yml
 
       - name: Login ECR
         run: |
