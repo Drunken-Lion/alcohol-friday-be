@@ -100,7 +100,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/members/me/**", "/v1/addresses/**", "/v1/orders/**", "/v1/carts/**").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/v1/restaurants", "/v1/items", "/v1/items/**").permitAll()
-                        .requestMatchers("/v1/auth/**", "/error").permitAll()
+                        .requestMatchers("/v1/auth/**", "/error", "/docs").permitAll()
 
                         .anyRequest().authenticated()
                 );
