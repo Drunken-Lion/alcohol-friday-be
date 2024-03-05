@@ -13,8 +13,7 @@ jobs:
 
       - name: create application.yml
         run: |
-          touch src/main/resources/application.yml
-          echo '${{ secrets.DEV_APPLICATION_YML }}' >> src/main/resources/application.yml
+          echo '${{ secrets.DEV_APPLICATION_YML }}' > src/main/resources/application.yml
 
       - name: create application-dev.yml
         run: |
