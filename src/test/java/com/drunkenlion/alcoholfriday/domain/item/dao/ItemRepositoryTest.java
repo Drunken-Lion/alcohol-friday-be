@@ -59,8 +59,8 @@ class ItemRepositoryTest {
                 .sour(1L)
                 .cool(1L)
                 .body(1L)
-                .balence(1L)
-                .insense(1L)
+                .balance(1L)
+                .incense(1L)
                 .throat(1L)
                 .build();
         product.addCategory(category);
@@ -140,8 +140,8 @@ class ItemRepositoryTest {
         assertThat(item.getItemProducts().get(0).getProduct().getSour()).isEqualTo(saved.getItemProducts().get(0).getProduct().getSour());
         assertThat(item.getItemProducts().get(0).getProduct().getCool()).isEqualTo(saved.getItemProducts().get(0).getProduct().getCool());
         assertThat(item.getItemProducts().get(0).getProduct().getBody()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBody());
-        assertThat(item.getItemProducts().get(0).getProduct().getBalence()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBalence());
-        assertThat(item.getItemProducts().get(0).getProduct().getInsense()).isEqualTo(saved.getItemProducts().get(0).getProduct().getInsense());
+        assertThat(item.getItemProducts().get(0).getProduct().getBalance()).isEqualTo(saved.getItemProducts().get(0).getProduct().getBalance());
+        assertThat(item.getItemProducts().get(0).getProduct().getIncense()).isEqualTo(saved.getItemProducts().get(0).getProduct().getIncense());
         assertThat(item.getItemProducts().get(0).getProduct().getThroat()).isEqualTo(saved.getItemProducts().get(0).getProduct().getThroat());
         assertThat(item.getCategory().getCategoryClass().getFirstName()).isEqualTo(saved.getCategory().getCategoryClass().getFirstName());
         assertThat(item.getCategory().getLastName()).isEqualTo(saved.getCategory().getLastName());
