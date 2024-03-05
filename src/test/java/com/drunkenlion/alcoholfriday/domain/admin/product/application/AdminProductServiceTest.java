@@ -104,8 +104,8 @@ public class AdminProductServiceTest {
     private final Long modifySour = 1L;
     private final Long modifyCool = 1L;
     private final Long modifyBody = 1L;
-    private final Long modifyBalence = 1L;
-    private final Long modifyInsense = 1L;
+    private final Long modifyBalance = 1L;
+    private final Long modifyIncense = 1L;
     private final Long modifyThroat = 1L;
 
     private final int page = 0;
@@ -294,8 +294,8 @@ public class AdminProductServiceTest {
                 .sour(modifySour)
                 .cool(modifyCool)
                 .body(modifyBody)
-                .balance(modifyBalence)
-                .incense(modifyInsense)
+                .balance(modifyBalance)
+                .incense(modifyIncense)
                 .throat(modifyThroat)
                 .build();
 
@@ -326,8 +326,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getSour()).isEqualTo(modifySour);
         assertThat(productDetailResponse.getCool()).isEqualTo(modifyCool);
         assertThat(productDetailResponse.getBody()).isEqualTo(modifyBody);
-        assertThat(productDetailResponse.getBalance()).isEqualTo(modifyBalence);
-        assertThat(productDetailResponse.getIncense()).isEqualTo(modifyInsense);
+        assertThat(productDetailResponse.getBalance()).isEqualTo(modifyBalance);
+        assertThat(productDetailResponse.getIncense()).isEqualTo(modifyIncense);
         assertThat(productDetailResponse.getThroat()).isEqualTo(modifyThroat);
     }
 
