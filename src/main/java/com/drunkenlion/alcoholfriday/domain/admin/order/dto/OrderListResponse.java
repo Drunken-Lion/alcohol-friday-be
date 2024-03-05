@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -35,6 +36,12 @@ public class OrderListResponse {
 //    @Schema(description = "결제 플랫폼")
 //    private String platform;
 
+    @Schema(description = "생성일시")
+    private LocalDateTime createdAt;
+
+    @Schema(description = "삭제여부")
+    private boolean deleted;
+
     public static OrderListResponse of(Order order) {
         return OrderListResponse.builder()
                 .id(order.getId())
@@ -43,6 +50,8 @@ public class OrderListResponse {
                 .customerNickname(order.getMember().getNickname())
                 .orderStatus(order.getOrderStatus())
                 .price(order.getPrice())
+                .createdAt(order.getCreatedAt())
+                .deleted(order.getDeletedAt() != null)
                 .build();
     }
 }
