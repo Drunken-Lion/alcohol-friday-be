@@ -6,9 +6,11 @@ import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
@@ -38,7 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 @Transactional
 public class AdminProductControllerTest {
     @Autowired
@@ -116,6 +120,7 @@ public class AdminProductControllerTest {
 
     @Test
     @DisplayName("제품 목록 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getProductsTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -144,6 +149,7 @@ public class AdminProductControllerTest {
 
     @Test
     @DisplayName("제품 상세 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getProductTest() throws Exception {
         // given
         Product product = this.productRepository.findAll().get(0);
@@ -187,6 +193,7 @@ public class AdminProductControllerTest {
 
     @Test
     @DisplayName("제품 등록 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void createProductTest() throws Exception {
         // given
         MockMultipartFile multipartFile1 = new MockMultipartFile("files", "create-test1.txt", "text/plain", "create-test1 file".getBytes(StandardCharsets.UTF_8));
@@ -255,6 +262,7 @@ public class AdminProductControllerTest {
 
     @Test
     @DisplayName("제품 수정 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void modifyProductTest() throws Exception {
         // given
         MockMultipartFile multipartFile1 = new MockMultipartFile("files", "modify-test1.txt", "text/plain", "modify-test1 file".getBytes(StandardCharsets.UTF_8));
@@ -336,6 +344,7 @@ public class AdminProductControllerTest {
 
     @Test
     @DisplayName("제품 삭제 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void deleteProductTest() throws Exception {
         // given
         Product product = this.productRepository.findAll().get(0);
