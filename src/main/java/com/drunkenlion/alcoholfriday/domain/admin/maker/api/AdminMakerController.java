@@ -6,6 +6,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.maker.dto.MakerListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.maker.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 @RequestMapping("/v1/admin")
 @Tag(name = "v1-admin-maker", description = "관리자 제조사 관리 API")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminMakerController {
     private final AdminMakerService adminMakerService;
 

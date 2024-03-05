@@ -5,9 +5,9 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.dto.request.Question
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.QuestionSaveResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RequestMapping("/v1/questions")
 @Tag(name = "v1-question", description = "문의사항 API")
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 public class QuestionController {
     private final QuestionService questionService;
 
