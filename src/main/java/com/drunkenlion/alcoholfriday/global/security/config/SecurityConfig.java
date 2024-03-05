@@ -20,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.drunkenlion.alcoholfriday.global.security.jwt.JwtAuthenticationFilter;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
 @Slf4j
 @Configuration
