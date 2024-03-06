@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.item.entity;
 
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import jakarta.persistence.*;
@@ -50,6 +51,9 @@ public class Item extends BaseEntity {
     @Builder.Default
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
+    @OneToMany(mappedBy = "item")
+    @Builder.Default
+    private List<RestaurantStock> restaurantStocks = new ArrayList<>();
     // 연관 관계 편의 메서드
     public void addCategory(Category category) {
         this.category = category;
