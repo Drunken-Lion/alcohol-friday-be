@@ -51,10 +51,6 @@ public class Item extends BaseEntity {
     @Builder.Default
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
-    @OneToMany(mappedBy = "item")
-    @Builder.Default
-    private List<RestaurantStock> restaurantStocks = new ArrayList<>();
-    // 연관 관계 편의 메서드
     public void addCategory(Category category) {
         this.category = category;
         category.getItems().add(this);

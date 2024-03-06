@@ -69,7 +69,7 @@ public class RestaurantLocationResponse {
         this.status = status;
     }
 
-    public static RestaurantLocationResponse of(Restaurant restaurant ,  List<NcpFileResponse> files) {
+    public static RestaurantLocationResponse of(Restaurant restaurant, List<NcpFileResponse> files) {
         List<RestaurantStockResponse> collect = restaurant
                 .getRestaurantStocks()
                 .stream()

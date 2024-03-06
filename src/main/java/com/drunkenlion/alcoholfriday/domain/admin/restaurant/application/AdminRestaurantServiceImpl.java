@@ -168,11 +168,10 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
     }
 
     private List<RestaurantStockItemResponse> getRestaurantStockItemResponseList(Restaurant restaurant) {
-        List<RestaurantStock> restaurantStocks = restaurantStockRepository.findByRestaurantAndDeletedAtIsNull(restaurant);
         List<RestaurantStockItemResponse> stockItemInfos = new ArrayList<>();
 
-        if (!restaurantStocks.isEmpty()) {
-            for (RestaurantStock restaurantStock: restaurantStocks) {
+        if (!restaurant.getRestaurantStocks().isEmpty()) {
+            for (RestaurantStock restaurantStock: restaurant.getRestaurantStocks()) {
                 Item item = restaurantStock.getItem();
                 NcpFileResponse ncpResponse = fileService.findOne(item);
 
