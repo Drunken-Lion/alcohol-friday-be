@@ -68,8 +68,8 @@ class ItemControllerTest {
                 .sour(1L)
                 .cool(1L)
                 .body(1L)
-                .balence(1L)
-                .insense(1L)
+                .balance(1L)
+                .incense(1L)
                 .throat(1L)
                 .build();
         product.addCategory(category);
@@ -163,8 +163,8 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.products[0].sour", notNullValue()))
                 .andExpect(jsonPath("$.products[0].cool", notNullValue()))
                 .andExpect(jsonPath("$.products[0].body", notNullValue()))
-                .andExpect(jsonPath("$.products[0].balence", notNullValue()))
-                .andExpect(jsonPath("$.products[0].insense", notNullValue()))
+                .andExpect(jsonPath("$.products[0].balance", notNullValue()))
+                .andExpect(jsonPath("$.products[0].incense", notNullValue()))
                 .andExpect(jsonPath("$.products[0].throat", notNullValue()))
                 .andExpect(jsonPath("$.products[0].sweet", notNullValue()))
                 .andExpect(jsonPath("$.products[0].sweet", notNullValue()))

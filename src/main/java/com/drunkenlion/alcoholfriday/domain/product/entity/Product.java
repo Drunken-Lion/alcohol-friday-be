@@ -56,13 +56,13 @@ public class Product extends BaseEntity {
     @Comment("술 바디감")
     private Long body;
 
-    @Column(name = "balence", columnDefinition = "BIGINT")
+    @Column(name = "balance", columnDefinition = "BIGINT")
     @Comment("술 밸런스")
-    private Long balence;
+    private Long balance;
 
-    @Column(name = "insense", columnDefinition = "BIGINT")
+    @Column(name = "incense", columnDefinition = "BIGINT")
     @Comment("술 향기")
-    private Long insense;
+    private Long incense;
 
     @Column(name = "throat", columnDefinition = "BIGINT")
     @Comment("술 목넘김")

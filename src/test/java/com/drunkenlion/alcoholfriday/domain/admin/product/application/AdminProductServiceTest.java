@@ -1,8 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
@@ -13,6 +14,7 @@ import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +28,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,6 +56,8 @@ public class AdminProductServiceTest {
     private MakerRepository makerRepository;
     @Mock
     private ItemProductRepository itemProductRepository;
+    @Mock
+    private FileService fileService;
 
     private final Long makerId = 1L;
     private final String makerName = "(주)국순당";
@@ -85,8 +91,8 @@ public class AdminProductServiceTest {
     private final Long sour = 10L;
     private final Long cool = 10L;
     private final Long body = 10L;
-    private final Long balence = 10L;
-    private final Long insense = 10L;
+    private final Long balance = 10L;
+    private final Long incense = 10L;
     private final Long throat = 10L;
 
     private final String modifyName = "1000억 막걸리 프리바이오 수정";
@@ -156,8 +162,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getSour()).isEqualTo(sour);
         assertThat(productDetailResponse.getCool()).isEqualTo(cool);
         assertThat(productDetailResponse.getBody()).isEqualTo(body);
-        assertThat(productDetailResponse.getBalence()).isEqualTo(balence);
-        assertThat(productDetailResponse.getInsense()).isEqualTo(insense);
+        assertThat(productDetailResponse.getBalance()).isEqualTo(balance);
+        assertThat(productDetailResponse.getIncense()).isEqualTo(incense);
         assertThat(productDetailResponse.getThroat()).isEqualTo(throat);
         assertThat(productDetailResponse.getCreatedAt()).isEqualTo(createdAt);
         assertThat(productDetailResponse.getUpdatedAt()).isEqualTo(updatedAt);
@@ -183,7 +189,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 등록 성공")
     public void createProductTest() {
         // given
-        ProductRequest productRequest = ProductRequest.builder()
+        ProductCreateRequest productCreateRequest = ProductCreateRequest.builder()
                 .categoryLastId(categoryLastId)
                 .name(name)
                 .makerId(makerId)
@@ -195,17 +201,19 @@ public class AdminProductServiceTest {
                 .sour(sour)
                 .cool(cool)
                 .body(body)
-                .balence(balence)
-                .insense(insense)
+                .balance(balance)
+                .incense(incense)
                 .throat(throat)
                 .build();
+
+        List<MultipartFile> files = new ArrayList<>();
 
         when(categoryRepository.findById(categoryLastId)).thenReturn(this.getCategoryOne());
         when(makerRepository.findById(makerId)).thenReturn(this.getMakerOne());
         Mockito.when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        ProductDetailResponse productDetailResponse = adminProductService.createProduct(productRequest);
+        ProductDetailResponse productDetailResponse = adminProductService.createProduct(productCreateRequest, files);
 
         // then
         assertThat(productDetailResponse.getCategoryLastId()).isEqualTo(categoryLastId);
@@ -222,8 +230,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getSour()).isEqualTo(sour);
         assertThat(productDetailResponse.getCool()).isEqualTo(cool);
         assertThat(productDetailResponse.getBody()).isEqualTo(body);
-        assertThat(productDetailResponse.getBalence()).isEqualTo(balence);
-        assertThat(productDetailResponse.getInsense()).isEqualTo(insense);
+        assertThat(productDetailResponse.getBalance()).isEqualTo(balance);
+        assertThat(productDetailResponse.getIncense()).isEqualTo(incense);
         assertThat(productDetailResponse.getThroat()).isEqualTo(throat);
     }
 
@@ -231,7 +239,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 등록 실패 - 찾을 수 없는 카테고리 소분류")
     public void createProductFailCategoryNotFoundTest() {
         // given
-        ProductRequest productRequest = ProductRequest.builder()
+        ProductCreateRequest productCreateRequest = ProductCreateRequest.builder()
                 .categoryLastId(categoryLastId)
                 .makerId(makerId)
                 .build();
@@ -240,7 +248,7 @@ public class AdminProductServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminProductService.createProduct(productRequest);
+            adminProductService.createProduct(productCreateRequest, any());
         });
 
         // then
@@ -252,7 +260,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 등록 실패 - 찾을 수 없는 제조사")
     public void createProductFailMakerNotFoundTest() {
         // given
-        ProductRequest productRequest = ProductRequest.builder()
+        ProductCreateRequest productCreateRequest = ProductCreateRequest.builder()
                 .categoryLastId(categoryLastId)
                 .makerId(makerId)
                 .build();
@@ -262,7 +270,7 @@ public class AdminProductServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminProductService.createProduct(productRequest);
+            adminProductService.createProduct(productCreateRequest, any());
         });
 
         // then
@@ -274,7 +282,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 수정 성공")
     public void modifyProductTest() {
         // given
-        ProductRequest productRequest = ProductRequest.builder()
+        ProductModifyRequest productModifyRequest = ProductModifyRequest.builder()
                 .categoryLastId(modifyCategoryLastId)
                 .name(modifyName)
                 .makerId(modifyMakerId)
@@ -286,10 +294,13 @@ public class AdminProductServiceTest {
                 .sour(modifySour)
                 .cool(modifyCool)
                 .body(modifyBody)
-                .balence(modifyBalence)
-                .insense(modifyInsense)
+                .balance(modifyBalence)
+                .incense(modifyInsense)
                 .throat(modifyThroat)
                 .build();
+
+        List<Integer> remove = new ArrayList<>();
+        List<MultipartFile> files = new ArrayList<>();
 
         when(productRepository.findById(id)).thenReturn(this.getProductOne());
         when(categoryRepository.findById(modifyCategoryLastId)).thenReturn(this.getModifyCategoryOne());
@@ -297,7 +308,7 @@ public class AdminProductServiceTest {
         Mockito.when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        ProductDetailResponse productDetailResponse = adminProductService.modifyProduct(id, productRequest);
+        ProductDetailResponse productDetailResponse = adminProductService.modifyProduct(id, productModifyRequest, remove, files);
 
         // then
         assertThat(productDetailResponse.getId()).isEqualTo(id);
@@ -315,8 +326,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getSour()).isEqualTo(modifySour);
         assertThat(productDetailResponse.getCool()).isEqualTo(modifyCool);
         assertThat(productDetailResponse.getBody()).isEqualTo(modifyBody);
-        assertThat(productDetailResponse.getBalence()).isEqualTo(modifyBalence);
-        assertThat(productDetailResponse.getInsense()).isEqualTo(modifyInsense);
+        assertThat(productDetailResponse.getBalance()).isEqualTo(modifyBalence);
+        assertThat(productDetailResponse.getIncense()).isEqualTo(modifyInsense);
         assertThat(productDetailResponse.getThroat()).isEqualTo(modifyThroat);
     }
 
@@ -324,11 +335,11 @@ public class AdminProductServiceTest {
     @DisplayName("제품 수정 실패 - 찾을 수 없는 제품")
     public void modifyProductFailNotFoundTest() {
         // given
-        Mockito.when(this.productRepository.findById(any())).thenReturn(Optional.empty());
+        Mockito.when(this.productRepository.findById(id)).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminProductService.modifyProduct(id, any());
+            adminProductService.modifyProduct(id, any(), null, null);
         });
 
         // then
@@ -340,7 +351,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 수정 실패 - 찾을 수 없는 카테고리 소분류")
     public void modifyProductFailCategoryNotFoundTest() {
         // given
-        ProductRequest productRequest = ProductRequest.builder()
+        ProductModifyRequest productModifyRequest = ProductModifyRequest.builder()
                 .categoryLastId(modifyCategoryLastId)
                 .makerId(modifyMakerId)
                 .build();
@@ -350,7 +361,7 @@ public class AdminProductServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminProductService.modifyProduct(id, productRequest);
+            adminProductService.modifyProduct(id, productModifyRequest, null, null);
         });
 
         // then
@@ -362,7 +373,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 수정 실패 - 찾을 수 없는 제조사")
     public void modifyProductFailMakerNotFoundTest() {
         // given
-        ProductRequest productRequest = ProductRequest.builder()
+        ProductModifyRequest productModifyRequest = ProductModifyRequest.builder()
                 .categoryLastId(categoryLastId)
                 .makerId(makerId)
                 .build();
@@ -373,7 +384,7 @@ public class AdminProductServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminProductService.modifyProduct(id, productRequest);
+            adminProductService.modifyProduct(id, productModifyRequest, null, null);
         });
 
         // then
@@ -558,8 +569,8 @@ public class AdminProductServiceTest {
                 .sour(sour)
                 .cool(cool)
                 .body(body)
-                .balence(balence)
-                .insense(insense)
+                .balance(balance)
+                .incense(incense)
                 .throat(throat)
                 .maker(maker)
                 .category(category)

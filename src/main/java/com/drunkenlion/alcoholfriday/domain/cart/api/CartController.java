@@ -8,6 +8,7 @@ import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartDetailResponse
 import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 @RequestMapping("/v1/carts")
 @Tag(name = "v1-cart-cartDetail", description = "장바구니 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class CartController {
     private final CartService cartService;
 

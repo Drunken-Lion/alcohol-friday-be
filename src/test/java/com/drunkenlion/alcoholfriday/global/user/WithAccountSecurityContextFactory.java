@@ -2,7 +2,6 @@ package com.drunkenlion.alcoholfriday.global.user;
 
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserDetailsServiceImpl;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
                         .provider(annotation.provider())
                         .name("테스트")
                         .nickname("test")
-                        .role(MemberRole.MEMBER)
+                        .role(annotation.role())
                         .phone(1012345678L)
                         .certifyAt(null)
                         .agreedToServiceUse(true)

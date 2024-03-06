@@ -1,5 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.member.application;
 
+import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
+import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
@@ -9,10 +12,16 @@ import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.dto.*;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.ReviewStatus;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dto.OrderDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
+import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
+import com.drunkenlion.alcoholfriday.domain.review.dto.ReviewResponse;
+import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,6 +55,12 @@ public class MemberServiceTest {
     private QuestionRepository questionRepository;
     @Mock
     private OrderRepository orderRepository;
+    @Mock
+    private OrderDetailRepository orderDetailRepository;
+    @Mock
+    private AddressRepository addressRepository;
+    @Mock
+    private ReviewRepository reviewRepository;
 
     private final Long memberId = 1L;
     private final String email = "test@example.com";
@@ -80,12 +95,22 @@ public class MemberServiceTest {
     private final BigDecimal orderPrice = BigDecimal.valueOf(100000);
     private final String recipient = "테스트";
     private final Long recipientPhone = 1012345678L;
-    private final String address = "서울시 마포구 연남동";
-    private final String addressDetail = "123-12";
     private final String description = "부재시 연락주세요.";
-    private final Long postcode = 123123L;
 
     private final Long orderDetailId = 1L;
+
+    private final Long addressId = 1L;
+    private final Boolean isPrimary = true;
+
+    private final String address = "서울시 마포구 연남동";
+    private final String addressDetail = "123-12";
+    private final Long postcode = 123123L;
+
+    private final Long reviewId = 1L;
+    private final Long score = 5L;
+    private final String reviewContent = "맛있어요.";
+    private final String pendingStatus = ReviewStatus.PENDING.getStatus();
+    private final String completeStatus = ReviewStatus.COMPLETE.getStatus();
 
     private final LocalDateTime createdAt = LocalDateTime.now();
     private final LocalDateTime updatedAt = null;
@@ -149,12 +174,12 @@ public class MemberServiceTest {
         when(this.orderRepository.findByMemberIdOrderByCreatedAtDesc(any(), any(Pageable.class))).thenReturn(this.getOrders());
 
         // when
-        Page<MemberOrderListResponse> orders = this.memberService.getMyOrders(memberId, page, size);
+        Page<OrderResponse> orders = this.memberService.getMyOrders(memberId, page, size);
 
 
         // then
-        List<MemberOrderListResponse> content = orders.getContent();
-        List<MemberOrderDetailResponse> orderDetails = content.get(0).getOrderDetails();
+        List<OrderResponse> content = orders.getContent();
+        List<OrderDetailResponse> orderDetails = content.get(0).getOrderDetails();
 
         assertThat(content).isInstanceOf(List.class);
         assertThat(content.size()).isEqualTo(1);
@@ -173,9 +198,81 @@ public class MemberServiceTest {
         assertThat(orderDetails).isInstanceOf(List.class);
         assertThat(orderDetails.size()).isEqualTo(1);
         assertThat(orderDetails.get(0).getId()).isEqualTo(orderDetailId);
-        assertThat(orderDetails.get(0).getItemPrice()).isEqualTo(itemPrice);
         assertThat(orderDetails.get(0).getQuantity()).isEqualTo(quantity);
         assertThat(orderDetails.get(0).getTotalPrice()).isEqualTo(totalPrice);
+    }
+
+    @Test
+    @DisplayName("나의 배송지 목록 조회")
+    public void getMyAddressesTest() {
+        // given
+        when(this.addressRepository.findAllByMemberIdOrderByIsPrimaryDescCreatedAtDesc(any())).thenReturn(List.of(this.getAddressData()));
+
+        // when
+        List<AddressResponse> addressResponses = this.memberService.getMyAddresses(memberId);
+
+        // then
+        assertThat(addressResponses).isInstanceOf(List.class);
+        assertThat(addressResponses.size()).isEqualTo(1);
+        assertThat(addressResponses.get(0).getId()).isEqualTo(addressId);
+        assertThat(addressResponses.get(0).getIsPrimary()).isEqualTo(isPrimary);
+        assertThat(addressResponses.get(0).getAddress()).isEqualTo(address);
+        assertThat(addressResponses.get(0).getAddressDetail()).isEqualTo(addressDetail);
+        assertThat(addressResponses.get(0).getPostcode()).isEqualTo(postcode);
+    }
+
+    @Test
+    @DisplayName("나의 작성할 리뷰 목록 조회")
+    public void getMyPendingReviews() {
+        // given
+        when(this.orderDetailRepository.findByOrderMemberIdAndReviewIsNull(any(), any(Pageable.class))).thenReturn(this.getOrderDetails());
+
+        // when
+        Page<MemberReviewResponse<?>> pendingReviews = this.memberService.getMyReviews(memberId, ReviewStatus.of(pendingStatus), page, size);
+
+        // then
+        List<MemberReviewResponse<?>> content = pendingReviews.getContent();
+        OrderDetailResponse response = (OrderDetailResponse) content.get(0).getResponse();
+
+        assertThat(content).isInstanceOf(List.class);
+        assertThat(content.size()).isEqualTo(1);
+        assertThat(content.get(0).getStatus()).isEqualTo(pendingStatus);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getId()).isEqualTo(reviewId);
+        assertThat(response.getName()).isEqualTo(itemName);
+        assertThat(response.getQuantity()).isEqualTo(quantity);
+        assertThat(response.getTotalPrice()).isEqualTo(totalPrice);
+    }
+
+    @Test
+    @DisplayName("나의 작성한 리뷰 목록 조회")
+    public void getMyCompleteReviews() {
+        // given
+        when(this.reviewRepository.findAllByMemberIdAndDeletedAtIsNull(any(), any(Pageable.class))).thenReturn(this.getReviews());
+
+        // when
+        Page<MemberReviewResponse<?>> completeReviews = this.memberService.getMyReviews(memberId, ReviewStatus.of(completeStatus), page, size);
+
+        // then
+        List<MemberReviewResponse<?>> content = completeReviews.getContent();
+        ReviewResponse response = (ReviewResponse) content.get(0).getResponse();
+        OrderDetailResponse productInfo = response.getProductInfo();
+
+        assertThat(content).isInstanceOf(List.class);
+        assertThat(content.size()).isEqualTo(1);
+        assertThat(content.get(0).getStatus()).isEqualTo(completeStatus);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getId()).isEqualTo(reviewId);
+        assertThat(response.getScore()).isEqualTo(score);
+        assertThat(response.getContent()).isEqualTo(reviewContent);
+
+        assertThat(productInfo).isNotNull();
+        assertThat(productInfo.getId()).isEqualTo(reviewId);
+        assertThat(productInfo.getName()).isEqualTo(itemName);
+        assertThat(productInfo.getQuantity()).isEqualTo(quantity);
+        assertThat(productInfo.getTotalPrice()).isEqualTo(totalPrice);
     }
 
     private Page<Question> getQuestions() {
@@ -191,6 +288,18 @@ public class MemberServiceTest {
         List<Order> list = List.of(order);
         Pageable pageable = PageRequest.of(page, size);
 
+        return new PageImpl<>(list, pageable, list.size());
+    }
+
+    private Page<OrderDetail> getOrderDetails() {
+        List<OrderDetail> list = List.of(this.getOrderDetailData());
+        Pageable pageable = PageRequest.of(page, size);
+        return new PageImpl<>(list, pageable, list.size());
+    }
+
+    private Page<Review> getReviews() {
+        List<Review> list = List.of(this.getReviewData());
+        Pageable pageable = PageRequest.of(page, size);
         return new PageImpl<>(list, pageable, list.size());
     }
 
@@ -214,11 +323,9 @@ public class MemberServiceTest {
     }
 
     private Question getQuestionData() {
-        Member member = getMemberData();
-
         return Question.builder()
                 .id(questionId)
-                .member(member)
+                .member(this.getMemberData())
                 .title(title)
                 .content(content)
                 .status(QuestionStatus.ofStatus(questionStatus))
@@ -266,5 +373,27 @@ public class MemberServiceTest {
         orderDetail.addOrder(this.getOrderData());
 
         return orderDetail;
+    }
+
+    private Address getAddressData() {
+        return Address.builder()
+                .id(addressId)
+                .member(this.getMemberData())
+                .isPrimary(isPrimary)
+                .address(address)
+                .addressDetail(addressDetail)
+                .postcode(postcode)
+                .build();
+    }
+
+    private Review getReviewData() {
+        return Review.builder()
+                .id(reviewId)
+                .score(score)
+                .content(reviewContent)
+                .item(this.getItemData())
+                .orderDetail(this.getOrderDetailData())
+                .member(this.getMemberData())
+                .build();
     }
 }

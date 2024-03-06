@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.item.dto;
 
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
+import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -52,7 +53,10 @@ public class ItemDetailResponse {
     @Schema(description = "삭제일시")
     private LocalDateTime deletedAt;
 
-    public static ItemDetailResponse of(Item item) {
+    @Schema(description = "상품 이미지")
+    private NcpFileResponse itemFiles;
+
+    public static ItemDetailResponse of(Item item, NcpFileResponse file) {
         List<ItemProductInfo> itemProductInfos = item.getItemProducts().stream()
                 .map(ItemProductInfo::of)
                 .collect(Collectors.toList());
@@ -70,6 +74,7 @@ public class ItemDetailResponse {
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
                 .deletedAt(item.getDeletedAt())
+                .itemFiles(file)
                 .build();
     }
 }

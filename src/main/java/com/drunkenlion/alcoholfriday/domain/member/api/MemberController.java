@@ -1,28 +1,34 @@
 package com.drunkenlion.alcoholfriday.domain.member.api;
 
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
 import com.drunkenlion.alcoholfriday.domain.member.application.MemberService;
+import com.drunkenlion.alcoholfriday.domain.member.dto.*;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.ReviewStatus;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
-import com.drunkenlion.alcoholfriday.domain.member.dto.MemberOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
+import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/members")
 @Tag(name = "v1-members", description = "회원 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class MemberController {
     private final MemberService memberService;
 
@@ -56,13 +62,35 @@ public class MemberController {
 
     @Operation(summary = "나의 주문 내역", description = "내가 주문한 내역 목록")
     @GetMapping("me/orders")
-    public ResponseEntity<PageResponse<MemberOrderListResponse>> getMyOrders(
+    public ResponseEntity<PageResponse<OrderResponse>> getMyOrders(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        Page<MemberOrderListResponse> pageOrders = memberService.getMyOrders(userPrincipal.getMember().getId(), page, size);
-        PageResponse<MemberOrderListResponse> pageResponse = PageResponse.of(pageOrders);
+        Page<OrderResponse> pageOrders = memberService.getMyOrders(userPrincipal.getMember().getId(), page, size);
+        PageResponse<OrderResponse> pageResponse = PageResponse.of(pageOrders);
+
+        return ResponseEntity.ok().body(pageResponse);
+    }
+
+    @Operation(summary = "나의 배송지 목록", description = "내가 등록한 배송지 목록 (최대3개)")
+    @GetMapping("me/addresses")
+    public ResponseEntity<List<AddressResponse>> getMyAddresses(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<AddressResponse> addressResponses = memberService.getMyAddresses(userPrincipal.getMember().getId());
+        return ResponseEntity.ok().body(addressResponses);
+    }
+
+    @GetMapping("me/reviews")
+    public ResponseEntity<PageResponse<MemberReviewResponse<?>>> getMyReviews(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(name = "status", defaultValue = "pending") ReviewStatus reviewStatus,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+
+        Page<MemberReviewResponse<?>> pageReviews = memberService.getMyReviews(
+                userPrincipal.getMember().getId(), reviewStatus, page, size);
+
+        PageResponse<MemberReviewResponse<?>> pageResponse = PageResponse.of(pageReviews);
 
         return ResponseEntity.ok().body(pageResponse);
     }

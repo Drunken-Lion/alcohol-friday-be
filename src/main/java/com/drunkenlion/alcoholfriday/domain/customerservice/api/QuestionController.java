@@ -7,6 +7,7 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.Questio
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.QuestionSaveResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -31,6 +32,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/v1/questions")
 @Tag(name = "v1-question", description = "문의사항 API")
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 public class QuestionController {
     private final QuestionService questionService;
 

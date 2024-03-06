@@ -1,5 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.member.api;
 
+import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
+import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
@@ -21,6 +23,8 @@ import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
+import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
@@ -74,6 +78,10 @@ public class MemberControllerTest {
     private CategoryRepository categoryRepository;
     @Autowired
     private CategoryClassRepository categoryClassRepository;
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
 
     public static final String EMAIL = "test@example.com";
@@ -107,6 +115,7 @@ public class MemberControllerTest {
                 .updatedAt(null)
                 .deletedAt(null)
                 .build();
+
         questionRepository.save(question);
 
         CategoryClass categoryClass =
@@ -134,8 +143,8 @@ public class MemberControllerTest {
                                 .sour(1L)
                                 .cool(1L)
                                 .body(1L)
-                                .balence(1L)
-                                .insense(1L)
+                                .balance(1L)
+                                .incense(1L)
                                 .throat(1L)
                                 .build());
         product.addCategory(category);
@@ -148,6 +157,15 @@ public class MemberControllerTest {
                                 .info("이 상품은 테스트 상품입니다.")
                                 .build());
         item.addCategory(category);
+
+        Item item2 =
+                itemRepository.save(
+                        Item.builder()
+                                .name("테스트 술2")
+                                .price(new BigDecimal(20000))
+                                .info("이 상품은 테스트 상품입니다2")
+                                .build());
+        item2.addCategory(category);
 
         ItemProduct itemProduct = itemProductRepository.save(ItemProduct.builder()
                 .item(item)
@@ -179,6 +197,38 @@ public class MemberControllerTest {
                                 .build());
         orderDetail.addItem(item);
         orderDetail.addOrder(order);
+
+        OrderDetail orderDetail2 =
+                orderDetailRepository.save(
+                        OrderDetail.builder()
+                                .itemPrice(item2.getPrice())
+                                .quantity(1L)
+                                .totalPrice(BigDecimal.valueOf(20000))
+                                .build()
+                );
+        orderDetail2.addItem(item2);
+        orderDetail2.addOrder(order);
+
+        Address address = Address.builder()
+                .member(member)
+                .isPrimary(true)
+                .address("서울시 마포구 연남동")
+                .addressDetail("123-12번지")
+                .postcode(123123L)
+                .recipient("테스트유저55")
+                .phone(1012345678L)
+                .request("부재시 문 앞")
+                .build();
+        addressRepository.save(address);
+
+        Review review = reviewRepository.save(
+                Review.builder()
+                        .score(5L)
+                        .content("맛있어요")
+                        .item(item)
+                        .member(member)
+                        .build());
+        review.addOrderDetail(orderDetail);
     }
 
     @AfterEach
@@ -193,6 +243,8 @@ public class MemberControllerTest {
         productRepository.deleteAll();
         categoryRepository.deleteAll();
         categoryClassRepository.deleteAll();
+        addressRepository.deleteAll();
+        reviewRepository.deleteAll();
     }
 
     @Test
@@ -309,5 +361,84 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$.data[0].description", notNullValue()))
                 .andExpect(jsonPath("$.data[0].orderDetails", instanceOf(List.class)))
         ;
+    }
+
+    @Test
+    @DisplayName("나의 배송지 목록 조회")
+    @WithAccount
+    void getMyAddressesTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/members/me/addresses")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMyAddresses"))
+                .andExpect(jsonPath("$", instanceOf(List.class)))
+                .andExpect(jsonPath("$.length()", is(1)))
+                .andExpect(jsonPath("$[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$[0].isPrimary", instanceOf(Boolean.class)))
+                .andExpect(jsonPath("$[0].address", notNullValue()))
+                .andExpect(jsonPath("$[0].addressDetail", notNullValue()))
+                .andExpect(jsonPath("$[0].postcode", notNullValue()))
+                .andExpect(jsonPath("$[0].recipient", notNullValue()))
+                .andExpect(jsonPath("$[0].phone", instanceOf(Number.class)))
+                .andExpect(jsonPath("$[0].request", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("나의 작성할 리뷰 목록 조회")
+    @WithAccount
+    void getMyPendingReviewsTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/members/me/reviews")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMyReviews"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].status", notNullValue()))
+                .andExpect(jsonPath("$.data[0].response.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.name", notNullValue()))
+                .andExpect(jsonPath("$.data[0].response.quantity", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.totalPrice", instanceOf(Number.class)));
+    }
+
+    @Test
+    @DisplayName("나의 작성한 리뷰 목록 조회")
+    @WithAccount
+    void getMyCompleteReviewsTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/members/me/reviews")
+                        .param("status", "complete")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getMyReviews"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].status", notNullValue()))
+                .andExpect(jsonPath("$.data[0].response.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.score", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.content", notNullValue()))
+                .andExpect(jsonPath("$.data[0].response.productInfo.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.productInfo.name", notNullValue()))
+                .andExpect(jsonPath("$.data[0].response.productInfo.quantity", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].response.productInfo.totalPrice", instanceOf(Number.class)));
     }
 }
