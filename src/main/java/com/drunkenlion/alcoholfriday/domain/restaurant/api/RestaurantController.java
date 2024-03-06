@@ -4,6 +4,7 @@ package com.drunkenlion.alcoholfriday.domain.restaurant.api;
 import com.drunkenlion.alcoholfriday.domain.restaurant.application.RestaurantService;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantLocationResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/v1/restaurants")
 @Tag(name = "v1-restaurants-controller", description = "레스토랑 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class RestaurantController {
 
     private final RestaurantService restaurantService;

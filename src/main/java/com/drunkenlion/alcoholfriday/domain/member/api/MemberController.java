@@ -9,6 +9,7 @@ import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListRespons
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/v1/members")
 @Tag(name = "v1-members", description = "회원 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class MemberController {
     private final MemberService memberService;
 
