@@ -6,6 +6,7 @@ import java.time.LocalTime;
 
 @Getter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class TimeData {
