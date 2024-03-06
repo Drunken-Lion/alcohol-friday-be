@@ -67,7 +67,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                     .build();
         }
 
-        Member member = memberRepository.findById(restaurantRequest.getMemberId())
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(restaurantRequest.getMemberId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
@@ -94,7 +94,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
 
-        Member member = memberRepository.findById(restaurantRequest.getMemberId())
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(restaurantRequest.getMemberId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
