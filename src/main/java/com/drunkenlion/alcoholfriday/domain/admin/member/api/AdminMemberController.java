@@ -7,6 +7,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberModifyRequest
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/v1/admin")
 @Tag(name = "v1-admin-member", description = "관리자 회원 관리 API")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminMemberController {
     private final AdminMemberService adminMemberService;
 

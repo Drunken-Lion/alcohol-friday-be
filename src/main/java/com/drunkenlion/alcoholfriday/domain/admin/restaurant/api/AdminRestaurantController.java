@@ -7,6 +7,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantReque
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 @RequestMapping("/v1/admin")
 @Tag(name = "v1-admin-restaurant", description = "관리자 매장 관리 API")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminRestaurantController {
     private final AdminRestaurantService adminRestaurantService;
 

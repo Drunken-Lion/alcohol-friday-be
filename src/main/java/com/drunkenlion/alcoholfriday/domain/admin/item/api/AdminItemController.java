@@ -7,6 +7,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemModifyRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/v1/admin")
 @Tag(name = "v1-admin-item", description = "관리자 상품 관리 API")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminItemController {
     private final AdminItemService adminItemService;
 
