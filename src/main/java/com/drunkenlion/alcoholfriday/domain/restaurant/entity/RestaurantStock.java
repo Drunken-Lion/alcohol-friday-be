@@ -27,4 +27,9 @@ public class RestaurantStock extends BaseEntity {
 
     @Comment("레스토랑 재고 수량")
     private Long quantity;
+
+    public void addRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
+        restaurant.getRestaurantStocks().add(this);
+    }
 }

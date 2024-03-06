@@ -12,7 +12,9 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -61,6 +63,10 @@ public class Restaurant extends BaseEntity {
     @Column(name = "provision", columnDefinition ="json")
     @Builder.Default
     private Map<String , Object> provision = new HashMap<>();
+
+    @OneToMany(mappedBy = "restaurant")
+    @Builder.Default
+    private List<RestaurantStock> restaurantStocks = new ArrayList<>();
 
     public static Point genPoint(Double longitude, Double latitude) {
         GeometryFactory geometryFactory = new GeometryFactory();
