@@ -71,7 +71,7 @@ public class QuestionServiceImpl implements QuestionService {
         QuestionValidator.compareEntityIdToMemberId(question, member);
 
         if (!question.getAnswers().isEmpty()) {
-            throw new BusinessException(Fail.IMPOSSIBLE_TO_MODIFY);
+            throw new BusinessException(Fail.BAD_REQUEST);
         }
 
         question.updateQuestion(request.getUpdateTitle(), request.getUpdateContent());
@@ -91,7 +91,7 @@ public class QuestionServiceImpl implements QuestionService {
         QuestionValidator.compareEntityIdToMemberId(question, member);
 
         if (question.getDeletedAt() != null || question.getStatus().equals(QuestionStatus.COMPLETE)) {
-            throw new BusinessException(Fail.IMPOSSIBLE_TO_DELETE);
+            throw new BusinessException(Fail.BAD_REQUEST);
         }
 
         question.deleteEntity();

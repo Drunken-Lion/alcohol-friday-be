@@ -66,8 +66,6 @@ public class HttpResponse {
         NICKNAME_IN_USE(HttpStatus.CONFLICT, "사용중인 닉네임입니다."),
         PRODUCT_IN_USE(HttpStatus.CONFLICT, "사용중인 제품입니다."),
         CATEGORY_IN_USE(HttpStatus.CONFLICT, "사용중인 카테고리입니다."),
-        IMPOSSIBLE_TO_MODIFY(HttpStatus.CONFLICT, "수정이 불가능한 리소스입니다."),
-        IMPOSSIBLE_TO_DELETE(HttpStatus.CONFLICT, "삭제가 불가능한 리소스입니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");
