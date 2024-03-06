@@ -140,18 +140,12 @@ public class RestaurantControllerTest {
                 .quantity(150L)
                 .build();
 
-        stock1.addItem(item1);
-        stock2.addItem(item2);
-
-        stock1.addRestaurant(restaurant);
-        stock2.addRestaurant(restaurant);
-
         restaurantStockRepository.save(stock1);
         restaurantStockRepository.save(stock2);
     }
 
-//    @AfterEach
-//    @Transactional
+    @AfterEach
+    @Transactional
     void afterEach() {
         memberRepository.deleteAll();
         restaurantRepository.deleteAll();

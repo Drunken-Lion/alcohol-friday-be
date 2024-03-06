@@ -22,14 +22,10 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -134,9 +130,6 @@ public class RestaurantRepositoryTest {
                 .restaurant(restaurant)
                 .quantity(150L)
                 .build();
-
-        stock1.addItem(item1);
-        stock2.addItem(item2);
 
         stock1.addRestaurant(restaurant);
         stock2.addRestaurant(restaurant);

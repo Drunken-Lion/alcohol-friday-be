@@ -134,23 +134,6 @@ public class AdminRestaurantControllerTest {
 
         memberRepository.save(member);
 
-        final Coordinate coordinate = new Coordinate(126.984634, 37.569833);
-        Point restaurant_location = geometryFactory.createPoint(coordinate);
-        Restaurant restaurant = Restaurant.builder()
-                .members(member)
-                .category("한식")
-                .name("맛있는 한식당")
-                .address("서울시 강남구")
-                .location(restaurant_location)
-                .contact(1012345678L)
-                .menu(getMenuTest())
-                .time(getTimeTest())
-                .provision(getProvisionTest())
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        restaurantRepository.save(restaurant);
-
         List<Item> items = LongStream.rangeClosed(1, 2).mapToObj(i -> {
             Item item =  Item.builder()
                     .id(i)
@@ -172,13 +155,30 @@ public class AdminRestaurantControllerTest {
             return RestaurantStock.builder()
                     .id(item.getId())
                     .item(item)
-                    .restaurant(restaurant)
                     .quantity(100L)
                     .createdAt(LocalDateTime.now())
                     .build();
         }).collect(Collectors.toList());
 
         restaurantStockRepository.saveAll(restaurantStocks);
+
+        final Coordinate coordinate = new Coordinate(126.984634, 37.569833);
+        Point restaurant_location = geometryFactory.createPoint(coordinate);
+        Restaurant restaurant = Restaurant.builder()
+                .members(member)
+                .category("한식")
+                .name("맛있는 한식당")
+                .address("서울시 강남구")
+                .location(restaurant_location)
+                .contact(1012345678L)
+                .menu(getMenuTest())
+                .time(getTimeTest())
+                .provision(getProvisionTest())
+                .createdAt(LocalDateTime.now())
+                .restaurantStocks(restaurantStocks)
+                .build();
+
+        restaurantRepository.save(restaurant);
     }
 
     @AfterEach
@@ -186,6 +186,7 @@ public class AdminRestaurantControllerTest {
     void afterEach() {
         memberRepository.deleteAll();
         restaurantRepository.deleteAll();
+        restaurantStockRepository.deleteAll();
     }
 
     @Test
