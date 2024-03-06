@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/admin")
+@RequestMapping("/v1/admin/members")
 @Tag(name = "v1-admin-member", description = "관리자 회원 관리 API")
 @SecurityRequirement(name = "bearerAuth")
 public class AdminMemberController {
     private final AdminMemberService adminMemberService;
 
     @Operation(summary = "전체 회원 조회", description = "관리자 권한에 대한 전체 회원 조회")
-    @GetMapping(value = "members")
+    @GetMapping
     public ResponseEntity<PageResponse<MemberListResponse>> getMembers(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -36,7 +36,7 @@ public class AdminMemberController {
     }
 
     @Operation(summary = "회원 상세 조회", description = "관리자 화면에 대한 회원 상세 조회")
-    @GetMapping(value = "members/{id}")
+    @GetMapping(value = "{id}")
     public ResponseEntity<MemberDetailResponse> getMember(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id
@@ -46,7 +46,7 @@ public class AdminMemberController {
     }
 
     @Operation(summary = "회원 수정", description = "관리자 화면에 대한 회원 수정")
-    @PutMapping(value = "members/{id}")
+    @PutMapping(value = "{id}")
     public ResponseEntity<MemberDetailResponse> modifyMember(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id,

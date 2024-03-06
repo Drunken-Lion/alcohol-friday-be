@@ -21,14 +21,14 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/admin")
+@RequestMapping("/v1/admin/products")
 @Tag(name = "v1-admin-product", description = "관리자 제품 관리 API")
 @SecurityRequirement(name = "bearerAuth")
 public class AdminProductController {
     private final AdminProductService adminProductService;
 
     @Operation(summary = "전체 제품 조회", description = "관리자 권한에 대한 전체 제품 조회")
-    @GetMapping(value = "products")
+    @GetMapping
     public ResponseEntity<PageResponse<ProductListResponse>> getProducts(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size
@@ -38,7 +38,7 @@ public class AdminProductController {
     }
 
     @Operation(summary = "제품 상세 조회", description = "관리자 권한에 대한 제품 상세 조회")
-    @GetMapping(value = "products/{id}")
+    @GetMapping(value = "{id}")
     public ResponseEntity<ProductDetailResponse> getProduct(
             @PathVariable("id") Long id
     ) {
@@ -47,7 +47,7 @@ public class AdminProductController {
     }
 
     @Operation(summary = "제품 등록", description = "관리자 권한에 대한 제품 등록")
-    @PostMapping(value = "products")
+    @PostMapping
     public ResponseEntity<ProductDetailResponse> createProduct(
             @Valid @RequestPart("productRequest") ProductCreateRequest productCreateRequest,
             @RequestPart("files") List<MultipartFile> files
@@ -64,7 +64,7 @@ public class AdminProductController {
     }
 
     @Operation(summary = "제품 수정", description = "관리자 권한에 대한 제품 수정")
-    @PutMapping(value = "products/{id}")
+    @PutMapping(value = "{id}")
     public ResponseEntity<ProductDetailResponse> modifyProduct(
             @PathVariable("id") Long id,
             @Valid @RequestPart("productRequest") ProductModifyRequest productModifyRequest,
@@ -75,7 +75,7 @@ public class AdminProductController {
     }
 
     @Operation(summary = "제품 삭제", description = "관리자 권한에 대한 제품 삭제")
-    @DeleteMapping(value = "products/{id}")
+    @DeleteMapping(value = "{id}")
     public ResponseEntity<Void> deleteProduct(
             @PathVariable("id") Long id
     ) {
