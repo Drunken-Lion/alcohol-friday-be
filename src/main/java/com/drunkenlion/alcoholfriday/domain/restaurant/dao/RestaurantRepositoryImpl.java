@@ -48,7 +48,6 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Restaurant> getRestaurant(double neLatitude, double neLongitude, double swLatitude, double swLongitude) {
         String polygon = String.format("POLYGON((%f %f, %f %f, %f %f, %f %f, %f %f))",
                 swLongitude, neLatitude,

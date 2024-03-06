@@ -33,7 +33,6 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
-@Transactional
 @ExtendWith(SpringExtension.class)
 public class RestaurantRepositoryTest {
 
