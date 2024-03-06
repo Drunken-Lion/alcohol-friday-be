@@ -1,6 +1,16 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.dao;
 
 
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -41,4 +51,28 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom{
                 .where(inPolygon.and(isNotDeleted))
                 .fetch();
     }
+
+    @Override
+    public Page<Restaurant> findAllBasedAuth(Member authMember, Pageable pageable) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (!authMember.getRole().equals(MemberRole.ADMIN)) {
+            builder.and(restaurant.members.id.eq(authMember.getId()));
+        }
+
+        List<Restaurant> restaurants = query
+                .select(restaurant)
+                .from(restaurant)
+                .where(builder)
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> total = query
+                .select(restaurant.count())
+                .from(restaurant)
+                .where(builder);
+
+        return PageableExecutionUtils.getPage(restaurants, pageable, total::fetchOne);
+    }
+
 }
