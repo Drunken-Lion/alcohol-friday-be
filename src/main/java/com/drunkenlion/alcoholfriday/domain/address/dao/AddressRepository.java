@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface AddressRepository extends JpaRepository<Address, Long> {
     List<Address> findAllByMemberIdOrderByIsPrimaryDescCreatedAtDesc(Long memberId);
+
+    List<Address> findAllByMemberId(Long memberId);
 }

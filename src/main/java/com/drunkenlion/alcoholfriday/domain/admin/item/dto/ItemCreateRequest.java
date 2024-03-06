@@ -14,8 +14,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "상품 입력 요청 항목")
-public class ItemRequest {
+@Schema(description = "상품 등록 요청 항목")
+public class ItemCreateRequest {
     @Schema(description = "상품의 판매 제품의 정보들")
     @NotEmpty
     private List<ItemProductInfo> itemProductInfos;
@@ -35,7 +35,7 @@ public class ItemRequest {
     @Schema(description = "판매 유형")
     private ItemType type;
 
-    public static Item toEntity(ItemRequest request, Category category) {
+    public static Item toEntity(ItemCreateRequest request, Category category) {
         return Item.builder()
                 .category(category)
                 .name(request.getName())

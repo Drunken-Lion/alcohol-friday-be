@@ -7,13 +7,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "제품 입력 요청 항목")
-public class ProductRequest {
+@Schema(description = "제품 수정 요청 항목")
+public class ProductModifyRequest {
     @Schema(description = "카테고리 소분류 고유 아이디")
     private Long categoryLastId;
 
@@ -48,15 +49,18 @@ public class ProductRequest {
     private Long body;
 
     @Schema(description = "술 밸런스")
-    private Long balence;
+    private Long balance;
 
     @Schema(description = "술 향기")
-    private Long insense;
+    private Long incense;
 
     @Schema(description = "술 목넘김")
     private Long throat;
 
-    public static Product toEntity(ProductRequest request, Category category, Maker maker) {
+    @Schema(description = "이미지 삭제 목록")
+    private List<Integer> remove;
+
+    public static Product toEntity(ProductModifyRequest request, Category category, Maker maker) {
         return Product.builder()
                 .name(request.getName())
                 .price(request.getPrice())
@@ -67,8 +71,8 @@ public class ProductRequest {
                 .sour(request.getSour())
                 .cool(request.getCool())
                 .body(request.getBody())
-                .balence(request.getBalence())
-                .insense(request.getInsense())
+                .balance(request.getBalance())
+                .incense(request.getIncense())
                 .throat(request.getThroat())
                 .category(category)
                 .maker(maker)

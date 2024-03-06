@@ -27,6 +27,9 @@ import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
@@ -36,8 +39,11 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
+import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.file.application.FileServiceImpl;
 
 import java.io.File;
@@ -49,6 +55,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.IntegerRange;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -66,6 +73,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -95,6 +103,10 @@ public class NotProd {
     private final CartDetailRepository cartDetailRepository;
     private final RestaurantStockRepository restaurantStockRepository;
     private final GeometryFactory geometryFactory = new GeometryFactory();
+
+    private final OrderRepository orderRepository;
+    private final OrderDetailRepository orderDetailRepository;
+    private final ReviewRepository reviewRepository;
 
     @Bean
     @Order(3)
@@ -948,8 +960,8 @@ public class NotProd {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_국순당)
                 .category(카테고리_소분류1)
@@ -965,8 +977,8 @@ public class NotProd {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_국순당)
                 .category(카테고리_소분류2)
@@ -982,8 +994,8 @@ public class NotProd {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_청산녹수)
                 .category(카테고리_소분류3)
@@ -999,8 +1011,8 @@ public class NotProd {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_청산녹수)
                 .category(카테고리_소분류4)
@@ -1016,8 +1028,8 @@ public class NotProd {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_한국애플리즈)
                 .category(카테고리_소분류5)
@@ -1033,8 +1045,8 @@ public class NotProd {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_한국애플리즈)
                 .category(카테고리_소분류6)
@@ -1050,8 +1062,8 @@ public class NotProd {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_명세주가)
                 .category(카테고리_소분류7)
@@ -1067,8 +1079,8 @@ public class NotProd {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_명세주가)
                 .category(카테고리_소분류8)
@@ -1084,8 +1096,8 @@ public class NotProd {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_청도감와인)
                 .category(카테고리_소분류9)
@@ -1101,8 +1113,8 @@ public class NotProd {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_청도감와인)
                 .category(카테고리_소분류10)
@@ -1231,7 +1243,7 @@ public class NotProd {
                         .member(회원_일반회원1)
                         .isPrimary(true)
                         .address("경기도 포천시 일동면 운악청계로 1597")
-                        .detail("101호")
+                        .addressDetail("101호")
                         .postcode(1234L)
                         .build());
 
@@ -1240,7 +1252,7 @@ public class NotProd {
                         .member(회원_일반회원1)
                         .isPrimary(false)
                         .address("경기도 포천시 일동면 운악청계로 1598")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1249,7 +1261,7 @@ public class NotProd {
                         .member(회원_일반회원2)
                         .isPrimary(true)
                         .address("강원도 홍천군 남면 어두원이길 143")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1258,7 +1270,7 @@ public class NotProd {
                         .member(회원_일반회원2)
                         .isPrimary(false)
                         .address("강원도 홍천군 남면 어두원이길 143")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1267,7 +1279,7 @@ public class NotProd {
                         .member(회원_일반회원3)
                         .isPrimary(true)
                         .address("전라남도 장성군 장성읍 남양촌길 (백계리) 19")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1276,7 +1288,7 @@ public class NotProd {
                         .member(회원_일반회원3)
                         .isPrimary(false)
                         .address("전라남도 장성군 장성읍 남양촌길 (백계리) 19")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1285,7 +1297,7 @@ public class NotProd {
                         .member(회원_일반회원4)
                         .isPrimary(true)
                         .address("강원도 양구군 방산면 칠전길 12-7")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1294,7 +1306,7 @@ public class NotProd {
                         .member(회원_일반회원4)
                         .isPrimary(false)
                         .address("강원도 양구군 방산면 칠전길 12-7")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1303,7 +1315,7 @@ public class NotProd {
                         .member(회원_일반회원5)
                         .isPrimary(true)
                         .address("경상북도 의성군 단촌면 일직점곡로 755")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1312,7 +1324,7 @@ public class NotProd {
                         .member(회원_일반회원5)
                         .isPrimary(false)
                         .address("경상북도 의성군 단촌면 일직점곡로 755")
-                        .detail("102호")
+                        .addressDetail("102호")
                         .postcode(1234L)
                         .build());
 
@@ -1875,5 +1887,85 @@ public class NotProd {
                         .quantity(100L)
                         .restaurant(가게5)
                         .build());
+
+        // Order 테스트 데이터
+        com.drunkenlion.alcoholfriday.domain.order.entity.Order 주문_1 =
+                orderRepository.save(
+                        com.drunkenlion.alcoholfriday.domain.order.entity.Order.builder()
+                                .orderNo("주문_1")
+                                .orderStatus(OrderStatus.PAYMENT_COMPLETED)
+                                .price(BigDecimal.valueOf(20000))
+                                .recipient("테스트회원5")
+                                .phone(1012345678L)
+                                .address("서울시 마포구 연남동")
+                                .detail("123-12번지")
+                                .description("부재 시 문앞에 놓아주세요.")
+                                .postcode(123123L)
+                                .member(회원_일반회원5)
+                                .build()
+                );
+
+        com.drunkenlion.alcoholfriday.domain.order.entity.Order 주문_2 =
+                orderRepository.save(
+                        com.drunkenlion.alcoholfriday.domain.order.entity.Order.builder()
+                                .orderNo("주문_2")
+                                .orderStatus(OrderStatus.PAYMENT_COMPLETED)
+                                .price(BigDecimal.valueOf(20000))
+                                .recipient("테스트회원5")
+                                .phone(1012345678L)
+                                .address("서울시 마포구 연남동")
+                                .detail("123-12번지")
+                                .description("부재 시 문앞에 놓아주세요.")
+                                .postcode(123123L)
+                                .member(회원_일반회원5)
+                                .build()
+                );
+
+        // OrderDetail 테스트 데이터
+        OrderDetail 주문상품_1 = orderDetailRepository.save(
+                OrderDetail.builder()
+                        .itemPrice(상품_1.getPrice())
+                        .quantity(1L)
+                        .totalPrice(상품_1.getPrice())
+                        .item(상품_1)
+                        .order(주문_1)
+                        .review(null)
+                        .build()
+        );
+
+        OrderDetail 주문상품_2 = orderDetailRepository.save(
+                OrderDetail.builder()
+                        .itemPrice(상품_2.getPrice())
+                        .quantity(1L)
+                        .totalPrice(상품_2.getPrice())
+                        .item(상품_2)
+                        .order(주문_1)
+                        .review(null)
+                        .build()
+        );
+
+        OrderDetail 주문상품_3 = orderDetailRepository.save(
+                OrderDetail.builder()
+                        .itemPrice(상품_3.getPrice())
+                        .quantity(1L)
+                        .totalPrice(상품_3.getPrice())
+                        .item(상품_3)
+                        .order(주문_1)
+                        .review(null)
+                        .build()
+        );
+
+        // Review 테스트 데이터
+        Review 리뷰_1 = reviewRepository.save(
+                Review.builder()
+                        .score(5L)
+                        .content("맛있어요")
+                        .item(상품_1)
+                        .orderDetail(주문상품_1)
+                        .member(회원_일반회원5)
+                        .build()
+        );
+
     }
+
 }

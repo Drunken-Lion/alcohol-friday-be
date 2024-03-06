@@ -4,6 +4,8 @@ import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 @Transactional
 public class AdminCategoryControllerTest {
     @Autowired
@@ -62,6 +66,7 @@ public class AdminCategoryControllerTest {
 
     @Test
     @DisplayName("카테고리 대분류 목록 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getCategoryClassesTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -88,6 +93,7 @@ public class AdminCategoryControllerTest {
 
     @Test
     @DisplayName("카테고리 대분류 상세 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getCategoryClassTest() throws Exception {
         // given
         CategoryClass categoryClass = this.categoryClassRepository.findAll().get(0);
@@ -114,6 +120,7 @@ public class AdminCategoryControllerTest {
 
     @Test
     @DisplayName("카테고리 대분류 등록 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void createCategoryClassTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -142,6 +149,7 @@ public class AdminCategoryControllerTest {
 
     @Test
     @DisplayName("카테고리 대분류 수정 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void modifyCategoryClassTest() throws Exception {
         // given
         CategoryClass categoryClass = this.categoryClassRepository.findAll().get(0);
@@ -173,6 +181,7 @@ public class AdminCategoryControllerTest {
 
     @Test
     @DisplayName("카테고리 대분류 삭제 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void deleteCategoryClassTest() throws Exception {
         // given
         CategoryClass categoryClass = this.categoryClassRepository.findAll().get(0);
@@ -194,6 +203,7 @@ public class AdminCategoryControllerTest {
 
     @Test
     @DisplayName("카테고리 소분류 목록 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getCategoriesTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -221,6 +231,7 @@ public class AdminCategoryControllerTest {
 
     @Test
     @DisplayName("카테고리 소분류 상세 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getCategoryTest() throws Exception {
         // given
         Category category = this.categoryRepository.findAll().get(0);
@@ -249,6 +260,7 @@ public class AdminCategoryControllerTest {
 
     @Test
     @DisplayName("카테고리 소분류 등록 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void createCategoryTest() throws Exception {
         // then
         Long categoryFirstId = this.categoryClassRepository.findAll().get(0).getId();
@@ -283,6 +295,7 @@ public class AdminCategoryControllerTest {
 
     @Test
     @DisplayName("카테고리 소분류 수정 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void modifyCategoryTest() throws Exception {
         // given
         Long categoryFirstId = this.categoryClassRepository.findAll().get(0).getId();
@@ -318,6 +331,7 @@ public class AdminCategoryControllerTest {
 
     @Test
     @DisplayName("카테고리 소분류 삭제 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void deleteCategoryTest() throws Exception {
         // given
         Category category = this.categoryRepository.findAll().get(0);

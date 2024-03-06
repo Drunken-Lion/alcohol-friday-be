@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.dto;
 
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -59,10 +60,10 @@ public class ProductDetailResponse {
     private Long body;
 
     @Schema(description = "술 밸런스")
-    private Long balence;
+    private Long balance;
 
     @Schema(description = "술 향기")
-    private Long insense;
+    private Long incense;
 
     @Schema(description = "술 목넘김")
     private Long throat;
@@ -76,7 +77,10 @@ public class ProductDetailResponse {
     @Schema(description = "삭제일시")
     private LocalDateTime deletedAt;
 
-    public static ProductDetailResponse of(Product product) {
+    @Schema(description = "제품 이미지")
+    private NcpFileResponse productFiles;
+
+    public static ProductDetailResponse of(Product product, NcpFileResponse file) {
         return ProductDetailResponse.builder()
                 .id(product.getId())
                 .categoryLastId(product.getCategory().getId())
@@ -93,12 +97,13 @@ public class ProductDetailResponse {
                 .sour(product.getSour())
                 .cool(product.getCool())
                 .body(product.getBody())
-                .balence(product.getBalence())
-                .insense(product.getInsense())
+                .balance(product.getBalance())
+                .incense(product.getIncense())
                 .throat(product.getThroat())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .deletedAt(product.getDeletedAt())
+                .productFiles(file)
                 .build();
     }
 }
