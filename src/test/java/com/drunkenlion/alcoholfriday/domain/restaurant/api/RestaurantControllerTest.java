@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.dao;
+package com.drunkenlion.alcoholfriday.domain.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
@@ -7,7 +7,8 @@ import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.restaurant.application.RestaurantService;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantLocationResponse;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
@@ -15,27 +16,37 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.annotation.Commit;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@Transactional
-@ExtendWith(SpringExtension.class)
-public class RestaurantRepositoryTest {
+@AutoConfigureMockMvc
+public class RestaurantControllerTest {
+
+    @Autowired
+    private MockMvc mvc;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -58,20 +69,16 @@ public class RestaurantRepositoryTest {
     private double neLongitude = 126.8529193;
     private double swLatitude = 37.5482577;
     private double swLongitude = 126.8421905;
-    private double restaurantLatitude = 37.549636;
-    private double restaurantLongitude = 126.842299;
-    private String restaurantName = "학식";
-    private String restaurantCategory = "우정산 폴리텍대학";
-    private String restaurantAddress = "우정산 서울강서 캠퍼스";
+
 
     @BeforeEach
     @Transactional
     void beforeEach() {
         Member member = Member.builder()
-                .email("toss1@example.com")
+                .email("toss400@example.com")
                 .provider(ProviderType.KAKAO)
-                .name("toss_1")
-                .nickname("toss_1")
+                .name("toss_4")
+                .nickname("toss_4")
                 .role(MemberRole.MEMBER)
                 .phone(1012345678L)
                 .certifyAt(null)
@@ -104,11 +111,13 @@ public class RestaurantRepositoryTest {
         final Coordinate coordinate = new Coordinate(126.842299, 37.549636);
         Point restaurant_location = geometryFactory.createPoint(coordinate);
 
+
+
         Restaurant restaurant = Restaurant.builder()
                 .members(member)
-                .category(restaurantCategory)
-                .name(restaurantName)
-                .address(restaurantAddress)
+                .category("학식")
+                .name("우정산 폴리텍대학")
+                .address("우정산 서울강서 캠퍼스")
                 .location(restaurant_location)
                 .contact(1012345678L)
                 .menu(getMenuTest())
@@ -139,6 +148,15 @@ public class RestaurantRepositoryTest {
 
         restaurantStockRepository.save(stock1);
         restaurantStockRepository.save(stock2);
+    }
+
+//    @AfterEach
+//    @Transactional
+    void afterEach() {
+        memberRepository.deleteAll();
+        restaurantRepository.deleteAll();
+        restaurantStockRepository.deleteAll();
+        itemRepository.deleteAll();
     }
 
     private Map<String, Object> getMenuTest() {
@@ -185,37 +203,32 @@ public class RestaurantRepositoryTest {
     }
 
 
-
     @Test
-    @DisplayName("범위 내의 모든 레스토랑 정보 찾기")
-    public void nearbyRestaurant() {
+    public void search() throws Exception {
 
-        //when
-        List<RestaurantLocationResponse> restaurants = restaurantService.getRestaurants(neLatitude, neLongitude, swLatitude, swLongitude);
+        ResultActions resultActions = mvc.perform(get("/v1/restaurants")
+                        .param("neLatitude", String.valueOf(neLatitude))
+                        .param("neLongitude", String.valueOf(neLongitude))
+                        .param("swLatitude", String.valueOf(swLatitude))
+                        .param("swLongitude", String.valueOf(swLongitude)))
+                .andDo(print());
 
-        System.out.println("==============================================================");
-        for (RestaurantLocationResponse restaurant : restaurants) {
-            System.out.println(restaurant);
-        }
-        System.out.println("==============================================================");
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantController.class))
+                .andExpect(handler().methodName("getRestaurants"))
+                .andExpect(jsonPath("$.[0].id", notNullValue()))
+                .andExpect(jsonPath("$.[0].memberId", notNullValue()))
+                .andExpect(jsonPath("$.[0].category", notNullValue()))
+                .andExpect(jsonPath("$.[0].name", notNullValue()))
+                .andExpect(jsonPath("$.[0].address", notNullValue()))
+                .andExpect(jsonPath("$.[0].latitude", notNullValue()))
+                .andExpect(jsonPath("$.[0].longitude", notNullValue()))
+                .andExpect(jsonPath("$.[0].contact", notNullValue()))
+                .andExpect(jsonPath("$.[0].menu", notNullValue()))
+                .andExpect(jsonPath("$.[0].time", notNullValue()));
 
-        //then
-        assertThat(restaurants.get(0).getCategory()).isEqualTo(restaurantCategory);
-        assertThat(restaurants.get(0).getName()).isEqualTo(restaurantName);
-        assertThat(restaurants.get(0).getAddress()).isEqualTo(restaurantAddress);;
-        assertThat(restaurants.get(0).getLatitude()).isEqualTo(restaurantLatitude);
-        assertThat(restaurants.get(0).getLongitude()).isEqualTo(restaurantLongitude);
-        assertThat(restaurants.get(0).getStockResponses().get(0).getItem().getPrice()).isEqualTo(BigDecimal.valueOf(20000));
-        assertThat(restaurants.get(0).getStockResponses().get(1).getItem().getPrice()).isEqualTo(BigDecimal.valueOf(30000));
 
     }
 
-    @AfterEach
-    @Transactional
-    void afterEach() {
-        memberRepository.deleteAll();
-        restaurantRepository.deleteAll();
-        restaurantStockRepository.deleteAll();
-        itemRepository.deleteAll();
-    }
 }
