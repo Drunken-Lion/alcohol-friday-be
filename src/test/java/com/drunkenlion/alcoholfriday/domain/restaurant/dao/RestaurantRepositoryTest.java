@@ -22,6 +22,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,16 +53,17 @@ public class RestaurantRepositoryTest {
     private ItemRepository itemRepository;
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
-
-    private double neLatitude = 37.5567635;
-    private double neLongitude = 126.8529193;
-    private double swLatitude = 37.5482577;
-    private double swLongitude = 126.8421905;
-    private double restaurantLatitude = 37.549636;
-    private double restaurantLongitude = 126.842299;
-    private String restaurantName = "학식";
-    private String restaurantCategory = "우정산 폴리텍대학";
-    private String restaurantAddress = "우정산 서울강서 캠퍼스";
+    private final double neLatitude = 37.5567635;
+    private final double neLongitude = 126.8529193;
+    private final double swLatitude = 37.5482577;
+    private final double swLongitude = 126.8421905;
+    private final double restaurantLatitude = 37.549636;
+    private final double restaurantLongitude = 126.842299;
+    private final String restaurantName = "학식";
+    private final String restaurantCategory = "우정산 폴리텍대학";
+    private final String restaurantAddress = "우정산 서울강서 캠퍼스";
+    private final BigDecimal itemPrice1 = BigDecimal.valueOf(30000);
+    private final BigDecimal itemPrice2 = BigDecimal.valueOf(20000);
 
     @BeforeEach
     @Transactional
@@ -195,8 +197,8 @@ public class RestaurantRepositoryTest {
         assertThat(restaurants.get(0).getAddress()).isEqualTo(restaurantAddress);;
         assertThat(restaurants.get(0).getLatitude()).isEqualTo(restaurantLatitude);
         assertThat(restaurants.get(0).getLongitude()).isEqualTo(restaurantLongitude);
-        assertThat(restaurants.get(0).getStockResponses().get(0).getItem().getPrice()).isEqualTo(BigDecimal.valueOf(20000));
-        assertThat(restaurants.get(0).getStockResponses().get(1).getItem().getPrice()).isEqualTo(BigDecimal.valueOf(30000));
+        assertThat(restaurants.get(0).getItemResponses().get(0).getPrice()).isEqualByComparingTo(itemPrice1);
+        assertThat(restaurants.get(0).getItemResponses().get(1).getPrice()).isEqualByComparingTo(itemPrice2);
 
     }
 
