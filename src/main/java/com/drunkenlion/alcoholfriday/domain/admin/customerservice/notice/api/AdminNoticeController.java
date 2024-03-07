@@ -58,4 +58,13 @@ public class AdminNoticeController {
 
         return ResponseEntity.created(location).body(response);
     }
+
+    @Operation(summary = "공지사항 수정", description = "관리자 권한 - 공지사항 수정")
+    @PutMapping(value ="notices/{id}")
+    public ResponseEntity<NoticeSaveResponse> modifyNotice(@PathVariable("id") Long id,
+                                                           @RequestBody @Valid NoticeSaveRequest request,
+                                                           @AuthenticationPrincipal UserPrincipal user) {
+        NoticeSaveResponse response = adminNoticeService.modifyNotice(id, request, user.getMember());
+        return ResponseEntity.ok(response);
+    }
 }

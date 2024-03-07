@@ -49,4 +49,23 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 
         return NoticeSaveResponse.of(notice);
     }
+
+    @Override
+    @Transactional
+    public NoticeSaveResponse modifyNotice(Long id, NoticeSaveRequest request, Member member) {
+        Notice notice = noticeRepository.findById(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_NOTICE)
+                        .build());
+
+        notice = notice.toBuilder()
+                .title(request.getTitle())
+                .content(request.getContent())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        noticeRepository.save(notice);
+
+        return NoticeSaveResponse.of(notice);
+    }
 }

@@ -9,4 +9,5 @@ public interface AdminNoticeService {
     NoticeSaveResponse getNotice(Long id, Member member);
     Page<NoticeSaveResponse> getNotices(int page, int size, Member member);
     NoticeSaveResponse saveNotice(NoticeSaveRequest request, Member member);
+    NoticeSaveResponse modifyNotice(Long id, NoticeSaveRequest request, Member member);
 }
