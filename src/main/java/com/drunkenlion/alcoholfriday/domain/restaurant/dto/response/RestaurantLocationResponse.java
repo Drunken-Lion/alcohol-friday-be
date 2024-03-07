@@ -2,15 +2,11 @@ package com.drunkenlion.alcoholfriday.domain.restaurant.dto.response;
 
 
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import org.locationtech.jts.geom.Point;
 
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,23 +53,23 @@ public class RestaurantLocationResponse {
     private Map<String, Object> provision;
 
     @Schema(description = "상품에 대한 상세 정보")
-    private List<RestaurantStockResponse> stockResponses;
+    private List<ItemResponse> itemResponses;
 
-    @Schema(description = "레스토랑 영업여부")
-    private String status;
+    @Schema(description = "레스토랑 영업 상태 여부 정보")
+    private String businessStatus;
 
     @Schema(description = "상품에 포함된 이미지")
     private List<NcpFileResponse> files;
 
-    public void setRestaurantStatus(String status) {
-        this.status = status;
+    public void setRestaurantStatus(String businessStatus) {
+        this.businessStatus = businessStatus;
     }
 
     public static RestaurantLocationResponse of(Restaurant restaurant, List<NcpFileResponse> files) {
-        List<RestaurantStockResponse> collect = restaurant
+        List<ItemResponse> items = restaurant
                 .getRestaurantStocks()
                 .stream()
-                .map(RestaurantStockResponse::of)
+                .map(stock -> ItemResponse.of(stock.getItem(), stock.getQuantity()))
                 .collect(Collectors.toList());
 
         return RestaurantLocationResponse.builder()
@@ -88,7 +84,7 @@ public class RestaurantLocationResponse {
                 .menu(restaurant.getMenu())
                 .time(restaurant.getTime())
                 .provision(restaurant.getProvision())
-                .stockResponses(collect)
+                .itemResponses(items)
                 .files(files)
                 .build();
 
