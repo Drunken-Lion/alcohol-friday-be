@@ -53,7 +53,7 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public Page<QuestionResponse> findAll(Member member, int page, int size) {
+    public Page<QuestionResponse> findQuestions(Member member, int page, int size) {
         log.info("[QuestionServiceImpl.findAll] : 접근");
         Pageable pageable = PageRequest.of(page, size);
         Page<Question> findAll = questionRepository.findMember(member, pageable);

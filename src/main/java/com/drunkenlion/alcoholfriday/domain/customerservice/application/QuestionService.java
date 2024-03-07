@@ -14,7 +14,7 @@ public interface QuestionService {
 
     QuestionResponse findQuestion(Member member, Long id);
 
-    Page<QuestionResponse> findAll(Member member, int page, int size);
+    Page<QuestionResponse> findQuestions(Member member, int page, int size);
     
     QuestionResponse updateQuestion(Long id, Member member, QuestionModifyRequest request, List<MultipartFile> files);
 

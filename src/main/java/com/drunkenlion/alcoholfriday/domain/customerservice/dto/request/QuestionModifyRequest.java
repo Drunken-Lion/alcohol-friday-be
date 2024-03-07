@@ -24,6 +24,7 @@ public class QuestionModifyRequest {
     @Schema(description = "문의사항 내용")
     private String updateContent;
 
+    @Builder.Default
     @Schema(description = "삭제할 이미지 seq list")
     private List<Integer> removeImageSeqList = new ArrayList<>();
 }

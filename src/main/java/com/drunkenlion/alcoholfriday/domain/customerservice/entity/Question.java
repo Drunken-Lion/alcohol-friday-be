@@ -13,15 +13,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Array;
 import org.hibernate.annotations.Comment;
 
-@Entity
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
+@Entity
 public class Question extends BaseEntity {
     @Comment("문의사항 작성자")
     @ManyToOne(fetch = FetchType.LAZY)

@@ -27,7 +27,7 @@ public class QuestionResponse {
     @Schema(description = "문의사항 내용")
     private String content;
 
-    @Schema(description = "문의사항 내용")
+    @Schema(description = "문의사항 답변 상태")
     private QuestionStatus status;
 
     @Schema(description = "문의사항 작성자")
