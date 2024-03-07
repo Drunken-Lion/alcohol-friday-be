@@ -1,7 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.customerservice.notice.dto.response;
 
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
-import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
