@@ -7,4 +7,5 @@ import org.springframework.data.domain.Page;
 
 public interface AdminNoticeService {
     NoticeSaveResponse getNotice(Long id, Member member);
+    Page<NoticeSaveResponse> getNotices(int page, int size, Member member);
 }

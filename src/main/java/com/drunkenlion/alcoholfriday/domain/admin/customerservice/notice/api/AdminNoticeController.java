@@ -33,4 +33,14 @@ public class AdminNoticeController {
         NoticeSaveResponse noticeSaveResponse = adminNoticeService.getNotice(id, user.getMember());
         return ResponseEntity.ok().body(noticeSaveResponse);
     }
+
+    @Operation(summary = "공지사항 목록 조회", description = "관리자 권한 - 공지사항 목록 조회")
+    @GetMapping("notices")
+    public ResponseEntity<PageResponse<NoticeSaveResponse>> getNotices(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size,
+            @AuthenticationPrincipal UserPrincipal user) {
+        PageResponse<NoticeSaveResponse> noticeSaveResponse = PageResponse.of(adminNoticeService.getNotices(page, size, user.getMember()));
+        return ResponseEntity.ok().body(noticeSaveResponse);
+    }
 }

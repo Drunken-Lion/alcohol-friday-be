@@ -32,4 +32,13 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 
         return NoticeSaveResponse.of(notice);
     }
+
+    @Override
+    @Transactional
+    public Page<NoticeSaveResponse> getNotices(int page, int size, Member member) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Notice> notices = noticeRepository.findAll(pageable);
+
+        return notices.map(NoticeSaveResponse::of);
+    }
 }
