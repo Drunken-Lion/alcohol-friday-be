@@ -43,4 +43,19 @@ public class AdminNoticeController {
         PageResponse<NoticeSaveResponse> noticeSaveResponse = PageResponse.of(adminNoticeService.getNotices(page, size, user.getMember()));
         return ResponseEntity.ok().body(noticeSaveResponse);
     }
+
+    @Operation(summary = "공지사항 등록", description = "관리자 권한 - 공지사항 등록")
+    @PostMapping("notices")
+    public ResponseEntity<NoticeSaveResponse> saveNotice(@RequestBody @Valid NoticeSaveRequest request,
+                                                         @AuthenticationPrincipal UserPrincipal user) {
+        NoticeSaveResponse response = adminNoticeService.saveNotice(request, user.getMember());
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(response);
+    }
 }

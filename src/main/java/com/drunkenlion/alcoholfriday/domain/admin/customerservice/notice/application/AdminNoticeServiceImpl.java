@@ -41,4 +41,12 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 
         return notices.map(NoticeSaveResponse::of);
     }
+
+    @Override
+    @Transactional
+    public NoticeSaveResponse saveNotice(NoticeSaveRequest request, Member member) {
+        Notice notice = noticeRepository.save(NoticeSaveRequest.toEntity(request, member));
+
+        return NoticeSaveResponse.of(notice);
+    }
 }
