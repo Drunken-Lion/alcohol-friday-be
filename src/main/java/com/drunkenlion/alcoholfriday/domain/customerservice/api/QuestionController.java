@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.dto.request.Question
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.request.QuestionSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.QuestionResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.QuestionSaveResponse;
+import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -13,7 +14,6 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,20 +51,19 @@ public class QuestionController {
         return ResponseEntity.created(location).body(response);
     }
 
-
     @GetMapping
     @Operation(summary = "문의사항 전체 조회", description = "로그인 회원이 작성한 문의사항 전체 조회")
-    public ResponseEntity<?> get(@RequestParam(name = "page", defaultValue = "0") int page,
-                                 @RequestParam(name = "size", defaultValue = "20") int size,
-                                 @AuthenticationPrincipal UserPrincipal user) {
-        Page<QuestionResponse> all = questionService.findAll(user.getMember(), page, size);
-        return ResponseEntity.ok(all);
+    public ResponseEntity<PageResponse<QuestionResponse>> findQuestions(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                                        @RequestParam(name = "size", defaultValue = "10") int size,
+                                                                        @AuthenticationPrincipal UserPrincipal user) {
+        PageResponse<QuestionResponse> findAll = PageResponse.of(questionService.findQuestions(user.getMember(), page, size));
+        return ResponseEntity.ok(findAll);
     }
 
     @GetMapping("{id}")
     @Operation(summary = "문의사항 상세 조회")
-    public ResponseEntity<QuestionResponse> get(@PathVariable("id") Long id,
-                                                @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<QuestionResponse> findQuestion(@PathVariable("id") Long id,
+                                                          @AuthenticationPrincipal UserPrincipal user) {
         QuestionResponse response = questionService.findQuestion(user.getMember(), id);
         return ResponseEntity.ok(response);
     }
