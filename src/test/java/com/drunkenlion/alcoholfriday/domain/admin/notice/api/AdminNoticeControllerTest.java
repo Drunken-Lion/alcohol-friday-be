@@ -1,7 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.notice.api;
+package com.drunkenlion.alcoholfriday.domain.admin.notice.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.api.AdminNoticeController;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.customerservice.notice.api.NoticeController;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
@@ -26,16 +26,15 @@ import java.util.List;
 
 import static com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole.ADMIN;
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @AutoConfigureMockMvc(addFilters = false)
 @Transactional
 @WithAccount
 @SpringBootTest
-public class NoticeControllerTest {
+public class AdminNoticeControllerTest {
     @Autowired
     private MockMvc mvc;
 
@@ -85,21 +84,24 @@ public class NoticeControllerTest {
     @Test
     void getNoticesTest() throws Exception {
         ResultActions resultActions = mvc
-                .perform(get("/v1/notices")
+                .perform(get("/v1/admin/notices")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(NoticeController.class))
+                .andExpect(handler().handlerType(AdminNoticeController.class))
                 .andExpect(handler().methodName("getNotices"))
                 .andExpect(jsonPath("$.data", instanceOf(List.class)))
                 .andExpect(jsonPath("$.data.length()", is(1)))
                 .andExpect(jsonPath("$.data[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].member", notNullValue()))
                 .andExpect(jsonPath("$.data[0].title", notNullValue()))
+                .andExpect(jsonPath("$.data[0].content", notNullValue()))
                 .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.data[0].updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
                 .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
@@ -108,18 +110,22 @@ public class NoticeControllerTest {
     @DisplayName("공지사항 상세 조회 성공")
     @Test
     void getNoticeTest() throws Exception {
-
+        // given
+        // noticeRepo 에서 첫 번째 아이템을 찾아와 notice 변수에 저장
         Notice notice = noticeRepository.findAll().get(0);
 
+        // when
+        // MockMvc "/v1/admin/notices/{notice.id}" 경로로 GET 요청을 보내고 resultActions 변수에 저장
         ResultActions resultActions = mvc
-                .perform(get("/v1/notices/" + notice.getId())
+                .perform(get("/v1/admin/notices/" + notice.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
+        // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(NoticeController.class))
+                .andExpect(handler().handlerType(AdminNoticeController.class))
                 .andExpect(handler().methodName("getNotice"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
@@ -127,6 +133,86 @@ public class NoticeControllerTest {
                 .andExpect(jsonPath("$.title", notNullValue()))
                 .andExpect(jsonPath("$.content", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)));
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @DisplayName("공지사항 등록 성공")
+    @Test
+    void saveNoticeTest() throws Exception {
+
+        ResultActions resultActions = mvc
+                .perform(post("/v1/admin/notices")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "test title",
+                                  "content": "test content",
+                                  "memberId": 1
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isCreated())
+                .andExpect(handler().handlerType(AdminNoticeController.class))
+                .andExpect(handler().methodName("saveNotice"))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.member", notNullValue()))
+                .andExpect(jsonPath("$.title", notNullValue()))
+                .andExpect(jsonPath("$.content", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @DisplayName("공지사항 수정 성공")
+    @Test
+    void modifyNoticeTest() throws Exception {
+
+        Notice notice = noticeRepository.findAll().get(0);
+
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/notices/" + notice.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "test title modified",
+                                  "content": "test content modified"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminNoticeController.class))
+                .andExpect(handler().methodName("modifyNotice"))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.member", notNullValue()))
+                .andExpect(jsonPath("$.title", notNullValue()))
+                .andExpect(jsonPath("$.content", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @DisplayName("공지사항 삭제 성공")
+    @Test
+    void deleteNoticeTest() throws Exception {
+
+        Notice notice = noticeRepository.findAll().get(0);
+
+        ResultActions resultActions = mvc
+                .perform(delete("/v1/admin/notices/" + notice.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(AdminNoticeController.class))
+                .andExpect(handler().methodName("deleteNotice"));
     }
 }
