@@ -1,10 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.customerservice.api;
 
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -23,9 +23,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -35,19 +33,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
-@Transactional
 @SpringBootTest
 class QuestionControllerTest {
     @Autowired
@@ -66,7 +60,7 @@ class QuestionControllerTest {
     @DisplayName("문의 사항 전체 조회")
     @WithAccount(role = MemberRole.ADMIN)
     void t1() throws Exception {
-        Member member = memberRepository.findById(1L).get();
+        Member member = memberRepository.findByEmail("test@example.com").get();
 
         Question question = questionRepository.save(
                 Question.builder()
@@ -114,7 +108,7 @@ class QuestionControllerTest {
     @DisplayName("문의 사항 상세 조회")
     @WithAccount(role = MemberRole.ADMIN)
     void t2() throws Exception {
-        Member member = memberRepository.findById(1L).get();
+        Member member = memberRepository.findByEmail("test@example.com").get();
 
         Question question = questionRepository.save(
                 Question.builder()
@@ -163,7 +157,7 @@ class QuestionControllerTest {
     @WithAccount(role = MemberRole.ADMIN)
     void t3() throws Exception {
         Member firstMember = memberRepository.save(Member.builder()
-                .email("member1@example.com")
+                .email("member2@example.com")
                 .provider(ProviderType.KAKAO)
                 .name("Member1")
                 .nickname("Member1")
@@ -196,7 +190,7 @@ class QuestionControllerTest {
         questionRepository.save(question);
 
         ResultActions actions = mvc
-                .perform(get("/v1/questions/" + 1))
+                .perform(get("/v1/questions/" + question.getId()))
                 .andDo(print());
 
         actions
@@ -247,7 +241,7 @@ class QuestionControllerTest {
     @DisplayName("문의 사항 수정")
     @WithAccount(role = MemberRole.ADMIN)
     void t5() throws Exception {
-        Member member = memberRepository.findById(1L).get();
+        Member member = memberRepository.findByEmail("test@example.com").get();
 
         Question question = questionRepository.save(
                 Question.builder()
@@ -301,7 +295,7 @@ class QuestionControllerTest {
     @DisplayName("문의 사항 삭제")
     @WithAccount(role = MemberRole.ADMIN)
     void t6() throws Exception {
-        Member member = memberRepository.findById(1L).get();
+        Member member = memberRepository.findByEmail("test@example.com").get();
 
         Question question = questionRepository.save(
                 Question.builder()
@@ -313,7 +307,7 @@ class QuestionControllerTest {
         );
 
         ResultActions actions = mvc
-                .perform(delete("/v1/questions/" + 1L)
+                .perform(delete("/v1/questions/" + question.getId())
                 )
                 .andDo(print());
 
