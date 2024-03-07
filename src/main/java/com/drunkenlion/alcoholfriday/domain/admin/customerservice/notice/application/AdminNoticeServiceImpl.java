@@ -68,4 +68,28 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 
         return NoticeSaveResponse.of(notice);
     }
+
+    @Override
+    @Transactional
+    public NoticeSaveResponse deleteNotice(Long id, Member member) {
+        // 없는 번호를 삭제하려 하면
+        Notice notice = noticeRepository.findById(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_NOTICE)
+                        .build());
+        // 삭제된 게시물을 다시 삭제하려 시도하면
+        if (notice.getDeletedAt() != null) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.NOT_FOUND_NOTICE)
+                    .build();
+        }
+
+        notice = notice.toBuilder()
+                .deletedAt(LocalDateTime.now())
+                .build();
+
+        noticeRepository.save(notice);
+
+        return NoticeSaveResponse.of(notice);
+    }
 }

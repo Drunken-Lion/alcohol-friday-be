@@ -67,4 +67,12 @@ public class AdminNoticeController {
         NoticeSaveResponse response = adminNoticeService.modifyNotice(id, request, user.getMember());
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "공지사항 삭제", description = "관리자 권한 - 공지사항 삭제")
+    @DeleteMapping(value = "notices/{id}")
+    public ResponseEntity<NoticeSaveResponse> deleteNotice(@PathVariable("id") Long id,
+                                                         @AuthenticationPrincipal UserPrincipal user) {
+        adminNoticeService.deleteNotice(id, user.getMember());
+        return ResponseEntity.noContent().build();
+    }
 }
