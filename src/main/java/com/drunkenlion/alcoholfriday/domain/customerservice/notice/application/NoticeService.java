@@ -7,4 +7,6 @@ import org.springframework.data.domain.Page;
 public interface NoticeService {
 
     NoticeDetailResponse getNotice(Long id);
+
+    Page<NoticeListResponse> getNotices(int page, int size);
 }

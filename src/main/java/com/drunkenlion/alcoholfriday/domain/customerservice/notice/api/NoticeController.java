@@ -25,4 +25,14 @@ public class NoticeController {
         NoticeDetailResponse noticeDetailResponse = noticeService.getNotice(id);
         return ResponseEntity.ok().body(noticeDetailResponse);
     }
+
+    @Operation(summary = "공지사항 목록 조회", description = "일반 사용자용 공지사항 목록 조회")
+    @GetMapping
+    public ResponseEntity<PageResponse<NoticeListResponse>> getNotices(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size
+    ) {
+        PageResponse<NoticeListResponse> noticeListResponse = PageResponse.of(noticeService.getNotices(page, size));
+        return ResponseEntity.ok().body(noticeListResponse);
+    }
 }

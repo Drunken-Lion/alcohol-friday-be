@@ -26,4 +26,12 @@ public class NoticeServiceImpl implements NoticeService {
                 .build());
         return NoticeDetailResponse.of(notice);
     }
+
+    public Page<NoticeListResponse> getNotices(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+//        Page<Notice> notices = noticeRepository.findAll(pageable);
+        Page<Notice> notices = noticeRepository.findAllAndDeletedAtIsNull(pageable);
+
+        return notices.map(NoticeListResponse::of);
+    }
 }
