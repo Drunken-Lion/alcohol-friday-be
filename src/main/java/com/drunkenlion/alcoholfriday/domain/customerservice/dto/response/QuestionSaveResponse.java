@@ -4,6 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,9 @@ public class QuestionSaveResponse {
     @Schema(description = "문의사항 답변 상태")
     private QuestionStatus status;
 
+    @Schema(description = "생성 일자")
+    private LocalDateTime createdAt;
+
     @Schema(description = "문의사항 작성자")
     private CsMemberResponse member;
 
@@ -41,6 +45,7 @@ public class QuestionSaveResponse {
                 .title(question.getTitle())
                 .content(question.getContent())
                 .status(question.getStatus())
+                .createdAt(question.getCreatedAt())
                 .build();
     }
 
@@ -51,6 +56,7 @@ public class QuestionSaveResponse {
                 .title(question.getTitle())
                 .content(question.getContent())
                 .status(question.getStatus())
+                .createdAt(question.getCreatedAt())
                 .files(files)
                 .build();
     }
