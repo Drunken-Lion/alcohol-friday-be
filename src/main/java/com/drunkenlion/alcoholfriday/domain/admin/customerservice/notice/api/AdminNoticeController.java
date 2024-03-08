@@ -18,7 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RequiredArgsConstructor
-@RequestMapping("/v1/admin")
+@RequestMapping("/v1/admin/notices")
 @Tag(name = "v1-admin-notice", description = "관리자용 공지사항 API")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -27,7 +27,7 @@ public class AdminNoticeController {
     private final AdminNoticeService adminNoticeService;
 
     @Operation(summary = "공지사항 상세 조회", description = "관리자 권한 - 공지사항 상세 조회")
-    @GetMapping(value = "notices/{id}")
+    @GetMapping( "{id}")
     public ResponseEntity<NoticeSaveResponse> getNotice(@PathVariable("id") Long id,
                                                         @AuthenticationPrincipal UserPrincipal user) {
         NoticeSaveResponse noticeSaveResponse = adminNoticeService.getNotice(id, user.getMember());
@@ -35,7 +35,7 @@ public class AdminNoticeController {
     }
 
     @Operation(summary = "공지사항 목록 조회", description = "관리자 권한 - 공지사항 목록 조회")
-    @GetMapping("notices")
+    @GetMapping
     public ResponseEntity<PageResponse<NoticeSaveResponse>> getNotices(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
@@ -45,7 +45,7 @@ public class AdminNoticeController {
     }
 
     @Operation(summary = "공지사항 등록", description = "관리자 권한 - 공지사항 등록")
-    @PostMapping("notices")
+    @PostMapping
     public ResponseEntity<NoticeSaveResponse> saveNotice(@RequestBody @Valid NoticeSaveRequest request,
                                                          @AuthenticationPrincipal UserPrincipal user) {
         NoticeSaveResponse response = adminNoticeService.saveNotice(request, user.getMember());
@@ -60,7 +60,7 @@ public class AdminNoticeController {
     }
 
     @Operation(summary = "공지사항 수정", description = "관리자 권한 - 공지사항 수정")
-    @PutMapping(value ="notices/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<NoticeSaveResponse> modifyNotice(@PathVariable("id") Long id,
                                                            @RequestBody @Valid NoticeSaveRequest request,
                                                            @AuthenticationPrincipal UserPrincipal user) {
@@ -69,7 +69,7 @@ public class AdminNoticeController {
     }
 
     @Operation(summary = "공지사항 삭제", description = "관리자 권한 - 공지사항 삭제")
-    @DeleteMapping(value = "notices/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<NoticeSaveResponse> deleteNotice(@PathVariable("id") Long id,
                                                          @AuthenticationPrincipal UserPrincipal user) {
         adminNoticeService.deleteNotice(id, user.getMember());
