@@ -64,7 +64,7 @@ public class NoticeServiceTest {
     @Test
     public void getNoticesTest() {
 
-        when(this.noticeRepository.findAllAndDeletedAtIsNull(any(Pageable.class))).thenReturn(this.getNotices());
+        when(this.noticeRepository.findAllByDeletedAtIsNull(any(Pageable.class))).thenReturn(this.getNotices());
 
         Page<NoticeListResponse> notices = noticeService.getNotices(page, size);
 

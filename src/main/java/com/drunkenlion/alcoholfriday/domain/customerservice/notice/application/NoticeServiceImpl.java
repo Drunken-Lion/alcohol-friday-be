@@ -31,7 +31,7 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public Page<NoticeListResponse> getNotices(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Notice> notices = noticeRepository.findAllAndDeletedAtIsNull(pageable);
+        Page<Notice> notices = noticeRepository.findAllByDeletedAtIsNull(pageable);
 
         return notices.map(NoticeListResponse::of);
     }

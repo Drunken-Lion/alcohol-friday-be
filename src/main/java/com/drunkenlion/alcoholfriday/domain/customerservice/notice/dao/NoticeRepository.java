@@ -14,6 +14,5 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     Optional<Notice> findByIdAndDeletedAtIsNull(Long id);
 
-    @Query("SELECT n FROM Notice n WHERE n.deletedAt IS NULL")
-    Page<Notice> findAllAndDeletedAtIsNull(Pageable pageable);
+    Page<Notice> findAllByDeletedAtIsNull(Pageable pageable);
 }
