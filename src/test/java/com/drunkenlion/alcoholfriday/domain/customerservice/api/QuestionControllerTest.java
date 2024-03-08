@@ -255,6 +255,7 @@ class QuestionControllerTest {
         MockMultipartFile requestData = JsonConvertor.mockBuild(QuestionModifyRequest.builder()
                 .updateTitle("수정 1")
                 .updateContent("수정 내용 1")
+                .removeImageSeqList(List.of())
                 .build());
         MockMultipartFile mockImg = JsonConvertor.getMockImg();
 
