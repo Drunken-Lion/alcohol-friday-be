@@ -90,25 +90,29 @@ public class FileServiceImpl implements FileService {
         NcpFile ncpFile = opNcpFile.get();
 
         // removeSeq 내 seq 값과 일치하는 이미지 삭제
-        if (!removeSeq.isEmpty()) {
-            removeSeq.forEach(seq -> ncpFile.getS3Files().stream()
-                    .filter(files -> Objects.equals(seq, files.get("seq")))
-                    .findFirst()
-                    .ifPresent(file -> {
-                        ncpS3Service.ncpDeleteFile((String) file.get("keyName"));
-                        ncpFile.getS3Files().remove(file);
-                    }));
+        if (removeSeq != null) {
+            if (!removeSeq.isEmpty()) {
+                removeSeq.forEach(seq -> ncpFile.getS3Files().stream()
+                        .filter(files -> Objects.equals(seq, files.get("seq")))
+                        .findFirst()
+                        .ifPresent(file -> {
+                            ncpS3Service.ncpDeleteFile((String) file.get("keyName"));
+                            ncpFile.getS3Files().remove(file);
+                        }));
 
-            // seq 재정렬
-            AtomicInteger seq = new AtomicInteger(1);
-            ncpFile.getS3Files().forEach(file -> file.put("seq", seq.getAndIncrement()));
+                // seq 재정렬
+                AtomicInteger seq = new AtomicInteger(1);
+                ncpFile.getS3Files().forEach(file -> file.put("seq", seq.getAndIncrement()));
+            }
         }
 
         // 추가 이미지 저장
-        if (!multipartFiles.get(0).isEmpty()) {
-            AtomicInteger seq = new AtomicInteger(ncpFile.getS3Files().size() + 1);
-            multipartFiles.forEach(
-                    file -> ncpFile.getS3Files().add(ncpS3Service.updateFile(entity, seq.getAndIncrement(), file)));
+        if (multipartFiles != null) {
+            if (!multipartFiles.get(0).isEmpty()) {
+                AtomicInteger seq = new AtomicInteger(ncpFile.getS3Files().size() + 1);
+                multipartFiles.forEach(
+                        file -> ncpFile.getS3Files().add(ncpS3Service.updateFile(entity, seq.getAndIncrement(), file)));
+            }
         }
 
         fileRepository.save(ncpFile);
