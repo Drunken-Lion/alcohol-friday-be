@@ -20,10 +20,10 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Service
 public class AdminNoticeServiceImpl implements AdminNoticeService {
+
     private final NoticeRepository noticeRepository;
 
     @Override
-    @Transactional
     public NoticeSaveResponse getNotice(Long id, Member member) {
         Notice notice = noticeRepository.findById(id)
                 .orElseThrow(() -> BusinessException.builder()
@@ -34,7 +34,6 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     }
 
     @Override
-    @Transactional
     public Page<NoticeSaveResponse> getNotices(int page, int size, Member member) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Notice> notices = noticeRepository.findAll(pageable);
