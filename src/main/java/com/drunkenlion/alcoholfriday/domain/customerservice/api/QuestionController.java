@@ -71,10 +71,9 @@ public class QuestionController {
     @PutMapping("{id}")
     @Operation(summary = "문의사항 수정")
     public ResponseEntity<QuestionResponse> update(@PathVariable("id") Long id,
-                                                   @RequestPart QuestionModifyRequest request,
-                                                   @RequestPart List<MultipartFile> files,
+                                                   @RequestPart("request") QuestionModifyRequest request,
+                                                   @RequestPart("files") List<MultipartFile> files,
                                                    @AuthenticationPrincipal UserPrincipal user) {
-
         QuestionResponse questionResponse = questionService.updateQuestion(id, user.getMember(), request, files);
         return ResponseEntity.ok(questionResponse);
     }
