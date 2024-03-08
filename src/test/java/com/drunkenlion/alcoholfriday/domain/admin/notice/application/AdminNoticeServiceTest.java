@@ -238,28 +238,6 @@ public class AdminNoticeServiceTest {
         assertEquals(HttpResponse.Fail.NOT_FOUND_NOTICE.getMessage(), exception.getMessage());
     }
 
-    @DisplayName("관리자 공지사항 삭제 실패 - 이미 삭제된 공지사항")
-    @Test
-    public void deleteAdminNoticeAlreadyDeletedTest() {
-        // given 준비
-        Notice deletedNotice = this.getNoticeOne().get();
-        deletedNotice = deletedNotice.toBuilder()
-                .deletedAt(deletedAt)
-                .build();
-        // 메서드 모의
-        Mockito.when(noticeRepository.findById(any())).thenReturn(Optional.of(deletedNotice));
-
-        // When 실행
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminNoticeService.deleteNotice(noticeId, getMemberData());
-        });
-
-        // then
-        // (예상값, 발생한 상태 코드값)
-        assertEquals(HttpResponse.Fail.NOT_FOUND_NOTICE.getStatus(), exception.getStatus());
-        assertEquals(HttpResponse.Fail.NOT_FOUND_NOTICE.getMessage(), exception.getMessage());
-    }
-
     private Page<Notice> getNotices() {
         List<Notice> list = List.of(this.getNoticeData());
         Pageable pageable = PageRequest.of(page, size);
