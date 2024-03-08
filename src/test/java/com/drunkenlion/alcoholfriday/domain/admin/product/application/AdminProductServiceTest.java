@@ -91,8 +91,8 @@ public class AdminProductServiceTest {
     private final Long sour = 10L;
     private final Long cool = 10L;
     private final Long body = 10L;
-    private final Long balence = 10L;
-    private final Long insense = 10L;
+    private final Long balance = 10L;
+    private final Long incense = 10L;
     private final Long throat = 10L;
 
     private final String modifyName = "1000억 막걸리 프리바이오 수정";
@@ -162,8 +162,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getSour()).isEqualTo(sour);
         assertThat(productDetailResponse.getCool()).isEqualTo(cool);
         assertThat(productDetailResponse.getBody()).isEqualTo(body);
-        assertThat(productDetailResponse.getBalence()).isEqualTo(balence);
-        assertThat(productDetailResponse.getInsense()).isEqualTo(insense);
+        assertThat(productDetailResponse.getBalance()).isEqualTo(balance);
+        assertThat(productDetailResponse.getIncense()).isEqualTo(incense);
         assertThat(productDetailResponse.getThroat()).isEqualTo(throat);
         assertThat(productDetailResponse.getCreatedAt()).isEqualTo(createdAt);
         assertThat(productDetailResponse.getUpdatedAt()).isEqualTo(updatedAt);
@@ -201,8 +201,8 @@ public class AdminProductServiceTest {
                 .sour(sour)
                 .cool(cool)
                 .body(body)
-                .balence(balence)
-                .insense(insense)
+                .balance(balance)
+                .incense(incense)
                 .throat(throat)
                 .build();
 
@@ -230,8 +230,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getSour()).isEqualTo(sour);
         assertThat(productDetailResponse.getCool()).isEqualTo(cool);
         assertThat(productDetailResponse.getBody()).isEqualTo(body);
-        assertThat(productDetailResponse.getBalence()).isEqualTo(balence);
-        assertThat(productDetailResponse.getInsense()).isEqualTo(insense);
+        assertThat(productDetailResponse.getBalance()).isEqualTo(balance);
+        assertThat(productDetailResponse.getIncense()).isEqualTo(incense);
         assertThat(productDetailResponse.getThroat()).isEqualTo(throat);
     }
 
@@ -294,8 +294,8 @@ public class AdminProductServiceTest {
                 .sour(modifySour)
                 .cool(modifyCool)
                 .body(modifyBody)
-                .balence(modifyBalence)
-                .insense(modifyInsense)
+                .balance(modifyBalence)
+                .incense(modifyInsense)
                 .throat(modifyThroat)
                 .build();
 
@@ -326,8 +326,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getSour()).isEqualTo(modifySour);
         assertThat(productDetailResponse.getCool()).isEqualTo(modifyCool);
         assertThat(productDetailResponse.getBody()).isEqualTo(modifyBody);
-        assertThat(productDetailResponse.getBalence()).isEqualTo(modifyBalence);
-        assertThat(productDetailResponse.getInsense()).isEqualTo(modifyInsense);
+        assertThat(productDetailResponse.getBalance()).isEqualTo(modifyBalence);
+        assertThat(productDetailResponse.getIncense()).isEqualTo(modifyInsense);
         assertThat(productDetailResponse.getThroat()).isEqualTo(modifyThroat);
     }
 
@@ -569,8 +569,8 @@ public class AdminProductServiceTest {
                 .sour(sour)
                 .cool(cool)
                 .body(body)
-                .balence(balence)
-                .insense(insense)
+                .balance(balance)
+                .incense(incense)
                 .throat(throat)
                 .maker(maker)
                 .category(category)

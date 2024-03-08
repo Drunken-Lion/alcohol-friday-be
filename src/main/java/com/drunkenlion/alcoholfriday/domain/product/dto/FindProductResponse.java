@@ -35,10 +35,10 @@ public class FindProductResponse {
     private Long body;
 
     @Schema(description = "술 밸런스")
-    private Long balence;
+    private Long balance;
 
     @Schema(description = "술 향기")
-    private Long insense;
+    private Long incense;
 
     @Schema(description = "술 목넘김")
     private Long throat;
@@ -53,8 +53,8 @@ public class FindProductResponse {
                 .sour(product.getSour())
                 .cool(product.getCool())
                 .body(product.getBody())
-                .balence(product.getBalence())
-                .insense(product.getInsense())
+                .balance(product.getBalance())
+                .incense(product.getIncense())
                 .throat(product.getThroat())
                 .build();
     }

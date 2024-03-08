@@ -96,8 +96,8 @@ public class AdminProductControllerTest {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_국순당)
                 .category(카테고리_소분류1)
@@ -182,8 +182,8 @@ public class AdminProductControllerTest {
                 .andExpect(jsonPath("$.sour", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.cool", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.body", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.balence", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.insense", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.balance", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.incense", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.throat", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
@@ -214,8 +214,8 @@ public class AdminProductControllerTest {
                   "sour": 0,
                   "cool": 0,
                   "body": 0,
-                  "balence": 0,
-                  "insense": 0,
+                  "balance": 0,
+                  "incense": 0,
                   "throat": 0
                 }
                 """, categoryLastId, makerId);
@@ -251,8 +251,8 @@ public class AdminProductControllerTest {
                 .andExpect(jsonPath("$.sour", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.cool", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.body", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.balence", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.insense", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.balance", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.incense", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.throat", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
@@ -284,8 +284,8 @@ public class AdminProductControllerTest {
                   "sour": 0,
                   "cool": 0,
                   "body": 0,
-                  "balence": 0,
-                  "insense": 0,
+                  "balance": 0,
+                  "incense": 0,
                   "throat": 0,
                   "remove": [
                         1
@@ -333,8 +333,8 @@ public class AdminProductControllerTest {
                 .andExpect(jsonPath("$.sour", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.cool", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.body", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.balence", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.insense", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.balance", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.incense", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.throat", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))

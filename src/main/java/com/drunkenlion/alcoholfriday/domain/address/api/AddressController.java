@@ -6,6 +6,7 @@ import com.drunkenlion.alcoholfriday.domain.address.dto.AddressModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 @RequestMapping("/v1/addresses")
 @Tag(name = "v1-addresses", description = "배송지 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class AddressController {
     private final AddressService addressService;
 
