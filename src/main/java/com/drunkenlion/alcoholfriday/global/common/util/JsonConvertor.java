@@ -20,8 +20,19 @@ public class JsonConvertor {
         return new MockMultipartFile("request", "request", "application/json", data.getBytes(StandardCharsets.UTF_8));
     }
 
+    public static <T> MockMultipartFile mockBuild(T t, String requestParamName) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String data = objectMapper.writeValueAsString(t);
+        return new MockMultipartFile(requestParamName, "request", "application/json", data.getBytes(StandardCharsets.UTF_8));
+    }
+
     public static MockMultipartFile getMockImg() {
         return new MockMultipartFile("files", "create-test1.txt", "text/plain",
+                "create-test1 file".getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static MockMultipartFile getMockImg(String requestParamName) {
+        return new MockMultipartFile(requestParamName, "create-test1.txt", "text/plain",
                 "create-test1 file".getBytes(StandardCharsets.UTF_8));
     }
 }
