@@ -169,7 +169,7 @@ public class AdminNoticeServiceTest {
                 .build();
 
         // 메서드 모의
-        Mockito.when(noticeRepository.findById(noticeId)).thenReturn(this.getNoticeOne());
+        Mockito.when(noticeRepository.findByIdAndDeletedAtIsNull(noticeId)).thenReturn(this.getNoticeOne());
         Mockito.when(noticeRepository.save(any(Notice.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When 실행
@@ -192,7 +192,7 @@ public class AdminNoticeServiceTest {
                 .build();
 
         // 메서드 모의
-        when(noticeRepository.findById(noticeId)).thenReturn(Optional.empty());
+        when(noticeRepository.findByIdAndDeletedAtIsNull(noticeId)).thenReturn(Optional.empty());
 
         // When 실행
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -208,7 +208,7 @@ public class AdminNoticeServiceTest {
     @Test
     public void deleteAdminNoticeTest() {
         // given 준비
-        when(noticeRepository.findById(noticeId)).thenReturn(this.getNoticeOne());
+        when(noticeRepository.findByIdAndDeletedAtIsNull(noticeId)).thenReturn(this.getNoticeOne());
         when(noticeRepository.save(any(Notice.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When 실행
@@ -225,7 +225,7 @@ public class AdminNoticeServiceTest {
     public void deleteAdminNoticeNotFoundTest() {
         // given 준비
         // 메서드 모의
-        Mockito.when(noticeRepository.findById(any())).thenReturn(Optional.empty());
+        Mockito.when(noticeRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // When 실행
         BusinessException exception = assertThrows(BusinessException.class, () -> {
