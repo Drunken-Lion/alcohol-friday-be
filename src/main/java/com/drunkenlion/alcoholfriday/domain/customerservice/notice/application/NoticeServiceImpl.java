@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class NoticeServiceImpl implements NoticeService {
     private final NoticeRepository noticeRepository;
 
+    @Override
     public NoticeDetailResponse getNotice(Long id) {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
@@ -27,6 +28,7 @@ public class NoticeServiceImpl implements NoticeService {
         return NoticeDetailResponse.of(notice);
     }
 
+    @Override
     public Page<NoticeListResponse> getNotices(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 //        Page<Notice> notices = noticeRepository.findAll(pageable);
