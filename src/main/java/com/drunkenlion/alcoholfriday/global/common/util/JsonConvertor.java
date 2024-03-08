@@ -2,10 +2,7 @@ package com.drunkenlion.alcoholfriday.global.common.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.core.util.Json;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.springframework.mock.web.MockMultipartFile;
 
 public class JsonConvertor {
