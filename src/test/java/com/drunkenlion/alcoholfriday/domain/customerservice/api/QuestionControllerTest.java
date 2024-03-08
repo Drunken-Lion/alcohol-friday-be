@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.drunkenlion.alcoholfriday.domain.admin.item.api.AdminItemController;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.AnswerRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
@@ -23,9 +24,11 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.transaction.annotation.Transactional;
 
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
@@ -55,6 +59,11 @@ class QuestionControllerTest {
 
     @Autowired
     private AnswerRepository answerRepository;
+
+    @BeforeEach
+    @Transactional
+    public void qwerqwer() {
+    }
 
     @Test
     @DisplayName("문의 사항 전체 조회")
@@ -131,7 +140,7 @@ class QuestionControllerTest {
         questionRepository.save(question);
 
         ResultActions actions = mvc
-                .perform(get("/v1/questions/" + 1))
+                .perform(get("/v1/questions/" + question.getId()))
                 .andDo(print());
 
         actions
@@ -210,8 +219,8 @@ class QuestionControllerTest {
                 .content("게시물 등록 테스트 내용")
                 .build();
 
-        MockMultipartFile requestData = JsonConvertor.mockBuild(request);
-        MockMultipartFile files = JsonConvertor.getMockImg();
+        MockMultipartFile requestData = JsonConvertor.mockBuild(request, "request");
+        MockMultipartFile files = JsonConvertor.getMockImg("files");
 
         ResultActions actions = mvc
                 .perform(multipart("/v1/questions")
@@ -252,15 +261,31 @@ class QuestionControllerTest {
                         .build()
         );
 
-        MockMultipartFile requestData = JsonConvertor.mockBuild(QuestionModifyRequest.builder()
+        QuestionModifyRequest build = QuestionModifyRequest.builder()
                 .updateTitle("수정 1")
                 .updateContent("수정 내용 1")
                 .removeImageSeqList(List.of())
-                .build());
-        MockMultipartFile mockImg = JsonConvertor.getMockImg();
+                .build();
 
-        MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart(
-                "/v1/questions/" + question.getId());
+        String str = """
+                {
+                    "updateTitle":"zzzz",
+                    "updateContent":"zzzzzz",
+                    "remove" : []
+                }
+                """;
+
+        QuestionModifyRequest build1 = QuestionModifyRequest.builder()
+                .updateTitle("zzzz")
+                .updateContent("zzzz")
+                .removeImageSeqList(List.of())
+                .build();
+
+        MockMultipartFile mockMultipartFile = JsonConvertor.mockBuild(build1, "request");
+
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "modify-test1.txt", "text/plain", "modify-test1 file".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile request = new MockMultipartFile("request", "request", "application/json", str.getBytes(StandardCharsets.UTF_8));
+        MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart("/v1/questions/" + question.getId());
         builder.with(new RequestPostProcessor() {
             @Override
             public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
@@ -271,13 +296,14 @@ class QuestionControllerTest {
 
         ResultActions actions = mvc
                 .perform(builder
-                        .file(requestData)
-                        .file(mockImg)
+                        .file(mockMultipartFile)
+                        .file(multipartFile1)
                 )
                 .andDo(print());
 
         actions
                 .andExpect(status().isOk())
+                .andExpect(handler().handlerType(QuestionController.class))
                 .andExpect(handler().methodName("update"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
