@@ -42,9 +42,6 @@ class QuestionRepositoryImplTest {
     @BeforeEach
     @Transactional
     public void beforeEach() {
-        questionRepository.deleteAllInBatch();
-        answerRepository.deleteAllInBatch();
-
         // test db가 mySql로 변경됨에 따라 auto_increment가 초기화되지 않으므로 시작 시 강제 초기화 진행
         em.createNativeQuery("ALTER TABLE member AUTO_INCREMENT = 1").executeUpdate();
         em.createNativeQuery("ALTER TABLE question AUTO_INCREMENT = 1").executeUpdate();
@@ -175,6 +172,7 @@ class QuestionRepositoryImplTest {
     void afterEach() {
         questionRepository.deleteAll();
         answerRepository.deleteAll();
+        memberRepository.deleteAll();
     }
 
     @Test
