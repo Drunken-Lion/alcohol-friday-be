@@ -39,6 +39,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
@@ -155,8 +156,8 @@ public class NotProd {
     /**
      * 직접 이미지를 삽입하는 메서드
      */
-    private void insertImage(List<MultipartFile> files, Long id, EntityType entityType) {
-        fileService.uploadFiles(files, id, entityType.getEntityName());
+    private void insertImage(BaseEntity entity, List<MultipartFile> files) {
+        fileService.saveFiles(entity, files);
     }
 
     /**
@@ -172,7 +173,7 @@ public class NotProd {
         fileService.uploadFiles(files, 1L, EntityType.TEST.getEntityName());
     }
 
-    public void addData() {
+    public void addData() throws Exception {
         Member 회원_김태섭 = memberRepository.save(Member.builder()
                 .email("smileby95@nate.com")
                 .provider(ProviderType.KAKAO)
@@ -1129,6 +1130,13 @@ public class NotProd {
                         .status(QuestionStatus.COMPLETE)
                         .build());
 
+        File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
+        InputStream fileInputStream = new FileInputStream(file);
+        MultipartFile mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE,
+                fileInputStream);
+        List<MultipartFile> files = List.of(mpf, mpf, mpf);
+        insertImage(문의_일반1, files);
+
         Question 문의_일반2 = questionRepository.save(
                 Question.builder()
                         .member(회원_일반회원2)
@@ -1201,34 +1209,177 @@ public class NotProd {
                         .status(QuestionStatus.INCOMPLETE)
                         .build());
 
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
         // Insert Answer
         Answer 문의_답변1 = answerRepository.save(
                 Answer.builder()
                         .member(회원_슈퍼바이저1)
-                        .question(문의_일반1)
                         .content("일반 문의 답변 1")
                         .build());
+
+        문의_답변1.addQuestion(문의_일반1);
+        answerRepository.save(문의_답변1);
 
         Answer 문의_답변2 = answerRepository.save(
                 Answer.builder()
                         .member(회원_슈퍼바이저2)
-                        .question(문의_일반2)
                         .content("일반 문의 답변 2")
                         .build());
+
+        문의_답변2.addQuestion(문의_일반1);
+        answerRepository.save(문의_답변2);
 
         Answer 문의_답변3 = answerRepository.save(
                 Answer.builder()
                         .member(회원_슈퍼바이저1)
-                        .question(문의_일반3)
                         .content("일반 문의 답변 3")
                         .build());
+
+        문의_답변3.addQuestion(문의_일반3);
+        answerRepository.save(문의_답변3);
 
         Answer 문의_답변4 = answerRepository.save(
                 Answer.builder()
                         .member(회원_슈퍼바이저4)
-                        .question(문의_일반4)
                         .content("일반 문의 답변 4")
                         .build());
+        문의_답변4.addQuestion(문의_일반4);
+        answerRepository.save(문의_답변4);
 
         Answer 문의_답변5 = answerRepository.save(
                 Answer.builder()
@@ -1236,6 +1387,8 @@ public class NotProd {
                         .question(문의_일반5)
                         .content("일반 문의 답변 5")
                         .build());
+        문의_답변5.addQuestion(문의_일반5);
+        answerRepository.save(문의_답변5);
 
         // Insert Address
         Address 주소_일반회원1_1 = addressRepository.save(
