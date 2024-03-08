@@ -33,6 +33,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .select(member)
                 .from(member)
                 .where(builder)
+                .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
