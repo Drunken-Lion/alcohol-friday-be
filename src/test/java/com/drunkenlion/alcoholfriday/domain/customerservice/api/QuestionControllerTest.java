@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -60,9 +61,12 @@ class QuestionControllerTest {
     @Autowired
     private AnswerRepository answerRepository;
 
-    @BeforeEach
+    @AfterEach
     @Transactional
-    public void qwerqwer() {
+    public void after() {
+        questionRepository.deleteAll();
+        memberRepository.deleteAll();
+        answerRepository.deleteAll();
     }
 
     @Test
