@@ -27,7 +27,7 @@ public class AdminNoticeController {
     private final AdminNoticeService adminNoticeService;
 
     @Operation(summary = "공지사항 상세 조회", description = "관리자 권한 - 공지사항 상세 조회")
-    @GetMapping( "{id}")
+    @GetMapping("{id}")
     public ResponseEntity<NoticeSaveResponse> getNotice(@PathVariable("id") Long id,
                                                         @AuthenticationPrincipal UserPrincipal user) {
         NoticeSaveResponse noticeSaveResponse = adminNoticeService.getNotice(id, user.getMember());

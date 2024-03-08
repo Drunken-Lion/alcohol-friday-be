@@ -19,7 +19,7 @@ public class NoticeController {
     private final NoticeService noticeService;
 
     @Operation(summary = "공지사항 상세 조회", description = "일반 사용자용 공지사항 상세 조회")
-    @GetMapping( "{id}")
+    @GetMapping("{id}")
     public ResponseEntity<NoticeDetailResponse> getNotice(
             @PathVariable("id") Long id) {
         NoticeDetailResponse noticeDetailResponse = noticeService.getNotice(id);
