@@ -1209,6 +1209,142 @@ public class NotProd {
                         .status(QuestionStatus.INCOMPLETE)
                         .build());
 
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
+        questionRepository.save(
+                Question.builder()
+                        .member(회원_일반회원1)
+                        .title("일반 문의 제목 1")
+                        .content("일반 문의 내용 1")
+                        .status(QuestionStatus.COMPLETE)
+                        .build());
+
         // Insert Answer
         Answer 문의_답변1 = answerRepository.save(
                 Answer.builder()

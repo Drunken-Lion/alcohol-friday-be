@@ -13,6 +13,7 @@ import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +45,7 @@ public class QuestionServiceImpl implements QuestionService {
     public QuestionResponse findQuestion(Member member, Long id) {
         log.info("[QuestionServiceImpl.findQuestion] : 접근");
         Question question =
-                questionRepository.findById(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND));
+                questionRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_QUESTION));
 
         QuestionValidator.compareEntityIdToMemberId(question, member);
 
@@ -66,11 +67,11 @@ public class QuestionServiceImpl implements QuestionService {
                                            List<MultipartFile> files) {
         log.info("[QuestionServiceImpl.updateQuestion] : 접근");
         Question question =
-                questionRepository.findById(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND));
+                questionRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_QUESTION));
 
         QuestionValidator.compareEntityIdToMemberId(question, member);
 
-        if (!question.getAnswers().isEmpty()) {
+        if (question.getStatus().equals(QuestionStatus.COMPLETE)) {
             throw new BusinessException(Fail.BAD_REQUEST);
         }
 
@@ -87,10 +88,11 @@ public class QuestionServiceImpl implements QuestionService {
     public void deleteQuestion(Long id, Member member) {
         log.info("[QuestionServiceImpl.deleteQuestion] : 접근");
         Question question =
-                questionRepository.findById(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND));
+                questionRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_QUESTION));
+
         QuestionValidator.compareEntityIdToMemberId(question, member);
 
-        if (question.getDeletedAt() != null || question.getStatus().equals(QuestionStatus.COMPLETE)) {
+        if (question.getStatus().equals(QuestionStatus.COMPLETE)) {
             throw new BusinessException(Fail.BAD_REQUEST);
         }
 

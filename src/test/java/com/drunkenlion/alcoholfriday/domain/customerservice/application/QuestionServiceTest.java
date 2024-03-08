@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.customerservice.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,11 +20,15 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.customerservice.util.validate.QuestionValidator;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +51,12 @@ class QuestionServiceTest {
     @Mock
     private FileService fileService;
 
+
+    @AfterEach
+    @Transactional
+    public void after() {
+        questionRepository.deleteAll();
+    }
     @Test
     @DisplayName("1번 회원은 3번 회원이 작성한 게시글에 접근하면 에러가 발생한다.")
     void t1() {
@@ -68,7 +79,7 @@ class QuestionServiceTest {
 
         Member member = Member.builder().id(26L).build();
 
-        when(questionRepository.findById(questionId)).thenReturn(
+        when(questionRepository.findByIdAndDeletedAtIsNull(questionId)).thenReturn(
                 Optional.ofNullable(Question.builder()
                         .id(questionId)
                         .title(questionTitle)
@@ -99,7 +110,7 @@ class QuestionServiceTest {
         Member firstMember = Member.builder().id(26L).build();
         Member secondMember = Member.builder().id(2L).build();
 
-        when(questionRepository.findById(questionId)).thenReturn(
+        when(questionRepository.findByIdAndDeletedAtIsNull(questionId)).thenReturn(
                 Optional.ofNullable(Question.builder()
                         .id(questionId)
                         .title(questionTitle)
@@ -122,7 +133,7 @@ class QuestionServiceTest {
         QuestionStatus questionStatus = QuestionStatus.INCOMPLETE;
         Member member = Member.builder().id(1L).build();
 
-        when(questionRepository.findById(questionId)).thenReturn(
+        when(questionRepository.findByIdAndDeletedAtIsNull(questionId)).thenReturn(
                 Optional.ofNullable(Question.builder()
                         .id(questionId)
                         .title(questionTitle)
@@ -155,7 +166,7 @@ class QuestionServiceTest {
         Answer answer = Answer.builder().id(1L).build();
         answer.addQuestion(question);
 
-        when(questionRepository.findById(questionId)).thenReturn(
+        when(questionRepository.findByIdAndDeletedAtIsNull(questionId)).thenReturn(
                 Optional.of(question)
         );
 
@@ -178,14 +189,16 @@ class QuestionServiceTest {
                 .content(questionContent)
                 .status(questionStatus)
                 .build();
+
         question.deleteEntity();
 
-        when(questionRepository.findById(questionId)).thenReturn(
-                Optional.of(question)
-        );
+        BusinessException businessException = assertThrows(BusinessException.class, () -> {
+            questionService.deleteQuestion(questionId, member);
+        });
 
-        assertThatThrownBy(() -> questionService.deleteQuestion(questionId, member)).isInstanceOf(
-                BusinessException.class);
+        assertThat(businessException.getStatus()).isEqualTo(HttpResponse.Fail.NOT_FOUND.getStatus());
+
+
     }
 
     @Test
@@ -203,7 +216,7 @@ class QuestionServiceTest {
         QuestionModifyRequest modify = QuestionModifyRequest.builder().updateTitle(updateQuestionTitle)
                 .updateContent(updateQuestionContent).build();
 
-        when(questionRepository.findById(questionId)).thenReturn(
+        when(questionRepository.findByIdAndDeletedAtIsNull(questionId)).thenReturn(
                 Optional.ofNullable(Question.builder()
                         .id(questionId)
                         .title(questionTitle)
@@ -239,7 +252,7 @@ class QuestionServiceTest {
         QuestionModifyRequest modify = QuestionModifyRequest.builder().updateTitle(updateQuestionTitle)
                 .updateContent(updateQuestionContent).build();
 
-        when(questionRepository.findById(questionId)).thenReturn(
+        when(questionRepository.findByIdAndDeletedAtIsNull(questionId)).thenReturn(
                 Optional.ofNullable(Question.builder()
                         .id(questionId)
                         .title(questionTitle)
