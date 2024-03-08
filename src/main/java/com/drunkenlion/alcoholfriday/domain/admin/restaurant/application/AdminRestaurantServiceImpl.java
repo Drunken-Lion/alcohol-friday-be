@@ -72,10 +72,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
-        // TODO: Validator로 체크해 한줄로 처리하는 방식으로 리팩토링
-        if(!RestaurantDataValidator.isMenuDataValid(restaurantRequest.getMenu()) ||
-                !RestaurantDataValidator.isTimeDataValid(restaurantRequest.getTime()) ||
-                !RestaurantDataValidator.isProvisionDataValid(restaurantRequest.getProvision())) {
+        if(!RestaurantDataValidator.isValid(restaurantRequest)) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.INVALID_INPUT_VALUE)
                     .build();
