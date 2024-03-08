@@ -233,7 +233,7 @@ public class AdminRestaurantServiceTest {
         when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
 
         // when
-        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getAdminData(), id);
+        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getOwnerData(), id);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
