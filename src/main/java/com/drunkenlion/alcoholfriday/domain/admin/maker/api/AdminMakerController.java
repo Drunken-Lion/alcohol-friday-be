@@ -35,7 +35,7 @@ public class AdminMakerController {
     }
 
     @Operation(summary = "제조사 상세 조회", description = "관리자 권한에 대한 제조사 상세 조회")
-    @GetMapping(value = "{id}")
+    @GetMapping("{id}")
     public ResponseEntity<MakerDetailResponse> getMaker(
             @PathVariable("id") Long id
     ) {
@@ -60,7 +60,7 @@ public class AdminMakerController {
     }
 
     @Operation(summary = "제조사 수정", description = "관리자 권한에 대한 제조사 수정")
-    @PutMapping(value = "{id}")
+    @PutMapping("{id}")
     public ResponseEntity<MakerDetailResponse> modifyMaker(
             @PathVariable("id") Long id,
             @Valid @RequestBody MakerRequest makerRequest
@@ -70,7 +70,7 @@ public class AdminMakerController {
     }
 
     @Operation(summary = "제조사 삭제", description = "관리자 권한에 대한 제조사 삭제")
-    @DeleteMapping(value = "{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteMaker(
             @PathVariable("id") Long id
     ) {

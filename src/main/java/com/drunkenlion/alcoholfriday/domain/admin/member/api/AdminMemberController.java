@@ -36,7 +36,7 @@ public class AdminMemberController {
     }
 
     @Operation(summary = "회원 상세 조회", description = "관리자 화면에 대한 회원 상세 조회")
-    @GetMapping(value = "{id}")
+    @GetMapping("{id}")
     public ResponseEntity<MemberDetailResponse> getMember(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id
@@ -46,7 +46,7 @@ public class AdminMemberController {
     }
 
     @Operation(summary = "회원 수정", description = "관리자 화면에 대한 회원 수정")
-    @PutMapping(value = "{id}")
+    @PutMapping("{id}")
     public ResponseEntity<MemberDetailResponse> modifyMember(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id,

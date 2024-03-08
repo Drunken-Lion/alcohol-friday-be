@@ -38,7 +38,7 @@ public class AdminRestaurantController {
     }
 
     @Operation(summary = "매장 상세 조회", description = "관리자 권한에 대한 매장 상세 조회")
-    @GetMapping(value = "{id}")
+    @GetMapping("{id}")
     public ResponseEntity<RestaurantDetailResponse> getRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id
@@ -65,7 +65,7 @@ public class AdminRestaurantController {
     }
 
     @Operation(summary = "매장 수정", description = "관리자 권한에 대한 매장 수정")
-    @PutMapping(value = "{id}")
+    @PutMapping("{id}")
     public ResponseEntity<RestaurantDetailResponse> modifyRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id,
@@ -76,7 +76,7 @@ public class AdminRestaurantController {
     }
 
     @Operation(summary = "매장 삭제", description = "관리자 권한에 대한 매장 삭제")
-    @DeleteMapping(value = "{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id

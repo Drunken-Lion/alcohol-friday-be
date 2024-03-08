@@ -38,7 +38,7 @@ public class AdminItemController {
     }
 
     @Operation(summary = "상품 상세 조회", description = "관리자 권한에 대한 상품 상세 조회")
-    @GetMapping(value = "{id}")
+    @GetMapping("{id}")
     public ResponseEntity<ItemDetailResponse> getItem(
             @PathVariable("id") Long id
     ) {
@@ -64,7 +64,7 @@ public class AdminItemController {
     }
 
     @Operation(summary = "상품 수정", description = "관리자 권한에 대한 상품 수정")
-    @PutMapping(value = "{id}")
+    @PutMapping("{id}")
     public ResponseEntity<ItemDetailResponse> modifyItem(
             @PathVariable("id") Long id,
             @Valid @RequestPart("itemRequest") ItemModifyRequest itemModifyRequest,
@@ -75,7 +75,7 @@ public class AdminItemController {
     }
 
     @Operation(summary = "상품 삭제", description = "관리자 권한에 대한 상품 삭제")
-    @DeleteMapping(value = "{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteItem(
             @PathVariable("id") Long id
     ) {
