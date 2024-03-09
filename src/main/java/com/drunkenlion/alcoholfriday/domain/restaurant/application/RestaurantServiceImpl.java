@@ -1,6 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantLocationResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -9,7 +9,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
-import com.drunkenlion.alcoholfriday.global.file.application.FileServiceImpl;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -39,14 +38,14 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         List<Restaurant> get = restaurantRepository.getRestaurant(neLatitude, neLongitude, swLatitude, swLongitude);
 
-        List<Item> items = Optional.ofNullable(get).orElseThrow(() -> BusinessException.builder().response(HttpResponse.Fail.NOT_FOUND_ITEM).build())
+        List<Product> products = Optional.ofNullable(get).orElseThrow(() -> BusinessException.builder().response(HttpResponse.Fail.NOT_FOUND_ITEM).build())
                 .stream()
                 .flatMap(restaurants -> restaurants.getRestaurantStocks()
                         .stream()
-                        .map(RestaurantStock::getItem))
+                        .map(RestaurantStock::getProduct))
                 .toList();
 
-        List<NcpFileResponse> files = items.stream()
+        List<NcpFileResponse> files = products.stream()
                 .map(fileService::findAll)
                 .filter(Objects::nonNull)
                 .toList();
