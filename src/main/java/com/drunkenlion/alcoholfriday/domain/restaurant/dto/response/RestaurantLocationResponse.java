@@ -52,13 +52,13 @@ public class RestaurantLocationResponse {
     @Schema(description = "편의시설 목록")
     private Map<String, Object> provision;
 
-    @Schema(description = "상품에 대한 상세 정보")
-    private List<ItemResponse> itemResponses;
+    @Schema(description = "레스토랑에 등록된 정통주에 대한 정보")
+    private List<ProductResponse> productResponses;
 
     @Schema(description = "레스토랑 영업 상태 여부 정보")
     private String businessStatus;
 
-    @Schema(description = "상품에 포함된 이미지")
+    @Schema(description = "레스토랑에 등록된 정통주에 대한 이미지")
     private List<NcpFileResponse> files;
 
     public void setRestaurantStatus(String businessStatus) {
@@ -66,10 +66,10 @@ public class RestaurantLocationResponse {
     }
 
     public static RestaurantLocationResponse of(Restaurant restaurant, List<NcpFileResponse> files) {
-        List<ItemResponse> items = restaurant
+        List<ProductResponse> products = restaurant
                 .getRestaurantStocks()
                 .stream()
-                .map(stock -> ItemResponse.of(stock.getItem(), stock.getQuantity()))
+                .map(stock -> ProductResponse.of(stock.getProduct(), stock.getQuantity()))
                 .collect(Collectors.toList());
 
         return RestaurantLocationResponse.builder()
@@ -84,7 +84,7 @@ public class RestaurantLocationResponse {
                 .menu(restaurant.getMenu())
                 .time(restaurant.getTime())
                 .provision(restaurant.getProvision())
-                .itemResponses(items)
+                .productResponses(products)
                 .files(files)
                 .build();
 
