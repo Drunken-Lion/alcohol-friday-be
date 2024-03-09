@@ -1,12 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
-import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
-import com.drunkenlion.alcoholfriday.domain.restaurant.application.RestaurantService;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -15,7 +14,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,10 +55,7 @@ public class RestaurantControllerTest {
     private RestaurantStockRepository restaurantStockRepository;
 
     @Autowired
-    private RestaurantService restaurantService;
-
-    @Autowired
-    private ItemRepository itemRepository;
+    private ProductRepository productRepository;
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
@@ -68,6 +63,8 @@ public class RestaurantControllerTest {
     private double neLongitude = 126.8529193;
     private double swLatitude = 37.5482577;
     private double swLongitude = 126.8421905;
+    private final String dongdongju = "동동주";
+    private final String takju = "탁주";
 
 
     @BeforeEach
@@ -91,26 +88,25 @@ public class RestaurantControllerTest {
 
         memberRepository.save(member);
 
-        Item item1 = Item.builder()
-                .type(ItemType.PROMOTION)
-                .name("item 1")
-                .price(BigDecimal.valueOf(20000))
-                .info("item 1 info")
-                .build();
-        Item item2 = Item.builder()
-                .type(ItemType.PROMOTION)
-                .name("item 2")
-                .price(BigDecimal.valueOf(30000))
-                .info("item 2 info")
+        Product product1 = Product.builder()
+                .name(dongdongju)
+                .price(BigDecimal.valueOf(0L))
+                .quantity(0L)
+                .alcohol(100L)
                 .build();
 
-        itemRepository.save(item1);
-        itemRepository.save(item2);
+        Product product2 = Product.builder()
+                .name(takju)
+                .price(BigDecimal.valueOf(0L))
+                .quantity(0L)
+                .alcohol(100L)
+                .build();
+
+        productRepository.save(product1);
+        productRepository.save(product2);
 
         final Coordinate coordinate = new Coordinate(126.842299, 37.549636);
         Point restaurant_location = geometryFactory.createPoint(coordinate);
-
-
 
         Restaurant restaurant = Restaurant.builder()
                 .members(member)
@@ -128,13 +124,13 @@ public class RestaurantControllerTest {
         restaurantRepository.save(restaurant);
 
         RestaurantStock stock1 = RestaurantStock.builder()
-                .item(item1)
+                .product(product1)
                 .restaurant(restaurant)
                 .quantity(100L)
                 .build();
 
         RestaurantStock stock2 = RestaurantStock.builder()
-                .item(item2)
+                .product(product2)
                 .restaurant(restaurant)
                 .quantity(150L)
                 .build();
@@ -152,7 +148,7 @@ public class RestaurantControllerTest {
         memberRepository.deleteAll();
         restaurantRepository.deleteAll();
         restaurantStockRepository.deleteAll();
-        itemRepository.deleteAll();
+        productRepository.deleteAll();
     }
 
     private Map<String, Object> getMenuTest() {
@@ -198,7 +194,6 @@ public class RestaurantControllerTest {
         return frame;
     }
 
-
     @Test
     public void search() throws Exception {
 
@@ -222,9 +217,15 @@ public class RestaurantControllerTest {
                 .andExpect(jsonPath("$.[0].longitude", notNullValue()))
                 .andExpect(jsonPath("$.[0].contact", notNullValue()))
                 .andExpect(jsonPath("$.[0].menu", notNullValue()))
-                .andExpect(jsonPath("$.[0].time", notNullValue()));
-
-
+                .andExpect(jsonPath("$.[0].time", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[0].name", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[1].name", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[0].price", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[1].price", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[0].alcohol", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[1].alcohol", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[0].quantity", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[1].quantity", notNullValue()));
     }
 
 }

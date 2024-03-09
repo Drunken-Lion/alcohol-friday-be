@@ -1,11 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.dao;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
-import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.application.RestaurantService;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantLocationResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -14,7 +14,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Coordinate;
@@ -22,7 +21,6 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +48,7 @@ public class RestaurantRepositoryTest {
     private RestaurantService restaurantService;
 
     @Autowired
-    private ItemRepository itemRepository;
+    private ProductRepository productRepository;
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
     private final double neLatitude = 37.5567635;
@@ -60,10 +58,12 @@ public class RestaurantRepositoryTest {
     private final double restaurantLatitude = 37.549636;
     private final double restaurantLongitude = 126.842299;
     private final String restaurantName = "학식";
+    private final String dongdongju = "동동주";
+    private final String takju = "탁주";
     private final String restaurantCategory = "우정산 폴리텍대학";
     private final String restaurantAddress = "우정산 서울강서 캠퍼스";
-    private final BigDecimal itemPrice1 = BigDecimal.valueOf(30000);
-    private final BigDecimal itemPrice2 = BigDecimal.valueOf(20000);
+    private final BigDecimal productPrice1 = BigDecimal.valueOf(30000);
+    private final BigDecimal productPrice2 = BigDecimal.valueOf(20000);
 
     @BeforeEach
     @Transactional
@@ -86,21 +86,22 @@ public class RestaurantRepositoryTest {
 
         memberRepository.save(member);
 
-        Item item1 = Item.builder()
-                .type(ItemType.PROMOTION)
-                .name("item 1")
-                .price(BigDecimal.valueOf(20000))
-                .info("item 1 info")
-                .build();
-        Item item2 = Item.builder()
-                .type(ItemType.PROMOTION)
-                .name("item 2")
-                .price(BigDecimal.valueOf(30000))
-                .info("item 2 info")
+        Product product1 = Product.builder()
+                .name(dongdongju)
+                .price(productPrice1)
+                .quantity(0L)
+                .alcohol(100L)
                 .build();
 
-        itemRepository.save(item1);
-        itemRepository.save(item2);
+        Product product2 = Product.builder()
+                .name(takju)
+                .price(productPrice2)
+                .quantity(0L)
+                .alcohol(100L)
+                .build();
+
+        productRepository.save(product1);
+        productRepository.save(product2);
 
         final Coordinate coordinate = new Coordinate(126.842299, 37.549636);
         Point restaurant_location = geometryFactory.createPoint(coordinate);
@@ -121,13 +122,13 @@ public class RestaurantRepositoryTest {
         restaurantRepository.save(restaurant);
 
         RestaurantStock stock1 = RestaurantStock.builder()
-                .item(item1)
+                .product(product1)
                 .restaurant(restaurant)
                 .quantity(100L)
                 .build();
 
         RestaurantStock stock2 = RestaurantStock.builder()
-                .item(item2)
+                .product(product2)
                 .restaurant(restaurant)
                 .quantity(150L)
                 .build();
@@ -187,7 +188,6 @@ public class RestaurantRepositoryTest {
     @Test
     @DisplayName("범위 내의 모든 레스토랑 정보 찾기")
     public void nearbyRestaurant() {
-
         //when
         List<RestaurantLocationResponse> restaurants = restaurantService.getRestaurants(neLatitude, neLongitude, swLatitude, swLongitude);
 
@@ -197,9 +197,8 @@ public class RestaurantRepositoryTest {
         assertThat(restaurants.get(0).getAddress()).isEqualTo(restaurantAddress);;
         assertThat(restaurants.get(0).getLatitude()).isEqualTo(restaurantLatitude);
         assertThat(restaurants.get(0).getLongitude()).isEqualTo(restaurantLongitude);
-        assertThat(restaurants.get(0).getItemResponses().get(0).getPrice()).isEqualByComparingTo(itemPrice1);
-        assertThat(restaurants.get(0).getItemResponses().get(1).getPrice()).isEqualByComparingTo(itemPrice2);
-
+        assertThat(restaurants.get(0).getProductResponses().get(0).getPrice()).isEqualByComparingTo(productPrice2);
+        assertThat(restaurants.get(0).getProductResponses().get(1).getPrice()).isEqualByComparingTo(productPrice1);
     }
 
     @AfterEach
@@ -208,6 +207,6 @@ public class RestaurantRepositoryTest {
         memberRepository.deleteAll();
         restaurantRepository.deleteAll();
         restaurantStockRepository.deleteAll();
-        itemRepository.deleteAll();
+        productRepository.deleteAll();
     }
 }
