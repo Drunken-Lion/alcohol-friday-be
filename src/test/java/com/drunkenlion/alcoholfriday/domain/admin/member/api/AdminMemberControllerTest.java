@@ -1,9 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.admin.member.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -140,18 +142,18 @@ public class AdminMemberControllerTest {
         // given
         Member member = this.memberRepository.findAll().get(0);
 
+        MemberModifyRequest memberModifyRequest = MemberModifyRequest.builder()
+                .name("테스트 수정")
+                .nickname("test 수정")
+                .phone(1011112222L)
+                .role(MemberRole.ADMIN)
+                .build();
+
         // when
         ResultActions resultActions = mvc
                 .perform(put("/v1/admin/members/" + member.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                   "name": "테스트 수정",
-                                   "nickname": "test 수정",
-                                   "phone": 1011112222,
-                                   "role": "ADMIN"
-                                }
-                                """)
+                        .content(JsonConvertor.build(memberModifyRequest))
                 )
                 .andDo(print());
 
