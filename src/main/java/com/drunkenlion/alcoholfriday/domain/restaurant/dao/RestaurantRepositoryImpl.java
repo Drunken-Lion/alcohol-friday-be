@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.drunkenlion.alcoholfriday.domain.item.entity.QItem.item;
+import static com.drunkenlion.alcoholfriday.domain.product.entity.QProduct.product;
 import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurant.restaurant;
 import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurantStock.restaurantStock;
 
@@ -64,7 +65,7 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                 .select(restaurant)
                 .from(restaurant)
                 .leftJoin(restaurant.restaurantStocks, restaurantStock).fetchJoin()
-                .leftJoin(restaurantStock.item, item).fetchJoin()
+                .leftJoin(restaurantStock.product, product).fetchJoin()
                 .where(inPolygon.and(isNotDeleted))
                 .fetch();
     }
