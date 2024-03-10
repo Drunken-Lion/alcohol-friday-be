@@ -12,11 +12,11 @@ import jakarta.persistence.Converter;
 public class MemberRoleConverter implements AttributeConverter<MemberRole, String> {
     @Override
     public String convertToDatabaseColumn(MemberRole attribute) {
-        return attribute.getRole();
+        return attribute.getRoleNumber();
     }
 
     @Override
     public MemberRole convertToEntityAttribute(String dbData) {
-        return MemberRole.ofRole(dbData);
+        return MemberRole.byRoleNumber(dbData);
     }
 }
