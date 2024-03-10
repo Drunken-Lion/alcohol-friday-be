@@ -354,7 +354,7 @@ public class AdminRestaurantServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.createRestaurant(getAdminData(),restaurantRequest);
+            adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
         });
 
         // then
@@ -387,7 +387,7 @@ public class AdminRestaurantServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.createRestaurant(getAdminData(),restaurantRequest);
+            adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
         });
 
         // then
@@ -434,7 +434,7 @@ public class AdminRestaurantServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.createRestaurant(getAdminData(),restaurantRequest);
+            adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
         });
 
         // then
@@ -860,10 +860,10 @@ public class AdminRestaurantServiceTest {
         return Member.builder()
                 .id(memberId)
                 .email(email)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(memberName)
                 .nickname(nickname)
-                .role(MemberRole.ofRole(role))
+                .role(MemberRole.byRole(role))
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)
@@ -877,10 +877,10 @@ public class AdminRestaurantServiceTest {
         return Member.builder()
                 .id(modifyMemberId)
                 .email(email)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(memberName)
                 .nickname(modifyNickname)
-                .role(MemberRole.ofRole(role))
+                .role(MemberRole.byRole(role))
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)

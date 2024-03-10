@@ -132,7 +132,7 @@ public class MemberServiceTest {
         Member member = Member.builder()
                 .id(memberId)
                 .nickname(memberModifyRequest.getNickname())
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .phone(memberModifyRequest.getPhone())
                 .build();
 
@@ -307,10 +307,10 @@ public class MemberServiceTest {
         return Member.builder()
                 .id(memberId)
                 .email(email)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(name)
                 .nickname(nickname)
-                .role(MemberRole.ofRole(role))
+                .role(MemberRole.byRole(role))
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)
