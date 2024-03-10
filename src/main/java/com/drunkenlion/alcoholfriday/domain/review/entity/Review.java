@@ -38,4 +38,9 @@ public class Review extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Member member;
+
+    public void addOrderDetail(OrderDetail orderDetail) {
+        this.orderDetail = orderDetail;
+        if (orderDetail.getReview() != this) orderDetail.addReview(this);
+    }
 }

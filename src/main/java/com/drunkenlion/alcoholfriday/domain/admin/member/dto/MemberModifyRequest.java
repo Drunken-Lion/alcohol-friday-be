@@ -11,12 +11,15 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "회원 수정 항목")
 public class MemberModifyRequest {
+    @Schema(description = "이름")
+    private String name;
+
     @Schema(description = "별명")
     private String nickname;
 
-    @Schema(description = "권한")
-    private MemberRole role;
-
     @Schema(description = "연락처")
     private Long phone;
+
+    @Schema(description = "권한")
+    private MemberRole role;
 }

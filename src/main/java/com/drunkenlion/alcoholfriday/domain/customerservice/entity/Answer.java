@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.customerservice.entity;
 
+import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -32,5 +33,7 @@ public class Answer extends BaseEntity {
 
     public void addQuestion(Question question) {
         this.question = question;
+        this.question.updateStatus(QuestionStatus.COMPLETE);
+        question.getAnswers().add(this);
     }
 }

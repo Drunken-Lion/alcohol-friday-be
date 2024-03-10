@@ -6,8 +6,11 @@ import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,11 +20,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -31,7 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 @Transactional
 public class AdminProductControllerTest {
     @Autowired
@@ -48,6 +59,9 @@ public class AdminProductControllerTest {
 
     @Autowired
     private CategoryClassRepository categoryClassRepository;
+
+    @Autowired
+    private FileService fileService;
 
     @BeforeEach
     @Transactional
@@ -82,12 +96,17 @@ public class AdminProductControllerTest {
                 .sour(4L)
                 .cool(3L)
                 .body(3L)
-                .balence(0L)
-                .insense(0L)
+                .balance(0L)
+                .incense(0L)
                 .throat(0L)
                 .maker(제조사_국순당)
                 .category(카테고리_소분류1)
                 .build());
+
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile multipartFile2 = new MockMultipartFile("files", "test2.txt", "text/plain", "test2 file".getBytes(StandardCharsets.UTF_8));
+
+        fileService.saveFiles(제품_국순당_프리바이오, List.of(multipartFile1, multipartFile2));
     }
 
     @AfterEach
@@ -101,6 +120,7 @@ public class AdminProductControllerTest {
 
     @Test
     @DisplayName("제품 목록 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getProductsTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -129,6 +149,7 @@ public class AdminProductControllerTest {
 
     @Test
     @DisplayName("제품 상세 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getProductTest() throws Exception {
         // given
         Product product = this.productRepository.findAll().get(0);
@@ -161,43 +182,51 @@ public class AdminProductControllerTest {
                 .andExpect(jsonPath("$.sour", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.cool", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.body", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.balence", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.insense", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.balance", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.incense", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.throat", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.productFiles", notNullValue()));
     }
 
     @Test
     @DisplayName("제품 등록 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void createProductTest() throws Exception {
         // given
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "create-test1.txt", "text/plain", "create-test1 file".getBytes(StandardCharsets.UTF_8));
+
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
         Long makerId = this.makerRepository.findAll().get(0).getId();
 
+        String productCreateRequestJson = String.format("""
+                {
+                  "categoryLastId": %d,
+                  "name": "test 제품명",
+                  "makerId": %d,
+                  "price": 100000,
+                  "quantity": 1000,
+                  "alcohol": 0,
+                  "ingredient": "test 쌀(국내산), 밀(국내산), 누룩, 정제수",
+                  "sweet": 0,
+                  "sour": 0,
+                  "cool": 0,
+                  "body": 0,
+                  "balance": 0,
+                  "incense": 0,
+                  "throat": 0
+                }
+                """, categoryLastId, makerId);
+
+        MockMultipartFile itemRequest = new MockMultipartFile("productRequest", "productRequest", "application/json", productCreateRequestJson.getBytes(StandardCharsets.UTF_8));
+
         // when
         ResultActions resultActions = mvc
-                .perform(post("/v1/admin/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "categoryLastId": %d,
-                                  "name": "test 제품명",
-                                  "makerId": %d,
-                                  "price": 100000,
-                                  "quantity": 1000,
-                                  "alcohol": 0,
-                                  "ingredient": "test 쌀(국내산), 밀(국내산), 누룩, 정제수",
-                                  "sweet": 0,
-                                  "sour": 0,
-                                  "cool": 0,
-                                  "body": 0,
-                                  "balence": 0,
-                                  "insense": 0,
-                                  "throat": 0
-                                }
-                                """, categoryLastId, makerId))
+                .perform(multipart("/v1/admin/products")
+                        .file(multipartFile1)
+                        .file(itemRequest)
                 )
                 .andDo(print());
 
@@ -222,44 +251,64 @@ public class AdminProductControllerTest {
                 .andExpect(jsonPath("$.sour", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.cool", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.body", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.balence", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.insense", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.balance", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.incense", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.throat", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.productFiles", notNullValue()));
     }
 
     @Test
     @DisplayName("제품 수정 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void modifyProductTest() throws Exception {
         // given
+        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "modify-test1.txt", "text/plain", "modify-test1 file".getBytes(StandardCharsets.UTF_8));
+
         Product product = this.productRepository.findAll().get(0);
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
         Long makerId = this.makerRepository.findAll().get(0).getId();
 
+        String productCreateRequestJson = String.format("""
+                {
+                  "categoryLastId": %d,
+                  "name": "test 제품명",
+                  "makerId": %d,
+                  "price": 100000,
+                  "quantity": 1000,
+                  "alcohol": 0,
+                  "ingredient": "test 쌀(국내산), 밀(국내산), 누룩, 정제수",
+                  "sweet": 0,
+                  "sour": 0,
+                  "cool": 0,
+                  "body": 0,
+                  "balance": 0,
+                  "incense": 0,
+                  "throat": 0,
+                  "remove": [
+                        1
+                      ]
+                }
+                """, categoryLastId, makerId);
+
+        MockMultipartFile itemRequest = new MockMultipartFile("productRequest", "productRequest", "application/json", productCreateRequestJson.getBytes(StandardCharsets.UTF_8));
+
+        MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart("/v1/admin/products/" + product.getId());
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+
         // when
         ResultActions resultActions = mvc
-                .perform(put("/v1/admin/products/" + product.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "categoryLastId": %d,
-                                  "name": "test 제품명",
-                                  "makerId": %d,
-                                  "price": 100000,
-                                  "quantity": 1000,
-                                  "alcohol": 0,
-                                  "ingredient": "test 쌀(국내산), 밀(국내산), 누룩, 정제수",
-                                  "sweet": 0,
-                                  "sour": 0,
-                                  "cool": 0,
-                                  "body": 0,
-                                  "balence": 0,
-                                  "insense": 0,
-                                  "throat": 0
-                                }
-                                """, categoryLastId, makerId))
+                .perform(builder
+                        .file(multipartFile1)
+                        .file(itemRequest)
                 )
                 .andDo(print());
 
@@ -284,16 +333,18 @@ public class AdminProductControllerTest {
                 .andExpect(jsonPath("$.sour", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.cool", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.body", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.balence", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.insense", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.balance", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.incense", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.throat", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(jsonPath("$.productFiles", notNullValue()));
     }
 
     @Test
     @DisplayName("제품 삭제 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void deleteProductTest() throws Exception {
         // given
         Product product = this.productRepository.findAll().get(0);
