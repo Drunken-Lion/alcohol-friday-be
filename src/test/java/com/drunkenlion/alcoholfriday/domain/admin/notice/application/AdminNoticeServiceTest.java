@@ -12,6 +12,7 @@ import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -209,15 +211,15 @@ public class AdminNoticeServiceTest {
     public void deleteAdminNoticeTest() {
         // given 준비
         when(noticeRepository.findByIdAndDeletedAtIsNull(noticeId)).thenReturn(this.getNoticeOne());
-        when(noticeRepository.save(any(Notice.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        ArgumentCaptor<Notice> noticeArgumentCaptor = ArgumentCaptor.forClass(Notice.class);
 
         // When 실행
-        NoticeSaveResponse noticeResponse = adminNoticeService.deleteNotice(noticeId, getMemberData());
+        adminNoticeService.deleteNotice(noticeId, getMemberData());
 
         // then 검증
-        assertThat(noticeResponse.getTitle()).isEqualTo(title);
-        assertThat(noticeResponse.getContent()).isEqualTo(content);
-        assertThat(noticeResponse.getDeletedAt()).isNotNull();
+        verify(noticeRepository).save(noticeArgumentCaptor.capture());
+        Notice savedNotice = noticeArgumentCaptor.getValue();
+        assertThat(savedNotice.getDeletedAt()).isNotNull();
     }
 
     @DisplayName("관리자 공지사항 삭제 실패 - 찾을 수 없는 공지사항")

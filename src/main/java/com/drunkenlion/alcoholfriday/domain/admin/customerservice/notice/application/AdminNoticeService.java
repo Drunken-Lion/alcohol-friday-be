@@ -14,5 +14,5 @@ public interface AdminNoticeService {
 
     NoticeSaveResponse modifyNotice(Long id, NoticeSaveRequest request, Member member);
 
-    NoticeSaveResponse deleteNotice(Long id, Member member);
+    void deleteNotice(Long id, Member member);
 }

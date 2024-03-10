@@ -70,7 +70,7 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 
     @Override
     @Transactional
-    public NoticeSaveResponse deleteNotice(Long id, Member member) {
+    public void deleteNotice(Long id, Member member) {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_NOTICE)
@@ -81,7 +81,5 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
                 .build();
 
         noticeRepository.save(notice);
-
-        return NoticeSaveResponse.of(notice);
     }
 }
