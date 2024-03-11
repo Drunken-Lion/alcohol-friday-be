@@ -28,6 +28,10 @@ public class Product extends BaseEntity {
     @Comment("제품 원가")
     private BigDecimal price;
 
+    @Column(name = "distribution_price", columnDefinition = "DECIMAL(64, 3)")
+    @Comment("유통 가격")
+    private BigDecimal distributionPrice;
+
     @Column(name = "quantity", columnDefinition = "BIGINT")
     @Comment("재고 수량")
     private Long quantity;
