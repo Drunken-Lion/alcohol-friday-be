@@ -59,12 +59,12 @@ public class AdminProductServiceImpl implements AdminProductService {
     @Override
     @Transactional
     public ProductDetailResponse createProduct(ProductCreateRequest productCreateRequest, List<MultipartFile> files) {
-        Category category = categoryRepository.findById(productCreateRequest.getCategoryLastId())
+        Category category = categoryRepository.findByIdAndDeletedAtIsNull(productCreateRequest.getCategoryLastId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_CATEGORY)
                         .build());
 
-        Maker maker = makerRepository.findById(productCreateRequest.getMakerId())
+        Maker maker = makerRepository.findByIdAndDeletedAtIsNull(productCreateRequest.getMakerId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MAKER)
                         .build());
@@ -80,17 +80,17 @@ public class AdminProductServiceImpl implements AdminProductService {
     @Override
     @Transactional
     public ProductDetailResponse modifyProduct(Long id, ProductModifyRequest productModifyRequest, List<Integer> remove, List<MultipartFile> files) {
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
                         .build());
 
-        Category category = categoryRepository.findById(productModifyRequest.getCategoryLastId())
+        Category category = categoryRepository.findByIdAndDeletedAtIsNull(productModifyRequest.getCategoryLastId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_CATEGORY)
                         .build());
 
-        Maker maker = makerRepository.findById(productModifyRequest.getMakerId())
+        Maker maker = makerRepository.findByIdAndDeletedAtIsNull(productModifyRequest.getMakerId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MAKER)
                         .build());
@@ -122,16 +122,10 @@ public class AdminProductServiceImpl implements AdminProductService {
     @Override
     @Transactional
     public void deleteProduct(Long id) {
-        Product product = productRepository.findById(id)
+        Product product = productRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
                         .build());
-
-        if (product.getDeletedAt() != null) {
-            throw BusinessException.builder()
-                    .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
-                    .build();
-        }
 
         // product 와 관계가 있는 itemProduct 중 삭제 상태가 아닌 것이 있는지 확인
         if (itemProductRepository.existsByProductAndDeletedAtIsNull(product)) {
