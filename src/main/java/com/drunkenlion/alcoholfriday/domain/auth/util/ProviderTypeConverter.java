@@ -9,11 +9,11 @@ import jakarta.persistence.Converter;
 public class ProviderTypeConverter implements AttributeConverter<ProviderType, String> {
     @Override
     public String convertToDatabaseColumn(ProviderType attribute) {
-        return attribute.getProviderName();
+        return attribute.getProviderNumber();
     }
 
     @Override
     public ProviderType convertToEntityAttribute(String dbData) {
-        return ProviderType.ofProvider(dbData);
+        return ProviderType.byProviderNumber(dbData);
     }
 }

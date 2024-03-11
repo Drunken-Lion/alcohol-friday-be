@@ -1,8 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.admin.maker.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.maker.dto.MakerRequest;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -118,18 +120,19 @@ public class AdminMakerControllerTest {
     @DisplayName("제조사 등록 성공")
     @WithAccount(role = MemberRole.ADMIN)
     void createMakerTest() throws Exception {
+        // given
+        MakerRequest makerRequest = MakerRequest.builder()
+                .name("test 제조사")
+                .address("test 주소")
+                .detail("test 상세주소")
+                .region("test 제조지역")
+                .build();
+
         // when
         ResultActions resultActions = mvc
                 .perform(post("/v1/admin/makers")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "name": "test 제조사",
-                                  "address": "test 주소",
-                                  "detail": "test 상세주소",
-                                  "region": "test 제조지역"
-                                }
-                                """)
+                        .content(JsonConvertor.build(makerRequest))
                 )
                 .andDo(print());
 
@@ -156,18 +159,18 @@ public class AdminMakerControllerTest {
         // given
         Maker maker = this.makerRepository.findAll().get(0);
 
+        MakerRequest makerRequest = MakerRequest.builder()
+                .name("test 제조사 수정")
+                .address("test 주소 수정")
+                .detail("test 상세주소 수정")
+                .region("test 제조지역 수정")
+                .build();
+
         // when
         ResultActions resultActions = mvc
                 .perform(put("/v1/admin/makers/" + maker.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "name": "test 제조사",
-                                  "address": "test 주소",
-                                  "detail": "test 상세주소",
-                                  "region": "test 제조지역"
-                                }
-                                """)
+                        .content(JsonConvertor.build(makerRequest))
                 )
                 .andDo(print());
 

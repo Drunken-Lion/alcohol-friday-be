@@ -351,12 +351,15 @@ public class AdminMemberServiceTest {
     private Optional<Member> getMemberOne() {
         return Optional.of(this.getMemberData());
     }
+
     private Optional<Member> getAdminOne() {
         return Optional.of(this.getAdminData());
     }
+
     private Optional<Member> getSupervisorOne() {
         return Optional.of(this.getSupervisorData());
     }
+
     private Optional<Member> getSupervisor2One() {
         return Optional.of(this.getSupervisor2Data());
     }
@@ -365,7 +368,7 @@ public class AdminMemberServiceTest {
         return Member.builder()
                 .id(memberId)
                 .email(memberEmail)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(memberName)
                 .nickname(memberNickname)
                 .role(memberRole)
@@ -383,7 +386,7 @@ public class AdminMemberServiceTest {
         return Member.builder()
                 .id(adminId)
                 .email(adminEmail)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(adminName)
                 .nickname(adminNickname)
                 .role(adminRole)
@@ -401,7 +404,7 @@ public class AdminMemberServiceTest {
         return Member.builder()
                 .id(superId)
                 .email(superEmail)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(superName)
                 .nickname(superNickname)
                 .role(superRole)
@@ -419,7 +422,7 @@ public class AdminMemberServiceTest {
         return Member.builder()
                 .id(super2Id)
                 .email(super2Email)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(super2Name)
                 .nickname(super2Nickname)
                 .role(super2Role)

@@ -412,6 +412,7 @@ public class AdminItemServiceTest {
         BusinessException exception = assertThrows(BusinessException.class, () -> {
             adminItemService.modifyItem(itemId, itemModifyRequest, null, null);
         });
+
         // then
         assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getStatus(), exception.getStatus());
         assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getMessage(), exception.getMessage());
@@ -445,6 +446,24 @@ public class AdminItemServiceTest {
         verify(cartDetailRepository).saveAll(cartDetailCaptor.capture());
         List<CartDetail> savedCartDetails = cartDetailCaptor.getValue();
         assertThat(savedCartDetails).allSatisfy(cartDetail -> assertThat(cartDetail.getDeletedAt()).isNotNull());
+    }
+
+    @Test
+    @DisplayName("상품 삭제 실패 - 찾을 수 없는 상품")
+    public void deleteItemFailItemNotFoundTest() {
+        // given
+        Item item = this.getItemData();
+
+        when(itemRepository.findByIdAndDeletedAtIsNull(itemId)).thenReturn(Optional.empty());
+
+        // When
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminItemService.deleteItem(itemId);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_ITEM.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_ITEM.getMessage(), exception.getMessage());
     }
 
     private Page<Item> getItems() {

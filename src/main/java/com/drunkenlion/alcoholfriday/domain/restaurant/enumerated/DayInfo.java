@@ -7,5 +7,15 @@ public enum DayInfo {
     THURSDAY,
     FRIDAY,
     SATURDAY,
-    SUNDAY
+    SUNDAY;
+
+    public static boolean checkedInfo(String info) {
+        for (DayInfo day : DayInfo.values()) {
+            if (day.name().equals(info)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
