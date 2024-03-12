@@ -139,6 +139,6 @@ public class CartServiceImpl implements CartService {
         cartDetailRepository.findByItemAndCart(item, cart).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND_CART).build());
 
-        cartDetailRepository.deleteByIdAndCart(item.getId(), cart);
+        cartDetailRepository.deleteByItemAndCart(item, cart);
     }
 }

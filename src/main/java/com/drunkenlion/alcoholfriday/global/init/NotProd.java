@@ -12,10 +12,10 @@ import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.AnswerRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.NoticeRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Notice;
+import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
@@ -39,24 +39,15 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
-import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
+import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.file.application.FileServiceImpl;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.IntegerRange;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -69,14 +60,18 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
-
-import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Profile("!prod & !test")
@@ -1973,70 +1968,70 @@ public class NotProd {
 
         RestaurantStock 가게_상품1_1 = restaurantStockRepository.save(
                 RestaurantStock.builder()
-                        .item(상품_1)
+                        .product(제품_국순당_유산균막걸리)
                         .quantity(100L)
                         .restaurant(가게1)
                         .build());
 
         RestaurantStock 가게_상품1_2 = restaurantStockRepository.save(
                 RestaurantStock.builder()
-                        .item(상품_2)
+                        .product(제품_명세주가_가덕막걸리)
                         .quantity(100L)
                         .restaurant(가게1)
                         .build());
 
         RestaurantStock 가게_상품2_1 = restaurantStockRepository.save(
                 RestaurantStock.builder()
-                        .item(상품_1)
+                        .product(제품_국순당_유산균막걸리)
                         .quantity(100L)
                         .restaurant(가게2)
                         .build());
 
         RestaurantStock 가게_상품2_2 = restaurantStockRepository.save(
                 RestaurantStock.builder()
-                        .item(상품_2)
+                        .product(제품_명세주가_가덕막걸리)
                         .quantity(100L)
                         .restaurant(가게2)
                         .build());
 
         RestaurantStock 가게_상품3_1 = restaurantStockRepository.save(
                 RestaurantStock.builder()
-                        .item(상품_1)
+                        .product(제품_국순당_유산균막걸리)
                         .quantity(100L)
                         .restaurant(가게3)
                         .build());
 
         RestaurantStock 가게_상품3_2 = restaurantStockRepository.save(
                 RestaurantStock.builder()
-                        .item(상품_2)
+                        .product(제품_명세주가_가덕막걸리)
                         .quantity(100L)
                         .restaurant(가게3)
                         .build());
 
         RestaurantStock 가게_상품4_1 = restaurantStockRepository.save(
                 RestaurantStock.builder()
-                        .item(상품_1)
+                        .product(제품_국순당_유산균막걸리)
                         .quantity(100L)
                         .restaurant(가게4)
                         .build());
 
         RestaurantStock 가게_상품4_2 = restaurantStockRepository.save(
                 RestaurantStock.builder()
-                        .item(상품_2)
+                        .product(제품_명세주가_가덕막걸리)
                         .quantity(100L)
                         .restaurant(가게4)
                         .build());
 
         RestaurantStock 가게_상품5_1 = restaurantStockRepository.save(
                 RestaurantStock.builder()
-                        .item(상품_1)
+                        .product(제품_국순당_유산균막걸리)
                         .quantity(100L)
                         .restaurant(가게5)
                         .build());
 
         RestaurantStock 가게_상품5_2 = restaurantStockRepository.save(
                 RestaurantStock.builder()
-                        .item(상품_2)
+                        .product(제품_명세주가_가덕막걸리)
                         .quantity(100L)
                         .restaurant(가게5)
                         .build());

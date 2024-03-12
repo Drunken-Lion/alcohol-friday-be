@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.address.application;
 
 import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
 import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -41,9 +42,31 @@ public class AddressServiceImpl implements AddressService {
     public AddressResponse getAddress(Long addressId) {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_ADDRESSES)
+                        .response(HttpResponse.Fail.NOT_FOUND_ADDRESS)
                         .build());
 
         return AddressResponse.of(address);
+    }
+
+    @Transactional
+    @Override
+    public AddressResponse modifyAddress(Long addressId, Long memberId, AddressModifyRequest modifyRequest) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_ADDRESS)
+                        .build());
+
+        if (!address.getMember().getId().equals(memberId)) {
+            throw new BusinessException(HttpResponse.Fail.FORBIDDEN);
+        }
+
+        if (modifyRequest.getIsPrimary()) {
+            List<Address> addresses = addressRepository.findAllByMemberId(memberId);
+            addresses.forEach(addr -> addr.changePrimary(false));
+        }
+
+        address.updateAddress(modifyRequest);
+
+        return AddressResponse.of(addressRepository.save(address));
     }
 }

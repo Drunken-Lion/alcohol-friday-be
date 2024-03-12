@@ -2,11 +2,11 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
-import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -37,7 +37,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
@@ -71,7 +70,7 @@ public class AdminRestaurantControllerTest {
     private RestaurantStockRepository restaurantStockRepository;
 
     @Autowired
-    private ItemRepository itemRepository;
+    private ProductRepository productRepository;
 
     @Autowired
     private FileService fileService;
@@ -152,27 +151,23 @@ public class AdminRestaurantControllerTest {
 
         restaurantRepository.save(restaurant);
 
-        List<Item> items = LongStream.rangeClosed(1, 2).mapToObj(i -> {
-            Item item =  Item.builder()
-                    .id(i)
-                    .name("itemName" + i)
-                    .price(BigDecimal.valueOf(i))
-                    .info("info")
+        List<Product> products = LongStream.rangeClosed(1, 2).mapToObj(i -> {
+            Product product =  Product.builder()
+                    .name("productName" + i)
                     .build();
 
-            itemRepository.save(item);
+            productRepository.save(product);
 
             MockMultipartFile multipartFile1 = JsonConvertor.getMockImg("files", "test1.txt", "test1 file");
 
-            fileService.saveFiles(item, List.of(multipartFile1));
+            fileService.saveFiles(product, List.of(multipartFile1));
 
-            return item;
+            return product;
         }).toList();
 
-        List<RestaurantStock> restaurantStocks = items.stream().map(item -> {
+        List<RestaurantStock> restaurantStocks = products.stream().map(product -> {
             return RestaurantStock.builder()
-                    .id(item.getId())
-                    .item(item)
+                    .product(product)
                     .restaurant(restaurant)
                     .quantity(100L)
                     .createdAt(LocalDateTime.now())
@@ -187,6 +182,8 @@ public class AdminRestaurantControllerTest {
     void afterEach() {
         memberRepository.deleteAll();
         restaurantRepository.deleteAll();
+        restaurantStockRepository.deleteAll();
+        productRepository.deleteAll();
     }
 
     @Test
@@ -253,10 +250,10 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemId", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemName", notNullValue()))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockQuantity", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemFile", notNullValue()));
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductName", notNullValue()))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockQuantity", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductFile", notNullValue()));
     }
 
     @Test
@@ -308,7 +305,7 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.stockItemInfos", notNullValue()));
+                .andExpect(jsonPath("$.stockProductInfos", notNullValue()));
     }
 
     @Test
@@ -361,10 +358,10 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemId", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemName", notNullValue()))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockQuantity", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemFile", notNullValue()));
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductName", notNullValue()))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockQuantity", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductFile", notNullValue()));
     }
 
     @Test

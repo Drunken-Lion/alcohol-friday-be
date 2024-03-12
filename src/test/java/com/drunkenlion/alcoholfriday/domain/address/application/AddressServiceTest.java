@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.address.application;
 
 import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
 import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
@@ -47,7 +48,7 @@ public class AddressServiceTest {
     private final boolean agreedToServicePolicyUse = false;
 
     private final Long addressId = 1L;
-    private final String address = "서울시 마포구 연남동";
+    private final String address = "서울특별시 마포구 연남동";
     private final String addressDetail = "123-12번지";
     private final Long postcode = 123123L;
     private final String recipient = "테스트";
@@ -55,12 +56,18 @@ public class AddressServiceTest {
     private final String request = "부재시 연락주세요.";
     private final Boolean isPrimary = true;
 
+    private final String modifyAddress = "서울특별시 마포구 합정동";
+    private final String modifyAddressDetail = "456-45번지";
+    private final Long modifyPostcode = 456456L;
+    private final String modifyRecipient = "테스트유저456";
+    private final Long modifyRecipientPhone = 1087654321L;
+
     private final LocalDateTime createdAt = LocalDateTime.now();
     private final LocalDateTime updatedAt = null;
     private final LocalDateTime deletedAt = null;
 
     @Test
-    @DisplayName("주소 등록")
+    @DisplayName("배송지 등록")
     public void createAddressTest() {
         // given
         AddressCreateRequest createRequest = AddressCreateRequest.builder()
@@ -90,8 +97,43 @@ public class AddressServiceTest {
 
     }
 
+    @Test
+    @DisplayName("배송지 수정")
+    public void modifyAddressTest() {
+        // given
+        AddressModifyRequest modifyRequest = AddressModifyRequest.builder()
+                .address(modifyAddress)
+                .addressDetail(modifyAddressDetail)
+                .postcode(modifyPostcode)
+                .recipient(modifyRecipient)
+                .phone(modifyRecipientPhone)
+                .request(request)
+                .isPrimary(isPrimary)
+                .build();
+
+        when(addressRepository.findById(any())).thenReturn(this.getAddressOne());
+        when(addressRepository.save(any(Address.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        AddressResponse addressResponse = this.addressService.modifyAddress(addressId, this.getMemberData().getId(), modifyRequest);
+
+        // then
+        assertThat(addressResponse.getId()).isEqualTo(addressId);
+        assertThat(addressResponse.getIsPrimary()).isEqualTo(isPrimary);
+        assertThat(addressResponse.getAddress()).isEqualTo(modifyAddress);
+        assertThat(addressResponse.getAddressDetail()).isEqualTo(modifyAddressDetail);
+        assertThat(addressResponse.getPostcode()).isEqualTo(modifyPostcode);
+        assertThat(addressResponse.getRecipient()).isEqualTo(modifyRecipient);
+        assertThat(addressResponse.getPhone()).isEqualTo(modifyRecipientPhone);
+        assertThat(addressResponse.getRequest()).isEqualTo(request);
+    }
+
     private Optional<Member> getMemberOne() {
         return Optional.of(this.getMemberData());
+    }
+
+    private Optional<Address> getAddressOne() {
+        return Optional.of(this.getAddressData());
     }
 
     private Member getMemberData() {
