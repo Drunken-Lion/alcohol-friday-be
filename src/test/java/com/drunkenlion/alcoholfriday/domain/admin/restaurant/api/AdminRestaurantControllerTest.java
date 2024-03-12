@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
@@ -14,6 +15,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
@@ -36,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
@@ -161,7 +162,7 @@ public class AdminRestaurantControllerTest {
 
             itemRepository.save(item);
 
-            MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
+            MockMultipartFile multipartFile1 = JsonConvertor.getMockImg("files", "test1.txt", "test1 file");
 
             fileService.saveFiles(item, List.of(multipartFile1));
 
@@ -265,51 +266,24 @@ public class AdminRestaurantControllerTest {
         // given
         Long memberId = this.memberRepository.findAll().get(0).getId();
 
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(memberId)
+                .name("test 매장")
+                .category("test 카테고리")
+                .address("test 주소")
+                .longitude(10.123456)
+                .latitude(15.321654)
+                .contact(212354678L)
+                .menu(getMenuTest())
+                .time(getTimeTest())
+                .provision(getProvisionTest())
+                .build();
+
         // when
         ResultActions resultActions = mvc
                 .perform(post("/v1/admin/restaurants")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "memberId": %d,
-                                  "name": "test 매장",
-                                  "category": "test 카테고리",
-                                  "address": "test 주소",
-                                  "longitude": 10.123456,
-                                  "latitude": 15.321654,
-                                  "contact": 212354678,
-                                  "menu": {
-                                    "test 메뉴1": 10000,
-                                    "test 메뉴2": 20000,
-                                    "test 메뉴3": 30000
-                                  },
-                                  "time": {
-                                    "HOLIDAY": true,
-                                    "ETC": "명절 당일만 휴업",
-                                    "MONDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[11,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "TUESDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "WEDNESDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "THURSDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "FRIDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "SATURDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "SUNDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]}
-                                  },
-                                  "provision": {
-                                    "PET": true,
-                                    "PARKING": true,
-                                    "GROUP_MEETING": true,
-                                    "PHONE_RESERVATION": true,
-                                    "WIFI": true,
-                                    "GENDER_SEPARATED_RESTROOM": true,
-                                    "PACKAGING": true,
-                                    "WAITING_AREA": true,
-                                    "BABY_CHAIR": true,
-                                    "WHEELCHAIR_ACCESSIBLE_ENTRANCE": true,
-                                    "WHEELCHAIR_ACCESSIBLE_SEAT": true,
-                                    "DISABLED_PARKING_AREA": true
-                                  }
-                                }
-                                """, memberId))
+                        .content(JsonConvertor.build(restaurantRequest))
                 )
                 .andDo(print());
 
@@ -345,51 +319,24 @@ public class AdminRestaurantControllerTest {
         Long memberId = this.memberRepository.findAll().get(0).getId();
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
 
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(memberId)
+                .name("test 매장")
+                .category("test 카테고리")
+                .address("test 주소")
+                .longitude(10.123456)
+                .latitude(15.321654)
+                .contact(212354678L)
+                .menu(getMenuTest())
+                .time(getTimeTest())
+                .provision(getProvisionTest())
+                .build();
+
         // when
         ResultActions resultActions = mvc
                 .perform(put("/v1/admin/restaurants/" + restaurant.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "memberId": %d,
-                                  "name": "test 매장",
-                                  "category": "test 카테고리",
-                                  "address": "test 주소",
-                                  "longitude": 10.123456,
-                                  "latitude": 15.321654,
-                                  "contact": 212354678,
-                                  "menu": {
-                                    "test 메뉴1": 10000,
-                                    "test 메뉴2": 20000,
-                                    "test 메뉴3": 30000
-                                  },
-                                  "time": {
-                                    "HOLIDAY": true,
-                                    "ETC": "명절 당일만 휴업",
-                                    "MONDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[11,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "TUESDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "WEDNESDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "THURSDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "FRIDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "SATURDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "SUNDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]}
-                                  },
-                                  "provision": {
-                                    "PET": true,
-                                    "PARKING": true,
-                                    "GROUP_MEETING": true,
-                                    "PHONE_RESERVATION": true,
-                                    "WIFI": true,
-                                    "GENDER_SEPARATED_RESTROOM": true,
-                                    "PACKAGING": true,
-                                    "WAITING_AREA": true,
-                                    "BABY_CHAIR": true,
-                                    "WHEELCHAIR_ACCESSIBLE_ENTRANCE": true,
-                                    "WHEELCHAIR_ACCESSIBLE_SEAT": true,
-                                    "DISABLED_PARKING_AREA": true
-                                  }
-                                }
-                                """, memberId))
+                        .content(JsonConvertor.build(restaurantRequest))
                 )
                 .andDo(print());
 

@@ -20,14 +20,14 @@ import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/admin")
+@RequestMapping("/v1/admin/restaurants")
 @Tag(name = "v1-admin-restaurant", description = "관리자 매장 관리 API")
 @SecurityRequirement(name = "bearerAuth")
 public class AdminRestaurantController {
     private final AdminRestaurantService adminRestaurantService;
 
     @Operation(summary = "전체 매장 조회", description = "관리자 권한에 대한 전체 매장 조회")
-    @GetMapping(value = "restaurants")
+    @GetMapping
     public ResponseEntity<PageResponse<RestaurantListResponse>> getRestaurants(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -38,7 +38,7 @@ public class AdminRestaurantController {
     }
 
     @Operation(summary = "매장 상세 조회", description = "관리자 권한에 대한 매장 상세 조회")
-    @GetMapping(value = "restaurants/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<RestaurantDetailResponse> getRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id
@@ -48,7 +48,7 @@ public class AdminRestaurantController {
     }
 
     @Operation(summary = "매장 등록", description = "관리자 권한에 대한 매장 등록")
-    @PostMapping(value = "restaurants")
+    @PostMapping
     public ResponseEntity<RestaurantDetailResponse> createRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody RestaurantRequest restaurantRequest
@@ -65,7 +65,7 @@ public class AdminRestaurantController {
     }
 
     @Operation(summary = "매장 수정", description = "관리자 권한에 대한 매장 수정")
-    @PutMapping(value = "restaurants/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<RestaurantDetailResponse> modifyRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id,
@@ -76,7 +76,7 @@ public class AdminRestaurantController {
     }
 
     @Operation(summary = "매장 삭제", description = "관리자 권한에 대한 매장 삭제")
-    @DeleteMapping(value = "restaurants/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id
