@@ -9,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.AnswerRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.request.QuestionModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.request.QuestionSaveRequest;
@@ -23,8 +22,6 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

@@ -1,10 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.application;
 
-import static org.assertj.core.api.Assertions.anyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.application.AdminQuestionServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.dto.response.AdminQuestionResponse;
