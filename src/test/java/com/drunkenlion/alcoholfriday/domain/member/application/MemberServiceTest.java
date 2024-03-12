@@ -93,6 +93,8 @@ public class MemberServiceTest {
     private final String orderNo = "order_" + orderId;
     private final String orderStatus = OrderStatus.PAYMENT_COMPLETED.name();
     private final BigDecimal orderPrice = BigDecimal.valueOf(100000);
+    private final BigDecimal deliveryPrice = BigDecimal.valueOf(3000);
+    private final BigDecimal orderTotalPrice = orderPrice.add(deliveryPrice);
     private final String recipient = "테스트";
     private final Long recipientPhone = 1012345678L;
     private final String description = "부재시 연락주세요.";
@@ -186,7 +188,9 @@ public class MemberServiceTest {
         assertThat(content.get(0).getId()).isEqualTo(orderId);
         assertThat(content.get(0).getOrderNo()).isEqualTo(orderNo);
         assertThat(content.get(0).getOrderStatus()).isEqualTo(orderStatus);
-        assertThat(content.get(0).getOrderPrice()).isEqualTo(orderPrice);
+        assertThat(content.get(0).getPrice()).isEqualTo(orderPrice);
+        assertThat(content.get(0).getDeliveryPrice()).isEqualTo(deliveryPrice);
+        assertThat(content.get(0).getTotalPrice()).isEqualTo(orderTotalPrice);
         assertThat(content.get(0).getRecipient()).isEqualTo(recipient);
         assertThat(content.get(0).getPhone()).isEqualTo(recipientPhone);
         assertThat(content.get(0).getPostcode()).isEqualTo(postcode);
@@ -348,10 +352,12 @@ public class MemberServiceTest {
                         .orderNo(orderNo)
                         .orderStatus(OrderStatus.valueOf(orderStatus))
                         .price(orderPrice)
+                        .deliveryPrice(deliveryPrice)
+                        .totalPrice(orderTotalPrice)
                         .recipient(recipient)
                         .phone(recipientPhone)
                         .address(address)
-                        .detail(addressDetail)
+                        .addressDetail(addressDetail)
                         .description(description)
                         .postcode(postcode)
                         .createdAt(createdAt)
