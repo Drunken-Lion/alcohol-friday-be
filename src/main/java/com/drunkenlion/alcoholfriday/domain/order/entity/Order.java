@@ -1,14 +1,15 @@
 package com.drunkenlion.alcoholfriday.domain.order.entity;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,8 +30,16 @@ public class Order extends BaseEntity {
     private OrderStatus orderStatus;
 
     @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
-    @Comment("주문 총 금액")
+    @Comment("주문 상품 총 금액")
     private BigDecimal price;
+
+    @Column(name = "delivery_price", columnDefinition = "DECIMAL(64, 3)")
+    @Comment("배송 금액")
+    private BigDecimal deliveryPrice;
+
+    @Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
+    @Comment("배송비 포함 주문 총 금액")
+    private BigDecimal totalPrice;
 
     @Column(name = "recipient", columnDefinition = "VARCHAR(50)")
     @Comment("배송받는 사람")
@@ -44,9 +53,9 @@ public class Order extends BaseEntity {
     @Comment("배송지 주소")
     private String address;
 
-    @Column(name = "detail", columnDefinition = "VARCHAR(200)")
+    @Column(name = "address_detail", columnDefinition = "VARCHAR(200)")
     @Comment("배송지 상세 주소")
-    private String detail;
+    private String addressDetail ;
 
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
     @Comment("배송시 주의사항")
@@ -67,5 +76,36 @@ public class Order extends BaseEntity {
     public void addMember(Member member) {
         this.member = member;
         member.getOrders().add(this);
+    }
+
+    public void genOrderNo(Long id) {
+        // yyyy-MM-dd 형식의 DateTimeFormatter 생성
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        this.orderNo = getCreatedAt().format(formatter) + "__" + id;
+    }
+
+    public void addPrice(List<OrderDetail> orderDetailList) {
+        this.price = getTotalOrderPrice(orderDetailList);
+    }
+
+    public BigDecimal getTotalOrderPrice(List<OrderDetail> orderDetailList) {
+        if (orderDetailList.isEmpty()) {
+            return BigDecimal.ZERO;
+        } else {
+            return orderDetailList.stream()
+                    .map(OrderDetail::getTotalPrice)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+    }
+
+    public Long getTotalOrderQuantity(List<OrderDetail> orderDetailList) {
+        if (orderDetailList.isEmpty()) {
+            return 0L;
+        } else {
+            return orderDetailList.stream()
+                    .mapToLong(OrderDetail::getQuantity)
+                    .sum();
+        }
     }
 }

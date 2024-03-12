@@ -2,17 +2,20 @@ package com.drunkenlion.alcoholfriday.domain.payment.entity;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
+import com.drunkenlion.alcoholfriday.domain.payment.enumerated.PaymentCardCode;
+import com.drunkenlion.alcoholfriday.domain.payment.enumerated.PaymentCardType;
+import com.drunkenlion.alcoholfriday.domain.payment.enumerated.PaymentOwnerType;
+import com.drunkenlion.alcoholfriday.domain.payment.enumerated.PaymentProvider;
+import com.drunkenlion.alcoholfriday.domain.payment.util.converter.*;
+import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.PaymentMethod;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.PaymentStatus;
-import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
 import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
@@ -31,29 +34,42 @@ public class Payment extends BaseEntity {
 
 	@Column(name = "status", columnDefinition = "VARCHAR(20)")
 	@Comment("결제 상태정보")
-	@Enumerated(EnumType.STRING)
+	@Convert(converter = PaymentStatusConverter.class)
 	private PaymentStatus paymentStatus;
 
 	@Column(name = "method", columnDefinition = "VARCHAR(20)")
 	@Comment("결제 수단")
-	@Enumerated(EnumType.STRING)
+	@Convert(converter = PaymentMethodConverter.class)
 	private PaymentMethod paymentMethod;
 
-	@Column(name = "order_price", columnDefinition = "DECIMAL(64, 3)")
-	@Comment("배송 금액")
-	private BigDecimal orderPrice;
+	@Column(name = "provider", columnDefinition = "VARCHAR(20)")
+	@Comment("easyPay_간편결제사 코드")
+	@Convert(converter = PaymentProviderConverter.class)
+	private PaymentProvider paymentProvider;
 
-	@Column(name = "delivery_price", columnDefinition = "DECIMAL(64, 3)")
-	@Comment("배송 금액")
-	private BigDecimal deliveryPrice;
+	@Column(name = "card_type", columnDefinition = "VARCHAR(20)")
+	@Comment("card_카드 종류")
+	@Convert(converter = PaymentCardTypeConverter.class)
+	private PaymentCardType paymentCardType;
+
+	@Column(name = "owner_type", columnDefinition = "VARCHAR(20)")
+	@Comment("card_카드의 소유자 타입")
+	@Convert(converter = PaymentOwnerTypeConverter.class)
+	private PaymentOwnerType paymentOwnerType;
+
+	@Column(name = "issuer_code", columnDefinition = "VARCHAR(20)")
+	@Comment("card_카드 발급사")
+	@Convert(converter = PaymentCardCodeConverter.class)
+	private PaymentCardCode issuerCode;
+
+	@Column(name = "acquirer_code", columnDefinition = "VARCHAR(20)")
+	@Comment("card_카드 매입사")
+	@Convert(converter = PaymentCardCodeConverter.class)
+	private PaymentCardCode acquirerCode;
 
 	@Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
 	@Comment("결제 총 금액")
 	private BigDecimal totalPrice;
-
-	@Column(name = "platform", columnDefinition = "VARCHAR(20)")
-	@Comment("결제 플랫폼")
-	private String platform;
 
 	@Column(name = "requested_at", columnDefinition = "DATETIME")
 	@Comment("결제 요청일")
