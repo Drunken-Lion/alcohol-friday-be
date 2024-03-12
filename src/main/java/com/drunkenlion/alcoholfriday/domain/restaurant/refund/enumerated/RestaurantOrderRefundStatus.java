@@ -2,12 +2,13 @@ package com.drunkenlion.alcoholfriday.domain.restaurant.refund.enumerated;
 
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
-import java.util.Arrays;
 import lombok.Getter;
+
+import java.util.Arrays;
 
 @Getter
 public enum RestaurantOrderRefundStatus {
-    WAITING_APPROVAL("환불승인대", "1"),
+    WAITING_APPROVAL("환불승인대기", "1"),
     COMPLETED_APPROVAL("환불승인완료", "2"),
     REJECTED_APPROVAL("환불승인반려", "3"),
     COMPLETED("환불완료", "4"),
