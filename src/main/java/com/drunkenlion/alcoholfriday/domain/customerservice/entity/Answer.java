@@ -16,19 +16,20 @@ import org.hibernate.annotations.Comment;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "answer")
 public class Answer extends BaseEntity {
     @Comment("문의사항 답변 작성자")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
     @Comment("답변이 속한 문의사항")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "question_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Question question;
 
     @Comment("답변 내용")
-    @Column(columnDefinition = "MEDIUMTEXT")
+    @Column(name = "content", columnDefinition = "MEDIUMTEXT")
     private String content;
 
     public void addQuestion(Question question) {

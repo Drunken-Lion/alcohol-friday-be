@@ -18,17 +18,17 @@ import java.math.BigDecimal;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "restaurant_order_detail")
-public class RestaurantDetailOrder extends BaseEntity {
-    @Column(name = "quantity", columnDefinition = "BIGINT")
+public class RestaurantOrderDetail extends BaseEntity {
     @Comment("주문 수량")
+    @Column(name = "quantity", columnDefinition = "BIGINT")
     private Long quantity;
 
-    @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("주문 시 제품 1개당 가격")
+    @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal price;
 
-    @Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("총 주문 금액")
+    @Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal totalPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
