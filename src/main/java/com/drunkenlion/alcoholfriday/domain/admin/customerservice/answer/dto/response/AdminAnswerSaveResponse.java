@@ -23,7 +23,7 @@ public class AdminAnswerSaveResponse {
     private String content;
 
     @Schema(description = "문의사항 답변 작성 일자")
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @Schema(description = "문의사항 답변 작성자")
     private CsMemberResponse member;
@@ -32,7 +32,7 @@ public class AdminAnswerSaveResponse {
         return AdminAnswerSaveResponse.builder()
                 .id(answer.getId())
                 .content(answer.getContent())
-                .createAt(answer.getCreatedAt())
+                .createdAt(answer.getCreatedAt())
                 .member(CsMemberResponse.of(answer.getMember()))
                 .build();
     }

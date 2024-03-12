@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.re
 
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,10 +22,11 @@ public class AnswerSaveRequest {
     @Schema(description = "댓글 내용")
     private String content;
 
-    public static Answer toEntity(AnswerSaveRequest request, Question question) {
+    public static Answer toEntity(AnswerSaveRequest request, Question question, Member member) {
         return Answer.builder()
                 .question(question)
                 .content(request.getContent())
+                .member(member)
                 .build();
     }
 }
