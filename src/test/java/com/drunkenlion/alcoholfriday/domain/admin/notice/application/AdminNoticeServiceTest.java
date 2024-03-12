@@ -268,7 +268,7 @@ public class AdminNoticeServiceTest {
         return Member.builder()
                 .id(memberId)
                 .email(email)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProvider(provider))
                 .name(name)
                 .nickname(nickname)
                 .phone(phone)
