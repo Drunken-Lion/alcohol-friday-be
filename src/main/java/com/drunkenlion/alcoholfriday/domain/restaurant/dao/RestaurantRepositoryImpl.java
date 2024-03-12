@@ -12,11 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.drunkenlion.alcoholfriday.domain.item.entity.QItem.item;
 import static com.drunkenlion.alcoholfriday.domain.product.entity.QProduct.product;
 import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurant.restaurant;
 import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurantStock.restaurantStock;
