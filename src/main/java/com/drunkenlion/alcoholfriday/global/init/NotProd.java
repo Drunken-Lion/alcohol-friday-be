@@ -112,7 +112,6 @@ public class NotProd {
                 return;
             }
 
-//            addImage();
             addData();
         };
     }
@@ -153,19 +152,6 @@ public class NotProd {
      */
     private void insertImage(BaseEntity entity, List<MultipartFile> files) {
         fileService.saveFiles(entity, files);
-    }
-
-    /**
-     * Test에서 사용할 1장의 이미지 업로드
-     */
-    public void addImage() throws Exception {
-        // Test Image 저장은 JPEG만 되도록 설정
-        File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
-        InputStream fileInputStream = new FileInputStream(file);
-        MultipartFile mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE,
-                fileInputStream);
-        List<MultipartFile> files = List.of(mpf);
-        fileService.uploadFiles(files, 1L, EntityType.TEST.getEntityName());
     }
 
     public void addData() throws Exception {
@@ -1124,13 +1110,6 @@ public class NotProd {
                         .content("일반 문의 내용 1")
                         .status(QuestionStatus.COMPLETE)
                         .build());
-
-        File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
-        InputStream fileInputStream = new FileInputStream(file);
-        MultipartFile mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE,
-                fileInputStream);
-        List<MultipartFile> files = List.of(mpf, mpf, mpf);
-        insertImage(문의_일반1, files);
 
         Question 문의_일반2 = questionRepository.save(
                 Question.builder()
