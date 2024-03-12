@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,6 +41,21 @@ public class SearchItemResponse {
     }
 
     public static SearchItemResponse of(Item item, List<NcpFileResponse> files) {
+        System.out.println("여기 들어오나??");
+        System.out.println(files.toString());
+        if (files.size() > 1) {
+            List<NcpFileResponse> itemFile = files.stream()
+                    .filter(file -> file == null ? null : Objects.equals(item.getId(), file.getEntityId())).toList();
+
+            return SearchItemResponse.builder()
+                    .id(item.getId())
+                    .name(item.getName())
+                    .price(item.getPrice())
+                    .category(FindCategoryResponse.of(item.getCategory()))
+                    .files(itemFile)
+                    .build();
+        }
+
         return SearchItemResponse.builder()
                 .id(item.getId())
                 .name(item.getName())
