@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.util;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
@@ -10,6 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 public class RestaurantDataValidator {
+
+    public static boolean isValid(RestaurantRequest restaurantRequest) {
+        return isMenuDataValid(restaurantRequest.getMenu()) &&
+                isTimeDataValid(restaurantRequest.getTime()) &&
+                isProvisionDataValid(restaurantRequest.getProvision());
+    }
+
     public static boolean isMenuDataValid(Map<String, Object> map) {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             if (!(entry.getValue() instanceof Integer)) {
@@ -44,15 +52,7 @@ public class RestaurantDataValidator {
                 if (!(entry.getValue() instanceof String)) return false;
             }
 
-            // TODO: DayInfo enum 내부에서 체크하는 방식으로 리팩토링
-            if (DayInfo.MONDAY.name().equals(entry.getKey()) ||
-                    DayInfo.TUESDAY.name().equals(entry.getKey()) ||
-                    DayInfo.WEDNESDAY.name().equals(entry.getKey()) ||
-                    DayInfo.THURSDAY.name().equals(entry.getKey()) ||
-                    DayInfo.FRIDAY.name().equals(entry.getKey()) ||
-                    DayInfo.SATURDAY.name().equals(entry.getKey()) ||
-                    DayInfo.SUNDAY.name().equals(entry.getKey())
-            ) {
+            if (DayInfo.checkedInfo(entry.getKey())) {
                 if (entry.getValue() instanceof LinkedHashMap) {
                     LinkedHashMap<String, Object> linkedHashMap = (LinkedHashMap<String, Object>) entry.getValue();
                     for (String key : linkedHashMap.keySet()) {

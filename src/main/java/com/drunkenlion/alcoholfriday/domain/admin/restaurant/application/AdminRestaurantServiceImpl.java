@@ -3,12 +3,12 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.application;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantStockItemResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantStockProductResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantDataValidator;
-import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -67,15 +67,12 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                     .build();
         }
 
-        Member member = memberRepository.findById(restaurantRequest.getMemberId())
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(restaurantRequest.getMemberId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
-        // TODO: Validator로 체크해 한줄로 처리하는 방식으로 리팩토링
-        if(!RestaurantDataValidator.isMenuDataValid(restaurantRequest.getMenu()) ||
-                !RestaurantDataValidator.isTimeDataValid(restaurantRequest.getTime()) ||
-                !RestaurantDataValidator.isProvisionDataValid(restaurantRequest.getProvision())) {
+        if(!RestaurantDataValidator.isValid(restaurantRequest)) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.INVALID_INPUT_VALUE)
                     .build();
@@ -94,7 +91,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
 
-        Member member = memberRepository.findById(restaurantRequest.getMemberId())
+        Member member = memberRepository.findByIdAndDeletedAtIsNull(restaurantRequest.getMemberId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
@@ -167,19 +164,19 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
         restaurantRepository.save(restaurant);
     }
 
-    private List<RestaurantStockItemResponse> getRestaurantStockItemResponseList(Restaurant restaurant) {
+    private List<RestaurantStockProductResponse> getRestaurantStockItemResponseList(Restaurant restaurant) {
         List<RestaurantStock> restaurantStocks = restaurantStockRepository.findByRestaurantAndDeletedAtIsNull(restaurant);
-        List<RestaurantStockItemResponse> stockItemInfos = new ArrayList<>();
+        List<RestaurantStockProductResponse> stockProductInfos = new ArrayList<>();
 
         if (!restaurantStocks.isEmpty()) {
             for (RestaurantStock restaurantStock: restaurantStocks) {
-                Item item = restaurantStock.getItem();
-                NcpFileResponse ncpResponse = fileService.findOne(item);
+                Product product = restaurantStock.getProduct();
+                NcpFileResponse ncpResponse = fileService.findOne(product);
 
-                stockItemInfos.add(RestaurantStockItemResponse.of(restaurantStock, ncpResponse));
+                stockProductInfos.add(RestaurantStockProductResponse.of(restaurantStock, ncpResponse));
             }
         }
 
-        return stockItemInfos;
+        return stockProductInfos;
     }
 }

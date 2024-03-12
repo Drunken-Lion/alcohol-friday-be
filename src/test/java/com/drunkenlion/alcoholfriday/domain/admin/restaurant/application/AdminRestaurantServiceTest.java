@@ -4,10 +4,10 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetai
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -31,7 +31,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -233,7 +232,7 @@ public class AdminRestaurantServiceTest {
         when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
 
         // when
-        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getAdminData(), id);
+        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getOwnerData(), id);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
@@ -300,7 +299,7 @@ public class AdminRestaurantServiceTest {
                 .provision(provision)
                 .build();
 
-        when(memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+        when(memberRepository.findByIdAndDeletedAtIsNull(memberId)).thenReturn(this.getMemberOne());
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -350,7 +349,7 @@ public class AdminRestaurantServiceTest {
                 .provision(provision)
                 .build();
 
-        when(this.memberRepository.findById(any())).thenReturn(Optional.empty());
+        when(this.memberRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -383,7 +382,7 @@ public class AdminRestaurantServiceTest {
                 .provision(provision)
                 .build();
 
-        when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+        when(this.memberRepository.findByIdAndDeletedAtIsNull(memberId)).thenReturn(this.getMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -430,7 +429,7 @@ public class AdminRestaurantServiceTest {
                 .provision(provision)
                 .build();
 
-        when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+        when(this.memberRepository.findByIdAndDeletedAtIsNull(memberId)).thenReturn(this.getMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -465,7 +464,7 @@ public class AdminRestaurantServiceTest {
                 .provision(wrongProvision)
                 .build();
 
-        when(this.memberRepository.findById(memberId)).thenReturn(this.getMemberOne());
+        when(this.memberRepository.findByIdAndDeletedAtIsNull(memberId)).thenReturn(this.getMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -494,7 +493,7 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        when(memberRepository.findByIdAndDeletedAtIsNull(modifyMemberId)).thenReturn(this.getModifyMemberOne());
         when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -533,7 +532,7 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        when(memberRepository.findByIdAndDeletedAtIsNull(modifyMemberId)).thenReturn(this.getModifyMemberOne());
         when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -602,7 +601,7 @@ public class AdminRestaurantServiceTest {
                 .build();
 
         when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
-        when(memberRepository.findById(modifyMemberId)).thenReturn(Optional.empty());
+        when(memberRepository.findByIdAndDeletedAtIsNull(modifyMemberId)).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -632,7 +631,7 @@ public class AdminRestaurantServiceTest {
                 .build();
 
         when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
-        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getMemberOne());
+        when(memberRepository.findByIdAndDeletedAtIsNull(modifyMemberId)).thenReturn(this.getMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -666,7 +665,7 @@ public class AdminRestaurantServiceTest {
                 .build();
 
         when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
-        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        when(memberRepository.findByIdAndDeletedAtIsNull(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -714,7 +713,7 @@ public class AdminRestaurantServiceTest {
                 .build();
 
         when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
-        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        when(memberRepository.findByIdAndDeletedAtIsNull(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -750,7 +749,7 @@ public class AdminRestaurantServiceTest {
                 .build();
 
         when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
-        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        when(memberRepository.findByIdAndDeletedAtIsNull(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -894,15 +893,14 @@ public class AdminRestaurantServiceTest {
         Restaurant restaurant = getRestaurantData();
 
         return LongStream.rangeClosed(1, 2).mapToObj(i -> {
-            Item item = Item.builder()
-                    .name("itemName" + i)
-                    .price(BigDecimal.valueOf(i))
-                    .info("info")
+            Product product =  Product.builder()
+                    .id(i)
+                    .name("productName" + i)
                     .build();
 
             return RestaurantStock.builder()
                     .id(i)
-                    .item(item)
+                    .product(product)
                     .restaurant(restaurant)
                     .quantity(i)
                     .createdAt(createdAt)

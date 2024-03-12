@@ -60,9 +60,9 @@ public class RestaurantDetailResponse {
     private LocalDateTime deletedAt;
 
     @Schema(description = "판매하는 상품 정보")
-    private List<RestaurantStockItemResponse> stockItemInfos;
+    private List<RestaurantStockProductResponse> stockProductInfos;
 
-    public static RestaurantDetailResponse of(Restaurant restaurant, List<RestaurantStockItemResponse> stockItemInfos) {
+    public static RestaurantDetailResponse of(Restaurant restaurant, List<RestaurantStockProductResponse> stockProductInfos) {
         return RestaurantDetailResponse.builder()
                 .id(restaurant.getId())
                 .memberId(restaurant.getMembers().getId())
@@ -79,7 +79,7 @@ public class RestaurantDetailResponse {
                 .createdAt(restaurant.getCreatedAt())
                 .updatedAt(restaurant.getUpdatedAt())
                 .deletedAt(restaurant.getDeletedAt())
-                .stockItemInfos(stockItemInfos)
+                .stockProductInfos(stockProductInfos)
                 .build();
     }
 }
