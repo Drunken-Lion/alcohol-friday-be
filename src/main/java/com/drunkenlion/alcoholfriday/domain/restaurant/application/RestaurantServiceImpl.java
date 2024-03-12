@@ -33,7 +33,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         List<Restaurant> get = restaurantRepository.getRestaurant(neLatitude, neLongitude, swLatitude, swLongitude);
 
-        List<Product> products = Optional.ofNullable(get).orElseThrow(() -> BusinessException.builder().response(HttpResponse.Fail.NOT_FOUND_ITEM).build())
+        List<Product> products = Optional.ofNullable(get).orElseThrow(() -> BusinessException.builder().response(HttpResponse.Fail.NOT_FOUND_PRODUCT).build())
                 .stream()
                 .flatMap(restaurants -> restaurants.getRestaurantStocks()
                         .stream()
