@@ -27,12 +27,12 @@ public class NcpFile extends BaseEntity {
     @Builder.Default
     private List<Map<String, Object>> s3Files = new ArrayList<>();
 
-    @Column(name = "entity_id", columnDefinition = "BIGINT")
     @Comment("파일이 저장되는 entity pk")
+    @Column(name = "entity_id", columnDefinition = "BIGINT")
     private Long entityId;
 
-    @Column(name = "entity_type", columnDefinition = "VARCHAR(20)")
     @Comment("파일이 저장되는 entity 이름")
+    @Column(name = "entity_type", columnDefinition = "VARCHAR(20)")
     private String entityType;
 
     public void updateFiles(List<Map<String, Object>> files) {

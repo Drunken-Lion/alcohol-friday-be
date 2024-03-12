@@ -32,8 +32,8 @@ public class Category extends BaseEntity {
 	@JoinColumn(name = "category_class_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private CategoryClass categoryClass;
 
-	@Column(name = "last_name", columnDefinition = "VARCHAR(50)")
 	@Comment("소분류")
+	@Column(name = "last_name", columnDefinition = "VARCHAR(50)")
 	private String lastName;
 
 	@OneToMany(mappedBy = "category")

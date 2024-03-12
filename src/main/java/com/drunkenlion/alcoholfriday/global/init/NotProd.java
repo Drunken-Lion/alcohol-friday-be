@@ -112,7 +112,6 @@ public class NotProd {
                 return;
             }
 
-//            addImage();
             addData();
         };
     }
@@ -153,19 +152,6 @@ public class NotProd {
      */
     private void insertImage(BaseEntity entity, List<MultipartFile> files) {
         fileService.saveFiles(entity, files);
-    }
-
-    /**
-     * Test에서 사용할 1장의 이미지 업로드
-     */
-    public void addImage() throws Exception {
-        // Test Image 저장은 JPEG만 되도록 설정
-        File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
-        InputStream fileInputStream = new FileInputStream(file);
-        MultipartFile mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE,
-                fileInputStream);
-        List<MultipartFile> files = List.of(mpf);
-        fileService.uploadFiles(files, 1L, EntityType.TEST.getEntityName());
     }
 
     public void addData() throws Exception {
@@ -1125,13 +1111,6 @@ public class NotProd {
                         .status(QuestionStatus.COMPLETE)
                         .build());
 
-        File file = new File(getClass().getClassLoader().getResource("img/gayoung.jpeg").getFile());
-        InputStream fileInputStream = new FileInputStream(file);
-        MultipartFile mpf = new MockMultipartFile("file", file.getName(), MediaType.IMAGE_JPEG_VALUE,
-                fileInputStream);
-        List<MultipartFile> files = List.of(mpf, mpf, mpf);
-        insertImage(문의_일반1, files);
-
         Question 문의_일반2 = questionRepository.save(
                 Question.builder()
                         .member(회원_일반회원2)
@@ -2043,10 +2022,12 @@ public class NotProd {
                                 .orderNo("주문_1")
                                 .orderStatus(OrderStatus.PAYMENT_COMPLETED)
                                 .price(BigDecimal.valueOf(20000))
+                                .deliveryPrice(BigDecimal.valueOf(3000))
+                                .totalPrice(BigDecimal.valueOf(23000))
                                 .recipient("테스트회원5")
                                 .phone(1012345678L)
                                 .address("서울시 마포구 연남동")
-                                .detail("123-12번지")
+                                .addressDetail("123-12번지")
                                 .description("부재 시 문앞에 놓아주세요.")
                                 .postcode(123123L)
                                 .member(회원_일반회원5)
@@ -2059,10 +2040,12 @@ public class NotProd {
                                 .orderNo("주문_2")
                                 .orderStatus(OrderStatus.PAYMENT_COMPLETED)
                                 .price(BigDecimal.valueOf(20000))
+                                .deliveryPrice(BigDecimal.valueOf(3000))
+                                .totalPrice(BigDecimal.valueOf(23000))
                                 .recipient("테스트회원5")
                                 .phone(1012345678L)
                                 .address("서울시 마포구 연남동")
-                                .detail("123-12번지")
+                                .addressDetail("123-12번지")
                                 .description("부재 시 문앞에 놓아주세요.")
                                 .postcode(123123L)
                                 .member(회원_일반회원5)
