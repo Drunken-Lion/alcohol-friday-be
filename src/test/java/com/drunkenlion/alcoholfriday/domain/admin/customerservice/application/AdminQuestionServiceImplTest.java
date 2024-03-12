@@ -20,6 +20,7 @@ import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +51,6 @@ class AdminQuestionServiceImplTest {
 
     @Mock
     private FileService fileService;
-
     @Test
     @DisplayName("관리자는 모든 문의내역을 조회할 수 있다.")
     void t1() {
@@ -150,7 +150,7 @@ class AdminQuestionServiceImplTest {
         String questionContent = "zzz";
         QuestionStatus status = QuestionStatus.INCOMPLETE;
 
-        when(questionRepository.findById(questionId)).thenReturn(
+        when(questionRepository.findByIdAndDeletedAtIsNull(questionId)).thenReturn(
                 Optional.ofNullable(Question.builder()
                         .id(questionId)
                         .title(questionTitle)
