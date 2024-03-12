@@ -22,45 +22,47 @@ import java.util.Map;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "restaurant")
 public class Restaurant extends BaseEntity {
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member members;
 
-    @Column(length = 50)
     @Comment("레스토랑 분류")
+    @Column(name = "category", columnDefinition = "VARCHAR(50)")
     private String category;
 
-    @Column(length = 200)
     @Comment("레스토랑 이름")
+    @Column(name = "name", columnDefinition = "VARCHAR(200)")
     private String name;
 
-    @Column(length = 200)
     @Comment("레스토랑 주소")
+    @Column(name = "address", columnDefinition = "VARCHAR(200)")
     private String address;
 
     @Comment("위도, 경도")
+    @Column(name = "location", columnDefinition = "Point")
     private Point location;
 
     @Comment("가게 연락처")
+    @Column(name = "contact", columnDefinition = "BIGINT")
     private Long contact;
 
     @Type(JsonType.class)
     @Comment("메뉴")
-    @Column(name = "menu", columnDefinition ="json")
+    @Column(name = "menu", columnDefinition ="JSON")
     @Builder.Default
     private Map<String, Object> menu = new HashMap<>();
 
     @Type(JsonType.class)
     @Comment("영업시간")
-    @Column(name = "time", columnDefinition ="json")
+    @Column(name = "time", columnDefinition ="JSON")
     @Builder.Default
     private Map<String, Object> time = new HashMap<>();
 
     @Type(JsonType.class)
     @Comment("레스토랑의 편의시설")
-    @Column(name = "provision", columnDefinition ="json")
+    @Column(name = "provision", columnDefinition ="JSON")
     @Builder.Default
     private Map<String , Object> provision = new HashMap<>();
 

@@ -20,7 +20,7 @@ import org.hibernate.annotations.Comment;
 public class Address extends BaseEntity {
     @Comment("주소 소유자")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
     @Comment("대표 주소 여부")

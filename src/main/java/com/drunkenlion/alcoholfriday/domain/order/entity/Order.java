@@ -20,49 +20,49 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "orders")
 public class Order extends BaseEntity {
-    @Column(name = "order_no", columnDefinition = "VARCHAR(200)")
     @Comment("주문 고유번호")
+    @Column(name = "order_no", columnDefinition = "VARCHAR(200)")
     private String orderNo;
 
-    @Column(name = "status", columnDefinition = "VARCHAR(20)")
     @Comment("주문 상태정보")
+    @Column(name = "status", columnDefinition = "VARCHAR(20)")
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("주문 상품 총 금액")
+    @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal price;
 
-    @Column(name = "delivery_price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("배송 금액")
+    @Column(name = "delivery_price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal deliveryPrice;
 
-    @Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("배송비 포함 주문 총 금액")
+    @Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal totalPrice;
 
-    @Column(name = "recipient", columnDefinition = "VARCHAR(50)")
     @Comment("배송받는 사람")
+    @Column(name = "recipient", columnDefinition = "VARCHAR(50)")
     private String recipient;
 
-    @Column(name = "phone", columnDefinition = "BIGINT")
     @Comment("배송받는 사람의 연락처")
+    @Column(name = "phone", columnDefinition = "BIGINT")
     private Long phone;
 
-    @Column(name = "address", columnDefinition = "VARCHAR(200)")
     @Comment("배송지 주소")
+    @Column(name = "address", columnDefinition = "VARCHAR(200)")
     private String address;
 
-    @Column(name = "address_detail", columnDefinition = "VARCHAR(200)")
     @Comment("배송지 상세 주소")
+    @Column(name = "address_detail", columnDefinition = "VARCHAR(200)")
     private String addressDetail ;
 
-    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
     @Comment("배송시 주의사항")
+    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
     private String description;
 
-    @Column(name = "postcode", columnDefinition = "BIGINT")
     @Comment("배송지 우편번호")
+    @Column(name = "postcode", columnDefinition = "BIGINT")
     private Long postcode;
 
     @ManyToOne(fetch = FetchType.LAZY)

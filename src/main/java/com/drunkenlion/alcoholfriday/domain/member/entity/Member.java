@@ -8,14 +8,13 @@ import com.drunkenlion.alcoholfriday.domain.member.util.MemberRoleConverter;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -25,40 +24,45 @@ import org.hibernate.annotations.Comment;
 @Table(name = "member")
 public class Member extends BaseEntity {
     @Comment("회원 메일")
-    @Column(unique = true, length = 50)
+    @Column(name = "email", unique = true, columnDefinition = "VARCHAR(50)")
     private String email;
 
     @Comment("회원 가입 소셜 정보")
-    @Column(length = 20)
+    @Column(name = "provider", columnDefinition = "VARCHAR(20)")
     @Convert(converter = ProviderTypeConverter.class)
     private ProviderType provider;
 
     @Comment("회원 본명")
-    @Column(length = 50)
+    @Column(name = "name", columnDefinition = "VARCHAR(50)")
     private String name;
 
     @Comment("회원 별명")
-    @Column(length = 50)
+    @Column(name = "nickname", columnDefinition = "VARCHAR(50)")
     private String nickname;
 
     @Comment("회원 권한")
-    @Column(length = 50)
+    @Column(name = "role", columnDefinition = "VARCHAR(50)")
     @Convert(converter = MemberRoleConverter.class)
     private MemberRole role;
 
     @Comment("회원 연락처")
+    @Column(name = "phone", columnDefinition = "BIGINT")
     private Long phone;
 
     @Comment("성인인증 날짜")
+    @JoinColumn(name = "certify_at", columnDefinition = "DATE")
     private LocalDate certifyAt;
 
     @Comment("이용 약관 동의")
+    @Column(name = "agreed_to_service_use", columnDefinition = "TINYINT")
     private Boolean agreedToServiceUse;
 
     @Comment("개인정보 수집 이용 안내 동의")
+    @Column(name = "agreed_to_service_policy", columnDefinition = "TINYINT")
     private Boolean agreedToServicePolicy;
 
     @Comment("개인정보 활용 동의")
+    @Column(name = "agreed_to_service_policy_use", columnDefinition = "TINYINT")
     private Boolean agreedToServicePolicyUse;
 
     @Comment("회원의 문의 내역")
