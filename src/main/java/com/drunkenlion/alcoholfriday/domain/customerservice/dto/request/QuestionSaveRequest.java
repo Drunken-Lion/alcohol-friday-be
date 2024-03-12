@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.customerservice.dto.request;
 
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -28,6 +29,7 @@ public class QuestionSaveRequest {
         return Question.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
+                .status(QuestionStatus.INCOMPLETE)
                 .member(member)
                 .build();
     }

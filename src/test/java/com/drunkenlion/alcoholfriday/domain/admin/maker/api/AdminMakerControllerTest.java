@@ -2,6 +2,8 @@ package com.drunkenlion.alcoholfriday.domain.admin.maker.api;
 
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 @Transactional
 public class AdminMakerControllerTest {
     @Autowired
@@ -54,6 +58,7 @@ public class AdminMakerControllerTest {
 
     @Test
     @DisplayName("제조사 목록 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getMakersTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -81,6 +86,7 @@ public class AdminMakerControllerTest {
 
     @Test
     @DisplayName("제조사 상세 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void getMakerTest() throws Exception {
         // given
         Maker maker = this.makerRepository.findAll().get(0);
@@ -110,6 +116,7 @@ public class AdminMakerControllerTest {
 
     @Test
     @DisplayName("제조사 등록 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void createMakerTest() throws Exception {
         // when
         ResultActions resultActions = mvc
@@ -144,6 +151,7 @@ public class AdminMakerControllerTest {
 
     @Test
     @DisplayName("제조사 수정 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void modifyMakerTest() throws Exception {
         // given
         Maker maker = this.makerRepository.findAll().get(0);
@@ -181,6 +189,7 @@ public class AdminMakerControllerTest {
 
     @Test
     @DisplayName("제조사 삭제 성공")
+    @WithAccount(role = MemberRole.ADMIN)
     void deleteMakerTest() throws Exception {
         // given
         Maker maker = this.makerRepository.findAll().get(0);

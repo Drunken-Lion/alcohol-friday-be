@@ -157,7 +157,7 @@ public class NoticeServiceTest {
         return Member.builder()
                 .id(memberId)
                 .email(email)
-                .provider(ProviderType.byProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(name)
                 .nickname(nickname)
                 .phone(phone)

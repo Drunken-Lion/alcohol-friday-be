@@ -21,7 +21,6 @@ import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -61,14 +60,13 @@ public class AdminRestaurantServiceTest {
     private RestaurantStockRepository restaurantStockRepository;
     @Mock
     private MemberRepository memberRepository;
-    final GeometryFactory geometryFactory = new GeometryFactory();
 
     private final Long memberId = 1L;
     private final String email = "test@example.com";
     private final String provider = ProviderType.KAKAO.getProviderName();
     private final String memberName = "테스트";
     private final String nickname = "test";
-    private final String role = MemberRole.MEMBER.getRole();
+    private final String role = MemberRole.OWNER.getRole();
     private final Long phone = 1012345678L;
     private final LocalDate certifyAt = LocalDate.now();
     private final boolean agreedToServiceUse = true;
@@ -185,10 +183,10 @@ public class AdminRestaurantServiceTest {
     @DisplayName("매장 목록 조회 성공")
     public void getRestaurantsTest() {
         // given
-        when(this.restaurantRepository.findAll(any(Pageable.class))).thenReturn(this.getRestaurants());
+        when(this.restaurantRepository.findAllBasedAuth(any(), any(Pageable.class))).thenReturn(this.getRestaurants());
 
         // when
-        Page<RestaurantListResponse> restaurants = this.adminRestaurantService.getRestaurants(page, size);
+        Page<RestaurantListResponse> restaurants = this.adminRestaurantService.getRestaurants(getAdminData(), page, size);
 
         // then
         List<RestaurantListResponse> content = restaurants.getContent();
@@ -204,13 +202,38 @@ public class AdminRestaurantServiceTest {
     }
 
     @Test
-    @DisplayName("매장 상세 조회 성공")
-    public void getRestaurantTest() {
+    @DisplayName("매장 상세 조회 성공 - ADMIN")
+    public void getRestaurantAdminTest() {
         // given
         when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
 
         // when
-        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(id);
+        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getAdminData(), id);
+
+        // then
+        assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
+        assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
+        assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(nickname);
+        assertThat(restaurantDetailResponse.getName()).isEqualTo(name);
+        assertThat(restaurantDetailResponse.getCategory()).isEqualTo(category);
+        assertThat(restaurantDetailResponse.getAddress()).isEqualTo(address);
+        assertThat(restaurantDetailResponse.getLongitude()).isEqualTo(longitude);
+        assertThat(restaurantDetailResponse.getLatitude()).isEqualTo(latitude);
+        assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
+        assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
+        assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
+        assertThat(restaurantDetailResponse.getProvision()).isEqualTo(provision);
+        assertThat(restaurantDetailResponse.getCreatedAt()).isEqualTo(createdAt);
+    }
+
+    @Test
+    @DisplayName("매장 상세 조회 성공 - OWNER")
+    public void getRestaurantOwnerTest() {
+        // given
+        when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
+
+        // when
+        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getAdminData(), id);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
@@ -236,12 +259,28 @@ public class AdminRestaurantServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.getRestaurant(id);
+            adminRestaurantService.getRestaurant(getAdminData(), id);
         });
 
         // then
         assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getStatus(), exception.getStatus());
         assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 상세 조회 실패 - 자신의 매장이 아니라 권한 없음")
+    public void getRestaurantFailForbiddenTest() {
+        // given
+        when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.getRestaurant(getOtherOwnerData(), id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -265,7 +304,7 @@ public class AdminRestaurantServiceTest {
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(restaurantRequest);
+        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
 
         // then
         assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
@@ -279,6 +318,19 @@ public class AdminRestaurantServiceTest {
         assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
         assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
         assertThat(restaurantDetailResponse.getProvision()).isEqualTo(provision);
+    }
+
+    @Test
+    @DisplayName("매장 등록 실패 - ADMIN 아니면 권한 없음")
+    public void createRestaurantFailMemberForbiddenTest() {
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.createRestaurant(getOwnerData(), null);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -302,7 +354,7 @@ public class AdminRestaurantServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.createRestaurant(restaurantRequest);
+            adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
         });
 
         // then
@@ -335,7 +387,7 @@ public class AdminRestaurantServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.createRestaurant(restaurantRequest);
+            adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
         });
 
         // then
@@ -382,7 +434,7 @@ public class AdminRestaurantServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.createRestaurant(restaurantRequest);
+            adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
         });
 
         // then
@@ -417,7 +469,7 @@ public class AdminRestaurantServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.createRestaurant(restaurantRequest);
+            adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
         });
 
         // then
@@ -426,8 +478,8 @@ public class AdminRestaurantServiceTest {
     }
 
     @Test
-    @DisplayName("매장 수정 성공")
-    public void modifyRestaurantTest() {
+    @DisplayName("매장 수정 성공 - ADMIN")
+    public void modifyRestaurantAdminTest() {
         // given
         RestaurantRequest restaurantRequest = RestaurantRequest.builder()
                 .memberId(modifyMemberId)
@@ -443,16 +495,55 @@ public class AdminRestaurantServiceTest {
                 .build();
 
         when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
-        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(getAdminData(), id, restaurantRequest);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
         assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(modifyMemberId);
         assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(modifyNickname);
+        assertThat(restaurantDetailResponse.getName()).isEqualTo(modifyName);
+        assertThat(restaurantDetailResponse.getCategory()).isEqualTo(modifyCategory);
+        assertThat(restaurantDetailResponse.getAddress()).isEqualTo(modifyAddress);
+        assertThat(restaurantDetailResponse.getLongitude()).isEqualTo(modifyLongitude);
+        assertThat(restaurantDetailResponse.getLatitude()).isEqualTo(modifyLatitude);
+        assertThat(restaurantDetailResponse.getContact()).isEqualTo(modifyContact);
+        assertThat(restaurantDetailResponse.getMenu()).isEqualTo(modifyMenu);
+        assertThat(restaurantDetailResponse.getTime()).isEqualTo(modifyTime);
+        assertThat(restaurantDetailResponse.getProvision()).isEqualTo(modifyProvision);
+    }
+
+    @Test
+    @DisplayName("매장 수정 성공 - OWNER")
+    public void modifyRestaurantOwnerTest() {
+        // given
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(modifyMemberId)
+                .name(modifyName)
+                .category(modifyCategory)
+                .address(modifyAddress)
+                .longitude(modifyLongitude)
+                .latitude(modifyLatitude)
+                .contact(modifyContact)
+                .menu(modifyMenu)
+                .time(modifyTime)
+                .provision(modifyProvision)
+                .build();
+
+        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
+        when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(getModifyMemberData(), id, restaurantRequest);
+
+        // then
+        assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
+        assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId); // 사장은 매장 수정 시 사장을 수정 할 수 없다.
+        assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(nickname);
         assertThat(restaurantDetailResponse.getName()).isEqualTo(modifyName);
         assertThat(restaurantDetailResponse.getCategory()).isEqualTo(modifyCategory);
         assertThat(restaurantDetailResponse.getAddress()).isEqualTo(modifyAddress);
@@ -481,11 +572,11 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        when(restaurantRepository.findById(any())).thenReturn(Optional.empty());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+            adminRestaurantService.modifyRestaurant(getAdminData(), id, restaurantRequest);
         });
 
         // then
@@ -510,17 +601,47 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(memberRepository.findById(modifyMemberId)).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+            adminRestaurantService.modifyRestaurant(getAdminData(), id, restaurantRequest);
         });
 
         // then
         assertEquals(HttpResponse.Fail.NOT_FOUND_MEMBER.getStatus(), exception.getStatus());
         assertEquals(HttpResponse.Fail.NOT_FOUND_MEMBER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 수정 실패 - 자신의 매장이 아니라 수정 권한 없음")
+    public void modifyRestaurantFailForbiddenTest() {
+        // given
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(modifyMemberId)
+                .name(modifyName)
+                .category(modifyCategory)
+                .address(modifyAddress)
+                .longitude(modifyLongitude)
+                .latitude(modifyLatitude)
+                .contact(modifyContact)
+                .menu(modifyMenu)
+                .time(modifyTime)
+                .provision(modifyProvision)
+                .build();
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
+        when(memberRepository.findById(modifyMemberId)).thenReturn(this.getMemberOne());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminRestaurantService.modifyRestaurant(getOtherOwnerData(), id, restaurantRequest);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -544,12 +665,12 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+            adminRestaurantService.modifyRestaurant(getAdminData(), id, restaurantRequest);
         });
 
         // then
@@ -592,12 +713,12 @@ public class AdminRestaurantServiceTest {
                 .provision(modifyProvision)
                 .build();
 
-        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+            adminRestaurantService.modifyRestaurant(getAdminData(), id, restaurantRequest);
         });
 
         // then
@@ -628,12 +749,12 @@ public class AdminRestaurantServiceTest {
                 .provision(wrongProvision)
                 .build();
 
-        when(restaurantRepository.findById(any())).thenReturn(this.getOne());
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         when(memberRepository.findById(modifyMemberId)).thenReturn(this.getModifyMemberOne());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.modifyRestaurant(id, restaurantRequest);
+            adminRestaurantService.modifyRestaurant(getAdminData(), id, restaurantRequest);
         });
 
         // then
@@ -648,14 +769,14 @@ public class AdminRestaurantServiceTest {
         Restaurant restaurant = getRestaurantData();
         List<RestaurantStock> restaurantStocks = getRestaurantStocksData();
 
-        when(restaurantRepository.findById(id)).thenReturn(Optional.of(restaurant));
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(Optional.of(restaurant));
         when(restaurantStockRepository.findByRestaurantAndDeletedAtIsNull(restaurant)).thenReturn(restaurantStocks);
 
         ArgumentCaptor<Restaurant> restaurantCaptor = ArgumentCaptor.forClass(Restaurant.class);
         ArgumentCaptor<List<RestaurantStock>> restaurantStocksCaptor = ArgumentCaptor.forClass(List.class);
 
         // When
-        adminRestaurantService.deleteRestaurant(id);
+        adminRestaurantService.deleteRestaurant(getAdminData(), id);
 
         // then
         verify(restaurantRepository).save(restaurantCaptor.capture());
@@ -671,35 +792,27 @@ public class AdminRestaurantServiceTest {
     }
 
     @Test
-    @DisplayName("매장 삭제 실패 - 찾을 수 없는 매장")
-    public void deleteRestaurantFailNotFoundTest() {
-        // given
-        when(restaurantRepository.findById(any())).thenReturn(Optional.empty());
-
+    @DisplayName("매장 삭제 실패 - ADMIN 아니면 권한 없음")
+    public void deleteRestaurantFailForbiddenTest() {
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.deleteRestaurant(id);
+            adminRestaurantService.deleteRestaurant(getOwnerData(), id);
         });
 
         // then
-        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getStatus(), exception.getStatus());
-        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getMessage(), exception.getMessage());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
     }
 
     @Test
-    @DisplayName("매장 삭제 실패 - 이미 삭제된 매장")
-    public void deleteRestaurantFailAlreadyDeletedTest() {
+    @DisplayName("매장 삭제 실패 - 찾을 수 없는 매장")
+    public void deleteRestaurantFailNotFoundTest() {
         // given
-        Restaurant deletedRestaurant = this.getOne().get();
-        deletedRestaurant = deletedRestaurant.toBuilder()
-                .deletedAt(LocalDateTime.now())
-                .build();
-
-        when(restaurantRepository.findById(any())).thenReturn(Optional.of(deletedRestaurant));
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminRestaurantService.deleteRestaurant(id);
+            adminRestaurantService.deleteRestaurant(getAdminData(), id);
         });
 
         // then
@@ -718,7 +831,7 @@ public class AdminRestaurantServiceTest {
     }
 
     private Optional<Member> getMemberOne() {
-        return Optional.of(this.getMemberData());
+        return Optional.of(this.getOwnerData());
     }
 
     private Optional<Member> getModifyMemberOne() {
@@ -726,7 +839,7 @@ public class AdminRestaurantServiceTest {
     }
 
     private Restaurant getRestaurantData() {
-        Member member = getMemberData();
+        Member member = getOwnerData();
 
         return Restaurant.builder()
                 .id(id)
@@ -743,14 +856,14 @@ public class AdminRestaurantServiceTest {
                 .build();
     }
 
-    private Member getMemberData() {
+    private Member getOwnerData() {
         return Member.builder()
                 .id(memberId)
                 .email(email)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(memberName)
                 .nickname(nickname)
-                .role(MemberRole.ofRole(role))
+                .role(MemberRole.byRole(role))
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)
@@ -764,10 +877,10 @@ public class AdminRestaurantServiceTest {
         return Member.builder()
                 .id(modifyMemberId)
                 .email(email)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(memberName)
                 .nickname(modifyNickname)
-                .role(MemberRole.ofRole(role))
+                .role(MemberRole.byRole(role))
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)
@@ -795,5 +908,36 @@ public class AdminRestaurantServiceTest {
                     .createdAt(createdAt)
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    private Member getAdminData() {
+        return Member.builder()
+                .email("admin1@example.com")
+                .provider(ProviderType.KAKAO)
+                .name("관리자")
+                .nickname("admin")
+                .role(MemberRole.ADMIN)
+                .phone(1041932693L)
+                .certifyAt(LocalDate.now())
+                .agreedToServiceUse(true)
+                .agreedToServicePolicy(true)
+                .agreedToServicePolicyUse(true)
+                .build();
+    }
+
+    private Member getOtherOwnerData() {
+        return Member.builder()
+                .id(2L)
+                .email("owner2@example.com")
+                .provider(ProviderType.KAKAO)
+                .name("사장2")
+                .nickname("owner2")
+                .role(MemberRole.OWNER)
+                .phone(1041932693L)
+                .certifyAt(LocalDate.now())
+                .agreedToServiceUse(true)
+                .agreedToServicePolicy(true)
+                .agreedToServicePolicyUse(true)
+                .build();
     }
 }

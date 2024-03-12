@@ -20,7 +20,7 @@ public class RestaurantStockItemResponse {
     @Schema(description = "매장 재고량")
     private Long stockQuantity;
 
-    @Schema(description = "매장 재고 상품 이미지")
+    @Schema(description = "매장 재고 상품의 첫번째 이미지")
     private NcpFileResponse stockItemFile;
 
     public static RestaurantStockItemResponse of(RestaurantStock restaurantStock, NcpFileResponse file) {

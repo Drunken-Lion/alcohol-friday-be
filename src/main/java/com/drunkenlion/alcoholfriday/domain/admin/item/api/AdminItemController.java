@@ -1,24 +1,29 @@
 package com.drunkenlion.alcoholfriday.domain.admin.item.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.item.application.AdminItemService;
+import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.item.application.AdminItemService;
+import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemModifyRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/admin")
 @Tag(name = "v1-admin-item", description = "관리자 상품 관리 API")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminItemController {
     private final AdminItemService adminItemService;
 
@@ -44,9 +49,10 @@ public class AdminItemController {
     @Operation(summary = "상품 등록", description = "관리자 권한에 대한 상품 등록")
     @PostMapping(value = "items")
     public ResponseEntity<ItemDetailResponse> createItem(
-            @Valid @RequestBody ItemRequest itemRequest
+            @Valid @RequestPart("itemRequest") ItemCreateRequest itemCreateRequest,
+            @RequestPart("files") List<MultipartFile> files
     ) {
-        ItemDetailResponse itemDetailResponse = adminItemService.createItem(itemRequest);
+        ItemDetailResponse itemDetailResponse = adminItemService.createItem(itemCreateRequest, files);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -61,9 +67,10 @@ public class AdminItemController {
     @PutMapping(value = "items/{id}")
     public ResponseEntity<ItemDetailResponse> modifyItem(
             @PathVariable("id") Long id,
-            @Valid @RequestBody ItemRequest itemRequest
+            @Valid @RequestPart("itemRequest") ItemModifyRequest itemModifyRequest,
+            @RequestPart("files") List<MultipartFile> files
     ) {
-        ItemDetailResponse itemDetailResponse = adminItemService.modifyItem(id, itemRequest);
+        ItemDetailResponse itemDetailResponse = adminItemService.modifyItem(id, itemModifyRequest, itemModifyRequest.getRemove(), files);
         return ResponseEntity.ok().body(itemDetailResponse);
     }
 
