@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.address.entity;
 
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -12,7 +13,7 @@ import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "address")
@@ -52,5 +53,15 @@ public class Address extends BaseEntity {
 
     public void changePrimary(Boolean isPrimary) {
         this.isPrimary = isPrimary;
+    }
+
+    public void updateAddress(AddressModifyRequest modifyRequest) {
+        this.recipient = modifyRequest.getRecipient();
+        this.address = modifyRequest.getAddress();
+        this.addressDetail = modifyRequest.getAddressDetail();
+        this.postcode = modifyRequest.getPostcode();
+        this.phone = modifyRequest.getPhone();
+        this.request = modifyRequest.getRequest();
+        this.isPrimary = modifyRequest.getIsPrimary();
     }
 }

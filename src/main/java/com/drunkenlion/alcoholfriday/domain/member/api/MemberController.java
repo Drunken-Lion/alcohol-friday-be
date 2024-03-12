@@ -80,6 +80,7 @@ public class MemberController {
         return ResponseEntity.ok().body(addressResponses);
     }
 
+    @Operation(summary = "나의 리뷰 목록", description = "내가 쓸 or 쓴 리뷰 목록")
     @GetMapping("me/reviews")
     public ResponseEntity<PageResponse<MemberReviewResponse<?>>> getMyReviews(
             @AuthenticationPrincipal UserPrincipal userPrincipal,

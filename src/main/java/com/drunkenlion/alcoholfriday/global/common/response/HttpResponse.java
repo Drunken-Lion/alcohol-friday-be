@@ -60,6 +60,7 @@ public class HttpResponse {
         NOT_FOUND_PROVIDER(HttpStatus.NOT_FOUND, "지원하지 않는 로그인입니다."),
         NOT_FOUND_PROVIDER_NUMBER(HttpStatus.NOT_FOUND, "존재하지 않는 Provider Number"),
         NOT_FOUND_ADDRESSES(HttpStatus.NOT_FOUND, "등록된 주소가 없습니다."),
+        NOT_FOUND_ADDRESS(HttpStatus.NOT_FOUND, "존재하지 않는 주소입니다."),
         NOT_FOUND_NOTICE(HttpStatus.NOT_FOUND, "존재하지 않는 공지사항입니다."),
         NOT_FOUND_QUESTION(HttpStatus.NOT_FOUND, "존재하지 않는 문의입니다."),
 

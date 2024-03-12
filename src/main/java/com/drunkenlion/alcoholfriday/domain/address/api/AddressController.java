@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.address.api;
 
 import com.drunkenlion.alcoholfriday.domain.address.application.AddressService;
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +24,7 @@ import java.net.URI;
 public class AddressController {
     private final AddressService addressService;
 
-    @Operation(summary = "주소 등록", description = "회원 주소 등록")
+    @Operation(summary = "배송지 등록", description = "회원의 배송지 정보 등록")
     @PostMapping
     public ResponseEntity<AddressResponse> createAddress(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                          @RequestBody AddressCreateRequest createRequest) {
@@ -38,10 +39,22 @@ public class AddressController {
         return ResponseEntity.created(location).body(addressResponse);
     }
 
-    @Operation(summary = "주소 조회", description = "주소 단건 조회")
+    @Operation(summary = "배송지 조회", description = "회원의 배송지 단건 조회")
     @GetMapping("{id}")
     public ResponseEntity<AddressResponse> getAddress(@PathVariable("id") Long addressId) {
         AddressResponse addressResponse = addressService.getAddress(addressId);
+        return ResponseEntity.ok().body(addressResponse);
+    }
+
+    @Operation(summary = "배송지 수정", description = "회원의 배송지 정보 수정")
+    @PutMapping("{id}")
+    public ResponseEntity<AddressResponse> modifyAddress(@PathVariable("id") Long addressId,
+                                                         @AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                         @RequestBody AddressModifyRequest modifyRequest) {
+
+        AddressResponse addressResponse = addressService.modifyAddress(
+                addressId, userPrincipal.getMember().getId(), modifyRequest);
+
         return ResponseEntity.ok().body(addressResponse);
     }
 }
