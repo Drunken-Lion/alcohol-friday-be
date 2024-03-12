@@ -31,7 +31,7 @@ public class AdminQuestionServiceImpl implements AdminQuestionService {
     @Override
     public AdminQuestionResponse findQuestion(Member member, Long id) {
         log.info("[AdminQuestionServiceImpl.findQuestion] : 접근");
-        AdminQuestionValidator.isAdmin(member);
+        AdminQuestionValidator.hasRole(member);
 
         Question question =
                 questionRepository.adminFindQuestion(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_QUESTION));
@@ -43,7 +43,7 @@ public class AdminQuestionServiceImpl implements AdminQuestionService {
     @Override
     public Page<AdminQuestionResponse> findQuestions(Member member, int page, int size) {
         log.info("[AdminQuestionServiceImpl.findQuestions] : 접근");
-        AdminQuestionValidator.isAdmin(member);
+        AdminQuestionValidator.hasRole(member);
 
         Pageable pageable = PageRequest.of(page, size);
         Page<Question> findAll = questionRepository.findAll(pageable);
@@ -55,7 +55,7 @@ public class AdminQuestionServiceImpl implements AdminQuestionService {
     public AdminQuestionResponse updateQuestion(Long id, Member member, QuestionModifyRequest request,
                                            List<MultipartFile> files) {
         log.info("[AdminQuestionServiceImpl.updateQuestion] : 접근");
-        AdminQuestionValidator.isAdmin(member);
+        AdminQuestionValidator.hasRole(member);
 
         Question question =
                 questionRepository.findById(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_QUESTION));
@@ -72,7 +72,7 @@ public class AdminQuestionServiceImpl implements AdminQuestionService {
     @Transactional
     public void deleteQuestion(Long id, Member member) {
         log.info("[AdminQuestionServiceImpl.deleteQuestion] : 접근");
-        AdminQuestionValidator.isAdmin(member);
+        AdminQuestionValidator.hasRole(member);
 
         Question question =
                 questionRepository.findByIdAndDeletedAtIsNull(id)

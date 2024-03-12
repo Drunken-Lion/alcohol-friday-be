@@ -73,6 +73,7 @@ public class HttpResponse {
         NOT_FOUND_PAYMENT_PROVIDER(HttpStatus.NOT_FOUND, "존재하지 않는 간편결제사 코드 입니다."),
         NOT_FOUND_PAYMENT_STATUS(HttpStatus.NOT_FOUND, "존재하지 않는 결제 처리 상태 입니다."),
         NOT_FOUND_PAYMENT_CARD_CODE(HttpStatus.NOT_FOUND, "존재하지 않는 카드사 코드 입니다."),
+        NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "존재하지 답변 입니다."),
 
         // 405
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP METHOD 입니다."),
@@ -86,6 +87,8 @@ public class HttpResponse {
         ORDER_ALREADY_PAID(HttpStatus.CONFLICT, "이미 결제 완료된 주문입니다."),
         ORDER_ALREADY_CANCEL(HttpStatus.CONFLICT, "이미 취소된 주문입니다."),
         ORDER_ISSUE(HttpStatus.CONFLICT, "주문 처리 중에 문제가 발생 했습니다."),
+        DELETED_QUESTION(HttpStatus.CONFLICT, "삭제된 문의사항 입니다."),
+        DELETED_ANSWER(HttpStatus.CONFLICT, "삭제 처리가 된 답변 입니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");

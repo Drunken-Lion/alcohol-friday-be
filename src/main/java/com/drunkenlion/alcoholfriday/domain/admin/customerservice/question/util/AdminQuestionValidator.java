@@ -7,8 +7,8 @@ import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 
 public class AdminQuestionValidator {
 
-    public static void isAdmin(Member member) {
-        if (!member.getRole().equals(MemberRole.ADMIN)) {
+    public static void hasRole(Member member) {
+        if (!(member.getRole().equals(MemberRole.ADMIN) || member.getRole().equals(MemberRole.SUPER_VISOR))) {
             throw new BusinessException(Fail.FORBIDDEN);
         }
     }
