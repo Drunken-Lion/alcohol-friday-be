@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.admin.customerservice.application;
+package com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.application;
 
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import lombok.RequiredArgsConstructor;

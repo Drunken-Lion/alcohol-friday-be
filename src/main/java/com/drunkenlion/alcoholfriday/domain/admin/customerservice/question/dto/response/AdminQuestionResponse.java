@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.admin.customerservice.dto.response;
+package com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.dto.response;
 
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.AnswerResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.CsMemberResponse;

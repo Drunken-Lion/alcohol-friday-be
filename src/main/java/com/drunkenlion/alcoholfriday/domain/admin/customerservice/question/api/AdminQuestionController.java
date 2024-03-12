@@ -1,7 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.admin.customerservice.api;
+package com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.api;
 
-import com.drunkenlion.alcoholfriday.domain.admin.customerservice.application.AdminQuestionService;
-import com.drunkenlion.alcoholfriday.domain.admin.customerservice.dto.response.AdminQuestionResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.application.AdminQuestionService;
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.dto.response.AdminQuestionResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.request.QuestionModifyRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
@@ -33,8 +33,8 @@ public class AdminQuestionController {
     @GetMapping
     @Operation(summary = "관리자 문의사항 전체 조회")
     public ResponseEntity<PageResponse<AdminQuestionResponse>> findQuestions(@RequestParam(name = "page", defaultValue = "0") int page,
-                                                                        @RequestParam(name = "size", defaultValue = "10") int size,
-                                                                        @AuthenticationPrincipal UserPrincipal user) {
+                                                                             @RequestParam(name = "size", defaultValue = "10") int size,
+                                                                             @AuthenticationPrincipal UserPrincipal user) {
         PageResponse<AdminQuestionResponse> findAll = PageResponse.of(adminQuestionService.findQuestions(user.getMember(), page, size));
         return ResponseEntity.ok(findAll);
     }

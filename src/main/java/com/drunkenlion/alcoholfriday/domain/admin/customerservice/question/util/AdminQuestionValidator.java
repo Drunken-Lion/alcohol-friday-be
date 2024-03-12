@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.admin.customerservice.util;
+package com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.util;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;

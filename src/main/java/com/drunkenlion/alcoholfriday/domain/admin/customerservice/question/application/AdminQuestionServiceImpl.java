@@ -1,7 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.admin.customerservice.application;
+package com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.customerservice.dto.response.AdminQuestionResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.customerservice.util.AdminQuestionValidator;
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.dto.response.AdminQuestionResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.util.AdminQuestionValidator;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dto.request.QuestionModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
