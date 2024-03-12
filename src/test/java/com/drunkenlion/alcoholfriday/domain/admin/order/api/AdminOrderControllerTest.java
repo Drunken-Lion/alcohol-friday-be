@@ -173,7 +173,7 @@ public class AdminOrderControllerTest {
                                 .recipient("테스트회원5")
                                 .phone(1012345678L)
                                 .address("서울시 마포구 연남동")
-                                .detail("123-12번지")
+                                .addressDetail("123-12번지")
                                 .description("부재 시 문앞에 놓아주세요.")
                                 .postcode(123123L)
                                 .member(회원_일반회원5)

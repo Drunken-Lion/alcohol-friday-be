@@ -70,7 +70,7 @@ public class OrderDetailResponse {
                 .recipient(order.getRecipient())
                 .phone(order.getPhone())
                 .address(order.getAddress())
-                .addressDetail(order.getDetail())
+                .addressDetail(order.getAddressDetail())
                 .postcode(order.getPostcode())
                 .description(order.getDescription())
                 .createdAt(order.getCreatedAt())
