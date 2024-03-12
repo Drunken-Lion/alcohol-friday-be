@@ -10,25 +10,25 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "매장 재고 상품 간략 정보")
-public class RestaurantStockItemResponse {
+public class RestaurantStockProductResponse {
     @Schema(description = "매장 재고 상품 고유 아이디")
-    private Long stockItemId;
+    private Long stockProductId;
 
     @Schema(description = "매장 재고 상품 이름")
-    private String stockItemName;
+    private String stockProductName;
 
     @Schema(description = "매장 재고량")
     private Long stockQuantity;
 
     @Schema(description = "매장 재고 상품의 첫번째 이미지")
-    private NcpFileResponse stockItemFile;
+    private NcpFileResponse stockProductFile;
 
-    public static RestaurantStockItemResponse of(RestaurantStock restaurantStock, NcpFileResponse file) {
-        return RestaurantStockItemResponse.builder()
-                .stockItemId(restaurantStock.getItem().getId())
-                .stockItemName(restaurantStock.getItem().getName())
+    public static RestaurantStockProductResponse of(RestaurantStock restaurantStock, NcpFileResponse file) {
+        return RestaurantStockProductResponse.builder()
+                .stockProductId(restaurantStock.getProduct().getId())
+                .stockProductName(restaurantStock.getProduct().getName())
                 .stockQuantity(restaurantStock.getQuantity())
-                .stockItemFile(file)
+                .stockProductFile(file)
                 .build();
     }
 }
