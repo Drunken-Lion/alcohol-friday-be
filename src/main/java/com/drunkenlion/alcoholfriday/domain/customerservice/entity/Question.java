@@ -5,18 +5,12 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.util.QuestionStatusC
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Comment;
+
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Array;
-import org.hibernate.annotations.Comment;
 
 @Getter
 @SuperBuilder
@@ -24,21 +18,23 @@ import org.hibernate.annotations.Comment;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @Entity
+@Table(name = "question")
 public class Question extends BaseEntity {
     @Comment("문의사항 작성자")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
     @Comment("문의사항 제목")
-    @Column(length = 200)
+    @Column(name = "title", columnDefinition = "VARCHAR(200)")
     private String title;
 
     @Comment("문의사항 내용")
-    @Column(columnDefinition = "MEDIUMTEXT")
+    @Column(name = "content", columnDefinition = "MEDIUMTEXT")
     private String content;
 
     @Comment("답변 여부")
+    @Column(name = "status", columnDefinition = "VARCHAR(20)")
     @Convert(converter = QuestionStatusConverter.class)
     private QuestionStatus status;
 
