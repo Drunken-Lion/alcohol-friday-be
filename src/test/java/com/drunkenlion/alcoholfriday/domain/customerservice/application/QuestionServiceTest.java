@@ -79,7 +79,7 @@ class QuestionServiceTest {
 
         Member member = Member.builder().id(26L).build();
 
-        when(questionRepository.findByIdAndDeletedAtIsNull(questionId)).thenReturn(
+        when(questionRepository.findQuestion(questionId)).thenReturn(
                 Optional.ofNullable(Question.builder()
                         .id(questionId)
                         .title(questionTitle)
@@ -110,7 +110,7 @@ class QuestionServiceTest {
         Member firstMember = Member.builder().id(26L).build();
         Member secondMember = Member.builder().id(2L).build();
 
-        when(questionRepository.findByIdAndDeletedAtIsNull(questionId)).thenReturn(
+        when(questionRepository.findQuestion(questionId)).thenReturn(
                 Optional.ofNullable(Question.builder()
                         .id(questionId)
                         .title(questionTitle)
