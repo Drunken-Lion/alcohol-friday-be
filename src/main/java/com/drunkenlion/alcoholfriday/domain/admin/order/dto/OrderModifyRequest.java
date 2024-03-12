@@ -33,7 +33,7 @@ public class OrderModifyRequest {
                 .recipient(request.getRecipient())
                 .phone(request.getPhone())
                 .address(request.getAddress())
-                .detail(request.getAddressDetail())
+                .addressDetail(request.getAddressDetail())
                 .postcode(request.getPostcode())
                 .description(request.getDescription())
                 .build();
