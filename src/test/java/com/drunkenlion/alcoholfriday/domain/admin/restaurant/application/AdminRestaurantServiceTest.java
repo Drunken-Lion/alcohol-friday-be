@@ -4,10 +4,10 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetai
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -31,7 +31,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -894,15 +893,14 @@ public class AdminRestaurantServiceTest {
         Restaurant restaurant = getRestaurantData();
 
         return LongStream.rangeClosed(1, 2).mapToObj(i -> {
-            Item item = Item.builder()
-                    .name("itemName" + i)
-                    .price(BigDecimal.valueOf(i))
-                    .info("info")
+            Product product =  Product.builder()
+                    .id(i)
+                    .name("productName" + i)
                     .build();
 
             return RestaurantStock.builder()
                     .id(i)
-                    .item(item)
+                    .product(product)
                     .restaurant(restaurant)
                     .quantity(i)
                     .createdAt(createdAt)
