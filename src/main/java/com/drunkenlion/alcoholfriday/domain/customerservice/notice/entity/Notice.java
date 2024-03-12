@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.customerservice.entity;
+package com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
@@ -18,7 +18,7 @@ import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notice extends BaseEntity {
