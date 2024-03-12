@@ -34,7 +34,7 @@ public class AdminQuestionServiceImpl implements AdminQuestionService {
         AdminQuestionValidator.isAdmin(member);
 
         Question question =
-                questionRepository.findById(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_QUESTION));
+                questionRepository.adminFindQuestion(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_QUESTION));
 
         NcpFileResponse all = fileService.findAll(question);
         return AdminQuestionResponse.of(question, all);

@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/admin/questions")
-@Tag(name = "v1-admin-question", description = "관리자 문의사항 관리 API")
 @SecurityRequirement(name = "bearerAuth")
+@Tag(name = "v1-admin-question", description = "관리자 문의사항 관리 API")
+@RequestMapping("/v1/admin/questions")
+@RestController
 public class AdminQuestionController {
     private final AdminQuestionService adminQuestionService;
 

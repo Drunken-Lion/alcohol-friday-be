@@ -45,7 +45,7 @@ public class QuestionServiceImpl implements QuestionService {
     public QuestionResponse findQuestion(Member member, Long id) {
         log.info("[QuestionServiceImpl.findQuestion] : 접근");
         Question question =
-                questionRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_QUESTION));
+                questionRepository.findQuestion(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_QUESTION));
 
         QuestionValidator.compareEntityIdToMemberId(question, member);
 
