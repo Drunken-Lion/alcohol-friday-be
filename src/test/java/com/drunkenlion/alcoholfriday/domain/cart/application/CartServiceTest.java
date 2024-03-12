@@ -381,14 +381,14 @@ class CartServiceTest {
 
         when(cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getOneCartDetail());
 
-        doNothing().when(cartDetailRepository).deleteByIdAndCart(getDataItem().getId(), cart);
+        doNothing().when(cartDetailRepository).deleteByItemAndCart(getDataItem(), cart);
 
         // when
         cartService.deleteCartList(cartRequests, member);
 
         // then
         // 메서드 호출 여부를 검증
-        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest.getItemId(), cart);
+        verify(cartDetailRepository, times(1)).deleteByItemAndCart(item, cart);
     }
 
     @Test
@@ -428,16 +428,16 @@ class CartServiceTest {
         when(cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getOneCartDetail());
         when(cartDetailRepository.findByItemAndCart(item2, cart)).thenReturn(getOneCartDetail2());
 
-        doNothing().when(cartDetailRepository).deleteByIdAndCart(getDataItem().getId(), cart);
-        doNothing().when(cartDetailRepository).deleteByIdAndCart(getDataItem2().getId(), cart);
+        doNothing().when(cartDetailRepository).deleteByItemAndCart(getDataItem(), cart);
+        doNothing().when(cartDetailRepository).deleteByItemAndCart(getDataItem2(), cart);
 
         // when
         cartService.deleteCartList(cartRequests, member);
 
         // then
         // 메서드 호출 여부를 검증
-        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest.getItemId(), cart);
-        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest2.getItemId(), cart);
+        verify(cartDetailRepository, times(1)).deleteByItemAndCart(item, cart);
+        verify(cartDetailRepository, times(1)).deleteByItemAndCart(item2, cart);
     }
 
     @Test
