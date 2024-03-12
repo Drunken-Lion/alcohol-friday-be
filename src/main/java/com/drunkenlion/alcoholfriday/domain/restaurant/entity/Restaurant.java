@@ -41,7 +41,7 @@ public class Restaurant extends BaseEntity {
     private String address;
 
     @Comment("위도, 경도")
-    @Column(name = "location", columnDefinition = "Point")
+    @Column(name = "location", columnDefinition = "POINT")
     private Point location;
 
     @Comment("가게 연락처")
