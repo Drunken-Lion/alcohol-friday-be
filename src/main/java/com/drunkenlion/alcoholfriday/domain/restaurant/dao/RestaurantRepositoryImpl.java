@@ -37,6 +37,7 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                 .select(restaurant)
                 .from(restaurant)
                 .where(builder)
+                .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 

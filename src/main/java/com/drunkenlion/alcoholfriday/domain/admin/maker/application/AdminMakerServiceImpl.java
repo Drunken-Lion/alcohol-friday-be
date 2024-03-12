@@ -49,7 +49,7 @@ public class AdminMakerServiceImpl implements AdminMakerService {
 
     @Transactional
     public MakerDetailResponse modifyMaker(Long id, MakerRequest makerRequest) {
-        Maker maker = makerRepository.findById(id)
+        Maker maker = makerRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MAKER)
                         .build());
@@ -68,16 +68,10 @@ public class AdminMakerServiceImpl implements AdminMakerService {
 
     @Transactional
     public MakerDetailResponse deleteMaker(Long id) {
-        Maker maker = makerRepository.findById(id)
+        Maker maker = makerRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_MAKER)
                         .build());
-
-        if (maker.getDeletedAt() != null) {
-            throw BusinessException.builder()
-                    .response(HttpResponse.Fail.NOT_FOUND_MAKER)
-                    .build();
-        }
 
         // maker와 관계가 있는 product 중 삭제 상태가 아닌 것이 있는지 확인
         if (productRepository.existsByMakerAndDeletedAtIsNull(maker)) {

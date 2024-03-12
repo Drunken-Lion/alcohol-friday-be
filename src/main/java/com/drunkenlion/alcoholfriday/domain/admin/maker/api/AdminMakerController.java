@@ -18,14 +18,14 @@ import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/admin")
+@RequestMapping("/v1/admin/makers")
 @Tag(name = "v1-admin-maker", description = "관리자 제조사 관리 API")
 @SecurityRequirement(name = "bearerAuth")
 public class AdminMakerController {
     private final AdminMakerService adminMakerService;
 
     @Operation(summary = "전체 제조사 조회", description = "관리자 권한에 대한 전체 제조사 조회")
-    @GetMapping(value = "makers")
+    @GetMapping
     public ResponseEntity<PageResponse<MakerListResponse>> getMakers(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size
@@ -35,7 +35,7 @@ public class AdminMakerController {
     }
 
     @Operation(summary = "제조사 상세 조회", description = "관리자 권한에 대한 제조사 상세 조회")
-    @GetMapping(value = "makers/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<MakerDetailResponse> getMaker(
             @PathVariable("id") Long id
     ) {
@@ -44,7 +44,7 @@ public class AdminMakerController {
     }
 
     @Operation(summary = "제조사 등록", description = "관리자 권한에 대한 제조사 등록")
-    @PostMapping(value = "makers")
+    @PostMapping
     public ResponseEntity<MakerDetailResponse> createMaker(
             @Valid @RequestBody MakerRequest makerRequest
     ) {
@@ -60,7 +60,7 @@ public class AdminMakerController {
     }
 
     @Operation(summary = "제조사 수정", description = "관리자 권한에 대한 제조사 수정")
-    @PutMapping(value = "makers/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<MakerDetailResponse> modifyMaker(
             @PathVariable("id") Long id,
             @Valid @RequestBody MakerRequest makerRequest
@@ -70,7 +70,7 @@ public class AdminMakerController {
     }
 
     @Operation(summary = "제조사 삭제", description = "관리자 권한에 대한 제조사 삭제")
-    @DeleteMapping(value = "makers/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteMaker(
             @PathVariable("id") Long id
     ) {

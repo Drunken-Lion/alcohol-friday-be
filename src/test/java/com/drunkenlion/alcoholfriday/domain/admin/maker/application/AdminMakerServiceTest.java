@@ -146,7 +146,7 @@ public class AdminMakerServiceTest {
                 .region(modifyRegion)
                 .build();
 
-        Mockito.when(makerRepository.findById(any())).thenReturn(this.getOne());
+        Mockito.when(makerRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         Mockito.when(makerRepository.save(any(Maker.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -171,7 +171,7 @@ public class AdminMakerServiceTest {
                 .region(modifyRegion)
                 .build();
 
-        Mockito.when(this.makerRepository.findById(any())).thenReturn(Optional.empty());
+        Mockito.when(this.makerRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -187,7 +187,7 @@ public class AdminMakerServiceTest {
     @DisplayName("제조사 삭제 성공")
     public void deleteMakerTest() {
         // given
-        Mockito.when(makerRepository.findById(any())).thenReturn(this.getOne());
+        Mockito.when(makerRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         Mockito.when(makerRepository.save(any(Maker.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -208,28 +208,7 @@ public class AdminMakerServiceTest {
     @DisplayName("제조사 삭제 실패 - 찾을 수 없는 제조사")
     public void deleteMakerFailNotFoundTest() {
         // given
-        Mockito.when(makerRepository.findById(any())).thenReturn(Optional.empty());
-
-        // when
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminMakerService.deleteMaker(id);
-        });
-
-        // then
-        assertEquals(HttpResponse.Fail.NOT_FOUND_MAKER.getStatus(), exception.getStatus());
-        assertEquals(HttpResponse.Fail.NOT_FOUND_MAKER.getMessage(), exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("제조사 삭제 실패 - 이미 삭제된 제조사")
-    public void deleteMakerFailAlreadyDeletedTest() {
-        // given
-        Maker deletedMaker = this.getOne().get();
-        deletedMaker = deletedMaker.toBuilder()
-                .deletedAt(deletedAt)
-                .build();
-
-        Mockito.when(makerRepository.findById(any())).thenReturn(Optional.of(deletedMaker));
+        Mockito.when(makerRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -245,7 +224,7 @@ public class AdminMakerServiceTest {
     @DisplayName("제조사 삭제 실패 - 제품과 연결된 제조사")
     public void deleteMakerFailMakerInUseTest() {
         // given
-        Mockito.when(makerRepository.findById(any())).thenReturn(this.getOne());
+        Mockito.when(makerRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getOne());
         Mockito.when(productRepository.existsByMakerAndDeletedAtIsNull(any(Maker.class))).thenReturn(true);
 
         // when
