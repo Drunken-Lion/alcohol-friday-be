@@ -14,27 +14,27 @@ public enum RestaurantOrderStatus {
     /**
      * 주문 정보 입력
      */
-    ADD_INFO("add info", "1"),
+    ADD_INFO("주문정보입력", "1"),
     /**
      * 주문 승인 대기
      */
-    WAITING_APPROVAL("waiting approval", "2"),
+    WAITING_APPROVAL("주문승인대기", "2"),
     /**
      * 주문 승인 완료
      */
-    COMPLETED_APPROVAL("completed approval", "3"),
+    COMPLETED_APPROVAL("주문승인완료", "3"),
     /**
      * 주문 승인 반려
      */
-    REJECTED_APPROVAL("rejected approval", "4"),
+    REJECTED_APPROVAL("주문승인반려", "4"),
     /**
      * 주문 완료
      */
-    COMPLETED("completed", "5"),
+    COMPLETED("주문완료", "5"),
     /**
      * 주문 취소
      */
-    CANCELLED("cancelled", "6");
+    CANCELLED("주문취소", "6");
 
     private final String name;
     private final String number;

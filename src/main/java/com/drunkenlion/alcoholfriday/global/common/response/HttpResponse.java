@@ -63,6 +63,7 @@ public class HttpResponse {
         NOT_FOUND_NOTICE(HttpStatus.NOT_FOUND, "존재하지 않는 공지사항입니다."),
         NOT_FOUND_QUESTION(HttpStatus.NOT_FOUND, "존재하지 않는 문의입니다."),
         NOT_FOUND_RESTAURANT_ORDER_NUMBER(HttpStatus.NOT_FOUND, "존재하지 않는 Restaurant Order Number"),
+        NOT_FOUND_STATUS(HttpStatus.NOT_FOUND, "존재하지 않는 상태값 입니다."),
 
         // 405
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP METHOD 입니다."),
