@@ -11,6 +11,7 @@ import org.hibernate.annotations.Comment;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Entity
@@ -74,6 +75,7 @@ public class Order extends BaseEntity {
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
     public void genOrderNo(Long id) {
+        // TODO orderNo를 주문 접수할 때 만들고 클라이언트에 내려주기 (결제 요청 전)
         // yyyy-MM-dd 형식의 DateTimeFormatter 생성
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
