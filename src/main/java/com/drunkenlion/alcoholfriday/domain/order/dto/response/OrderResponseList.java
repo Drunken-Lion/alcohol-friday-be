@@ -44,7 +44,7 @@ public class OrderResponseList {
     private String address;
 
     @Schema(description = "배송지 상세 주소")
-    private String detail;
+    private String addressDetail;
 
     @Schema(description = "배송시 주의사항")
     private String description;
@@ -70,7 +70,7 @@ public class OrderResponseList {
                 .recipient(order.getRecipient())
                 .phone(order.getPhone())
                 .address(order.getAddress())
-                .detail(order.getAddressDetail())
+                .addressDetail(order.getAddressDetail())
                 .description(order.getDescription())
                 .postcode(order.getPostcode())
                 .itemList(itemList)
