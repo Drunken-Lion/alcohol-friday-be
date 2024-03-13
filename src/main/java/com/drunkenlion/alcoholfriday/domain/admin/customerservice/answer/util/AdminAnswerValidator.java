@@ -22,7 +22,7 @@ public class AdminAnswerValidator {
 
     public static void isDeleted(Answer entity) {
         if (entity.getDeletedAt() != null) {
-            throw new BusinessException(Fail.DELETED_QUESTION);
+            throw new BusinessException(Fail.DELETED_ANSWER);
         }
     }
 }
