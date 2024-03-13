@@ -321,10 +321,10 @@ class OrderServiceTest {
         return Member.builder()
                 .id(id)
                 .email(email)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(name)
                 .nickname(nickname)
-                .role(MemberRole.ofRole(role))
+                .role(MemberRole.byRole(role))
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)
@@ -359,8 +359,8 @@ class OrderServiceTest {
                 .sour(sour)
                 .cool(cool)
                 .body(body)
-                .balence(balance)
-                .insense(incense)
+                .balance(balance)
+                .incense(incense)
                 .throat(throat)
                 .build();
         product.addCategory(category);
@@ -405,8 +405,8 @@ class OrderServiceTest {
                 .sour(sour2)
                 .cool(cool2)
                 .body(body2)
-                .balence(balance2)
-                .insense(incense2)
+                .balance(balance2)
+                .incense(incense2)
                 .throat(throat2)
                 .build();
         product.addCategory(category);
