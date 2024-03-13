@@ -37,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
                 .recipient(orderRequestList.getRecipient())
                 .phone(orderRequestList.getPhone())
                 .address(orderRequestList.getAddress())
-                .detail(orderRequestList.getDetail())
+                .addressDetail(orderRequestList.getAddressDetail())
                 .description(orderRequestList.getDescription())
                 .postcode(orderRequestList.getPostcode())
                 .member(member)

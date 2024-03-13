@@ -113,7 +113,7 @@ class OrderServiceTest {
     private OrderStatus orderStatus = OrderStatus.ORDER_RECEIVED;
     private String recipient = "홍길동";
     private String address = "서울특별시 중구 세종대로 110(태평로1가)";
-    private String detail = "서울특별시청 103호";
+    private String addressDetail = "서울특별시청 103호";
     private String description = "부재시 문앞에 놓아주세요.";
     private Long postcode = 04524L;
 
@@ -149,7 +149,7 @@ class OrderServiceTest {
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)
-                .detail(detail)
+                .addressDetail(addressDetail)
                 .description(description)
                 .postcode(postcode)
                 .build();
@@ -198,7 +198,7 @@ class OrderServiceTest {
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)
-                .detail(detail)
+                .addressDetail(addressDetail)
                 .description(description)
                 .postcode(postcode)
                 .build();
@@ -243,7 +243,7 @@ class OrderServiceTest {
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)
-                .detail(detail)
+                .addressDetail(addressDetail)
                 .description(description)
                 .postcode(postcode)
                 .build();
@@ -305,7 +305,7 @@ class OrderServiceTest {
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)
-                .detail(detail)
+                .addressDetail(addressDetail)
                 .description(description)
                 .postcode(postcode)
                 .member(getDataMember())
