@@ -199,7 +199,7 @@ class ItemControllerTest {
         Item 상품_피노누아_와인 = Item.builder()
                 .name("피노 누아 와인 3개")
                 .price(new BigDecimal(200000))
-                .info("이 상품은 테스트 상품3입니다.")
+                .info("이 상품은 테스트 상품4입니다.")
                 .build();
         상품_피노누아_와인.addCategory(카테고리_소분류2);
 
@@ -217,6 +217,85 @@ class ItemControllerTest {
         itemRepository.save(상품_피노누아_와인);
         itemProductRepository.save(제품상세_피노누아);
         fileService.saveFiles(상품_피노누아_와인, List.of(multipartFile3));
+
+
+        Category 카테고리_소분류3 = Category.builder()
+                .lastName("소주")
+                .build();
+        카테고리_소분류3.addCategoryClass(카테고리_대분류1);
+
+        // Item5
+        Product 제품_참_소주 = Product.builder()
+                .name("참 소주")
+                .quantity(10L)
+                .alcohol(17L)
+                .ingredient("알콜 등등...")
+                .sweet(1L)
+                .sour(1L)
+                .cool(1L)
+                .body(1L)
+                .balance(1L)
+                .incense(1L)
+                .throat(1L)
+                .build();
+        제품_참_소주.addCategory(카테고리_소분류3);
+
+        Item 상품_참_소주 = Item.builder()
+                .name("참 소주 2개")
+                .price(new BigDecimal(20000))
+                .info("이 상품은 테스트 상품5입니다.")
+                .build();
+        상품_참_소주.addCategory(카테고리_소분류3);
+
+        ItemProduct 제품상세_참 = ItemProduct.builder()
+                .item(상품_참_소주)
+                .product(제품_참_소주)
+                .build();
+        제품상세_참.addItem(상품_참_소주);
+        제품상세_참.addProduct(제품_참_소주);
+
+        categoryRepository.save(카테고리_소분류3);
+        productRepository.save(제품_참_소주);
+        itemRepository.save(상품_참_소주);
+        itemProductRepository.save(제품상세_참);
+
+        // Item6
+        Product 제품_참이슬_소주 = Product.builder()
+                .name("참이슬 소주")
+                .quantity(10L)
+                .alcohol(17L)
+                .ingredient("알콜 등등...")
+                .sweet(1L)
+                .sour(1L)
+                .cool(1L)
+                .body(1L)
+                .balance(1L)
+                .incense(1L)
+                .throat(1L)
+                .build();
+        제품_참이슬_소주.addCategory(카테고리_소분류3);
+
+        Item 상품_참이슬_소주 = Item.builder()
+                .name("참이슬 소주 3개")
+                .price(new BigDecimal(20000))
+                .info("이 상품은 테스트 상품6입니다.")
+                .build();
+        상품_참이슬_소주.addCategory(카테고리_소분류3);
+
+        ItemProduct 제품상세_참이슬_소주 = ItemProduct.builder()
+                .item(상품_참이슬_소주)
+                .product(제품_참이슬_소주)
+                .build();
+        제품상세_참이슬_소주.addItem(상품_참이슬_소주);
+        제품상세_참이슬_소주.addProduct(제품_참이슬_소주);
+
+        MockMultipartFile multipartFile4 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
+
+        categoryRepository.save(카테고리_소분류3);
+        productRepository.save(제품_참이슬_소주);
+        itemRepository.save(상품_참이슬_소주);
+        itemProductRepository.save(제품상세_참이슬_소주);
+        fileService.saveFiles(상품_참이슬_소주, List.of(multipartFile4));
     }
 
     @AfterEach
@@ -290,6 +369,35 @@ class ItemControllerTest {
     @Test
     @DisplayName("이미지가 포함된 item 과 이미지가 없는 item 검색")
     void searchTest_img_notImg() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/items")
+                        .param("size", "10")
+                        .param("keywordType", "type, name")
+                        .param("keyword", "소주")
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ItemController.class))
+                .andExpect(handler().methodName("search"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(2)))
+                .andExpect(jsonPath("$.data[0].id", notNullValue()))
+                .andExpect(jsonPath("$.data[0].name", notNullValue()))
+                .andExpect(jsonPath("$.data[0].price", notNullValue()))
+                .andExpect(jsonPath("$.data[0].category.firstName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].category.lastName", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+    }
+
+//    @Test TODO 검색 기능 더 보충할 때 사용
+    @DisplayName("키워드가 2개 이상")
+    void searchTest_twoKeyword() throws Exception {
         // when
         ResultActions resultActions = mvc
                 .perform(get("/v1/items")
