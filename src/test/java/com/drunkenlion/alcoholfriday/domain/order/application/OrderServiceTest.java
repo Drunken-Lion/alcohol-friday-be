@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -108,9 +109,8 @@ class OrderServiceTest {
     private final int size = 20;
 
     // Order
-//    private String orderNo;
+    private String orderNo = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "__" + 1;
     private OrderStatus orderStatus = OrderStatus.ORDER_RECEIVED;
-//    private BigDecimal price;
     private String recipient = "홍길동";
     private String address = "서울특별시 중구 세종대로 110(태평로1가)";
     private String detail = "서울특별시청 103호";
@@ -161,6 +161,7 @@ class OrderServiceTest {
         // then
         assertThat(receive.getRecipient()).isEqualTo(recipient);
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
+        assertThat(receive.getOrderNo()).isEqualTo(orderNo);
         assertThat(receive.getItemList().get(0).getItem().getPrice()).isEqualTo("50000");
         assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("100000"));
         assertThat(receive.getTotalQuantity()).isEqualTo(2L);
@@ -208,6 +209,7 @@ class OrderServiceTest {
         // then
         assertThat(receive.getRecipient()).isEqualTo(recipient);
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
+        assertThat(receive.getOrderNo()).isEqualTo(orderNo);
         assertThat(receive.getItemList().get(0).getItem().getPrice()).isEqualTo("50000");
         assertThat(receive.getItemList().get(1).getItem().getPrice()).isEqualTo("100000");
         assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("200000"));
@@ -297,9 +299,9 @@ class OrderServiceTest {
 
     private Order getDataOrder() {
         return Order.builder()
-//                .orderNo()
+                .id(1L)
+                .orderNo(orderNo)
                 .orderStatus(orderStatus)
-//                .price()
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)
@@ -307,6 +309,7 @@ class OrderServiceTest {
                 .description(description)
                 .postcode(postcode)
                 .member(getDataMember())
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
