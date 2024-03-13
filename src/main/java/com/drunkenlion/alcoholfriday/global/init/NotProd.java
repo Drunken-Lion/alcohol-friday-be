@@ -2089,7 +2089,7 @@ public class NotProd {
         // Review 테스트 데이터
         Review 리뷰_1 = reviewRepository.save(
                 Review.builder()
-                        .score(5L)
+                        .score(5d)
                         .content("맛있어요")
                         .item(상품_1)
                         .orderDetail(주문상품_1)
