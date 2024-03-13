@@ -123,7 +123,7 @@ class OrderServiceTest {
     // 바로 주문
     @Test
     @DisplayName("상품 한 개 주문할 경우")
-    void orderReceive_now() {
+    void orderReceive_oneItem() {
         // given
         // orderRepository.save(order)
         when(orderRepository.save(any(Order.class))).thenReturn(this.getDataOrder());
@@ -159,7 +159,7 @@ class OrderServiceTest {
         // then
         assertThat(receive.getRecipient()).isEqualTo(recipient);
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
-        assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("50000"));
+        assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("100000"));
         assertThat(receive.getTotalQuantity()).isEqualTo(2L);
     }
 
