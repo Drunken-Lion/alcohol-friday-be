@@ -77,8 +77,8 @@ class OrderControllerTest {
                 .sour(1L)
                 .cool(1L)
                 .body(1L)
-                .balence(1L)
-                .insense(1L)
+                .balance(1L)
+                .incense(1L)
                 .throat(1L)
                 .build();
         product.addCategory(category);
@@ -114,8 +114,8 @@ class OrderControllerTest {
                 .sour(1L)
                 .cool(1L)
                 .body(1L)
-                .balence(1L)
-                .insense(1L)
+                .balance(1L)
+                .incense(1L)
                 .throat(1L)
                 .build();
         product2.addCategory(category);
