@@ -3,12 +3,14 @@ package com.drunkenlion.alcoholfriday.domain.customerservice.dao;
 import static com.drunkenlion.alcoholfriday.domain.customerservice.entity.QAnswer.answer;
 import static com.drunkenlion.alcoholfriday.domain.customerservice.entity.QQuestion.question;
 
+import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.QuestionResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,5 +40,32 @@ public class QuestionRepositoryImpl implements QuestionCustomRepository {
                 .where(memberAndNotDeletedExpression);
 
         return PageableExecutionUtils.getPage(questions, pageable, total::fetchOne);
+    }
+
+    @Override
+    public Optional<Question> findQuestion(Long id) {
+        BooleanExpression conditions =
+                question.id.eq(id)
+                .and(question.deletedAt.isNull())
+                .and(answer.deletedAt.isNull());
+
+        return Optional.of(jpaQueryFactory
+                .selectFrom(question)
+                .leftJoin(question.answers, answer).fetchJoin()
+                .where(conditions)
+                .fetchFirst());
+    }
+
+    @Override
+    public Optional<Question> adminFindQuestion(Long id) {
+        BooleanExpression conditions =
+                question.id.eq(id)
+                        .and(answer.deletedAt.isNull());
+
+        return Optional.of(jpaQueryFactory
+                .selectFrom(question)
+                .leftJoin(question.answers, answer).fetchJoin()
+                .where(conditions)
+                .fetchFirst());
     }
 }

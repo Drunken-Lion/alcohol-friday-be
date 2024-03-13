@@ -37,4 +37,8 @@ public class Answer extends BaseEntity {
         this.question.updateStatus(QuestionStatus.COMPLETE);
         question.getAnswers().add(this);
     }
+
+    public void updateContent(String updateContent) {
+        this.content = updateContent;
+    }
 }
