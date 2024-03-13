@@ -24,7 +24,7 @@ public class OrderRequestList {
     private String address;
 
     @Schema(description = "배송지 상세 주소")
-    private String detail;
+    private String addressDetail;
 
     @Schema(description = "배송시 주의사항")
     private String description;
