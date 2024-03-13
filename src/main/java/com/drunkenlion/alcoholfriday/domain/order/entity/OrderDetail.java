@@ -57,4 +57,8 @@ public class OrderDetail extends BaseEntity {
         this.review = review;
         if (review.getOrderDetail() != this) review.addOrderDetail(this);
     }
+
+    public void addItemTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
+    }
 }
