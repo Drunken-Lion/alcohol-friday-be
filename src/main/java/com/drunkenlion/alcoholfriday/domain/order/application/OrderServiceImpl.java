@@ -58,23 +58,29 @@ public class OrderServiceImpl implements OrderService {
         return OrderResponseList.of(savedOrder, orderDetailList);
     }
 
-    private OrderDetail orderDetailSave(OrderItemRequest orderItemRequest, Order order) {
+    @Override
+    @Transactional
+    public OrderDetail orderDetailSave(OrderItemRequest orderItemRequest, Order order) {
         Item item = itemRepository.findById(orderItemRequest.getItemId()).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
 
         // Long 타입의 quantity를 BigDecimal로 변환
         BigDecimal quantityBigDecimal = BigDecimal.valueOf(orderItemRequest.getQuantity());
         // BigDecimal 타입의 price와 BigDecimal 타입의 quantity를 곱하기
-        BigDecimal totalPrice = quantityBigDecimal.multiply(item.getPrice());
+        BigDecimal totalItemPrice = quantityBigDecimal.multiply(item.getPrice());
 
         OrderDetail orderDetail = OrderDetail.builder()
                 .itemPrice(item.getPrice())
                 .quantity(orderItemRequest.getQuantity())
-                .totalPrice(totalPrice)
+                .totalPrice(new BigDecimal("0"))
                 .item(item)
                 .order(order)
                 .build();
+        
 
-        return orderDetailRepository.save(orderDetail);
+        OrderDetail save = orderDetailRepository.save(orderDetail);
+        save.addItemTotalPrice(totalItemPrice);
+
+        return save;
     }
 }
