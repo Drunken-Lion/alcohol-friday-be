@@ -53,7 +53,7 @@ class ItemRepositoryTest {
         Product product = Product.builder()
                 .name("test data")
                 .quantity(10L)
-                .alcohol(17L)
+                .alcohol(17D)
                 .ingredient("알콜, 누룩 등등...")
                 .sweet(1L)
                 .sour(1L)

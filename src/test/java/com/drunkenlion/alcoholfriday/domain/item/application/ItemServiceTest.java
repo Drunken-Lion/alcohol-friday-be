@@ -47,7 +47,7 @@ class ItemServiceTest {
     private final BigDecimal price = new BigDecimal(50000);
     private final String info = "이 상품은 테스트 상품입니다.";
     private final Long quantity = 10L;
-    private final Long alcohol = 17L;
+    private final Double alcohol = 17D;
     private final String ingredient = "알콜, 누룩 등등...";
     private final Long sweet = 10L;
     private final Long sour = 10L;

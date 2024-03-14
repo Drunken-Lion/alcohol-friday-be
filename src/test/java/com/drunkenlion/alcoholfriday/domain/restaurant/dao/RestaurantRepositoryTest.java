@@ -90,14 +90,14 @@ public class RestaurantRepositoryTest {
                 .name(dongdongju)
                 .price(productPrice1)
                 .quantity(0L)
-                .alcohol(100L)
+                .alcohol(100D)
                 .build();
 
         Product product2 = Product.builder()
                 .name(takju)
                 .price(productPrice2)
                 .quantity(0L)
-                .alcohol(100L)
+                .alcohol(100D)
                 .build();
 
         productRepository.save(product1);
