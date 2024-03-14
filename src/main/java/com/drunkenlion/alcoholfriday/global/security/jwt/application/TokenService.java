@@ -10,5 +10,5 @@ public interface TokenService {
 
     RefreshToken findRefreshToken(String refreshToken);
 
-    RefreshToken delete(String email);
+    void deleteRefreshToken(String email);
 }

@@ -34,7 +34,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -55,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public LoginResponse testLogin(String email) {
-        Member member = this.memberRepository.findByEmail(email)
+        Member member = memberRepository.findByEmail(email)
                 .orElseGet(() -> {
                     Member saveMember = Member.builder()
                             .email(email)
@@ -65,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
                             .provider(ProviderType.KAKAO)
                             .build();
 
-                    return this.memberRepository.save(saveMember);
+                    return memberRepository.save(saveMember);
                 });
 
         UserPrincipal userPrincipal = UserPrincipal.create(member);
@@ -75,8 +74,10 @@ public class AuthServiceImpl implements AuthService {
                         userPrincipal, null, userPrincipal.getAuthorities()
                 );
 
-        JwtResponse jwtResponse = this.jwtTokenProvider.generateToken(authentication);
-        MemberResponse memberResponse = MemberResponse.of(this.tokenService.findRefreshToken(jwtResponse.getRefreshToken()).getMember());
+        tokenService.deleteRefreshToken(authentication.getName());
+
+        JwtResponse jwtResponse = jwtTokenProvider.generateToken(authentication);
+        MemberResponse memberResponse = MemberResponse.of(tokenService.findRefreshToken(jwtResponse.getRefreshToken()).getMember());
 
         return LoginResponse.builder()
                 .jwtResponse(jwtResponse)
@@ -95,8 +96,10 @@ public class AuthServiceImpl implements AuthService {
                 provider.getProviderName()
         );
 
+        tokenService.deleteRefreshToken(authentication.getName());
+
         JwtResponse jwtResponse = this.jwtTokenProvider.generateToken(authentication);
-        MemberResponse memberResponse = MemberResponse.of(this.tokenService.findRefreshToken(jwtResponse.getRefreshToken()).getMember());
+        MemberResponse memberResponse = MemberResponse.of(tokenService.findRefreshToken(jwtResponse.getRefreshToken()).getMember());
 
         return LoginResponse.builder()
                 .jwtResponse(jwtResponse)
@@ -105,15 +108,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public OAuth2User loadUser(ProviderType provider, String accessToken) {
-        SocialUserInfo userInfo = getSocialUserInfoFactory(provider, this.getAttributes(provider, accessToken));
+        SocialUserInfo userInfo = getSocialUserInfoFactory(provider, getAttributes(provider, accessToken));
 
-        log.info(this.getAttributes(provider, accessToken).toString());
+        log.info(getAttributes(provider, accessToken).toString());
 
         if (!StringUtils.hasText(userInfo.getEmail())) {
             throw new OAuth2AuthenticationException(String.format("%s 이메일을 찾을 수 없습니다.", provider.getProviderName()));
         }
 
-        Member member = this.retrieveOrCreateMember(userInfo);
+        Member member = retrieveOrCreateMember(userInfo);
 
         return UserPrincipal.create(member, userInfo.getAttributes());
     }
@@ -172,12 +175,15 @@ public class AuthServiceImpl implements AuthService {
      */
     @Transactional
     public JwtResponse reissueToken(String requestRefreshToken) {
-        if (!this.jwtTokenProvider.validateRefreshToken(requestRefreshToken))
+        if (!jwtTokenProvider.validateRefreshToken(requestRefreshToken))
             throw new BusinessException(HttpResponse.Fail.WRONG_TOKEN);
 
-        Authentication authentication = this.jwtTokenProvider.getAuthentication(requestRefreshToken, TokenType.REFRESH_TOKEN.getValue());
-        this.tokenService.delete(authentication.getName());
+        tokenService.findRefreshToken(requestRefreshToken);
 
-        return this.jwtTokenProvider.generateToken(authentication);
+        Authentication authentication = jwtTokenProvider.getAuthentication(requestRefreshToken, TokenType.REFRESH_TOKEN.getValue());
+        
+        tokenService.deleteRefreshToken(authentication.getName());
+
+        return jwtTokenProvider.generateToken(authentication);
     }
 }
