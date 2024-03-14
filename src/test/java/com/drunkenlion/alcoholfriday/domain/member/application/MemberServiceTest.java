@@ -9,7 +9,10 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
-import com.drunkenlion.alcoholfriday.domain.member.dto.*;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.ReviewStatus;
@@ -23,6 +26,7 @@ import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
 import com.drunkenlion.alcoholfriday.domain.review.dto.ReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +46,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -61,6 +65,9 @@ public class MemberServiceTest {
     private AddressRepository addressRepository;
     @Mock
     private ReviewRepository reviewRepository;
+    @Mock
+    private FileService fileService;
+
 
     private final Long memberId = 1L;
     private final String email = "test@example.com";
@@ -170,14 +177,14 @@ public class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("나의 주문내역 조회")
+    @DisplayName("나의 주문내역 조회 성공 - 이미지가 없을 경우")
     public void getMyOrdersTest() {
         // given
-        when(this.orderRepository.findByMemberIdOrderByCreatedAtDesc(any(), any(Pageable.class))).thenReturn(this.getOrders());
+        when(this.orderRepository.findMyOrderList(any(), any(Pageable.class))).thenReturn(this.getOrders());
+        when(this.fileService.findOne(any())).thenReturn(null);
 
         // when
-        Page<OrderResponse> orders = this.memberService.getMyOrders(memberId, page, size);
-
+        Page<OrderResponse> orders = this.memberService.getMyOrders(getMemberData(), page, size);
 
         // then
         List<OrderResponse> content = orders.getContent();
@@ -202,8 +209,12 @@ public class MemberServiceTest {
         assertThat(orderDetails).isInstanceOf(List.class);
         assertThat(orderDetails.size()).isEqualTo(1);
         assertThat(orderDetails.get(0).getId()).isEqualTo(orderDetailId);
+        assertThat(orderDetails.get(0).getName()).isEqualTo(itemName);
         assertThat(orderDetails.get(0).getQuantity()).isEqualTo(quantity);
         assertThat(orderDetails.get(0).getTotalPrice()).isEqualTo(totalPrice);
+        assertThat(orderDetails.get(0).getFile()).isNull();
+
+        verify(fileService).findOne(any());
     }
 
     @Test

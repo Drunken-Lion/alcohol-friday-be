@@ -1,11 +1,11 @@
 package com.drunkenlion.alcoholfriday.global.common.enumerated;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -17,6 +17,7 @@ public enum EntityTypeV2 {
     ITEM("item", Item.builder().build()),
     PRODUCT("product", Product.builder().build()),
     MEMBER("member", Member.builder().build()),
+    REVIEW("review", Review.builder().build()),
     ;
 
     private final String entityType;

@@ -5,30 +5,36 @@ import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
 import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
-import com.drunkenlion.alcoholfriday.domain.member.dto.*;
+import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberReviewResponse;
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.ReviewStatus;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
+import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
 import com.drunkenlion.alcoholfriday.domain.review.dto.ReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
-import org.springframework.data.domain.*;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
-import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -39,6 +45,8 @@ public class MemberServiceImpl implements MemberService {
     private final OrderDetailRepository orderDetailRepository;
     private final AddressRepository addressRepository;
     private final ReviewRepository reviewRepository;
+
+    private final FileService fileService;
 
     @Transactional
     @Override
@@ -64,11 +72,17 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Page<OrderResponse> getMyOrders(Long memberId, int page, int size) {
+    public Page<OrderResponse> getMyOrders(Member member, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Order> orderPage = orderRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable);
+        Page<Order> orderPage = orderRepository.findMyOrderList(member, pageable);
 
-        return orderPage.map(OrderResponse::of);
+        return orderPage.map(order -> {
+            List<OrderDetailResponse> orderDetailsResponses =
+                    order.getOrderDetails().stream().map(orderDetail ->
+                            OrderDetailResponse.of(orderDetail, fileService.findOne(orderDetail.getItem()))).toList();
+
+            return OrderResponse.of(order, orderDetailsResponses);
+        });
     }
 
     @Override

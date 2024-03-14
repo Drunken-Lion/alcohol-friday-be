@@ -14,7 +14,7 @@ public interface MemberService {
 
     Page<MemberQuestionListResponse> getMyQuestions(Long memberId, int page, int size);
 
-    Page<OrderResponse> getMyOrders(Long memberId, int page, int size);
+    Page<OrderResponse> getMyOrders(Member member, int page, int size);
 
     List<AddressResponse> getMyAddresses(Long memberId);
 
