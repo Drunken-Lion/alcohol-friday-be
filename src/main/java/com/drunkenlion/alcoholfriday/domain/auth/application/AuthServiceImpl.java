@@ -178,10 +178,10 @@ public class AuthServiceImpl implements AuthService {
         if (!jwtTokenProvider.validateRefreshToken(requestRefreshToken))
             throw new BusinessException(HttpResponse.Fail.WRONG_TOKEN);
 
-        tokenService.findRefreshToken(requestRefreshToken);
+        Authentication authentication = jwtTokenProvider.getAuthentication(
+                tokenService.findRefreshToken(requestRefreshToken).getToken(),
+                TokenType.REFRESH_TOKEN.getValue());
 
-        Authentication authentication = jwtTokenProvider.getAuthentication(requestRefreshToken, TokenType.REFRESH_TOKEN.getValue());
-        
         tokenService.deleteRefreshToken(authentication.getName());
 
         return jwtTokenProvider.generateToken(authentication);
