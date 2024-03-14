@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.order.entity;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import jakarta.persistence.*;
@@ -9,7 +10,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,11 +79,12 @@ public class Order extends BaseEntity {
     }
 
     public void genOrderNo(Long id) {
-        // TODO orderNo를 주문 접수할 때 만들고 클라이언트에 내려주기 (결제 요청 전)
-        // yyyy-MM-dd 형식의 DateTimeFormatter 생성
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        // orderNo를 주문 접수할 때 만들고 클라이언트에 내려주기 (결제 요청 전)
+        String date = OrderUtil.date.getDate(getCreatedAt());
+        String time = OrderUtil.date.getTime();
+        String timeMillis = OrderUtil.date.getTimeMillis(getCreatedAt());
 
-        this.orderNo = getCreatedAt().format(formatter) + "__" + id;
+        this.orderNo = date + "-" + time + "-" + timeMillis + "-" + id;
     }
 
     public void addPrice(List<OrderDetail> orderDetailList) {
