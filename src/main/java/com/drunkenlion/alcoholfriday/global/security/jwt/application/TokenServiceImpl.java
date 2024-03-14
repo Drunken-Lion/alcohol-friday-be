@@ -38,15 +38,11 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Transactional
-    public RefreshToken delete(String email) {
-        Member member = this.getMember(email);
+    public void deleteRefreshToken(String email) {
+        Member member = getMember(email);
 
-        RefreshToken token = this.refreshTokenRepository.findByMemberId(member.getId())
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.INVALID_TOKEN));
-
-        refreshTokenRepository.delete(token);
-
-        return token;
+        refreshTokenRepository.findByMemberId(member.getId())
+                .ifPresent(refreshTokenRepository::delete);
     }
 
     private Member getMember(String email) {
