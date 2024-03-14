@@ -15,6 +15,7 @@ import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
+import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -30,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -109,7 +109,10 @@ class OrderServiceTest {
     private final int size = 20;
 
     // Order
-    private String orderNo = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "__" + 1;
+    private String orderNo = OrderUtil.date.getDate(getDataOrder().getCreatedAt()) + "-"
+            + OrderUtil.date.getTime() + "-"
+            + OrderUtil.date.getTimeMillis(getDataOrder().getCreatedAt()) + "-"
+            + 1;
     private OrderStatus orderStatus = OrderStatus.ORDER_RECEIVED;
     private String recipient = "홍길동";
     private String address = "서울특별시 중구 세종대로 110(태평로1가)";
@@ -161,7 +164,7 @@ class OrderServiceTest {
         // then
         assertThat(receive.getRecipient()).isEqualTo(recipient);
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
-        assertThat(receive.getOrderNo()).isEqualTo(orderNo);
+        assertThat(receive.getOrderNo().substring(0, 6)).isEqualTo(orderNo.substring(0, 6));
         assertThat(receive.getItemList().get(0).getItem().getPrice()).isEqualTo("50000");
         assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("100000"));
         assertThat(receive.getTotalQuantity()).isEqualTo(2L);
@@ -209,7 +212,7 @@ class OrderServiceTest {
         // then
         assertThat(receive.getRecipient()).isEqualTo(recipient);
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
-        assertThat(receive.getOrderNo()).isEqualTo(orderNo);
+        assertThat(receive.getOrderNo().substring(0, 6)).isEqualTo(orderNo.substring(0, 6));
         assertThat(receive.getItemList().get(0).getItem().getPrice()).isEqualTo("50000");
         assertThat(receive.getItemList().get(1).getItem().getPrice()).isEqualTo("100000");
         assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("200000"));
