@@ -114,11 +114,12 @@ class OrderServiceTest {
             + OrderUtil.date.getTimeMillis(getDataOrder().getCreatedAt()) + "-"
             + 1;
     private OrderStatus orderStatus = OrderStatus.ORDER_RECEIVED;
+    private BigDecimal deliveryPrice = BigDecimal.valueOf(2500);
     private String recipient = "홍길동";
     private String address = "서울특별시 중구 세종대로 110(태평로1가)";
     private String addressDetail = "서울특별시청 103호";
     private String description = "부재시 문앞에 놓아주세요.";
-    private Long postcode = 04524L;
+    private String postcode = "04524";
 
     // OrderDetail
     private Long quantityItem = 2L;
@@ -166,7 +167,9 @@ class OrderServiceTest {
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
         assertThat(receive.getOrderNo().substring(0, 6)).isEqualTo(orderNo.substring(0, 6));
         assertThat(receive.getItemList().get(0).getItem().getPrice()).isEqualTo("50000");
-        assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("100000"));
+        assertThat(receive.getPrice()).isEqualTo(new BigDecimal("100000"));
+        assertThat(receive.getDeliveryPrice()).isEqualTo(new BigDecimal("2500"));
+        assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("102500"));
         assertThat(receive.getTotalQuantity()).isEqualTo(2L);
     }
 
@@ -215,7 +218,9 @@ class OrderServiceTest {
         assertThat(receive.getOrderNo().substring(0, 6)).isEqualTo(orderNo.substring(0, 6));
         assertThat(receive.getItemList().get(0).getItem().getPrice()).isEqualTo("50000");
         assertThat(receive.getItemList().get(1).getItem().getPrice()).isEqualTo("100000");
-        assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("200000"));
+        assertThat(receive.getPrice()).isEqualTo(new BigDecimal("200000"));
+        assertThat(receive.getDeliveryPrice()).isEqualTo(new BigDecimal("2500"));
+        assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("202500"));
         assertThat(receive.getTotalQuantity()).isEqualTo(3L);
     }
 
@@ -305,6 +310,7 @@ class OrderServiceTest {
                 .id(1L)
                 .orderNo(orderNo)
                 .orderStatus(orderStatus)
+                .deliveryPrice(deliveryPrice)
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)

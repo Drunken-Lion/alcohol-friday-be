@@ -171,7 +171,7 @@ class OrderControllerTest {
                                   "recipient" : "홍길동",
                                   "phone" : "1012345678",
                                   "address" : "서울특별시 중구 세종대로 110(태평로1가)",
-                                  "detail" : "서울특별시청 103호",
+                                  "addressDetail" : "서울특별시청 103호",
                                   "description" : "부재시 문앞에 놓아주세요.",
                                   "postcode" : "04524"
                                 }
@@ -188,7 +188,9 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.orderNo", instanceOf(String.class)))
                 .andExpect(jsonPath("$.orderStatus").value(OrderStatus.ORDER_RECEIVED.name()))
-                .andExpect(jsonPath("$.totalPrice").value(100000L))
+                .andExpect(jsonPath("$.price").value(100000L))
+                .andExpect(jsonPath("$.deliveryPrice").value(2500L))
+                .andExpect(jsonPath("$.totalPrice").value(102500L))
                 .andExpect(jsonPath("$.totalQuantity").value(2L))
                 .andExpect(jsonPath("$.itemList[0].item.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.itemList[0].item.price").value(50000L));
@@ -218,7 +220,7 @@ class OrderControllerTest {
                                   "recipient" : "홍길동",
                                   "phone" : "1012345678",
                                   "address" : "서울특별시 중구 세종대로 110(태평로1가)",
-                                  "detail" : "서울특별시청 103호",
+                                  "addressDetail" : "서울특별시청 103호",
                                   "description" : "부재시 문앞에 놓아주세요.",
                                   "postcode" : "04524"
                                 }
@@ -235,7 +237,9 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.orderNo", instanceOf(String.class)))
                 .andExpect(jsonPath("$.orderStatus").value(OrderStatus.ORDER_RECEIVED.name()))
-                .andExpect(jsonPath("$.totalPrice").value(200000L))
+                .andExpect(jsonPath("$.price").value(200000L))
+                .andExpect(jsonPath("$.deliveryPrice").value(2500L))
+                .andExpect(jsonPath("$.totalPrice").value(202500L))
                 .andExpect(jsonPath("$.totalQuantity").value(3L))
                 .andExpect(jsonPath("$.itemList[0].item.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.itemList[0].item.price").value(50000L))
@@ -263,11 +267,11 @@ class OrderControllerTest {
                                   "recipient" : "홍길동",
                                   "phone" : "1012345678",
                                   "address" : "서울특별시 중구 세종대로 110(태평로1가)",
-                                  "detail" : "서울특별시청 103호",
+                                  "addressDetail" : "서울특별시청 103호",
                                   "description" : "부재시 문앞에 놓아주세요.",
                                   "postcode" : "04524"
                                 }
-                                """.formatted(itemId))
+                                """)
                 )
                 .andDo(print());
 
