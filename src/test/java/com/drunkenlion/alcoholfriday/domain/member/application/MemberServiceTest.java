@@ -106,7 +106,7 @@ public class MemberServiceTest {
 
     private final String address = "서울시 마포구 연남동";
     private final String addressDetail = "123-12";
-    private final Long postcode = 123123L;
+    private final String postcode = "123123";
 
     private final Long reviewId = 1L;
     private final Long score = 5L;

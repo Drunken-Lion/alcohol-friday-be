@@ -186,7 +186,7 @@ public class MemberControllerTest {
                         .address("서울특별시 마포구 연남동")
                         .addressDetail("123-12")
                         .description("부재시 연락주세요.")
-                        .postcode(123123L)
+                        .postcode("123123")
                         .build());
         order.addMember(member);
 
@@ -216,7 +216,7 @@ public class MemberControllerTest {
                 .isPrimary(true)
                 .address("서울시 마포구 연남동")
                 .addressDetail("123-12번지")
-                .postcode(123123L)
+                .postcode("123123")
                 .recipient("테스트유저55")
                 .phone(1012345678L)
                 .request("부재시 문 앞")

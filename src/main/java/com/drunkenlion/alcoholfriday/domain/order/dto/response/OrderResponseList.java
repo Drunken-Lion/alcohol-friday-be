@@ -28,7 +28,13 @@ public class OrderResponseList {
     @Schema(description = "주문 날짜")
     private LocalDateTime createdAt;
 
-    @Schema(description = "주문 총 금액")
+    @Schema(description = "주문 상품 총 금액")
+    private BigDecimal price;
+
+    @Schema(description = "배송 금액")
+    private BigDecimal deliveryPrice;
+
+    @Schema(description = "배송비 포함 주문 총 금액")
     private BigDecimal totalPrice;
 
     @Schema(description = "주문 상품 총 수량")
@@ -50,7 +56,7 @@ public class OrderResponseList {
     private String description;
 
     @Schema(description = "배송지 우편번호")
-    private Long postcode;
+    private String postcode;
 
     @Schema(description = "상품 리스트")
     private List<OrderDetailResponse> itemList;
@@ -65,7 +71,9 @@ public class OrderResponseList {
                 .orderNo(order.getOrderNo())
                 .orderStatus(order.getOrderStatus())
                 .createdAt(order.getCreatedAt())
-                .totalPrice(order.getPrice())
+                .price(order.getPrice())
+                .deliveryPrice(order.getDeliveryPrice())
+                .totalPrice(order.getTotalPrice())
                 .totalQuantity(order.getTotalOrderQuantity(orderDetailList))
                 .recipient(order.getRecipient())
                 .phone(order.getPhone())

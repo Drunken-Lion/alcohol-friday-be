@@ -23,7 +23,7 @@ public class AddressResponse {
     private String addressDetail;
 
     @Schema(description = "우편번호")
-    private Long postcode;
+    private String postcode;
 
     @Schema(description = "받는 사람")
     private String recipient;

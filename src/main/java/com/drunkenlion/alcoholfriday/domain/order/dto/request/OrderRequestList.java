@@ -30,5 +30,5 @@ public class OrderRequestList {
     private String description;
 
     @Schema(description = "배송지 우편번호")
-    private Long postcode;
+    private String postcode;
 }
