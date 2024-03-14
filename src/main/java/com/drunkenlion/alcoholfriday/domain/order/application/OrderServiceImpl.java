@@ -33,7 +33,9 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseList receive(OrderRequestList orderRequestList, Member member) {
         Order order = Order.builder()
                 .orderStatus(OrderStatus.ORDER_RECEIVED)
-                .price(new BigDecimal("0"))
+                .price(BigDecimal.valueOf(0))
+                .deliveryPrice(BigDecimal.valueOf(2500))
+                .totalPrice(BigDecimal.valueOf(0))
                 .recipient(orderRequestList.getRecipient())
                 .phone(orderRequestList.getPhone())
                 .address(orderRequestList.getAddress())
@@ -53,6 +55,8 @@ public class OrderServiceImpl implements OrderService {
         savedOrder.genOrderNo(savedOrder.getId());
         // 주문 총 금액
         savedOrder.addPrice(orderDetailList);
+        // 주문 총 금액 + 배송비
+        savedOrder.addTotalPrice(savedOrder);
 
         return OrderResponseList.of(savedOrder, orderDetailList);
     }
@@ -63,10 +67,7 @@ public class OrderServiceImpl implements OrderService {
         Item item = itemRepository.findById(orderItemRequest.getItemId()).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
 
-        // Long 타입의 quantity를 BigDecimal로 변환
-        BigDecimal quantityBigDecimal = BigDecimal.valueOf(orderItemRequest.getQuantity());
-        // BigDecimal 타입의 price와 BigDecimal 타입의 quantity를 곱하기
-        BigDecimal totalItemPrice = quantityBigDecimal.multiply(item.getPrice());
+        BigDecimal totalItemPrice = getTotalItemPrice(orderItemRequest, item);
 
         OrderDetail orderDetail = OrderDetail.builder()
                 .itemPrice(item.getPrice())
@@ -77,5 +78,12 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         return orderDetailRepository.save(orderDetail);
+    }
+
+    private static BigDecimal getTotalItemPrice(OrderItemRequest orderItemRequest, Item item) {
+        // Long 타입의 quantity를 BigDecimal로 변환
+        BigDecimal quantityBigDecimal = BigDecimal.valueOf(orderItemRequest.getQuantity());
+        // BigDecimal 타입의 price와 BigDecimal 타입의 quantity를 곱하기
+        return quantityBigDecimal.multiply(item.getPrice());
     }
 }
