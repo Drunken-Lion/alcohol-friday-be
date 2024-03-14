@@ -37,7 +37,7 @@ public class Product extends BaseEntity {
     private Long quantity;
 
     @Comment("술 도수")
-    @Column(name = "alcohol", columnDefinition = "Decimal(10,2)")
+    @Column(name = "alcohol", columnDefinition = "DOUBLE")
     private Double alcohol;
 
     @Comment("제품 재료")
