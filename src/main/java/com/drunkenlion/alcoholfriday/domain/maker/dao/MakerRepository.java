@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface MakerRepository extends JpaRepository<Maker, Long> {
     Optional<Maker> findByIdAndDeletedAtIsNull(Long id);
+
+    Optional<Maker> findByName(String name);
 }

@@ -11,4 +11,6 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
     Optional<Item> findByIdAndDeletedAtIsNull(Long id);
     boolean existsByCategoryAndDeletedAtIsNull(Category category);
     boolean existsByCategoryInAndDeletedAtIsNull(List<Category> categories);
+
+    Optional<Item> findByInfo(String info);
 }

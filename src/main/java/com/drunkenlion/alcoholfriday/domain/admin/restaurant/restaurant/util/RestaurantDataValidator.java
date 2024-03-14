@@ -1,6 +1,6 @@
-package com.drunkenlion.alcoholfriday.domain.admin.restaurant.util;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;

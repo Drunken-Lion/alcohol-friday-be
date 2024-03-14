@@ -57,6 +57,7 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse testLogin(String email) {
         Member member = this.memberRepository.findByEmail(email)
                 .orElseGet(() -> {
+                    System.out.println("이거 실행되냐?");
                     Member saveMember = Member.builder()
                             .email(email)
                             .name(email.split("@")[0])
@@ -74,6 +75,8 @@ public class AuthServiceImpl implements AuthService {
                 new UsernamePasswordAuthenticationToken(
                         userPrincipal, null, userPrincipal.getAuthorities()
                 );
+
+
 
         JwtResponse jwtResponse = this.jwtTokenProvider.generateToken(authentication);
         MemberResponse memberResponse = MemberResponse.of(this.tokenService.findRefreshToken(jwtResponse.getRefreshToken()).getMember());
@@ -177,7 +180,6 @@ public class AuthServiceImpl implements AuthService {
 
         Authentication authentication = this.jwtTokenProvider.getAuthentication(requestRefreshToken, TokenType.REFRESH_TOKEN.getValue());
         this.tokenService.delete(authentication.getName());
-
         return this.jwtTokenProvider.generateToken(authentication);
     }
 }
