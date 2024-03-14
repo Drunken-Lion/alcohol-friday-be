@@ -12,12 +12,12 @@ import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.AnswerRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
-import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
+import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
@@ -42,7 +42,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.file.application.FileServiceImpl;
@@ -58,13 +57,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -1371,7 +1365,7 @@ public class NotProd {
                         .isPrimary(true)
                         .address("경기도 포천시 일동면 운악청계로 1597")
                         .addressDetail("101호")
-                        .postcode(1234L)
+                        .postcode("1234")
                         .build());
 
         Address 주소_일반회원1_2 = addressRepository.save(
@@ -1380,7 +1374,7 @@ public class NotProd {
                         .isPrimary(false)
                         .address("경기도 포천시 일동면 운악청계로 1598")
                         .addressDetail("102호")
-                        .postcode(1234L)
+                        .postcode("1234")
                         .build());
 
         Address 주소_일반회원2_1 = addressRepository.save(
@@ -1389,7 +1383,7 @@ public class NotProd {
                         .isPrimary(true)
                         .address("강원도 홍천군 남면 어두원이길 143")
                         .addressDetail("102호")
-                        .postcode(1234L)
+                        .postcode("1234")
                         .build());
 
         Address 주소_일반회원2_2 = addressRepository.save(
@@ -1398,7 +1392,7 @@ public class NotProd {
                         .isPrimary(false)
                         .address("강원도 홍천군 남면 어두원이길 143")
                         .addressDetail("102호")
-                        .postcode(1234L)
+                        .postcode("1234")
                         .build());
 
         Address 주소_일반회원3_1 = addressRepository.save(
@@ -1407,7 +1401,7 @@ public class NotProd {
                         .isPrimary(true)
                         .address("전라남도 장성군 장성읍 남양촌길 (백계리) 19")
                         .addressDetail("102호")
-                        .postcode(1234L)
+                        .postcode("1234")
                         .build());
 
         Address 주소_일반회원3_2 = addressRepository.save(
@@ -1416,7 +1410,7 @@ public class NotProd {
                         .isPrimary(false)
                         .address("전라남도 장성군 장성읍 남양촌길 (백계리) 19")
                         .addressDetail("102호")
-                        .postcode(1234L)
+                        .postcode("1234")
                         .build());
 
         Address 주소_일반회원4_1 = addressRepository.save(
@@ -1425,7 +1419,7 @@ public class NotProd {
                         .isPrimary(true)
                         .address("강원도 양구군 방산면 칠전길 12-7")
                         .addressDetail("102호")
-                        .postcode(1234L)
+                        .postcode("1234")
                         .build());
 
         Address 주소_일반회원4_2 = addressRepository.save(
@@ -1434,7 +1428,7 @@ public class NotProd {
                         .isPrimary(false)
                         .address("강원도 양구군 방산면 칠전길 12-7")
                         .addressDetail("102호")
-                        .postcode(1234L)
+                        .postcode("1234")
                         .build());
 
         Address 주소_일반회원5_1 = addressRepository.save(
@@ -1443,7 +1437,7 @@ public class NotProd {
                         .isPrimary(true)
                         .address("경상북도 의성군 단촌면 일직점곡로 755")
                         .addressDetail("102호")
-                        .postcode(1234L)
+                        .postcode("1234")
                         .build());
 
         Address 주소_일반회원5_2 = addressRepository.save(
@@ -1452,7 +1446,7 @@ public class NotProd {
                         .isPrimary(false)
                         .address("경상북도 의성군 단촌면 일직점곡로 755")
                         .addressDetail("102호")
-                        .postcode(1234L)
+                        .postcode("1234")
                         .build());
 
         // Insert Notice
@@ -2029,7 +2023,7 @@ public class NotProd {
                                 .address("서울시 마포구 연남동")
                                 .addressDetail("123-12번지")
                                 .description("부재 시 문앞에 놓아주세요.")
-                                .postcode(123123L)
+                                .postcode("123123")
                                 .member(회원_일반회원5)
                                 .build()
                 );
@@ -2047,7 +2041,7 @@ public class NotProd {
                                 .address("서울시 마포구 연남동")
                                 .addressDetail("123-12번지")
                                 .description("부재 시 문앞에 놓아주세요.")
-                                .postcode(123123L)
+                                .postcode("123123")
                                 .member(회원_일반회원5)
                                 .build()
                 );

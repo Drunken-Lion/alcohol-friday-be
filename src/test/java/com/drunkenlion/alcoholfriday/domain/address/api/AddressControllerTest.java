@@ -67,7 +67,7 @@ public class AddressControllerTest {
                 .isPrimary(true)
                 .address("서울특별시 마포구 연남동")
                 .addressDetail("123-12번지")
-                .postcode(123123L)
+                .postcode("123123")
                 .recipient("테스트유저55")
                 .phone(1012345678L)
                 .request("부재시 연락주세요.")
@@ -96,7 +96,7 @@ public class AddressControllerTest {
                                     "request" : "부재시 문 앞",
                                     "address" : "서울특별시 마포구 상암동",
                                     "detail" : "123-12번지",
-                                    "postcode" : 123123,
+                                    "postcode" : "123123",
                                     "isPrimary" : true
                                 }
                                 """)
