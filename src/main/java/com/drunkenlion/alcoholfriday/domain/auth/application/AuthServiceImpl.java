@@ -57,7 +57,6 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse testLogin(String email) {
         Member member = this.memberRepository.findByEmail(email)
                 .orElseGet(() -> {
-                    System.out.println("이거 실행되냐?");
                     Member saveMember = Member.builder()
                             .email(email)
                             .name(email.split("@")[0])
