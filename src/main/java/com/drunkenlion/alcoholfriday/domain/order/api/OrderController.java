@@ -24,7 +24,7 @@ import java.net.URI;
 public class OrderController {
     private final OrderService orderService;
 
-    @Operation(summary = "주문 접수", description = "상품 바로 주문 또는 장바구니에서 주문할 때")
+    @Operation(summary = "주문 접수", description = "결제 페이지에서 결제하기 눌렀을 때 (고객의 배송 정보가 다 입력된 상태)")
     @PostMapping
     public ResponseEntity<OrderResponseList> receive(
             @RequestBody OrderRequestList orderRequestList,
