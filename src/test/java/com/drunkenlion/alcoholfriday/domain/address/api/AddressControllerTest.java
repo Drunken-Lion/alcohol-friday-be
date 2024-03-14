@@ -113,7 +113,7 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$.isPrimary", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.addressDetail", notNullValue()))
-                .andExpect(jsonPath("$.postcode", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.postcode", instanceOf(String.class)))
                 .andExpect(jsonPath("$.recipient", notNullValue()))
                 .andExpect(jsonPath("$.phone", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.request", notNullValue()));
@@ -141,7 +141,7 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$.isPrimary", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.addressDetail", notNullValue()))
-                .andExpect(jsonPath("$.postcode", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.postcode", instanceOf(String.class)))
                 .andExpect(jsonPath("$.recipient", notNullValue()))
                 .andExpect(jsonPath("$.phone", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.request", notNullValue()));
@@ -181,7 +181,7 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$.isPrimary", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.addressDetail", notNullValue()))
-                .andExpect(jsonPath("$.postcode", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.postcode", instanceOf(String.class)))
                 .andExpect(jsonPath("$.recipient", notNullValue()))
                 .andExpect(jsonPath("$.phone", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.request", notNullValue()));
