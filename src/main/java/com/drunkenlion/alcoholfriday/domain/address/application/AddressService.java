@@ -8,7 +8,9 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 public interface AddressService {
     AddressResponse createAddress(Member member, AddressCreateRequest createRequest);
 
-    AddressResponse getAddress(Long addressId);
+    AddressResponse getAddress(Long addressId, Member member);
 
-    AddressResponse modifyAddress(Long addressId, Long memberId, AddressModifyRequest modifyRequest);
+    AddressResponse modifyAddress(Long addressId, Member member, AddressModifyRequest modifyRequest);
+
+    void deleteAddress(Long addressId, Member member);
 }
