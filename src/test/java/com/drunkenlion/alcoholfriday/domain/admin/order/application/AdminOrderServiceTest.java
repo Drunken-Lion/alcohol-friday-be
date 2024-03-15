@@ -16,6 +16,9 @@ import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
+import com.drunkenlion.alcoholfriday.domain.payment.dao.PaymentRepository;
+import com.drunkenlion.alcoholfriday.domain.payment.entity.Payment;
+import com.drunkenlion.alcoholfriday.domain.payment.enumerated.*;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
@@ -57,6 +60,8 @@ public class AdminOrderServiceTest {
     @Mock
     private OrderDetailRepository orderDetailRepository;
     @Mock
+    private PaymentRepository paymentRepository;
+    @Mock
     private ItemRepository itemRepository;
     @Mock
     private FileService fileService;
@@ -65,6 +70,8 @@ public class AdminOrderServiceTest {
     private final String orderNo = "주문_1";
     private final OrderStatus orderStatus = OrderStatus.PAYMENT_COMPLETED;
     private final BigDecimal price = BigDecimal.valueOf(20000);
+    private final BigDecimal deliveryPrice = BigDecimal.valueOf(2500);
+    private final BigDecimal totalPrice = BigDecimal.valueOf(22500);
     private final String recipient = "테스트회원5";
     private final Long phone = 1012345678L;
     private final String address = "서울시 마포구 연남동";
@@ -94,6 +101,9 @@ public class AdminOrderServiceTest {
     private final Long itemProductId = 1L;
     private final Long itemProductQuantity = 100L;
 
+    private final PaymentStatus paymentStatus = PaymentStatus.DONE;
+    private final PaymentCardCode issuerCode = PaymentCardCode.SHINHAN;
+
     private final int page = 0;
     private final int size = 20;
 
@@ -104,10 +114,10 @@ public class AdminOrderServiceTest {
     @DisplayName("주문 목록 조회 성공 - All")
     public void getAllOrdersTest() {
         // given
-        when(this.orderRepository.findAll(any(Pageable.class))).thenReturn(this.getOrders());
+        when(this.orderRepository.findOrders(any(Pageable.class), any())).thenReturn(this.getOrders());
 
         // when
-        Page<OrderListResponse> orders = this.adminOrderService.getOrders(page, size);
+        Page<OrderListResponse> orders = this.adminOrderService.getOrdersByOrderStatus(page, size, null);
 
         // then
         List<OrderListResponse> content = orders.getContent();
@@ -128,7 +138,7 @@ public class AdminOrderServiceTest {
     @DisplayName("주문 목록 조회 성공 - OrderStatus")
     public void getStatusOrdersTest() {
         // given
-        when(this.orderRepository.findAllByOrderStatus(any(Pageable.class), any())).thenReturn(this.getStatusOrders());
+        when(this.orderRepository.findOrders(any(Pageable.class), any())).thenReturn(this.getStatusOrders());
 
         // when
         Page<OrderListResponse> orders = this.adminOrderService.getOrdersByOrderStatus(page, size, OrderStatus.CANCELLED);
@@ -153,6 +163,7 @@ public class AdminOrderServiceTest {
     public void getOrderTest() {
         // given
         when(this.orderRepository.findById(any())).thenReturn(this.getOrderOne());
+        when(this.paymentRepository.findTopByOrderOrderByCreatedAtDesc(any())).thenReturn(this.getPaymentOne());
         when(this.orderDetailRepository.findByOrderAndDeletedAtIsNull(any())).thenReturn(this.getOrderDetails());
 
         // when
@@ -173,6 +184,42 @@ public class AdminOrderServiceTest {
         assertThat(orderDetailResponse.getAddressDetail()).isEqualTo(addressDetail);
         assertThat(orderDetailResponse.getPostcode()).isEqualTo(postcode);
         assertThat(orderDetailResponse.getDescription()).isEqualTo(description);
+        assertThat(orderDetailResponse.getIssuerCode()).isEqualTo(issuerCode);
+        assertThat(orderDetailResponse.getTotalPrice()).isEqualTo(totalPrice);
+        assertThat(orderDetailResponse.getPaymentStatus()).isEqualTo(paymentStatus);
+        assertThat(orderDetailResponse.getCreatedAt()).isEqualTo(createdAt);
+        assertThat(orderDetailResponse.getUpdatedAt()).isEqualTo(updatedAt);
+    }
+
+    @Test
+    @DisplayName("주문 상세 조회 성공 - Payment 값 없을 시")
+    public void getOrderNonPaymentTest() {
+        // given
+        when(this.orderRepository.findById(any())).thenReturn(this.getOrderOne());
+        when(this.paymentRepository.findTopByOrderOrderByCreatedAtDesc(any())).thenReturn(Optional.empty());
+        when(this.orderDetailRepository.findByOrderAndDeletedAtIsNull(any())).thenReturn(this.getOrderDetails());
+
+        // when
+        OrderDetailResponse orderDetailResponse = this.adminOrderService.getOrder(orderId);
+
+        // then
+        assertThat(orderDetailResponse.getId()).isEqualTo(orderId);
+        assertThat(orderDetailResponse.getOrderNo()).isEqualTo(orderNo);
+        assertThat(orderDetailResponse.getCustomerName()).isEqualTo(memberName);
+        assertThat(orderDetailResponse.getOrderStatus()).isEqualTo(orderStatus);
+        assertThat(orderDetailResponse.getOrderItems().get(0).getName()).isEqualTo(itemName);
+        assertThat(orderDetailResponse.getOrderItems().get(0).getQuantity()).isEqualTo(orderDetailQuantity);
+        assertThat(orderDetailResponse.getOrderItems().get(0).getPrice()).isEqualTo(itemPrice);
+        assertThat(orderDetailResponse.getOrderItems().get(0).getTotalPrice()).isEqualTo(itemPrice.multiply(BigDecimal.valueOf(orderDetailQuantity)));
+        assertThat(orderDetailResponse.getRecipient()).isEqualTo(recipient);
+        assertThat(orderDetailResponse.getPhone()).isEqualTo(phone);
+        assertThat(orderDetailResponse.getAddress()).isEqualTo(address);
+        assertThat(orderDetailResponse.getAddressDetail()).isEqualTo(addressDetail);
+        assertThat(orderDetailResponse.getPostcode()).isEqualTo(postcode);
+        assertThat(orderDetailResponse.getDescription()).isEqualTo(description);
+        assertThat(orderDetailResponse.getIssuerCode()).isNull();
+        assertThat(orderDetailResponse.getTotalPrice()).isNull();
+        assertThat(orderDetailResponse.getPaymentStatus()).isNull();
         assertThat(orderDetailResponse.getCreatedAt()).isEqualTo(createdAt);
         assertThat(orderDetailResponse.getUpdatedAt()).isEqualTo(updatedAt);
     }
@@ -277,6 +324,10 @@ public class AdminOrderServiceTest {
         return Optional.of(this.getOrderData());
     }
 
+    private Optional<Payment> getPaymentOne() {
+        return Optional.of(this.getPaymentData());
+    }
+
     private Maker getMakerData() {
         return Maker.builder()
                 .name("(주)국순당")
@@ -379,6 +430,8 @@ public class AdminOrderServiceTest {
                 .orderNo(orderNo)
                 .orderStatus(orderStatus)
                 .price(price)
+                .deliveryPrice(deliveryPrice)
+                .totalPrice(totalPrice)
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)
@@ -408,6 +461,8 @@ public class AdminOrderServiceTest {
                 .orderNo(orderNo)
                 .orderStatus(OrderStatus.CANCELLED)
                 .price(price)
+                .deliveryPrice(deliveryPrice)
+                .totalPrice(totalPrice)
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)
@@ -431,6 +486,28 @@ public class AdminOrderServiceTest {
                 .item(item)
                 .order(order)
                 .review(null)
+                .build();
+    }
+
+    private Payment getPaymentData() {
+        Member member = getMemberData();
+        Order order = getOrderData();
+
+        return Payment.builder()
+                .paymentNo("jPR7DvYpNk6bJXmgo01emDojZdPByA8LAnGKWx4qMl00aEwB")
+                .paymentStatus(paymentStatus)
+                .paymentMethod(PaymentMethod.CARD)
+                .paymentProvider(PaymentProvider.TOSS_PAY)
+                .paymentCardType(PaymentCardType.CHECK)
+                .paymentOwnerType(PaymentOwnerType.PERSONAL)
+                .issuerCode(issuerCode)
+                .acquirerCode(PaymentCardCode.SHINHAN)
+                .totalPrice(order.getTotalPrice())
+                .requestedAt(LocalDateTime.now())
+                .approvedAt(LocalDateTime.now())
+                .currency("KRW")
+                .order(order)
+                .member(member)
                 .build();
     }
 }

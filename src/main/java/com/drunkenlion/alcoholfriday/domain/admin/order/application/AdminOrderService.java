@@ -7,7 +7,6 @@ import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import org.springframework.data.domain.Page;
 
 public interface AdminOrderService {
-    Page<OrderListResponse> getOrders(int page, int size);
     Page<OrderListResponse> getOrdersByOrderStatus(int page, int size, OrderStatus status);
     OrderDetailResponse getOrder(Long id);
     OrderDetailResponse modifyOrder(Long id, OrderModifyRequest orderModifyRequest);
