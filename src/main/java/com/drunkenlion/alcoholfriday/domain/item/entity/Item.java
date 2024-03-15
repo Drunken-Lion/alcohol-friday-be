@@ -21,21 +21,21 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "item")
 public class Item extends BaseEntity {
-    @Column(name = "type", columnDefinition = "VARCHAR(20)")
     @Comment("상품 유형")
+    @Column(name = "type", columnDefinition = "VARCHAR(20)")
     @Enumerated(EnumType.STRING)
     private ItemType type;
 
-    @Column(name = "name", columnDefinition = "VARCHAR(200)")
     @Comment("상품 이름")
+    @Column(name = "name", columnDefinition = "VARCHAR(200)")
     private String name;
 
-    @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("상품 가격")
+    @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal price;
 
-    @Column(name = "info", columnDefinition = "MEDIUMTEXT")
     @Comment("상품 설명")
+    @Column(name = "info", columnDefinition = "MEDIUMTEXT")
     private String info;
 
     @ManyToOne(fetch = FetchType.LAZY)

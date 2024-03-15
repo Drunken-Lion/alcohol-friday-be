@@ -22,8 +22,14 @@ public class OrderResponse {
     @Schema(description = "주문 상태")
     private String orderStatus;
 
-    @Schema(description = "총 주문 금액")
-    private BigDecimal orderPrice;
+    @Schema(description = "주문 상품 총 금액")
+    private BigDecimal price;
+
+    @Schema(description = "배송 금액")
+    private BigDecimal deliveryPrice;
+
+    @Schema(description = "배송비 포함 주문 총 금액")
+    private BigDecimal totalPrice;
 
     @Schema(description = "배송받는 사람")
     private String recipient;
@@ -57,12 +63,14 @@ public class OrderResponse {
                 .id(order.getId())
                 .orderNo(order.getOrderNo())
                 .orderStatus(order.getOrderStatus().name())
-                .orderPrice(order.getPrice())
+                .price(order.getPrice())
+                .deliveryPrice(order.getDeliveryPrice())
+                .totalPrice(order.getTotalPrice())
                 .recipient(order.getRecipient())
                 .phone(order.getPhone())
                 .postcode(order.getPostcode())
                 .address(order.getAddress())
-                .addressDetail(order.getDetail())
+                .addressDetail(order.getAddressDetail())
                 .description(order.getDescription())
                 .createdAt(order.getCreatedAt())
                 .orderDetails(orderDetailResponses)

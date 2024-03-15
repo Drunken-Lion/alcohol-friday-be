@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.customerservice.dao;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.QuestionResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
 import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
@@ -11,8 +12,8 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import org.hibernate.annotations.Comment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

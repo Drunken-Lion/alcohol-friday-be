@@ -20,16 +20,16 @@ import java.math.BigDecimal;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "order_detail")
 public class OrderDetail extends BaseEntity {
-    @Column(name = "item_price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("상품 단가")
+    @Column(name = "item_price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal itemPrice;
 
-    @Column(name = "quantity", columnDefinition = "BIGINT")
     @Comment("주문 수량")
+    @Column(name = "quantity", columnDefinition = "BIGINT")
     private Long quantity;
 
-    @Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("상품의 총 금액")
+    @Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal totalPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)

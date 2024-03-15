@@ -20,56 +20,56 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product")
 public class Product extends BaseEntity {
-    @Column(name = "name", columnDefinition = "VARCHAR(50)")
     @Comment("제품 이름")
+    @Column(name = "name", columnDefinition = "VARCHAR(50)")
     private String name;
 
-    @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("제품 원가")
+    @Column(name = "price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal price;
 
-    @Column(name = "distribution_price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("유통 가격")
+    @Column(name = "distribution_price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal distributionPrice;
 
-    @Column(name = "quantity", columnDefinition = "BIGINT")
     @Comment("재고 수량")
+    @Column(name = "quantity", columnDefinition = "BIGINT")
     private Long quantity;
 
-    @Column(name = "alcohol", columnDefinition = "BIGINT")
     @Comment("술 도수")
+    @Column(name = "alcohol", columnDefinition = "BIGINT")
     private Long alcohol;
 
-    @Column(name = "ingredient", columnDefinition = "VARCHAR(1000)")
     @Comment("제품 재료")
+    @Column(name = "ingredient", columnDefinition = "VARCHAR(1000)")
     private String ingredient;
 
-    @Column(name = "sweet", columnDefinition = "BIGINT")
     @Comment("술 단맛")
+    @Column(name = "sweet", columnDefinition = "BIGINT")
     private Long sweet;
 
-    @Column(name = "sour", columnDefinition = "BIGINT")
     @Comment("술 신맛")
+    @Column(name = "sour", columnDefinition = "BIGINT")
     private Long sour;
 
-    @Column(name = "cool", columnDefinition = "BIGINT")
     @Comment("술 청량감")
+    @Column(name = "cool", columnDefinition = "BIGINT")
     private Long cool;
 
-    @Column(name = "body", columnDefinition = "BIGINT")
     @Comment("술 바디감")
+    @Column(name = "body", columnDefinition = "BIGINT")
     private Long body;
 
-    @Column(name = "balance", columnDefinition = "BIGINT")
     @Comment("술 밸런스")
+    @Column(name = "balance", columnDefinition = "BIGINT")
     private Long balance;
 
-    @Column(name = "incense", columnDefinition = "BIGINT")
     @Comment("술 향기")
+    @Column(name = "incense", columnDefinition = "BIGINT")
     private Long incense;
 
-    @Column(name = "throat", columnDefinition = "BIGINT")
     @Comment("술 목넘김")
+    @Column(name = "throat", columnDefinition = "BIGINT")
     private Long throat;
 
     @ManyToOne(fetch = FetchType.LAZY)
