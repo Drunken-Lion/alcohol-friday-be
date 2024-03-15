@@ -121,6 +121,7 @@ public class AddressControllerTest {
 
     @Test
     @DisplayName("배송지 단건 조회")
+    @WithAccount
     void getAddressTest() throws Exception {
         // given
         Address address = this.addressRepository.findAll().get(0);
@@ -185,5 +186,25 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$.recipient", notNullValue()))
                 .andExpect(jsonPath("$.phone", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.request", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("배송지 삭제")
+    @WithAccount
+    void deleteAddressTest() throws Exception {
+        // given
+        Address address = this.addressRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(delete("/v1/addresses/" + address.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(AddressController.class))
+                .andExpect(handler().methodName("deleteAddress"));
     }
 }
