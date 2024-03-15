@@ -192,8 +192,8 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.deliveryPrice").value(2500L))
                 .andExpect(jsonPath("$.totalPrice").value(102500L))
                 .andExpect(jsonPath("$.totalQuantity").value(2L))
-                .andExpect(jsonPath("$.itemList[0].item.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.itemList[0].item.price").value(50000L));
+                .andExpect(jsonPath("$.orderDetails[0].item.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.orderDetails[0].item.price").value(50000L));
     }
 
     @Test
@@ -241,10 +241,10 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.deliveryPrice").value(2500L))
                 .andExpect(jsonPath("$.totalPrice").value(202500L))
                 .andExpect(jsonPath("$.totalQuantity").value(3L))
-                .andExpect(jsonPath("$.itemList[0].item.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.itemList[0].item.price").value(50000L))
-                .andExpect(jsonPath("$.itemList[1].item.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.itemList[1].item.price").value(100000L));
+                .andExpect(jsonPath("$.orderDetails[0].item.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.orderDetails[0].item.price").value(50000L))
+                .andExpect(jsonPath("$.orderDetails[1].item.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.orderDetails[1].item.price").value(100000L));
     }
 
     @Test

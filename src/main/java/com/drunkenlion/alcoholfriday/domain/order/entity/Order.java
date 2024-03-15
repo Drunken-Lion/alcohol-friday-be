@@ -78,21 +78,28 @@ public class Order extends BaseEntity {
         member.getOrders().add(this);
     }
 
-    public void genOrderNo(Long id) {
+    public void genOrderNo() {
         // orderNo를 주문 접수할 때 만들고 클라이언트에 내려주기 (결제 요청 전)
+        StringBuilder orderNo = new StringBuilder();
+
         String date = OrderUtil.date.getDate(getCreatedAt());
         String time = OrderUtil.date.getTime();
         String timeMillis = OrderUtil.date.getTimeMillis(getCreatedAt());
 
-        this.orderNo = date + "-" + time + "-" + timeMillis + "-" + id;
+        orderNo.append(date).append("-");
+        orderNo.append(time).append("-");
+        orderNo.append(timeMillis).append("-");
+        orderNo.append(this.getId());
+
+        this.orderNo = orderNo.toString();
     }
 
     public void addPrice(List<OrderDetail> orderDetailList) {
         this.price = getTotalOrderPrice(orderDetailList);
     }
 
-    public void addTotalPrice(Order savedOrder) {
-        this.totalPrice = savedOrder.getPrice().add(savedOrder.getDeliveryPrice());
+    public void addTotalPrice() {
+        this.totalPrice = this.getPrice().add(this.getDeliveryPrice());
     }
 
     public BigDecimal getTotalOrderPrice(List<OrderDetail> orderDetailList) {

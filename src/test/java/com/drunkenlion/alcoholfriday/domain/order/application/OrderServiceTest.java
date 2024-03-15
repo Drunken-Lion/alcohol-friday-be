@@ -12,6 +12,7 @@ import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderItemRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
+import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
@@ -109,6 +110,7 @@ class OrderServiceTest {
     private final int size = 20;
 
     // Order
+    private final Long orderId = 1L;
     private String orderNo = OrderUtil.date.getDate(getDataOrder().getCreatedAt()) + "-"
             + OrderUtil.date.getTime() + "-"
             + OrderUtil.date.getTimeMillis(getDataOrder().getCreatedAt()) + "-"
@@ -122,7 +124,9 @@ class OrderServiceTest {
     private String postcode = "04524";
 
     // OrderDetail
+    private final Long orderDetailId = 1L;
     private Long quantityItem = 2L;
+    private final Long orderDetailId2 = 2L;
     private Long quantityItem2 = 1L;
 
 
@@ -163,14 +167,20 @@ class OrderServiceTest {
         OrderResponseList receive = this.orderService.receive(orderRequestList, getDataMember());
 
         // then
+        List<OrderDetailResponse> orderDetails = receive.getOrderDetails();
+
         assertThat(receive.getRecipient()).isEqualTo(recipient);
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
         assertThat(receive.getOrderNo().substring(0, 6)).isEqualTo(orderNo.substring(0, 6));
-        assertThat(receive.getItemList().get(0).getItem().getPrice()).isEqualTo("50000");
         assertThat(receive.getPrice()).isEqualTo(new BigDecimal("100000"));
         assertThat(receive.getDeliveryPrice()).isEqualTo(new BigDecimal("2500"));
         assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("102500"));
         assertThat(receive.getTotalQuantity()).isEqualTo(2L);
+
+        assertThat(orderDetails).isInstanceOf(List.class);
+        assertThat(orderDetails.size()).isEqualTo(1);
+        assertThat(orderDetails.get(0).getItem().getId()).isEqualTo(itemId1);
+        assertThat(orderDetails.get(0).getItem().getPrice()).isEqualTo("50000");
     }
 
     @Test
@@ -213,15 +223,22 @@ class OrderServiceTest {
         OrderResponseList receive = this.orderService.receive(orderRequestList, getDataMember());
 
         // then
+        List<OrderDetailResponse> orderDetails = receive.getOrderDetails();
+
         assertThat(receive.getRecipient()).isEqualTo(recipient);
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
         assertThat(receive.getOrderNo().substring(0, 6)).isEqualTo(orderNo.substring(0, 6));
-        assertThat(receive.getItemList().get(0).getItem().getPrice()).isEqualTo("50000");
-        assertThat(receive.getItemList().get(1).getItem().getPrice()).isEqualTo("100000");
         assertThat(receive.getPrice()).isEqualTo(new BigDecimal("200000"));
         assertThat(receive.getDeliveryPrice()).isEqualTo(new BigDecimal("2500"));
         assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("202500"));
         assertThat(receive.getTotalQuantity()).isEqualTo(3L);
+
+        assertThat(orderDetails).isInstanceOf(List.class);
+        assertThat(orderDetails.size()).isEqualTo(2);
+        assertThat(orderDetails.get(0).getItem().getId()).isEqualTo(itemId1);
+        assertThat(orderDetails.get(0).getItem().getPrice()).isEqualTo("50000");
+        assertThat(orderDetails.get(1).getItem().getId()).isEqualTo(itemId2);
+        assertThat(orderDetails.get(1).getItem().getPrice()).isEqualTo("100000");
     }
 
     @Test
@@ -273,13 +290,18 @@ class OrderServiceTest {
     BigDecimal totalItemPrice = quantityBigDecimal.multiply(price);
 
     private OrderDetail getDataOrderDetail() {
-        return OrderDetail.builder()
+        OrderDetail orderDetail = OrderDetail.builder()
+                .id(orderDetailId)
                 .itemPrice(price)
                 .quantity(quantityItem)
                 .totalPrice(totalItemPrice)
                 .item(getDataItem())
                 .order(getDataOrder())
                 .build();
+        orderDetail.addItem(getDataItem());
+        orderDetail.addOrder(getDataOrder());
+
+        return orderDetail;
     }
 
     private Optional<OrderDetail> getOneOrderDetail2() {
@@ -292,13 +314,16 @@ class OrderServiceTest {
     BigDecimal totalItemPrice2 = quantityBigDecimal2.multiply(price2);
 
     private OrderDetail getDataOrderDetail2() {
-        return OrderDetail.builder()
+        OrderDetail orderDetail = OrderDetail.builder()
+                .id(orderDetailId2)
                 .itemPrice(price2)
                 .quantity(quantityItem2)
                 .totalPrice(totalItemPrice2)
-                .item(getDataItem2())
-                .order(getDataOrder())
                 .build();
+        orderDetail.addItem(this.getDataItem2());
+        orderDetail.addOrder(getDataOrder());
+
+        return orderDetail;
     }
 
     private Optional<Order> getOneOrder() {
@@ -306,8 +331,8 @@ class OrderServiceTest {
     }
 
     private Order getDataOrder() {
-        return Order.builder()
-                .id(1L)
+        Order order = Order.builder()
+                .id(orderId)
                 .orderNo(orderNo)
                 .orderStatus(orderStatus)
                 .deliveryPrice(deliveryPrice)
@@ -317,9 +342,11 @@ class OrderServiceTest {
                 .addressDetail(addressDetail)
                 .description(description)
                 .postcode(postcode)
-                .member(getDataMember())
                 .createdAt(LocalDateTime.now())
                 .build();
+        order.addMember(this.getDataMember());
+
+        return order;
     }
 
     private Optional<Member> getOneMember() {
@@ -375,6 +402,7 @@ class OrderServiceTest {
         product.addCategory(category);
 
         Item item = Item.builder()
+                .id(itemId1)
                 .name(itemName)
                 .price(price)
                 .info(info)
@@ -421,6 +449,7 @@ class OrderServiceTest {
         product.addCategory(category);
 
         Item item = Item.builder()
+                .id(itemId2)
                 .name(itemName2)
                 .price(price2)
                 .info(info2)
