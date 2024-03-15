@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.address.dto.AddressCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
 import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
+import com.drunkenlion.alcoholfriday.domain.address.util.AddressValidator;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -39,34 +40,50 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public AddressResponse getAddress(Long addressId) {
-        Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_ADDRESS)
-                        .build());
+    public AddressResponse getAddress(Long addressId, Member member) {
+        Address address = findAddress(addressId);
+
+        AddressValidator.validateAuthority(address, member);
 
         return AddressResponse.of(address);
     }
 
     @Transactional
     @Override
-    public AddressResponse modifyAddress(Long addressId, Long memberId, AddressModifyRequest modifyRequest) {
-        Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_ADDRESS)
-                        .build());
+    public AddressResponse modifyAddress(Long addressId, Member member, AddressModifyRequest modifyRequest) {
+        Address address = findAddress(addressId);
 
-        if (!address.getMember().getId().equals(memberId)) {
-            throw new BusinessException(HttpResponse.Fail.FORBIDDEN);
-        }
+        AddressValidator.validateAuthority(address, member);
 
         if (modifyRequest.getIsPrimary()) {
-            List<Address> addresses = addressRepository.findAllByMemberId(memberId);
+            List<Address> addresses = addressRepository.findAllByMemberId(member.getId());
             addresses.forEach(addr -> addr.changePrimary(false));
         }
 
         address.updateAddress(modifyRequest);
 
         return AddressResponse.of(addressRepository.save(address));
+    }
+
+    @Transactional
+    @Override
+    public void deleteAddress(Long addressId, Member member) {
+        Address address = findAddress(addressId);
+
+        AddressValidator.validateAuthority(address, member);
+
+        if (address.getIsPrimary()) {
+            addressRepository.findFirstByIdNotOrderByCreatedAtDesc(addressId)
+                    .ifPresent(addr -> addr.changePrimary(true));
+        }
+
+        addressRepository.deleteById(addressId);
+    }
+
+    private Address findAddress(Long addressId) {
+        return addressRepository.findById(addressId)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_ADDRESS)
+                        .build());
     }
 }
