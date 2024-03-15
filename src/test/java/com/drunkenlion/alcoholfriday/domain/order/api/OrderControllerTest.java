@@ -171,7 +171,11 @@ class OrderControllerTest {
                                   "recipient" : "홍길동",
                                   "phone" : "1012345678",
                                   "address" : "서울특별시 중구 세종대로 110(태평로1가)",
+<<<<<<< HEAD
                                   "addressDetail" : "서울특별시청 103호",
+=======
+                                  "detail" : "서울특별시청 103호",
+>>>>>>> 7bed094 ([af-63] test: 주문 접수 - 한 개 상품 주문 접수 Controller 테스트 완료)
                                   "description" : "부재시 문앞에 놓아주세요.",
                                   "postcode" : "04524"
                                 }
