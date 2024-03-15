@@ -1,22 +1,20 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.application;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.request.AnswerModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.request.AnswerSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.response.AdminAnswerResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.response.AdminAnswerSaveResponse;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.AnswerRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.dao.AnswerRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dao.QuestionRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
-import java.util.List;
+
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
