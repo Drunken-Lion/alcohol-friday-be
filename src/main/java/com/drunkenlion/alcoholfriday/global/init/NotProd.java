@@ -11,12 +11,12 @@ import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.AnswerRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
-import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.dao.AnswerRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;

@@ -2,7 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.member.entity;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.auth.util.ProviderTypeConverter;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.member.util.MemberRoleConverter;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;

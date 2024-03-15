@@ -2,9 +2,9 @@ package com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.appl
 
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.dto.response.AdminQuestionResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.util.AdminQuestionValidator;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dto.request.QuestionModifyRequest;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dao.QuestionRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.request.QuestionModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
