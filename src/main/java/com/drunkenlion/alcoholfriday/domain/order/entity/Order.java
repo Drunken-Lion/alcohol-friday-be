@@ -91,6 +91,10 @@ public class Order extends BaseEntity {
         this.price = getTotalOrderPrice(orderDetailList);
     }
 
+    public void addTotalPrice(Order savedOrder) {
+        this.totalPrice = savedOrder.getPrice().add(savedOrder.getDeliveryPrice());
+    }
+
     public BigDecimal getTotalOrderPrice(List<OrderDetail> orderDetailList) {
         if (orderDetailList.isEmpty()) {
             return BigDecimal.ZERO;
