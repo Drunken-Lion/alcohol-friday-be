@@ -123,7 +123,7 @@ public class AdminOrderControllerTest {
                 .name("1000억 막걸리 프리바이오")
                 .price(BigDecimal.valueOf(10000))
                 .quantity(100L)
-                .alcohol(5L)
+                .alcohol(5D)
                 .ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수")
                 .sweet(3L)
                 .sour(4L)
@@ -184,7 +184,7 @@ public class AdminOrderControllerTest {
                                 .address("서울시 마포구 연남동")
                                 .addressDetail("123-12번지")
                                 .description("부재 시 문앞에 놓아주세요.")
-                                .postcode(123123L)
+                                .postcode("123123")
                                 .member(회원_일반회원5)
                                 .build());
 

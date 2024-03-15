@@ -77,14 +77,14 @@ public class AdminOrderServiceTest {
     private final String address = "서울시 마포구 연남동";
     private final String addressDetail = "123-12번지";
     private final String description = "부재 시 문앞에 놓아주세요.";
-    private final Long postcode = 123123L;
+    private final String postcode = "123123";
 
     private final String modifyRecipient = "테스트회원5 수정";
     private final Long modifyPhone = 1011112222L;
     private final String modifyAddress = "서울시 마포구 연남동 수정";
     private final String modifyAddressDetail = "123-12번지 수정";
     private final String modifyDescription = "부재 시 문앞에 놓아주세요. 수정";
-    private final Long modifyPostcode = 111111L;
+    private final String modifyPostcode = "111111";
 
     private final Long orderDetailQuantity = 2L;
 
@@ -366,7 +366,7 @@ public class AdminOrderServiceTest {
                 .name("1000억 막걸리 프리바이오")
                 .price(BigDecimal.valueOf(10000))
                 .quantity(100L)
-                .alcohol(5L)
+                .alcohol(5D)
                 .ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수")
                 .sweet(3L)
                 .sour(4L)
