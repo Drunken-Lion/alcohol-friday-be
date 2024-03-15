@@ -1,10 +1,14 @@
 package com.drunkenlion.alcoholfriday.domain.admin.order.dto;
 
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
+import com.drunkenlion.alcoholfriday.domain.payment.entity.Payment;
+import com.drunkenlion.alcoholfriday.domain.payment.enumerated.PaymentCardCode;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
+import com.drunkenlion.alcoholfriday.domain.payment.enumerated.PaymentStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,7 +33,8 @@ public class OrderDetailResponse {
     @Schema(description = "상품 상세")
     private List<OrderItemResponse> orderItems;
 
-    // TODO: 배송비 추가 필요
+    @Schema(description = "배송비")
+    private BigDecimal deliveryPrice;
 
     @Schema(description = "배송시 받는 사람")
     private String recipient;
@@ -49,7 +54,14 @@ public class OrderDetailResponse {
     @Schema(description = "배송지 메모")
     private String description;
 
-    // TODO: 결제정보 추가 필요
+    @Schema(description = "카드 발급사")
+    private PaymentCardCode issuerCode;
+
+    @Schema(description = "결제 금액")
+    private BigDecimal totalPrice;
+
+    @Schema(description = "결제 상태")
+    private PaymentStatus paymentStatus;
 
     @Schema(description = "생성일시")
     private LocalDateTime createdAt;
@@ -60,19 +72,23 @@ public class OrderDetailResponse {
     @Schema(description = "삭제일시")
     private LocalDateTime deletedAt;
 
-    public static OrderDetailResponse of(Order order, List<OrderItemResponse> orderItems) {
+    public static OrderDetailResponse of(Order order, Payment payment, List<OrderItemResponse> orderItems) {
         return OrderDetailResponse.builder()
                 .id(order.getId())
                 .orderNo(order.getOrderNo())
                 .customerName(order.getMember().getName())
                 .orderStatus(order.getOrderStatus())
                 .orderItems(orderItems)
+                .deliveryPrice(order.getDeliveryPrice())
                 .recipient(order.getRecipient())
                 .phone(order.getPhone())
                 .address(order.getAddress())
                 .addressDetail(order.getAddressDetail())
                 .postcode(order.getPostcode())
                 .description(order.getDescription())
+                .issuerCode(payment.getIssuerCode())
+                .totalPrice(payment.getTotalPrice())
+                .paymentStatus(payment.getPaymentStatus())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .deletedAt(order.getDeletedAt())

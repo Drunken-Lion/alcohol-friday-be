@@ -8,6 +8,8 @@ import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
+import com.drunkenlion.alcoholfriday.domain.payment.dao.PaymentRepository;
+import com.drunkenlion.alcoholfriday.domain.payment.entity.Payment;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityType;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
@@ -32,20 +34,13 @@ import java.util.stream.Collectors;
 public class AdminOrderServiceImpl implements AdminOrderService {
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final PaymentRepository paymentRepository;
     private final FileService fileService;
-
-    @Override
-    public Page<OrderListResponse> getOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Order> orders = orderRepository.findAll(pageable);
-
-        return orders.map(OrderListResponse::of);
-    }
 
     @Override
     public Page<OrderListResponse> getOrdersByOrderStatus(int page, int size, OrderStatus status) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Order> orders = orderRepository.findAllByOrderStatus(pageable, status);
+        Page<Order> orders = orderRepository.findOrders(pageable, status);
 
         return orders.map(OrderListResponse::of);
     }
@@ -56,7 +51,10 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                         .response(HttpResponse.Fail.NOT_FOUND_ORDER)
                         .build());
 
-        return OrderDetailResponse.of(order, getOrderItemResponseList(order));
+        Payment payment = paymentRepository.findTopByOrderOrderByCreatedAtDesc(order)
+                .orElse(Payment.builder().build());
+
+        return OrderDetailResponse.of(order, payment, getOrderItemResponseList(order));
     }
 
     @Transactional
@@ -77,7 +75,10 @@ public class AdminOrderServiceImpl implements AdminOrderService {
 
         orderRepository.save(order);
 
-        return OrderDetailResponse.of(order, getOrderItemResponseList(order));
+        Payment payment = paymentRepository.findTopByOrderOrderByCreatedAtDesc(order)
+                .orElse(Payment.builder().build());
+
+        return OrderDetailResponse.of(order, payment, getOrderItemResponseList(order));
     }
 
     private List<OrderItemResponse> getOrderItemResponseList(Order order) {

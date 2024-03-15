@@ -18,6 +18,9 @@ import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
+import com.drunkenlion.alcoholfriday.domain.payment.dao.PaymentRepository;
+import com.drunkenlion.alcoholfriday.domain.payment.entity.Payment;
+import com.drunkenlion.alcoholfriday.domain.payment.enumerated.*;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
@@ -42,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -85,6 +89,9 @@ public class AdminOrderControllerTest {
 
     @Autowired
     private OrderDetailRepository orderDetailRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @Autowired
     private FileService fileService;
@@ -170,6 +177,8 @@ public class AdminOrderControllerTest {
                                 .orderNo("주문_1")
                                 .orderStatus(OrderStatus.PAYMENT_COMPLETED)
                                 .price(BigDecimal.valueOf(20000))
+                                .deliveryPrice(BigDecimal.valueOf(2500))
+                                .totalPrice(BigDecimal.valueOf(22500))
                                 .recipient("테스트회원5")
                                 .phone(1012345678L)
                                 .address("서울시 마포구 연남동")
@@ -188,6 +197,24 @@ public class AdminOrderControllerTest {
                         .order(주문_1)
                         .review(null)
                         .build());
+
+        Payment 결제_1 = paymentRepository.save(
+                Payment.builder()
+                        .paymentNo("jPR7DvYpNk6bJXmgo01emDojZdPByA8LAnGKWx4qMl00aEwB")
+                        .paymentStatus(PaymentStatus.DONE)
+                        .paymentMethod(PaymentMethod.CARD)
+                        .paymentProvider(PaymentProvider.TOSS_PAY)
+                        .paymentCardType(PaymentCardType.CHECK)
+                        .paymentOwnerType(PaymentOwnerType.PERSONAL)
+                        .issuerCode(PaymentCardCode.SHINHAN)
+                        .acquirerCode(PaymentCardCode.SHINHAN)
+                        .totalPrice(주문_1.getTotalPrice())
+                        .requestedAt(LocalDateTime.now())
+                        .approvedAt(LocalDateTime.now())
+                        .currency("KRW")
+                        .order(주문_1)
+                        .member(회원_일반회원5)
+                        .build());
     }
 
     @AfterEach
@@ -202,6 +229,7 @@ public class AdminOrderControllerTest {
         memberRepository.deleteAll();
         orderRepository.deleteAll();
         orderDetailRepository.deleteAll();
+        paymentRepository.deleteAll();
     }
 
     @Test
@@ -270,6 +298,9 @@ public class AdminOrderControllerTest {
                 .andExpect(jsonPath("$.addressDetail", notNullValue()))
                 .andExpect(jsonPath("$.postcode", notNullValue()))
                 .andExpect(jsonPath("$.description", notNullValue()))
+                .andExpect(jsonPath("$.issuerCode", notNullValue()))
+                .andExpect(jsonPath("$.totalPrice", notNullValue()))
+                .andExpect(jsonPath("$.paymentStatus", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
@@ -320,6 +351,9 @@ public class AdminOrderControllerTest {
                 .andExpect(jsonPath("$.addressDetail", notNullValue()))
                 .andExpect(jsonPath("$.postcode", notNullValue()))
                 .andExpect(jsonPath("$.description", notNullValue()))
+                .andExpect(jsonPath("$.issuerCode", notNullValue()))
+                .andExpect(jsonPath("$.totalPrice", notNullValue()))
+                .andExpect(jsonPath("$.paymentStatus", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
