@@ -130,7 +130,6 @@ class OrderServiceTest {
     private Long quantityItem2 = 1L;
 
 
-    // 바로 주문
     @Test
     @DisplayName("상품 한 개 주문할 경우")
     void orderReceive_oneItem() {
