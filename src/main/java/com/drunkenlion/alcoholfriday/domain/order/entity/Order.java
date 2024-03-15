@@ -62,8 +62,8 @@ public class Order extends BaseEntity {
     private String description;
 
     @Comment("배송지 우편번호")
-    @Column(name = "postcode", columnDefinition = "BIGINT")
-    private Long postcode;
+    @Column(name = "postcode", columnDefinition = "VARCHAR(50)")
+    private String postcode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))

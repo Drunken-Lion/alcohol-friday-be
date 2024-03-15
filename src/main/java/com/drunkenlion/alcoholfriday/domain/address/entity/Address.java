@@ -36,8 +36,8 @@ public class Address extends BaseEntity {
     private String addressDetail;
 
     @Comment("우편번호")
-    @Column(name = "postcode", columnDefinition = "BIGINT")
-    private Long postcode;
+    @Column(name = "postcode", columnDefinition = "VARCHAR(50)")
+    private String postcode;
 
     @Comment("받는 사람")
     @Column(name = "recipient", columnDefinition = "VARCHAR(50)")

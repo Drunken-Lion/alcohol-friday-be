@@ -50,7 +50,7 @@ public class AddressServiceTest {
     private final Long addressId = 1L;
     private final String address = "서울특별시 마포구 연남동";
     private final String addressDetail = "123-12번지";
-    private final Long postcode = 123123L;
+    private final String postcode = "123123";
     private final String recipient = "테스트";
     private final Long recipientPhone = 1012345678L;
     private final String request = "부재시 연락주세요.";
@@ -59,7 +59,7 @@ public class AddressServiceTest {
 
     private final String modifyAddress = "서울특별시 마포구 합정동";
     private final String modifyAddressDetail = "456-45번지";
-    private final Long modifyPostcode = 456456L;
+    private final String modifyPostcode = "456456";
     private final String modifyRecipient = "테스트유저456";
     private final Long modifyRecipientPhone = 1087654321L;
 

@@ -40,6 +40,14 @@ public class Restaurant extends BaseEntity {
     @Column(name = "address", columnDefinition = "VARCHAR(200)")
     private String address;
 
+    @Comment("레스토랑 상세 주소")
+    @Column(name = "address_detail", columnDefinition = "VARCHAR(200)")
+    private String addressDetail;
+
+    @Comment("우편번호")
+    @Column(name = "postcode", columnDefinition = "VARCHAR(50)")
+    private String postcode;
+
     @Comment("위도, 경도")
     @Column(name = "location", columnDefinition = "POINT")
     private Point location;
@@ -47,6 +55,14 @@ public class Restaurant extends BaseEntity {
     @Comment("가게 연락처")
     @Column(name = "contact", columnDefinition = "BIGINT")
     private Long contact;
+
+    @Comment("사업자 등록증 내 기재된 사업장명")
+    @Column(name = "businessName", columnDefinition = "VARCHAR(50)")
+    private String businessName;
+
+    @Comment("사업자 등록증 내 기재된 사업자번호")
+    @Column(name = "businessNumber", columnDefinition = "VARCHAR(50)")
+    private String businessNumber;
 
     @Type(JsonType.class)
     @Comment("메뉴")

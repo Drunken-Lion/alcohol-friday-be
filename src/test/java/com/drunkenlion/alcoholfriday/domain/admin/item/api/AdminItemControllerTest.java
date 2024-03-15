@@ -104,7 +104,7 @@ public class AdminItemControllerTest {
                 .name("1000억 막걸리 프리바이오")
                 .price(BigDecimal.valueOf(10000))
                 .quantity(100L)
-                .alcohol(5L)
+                .alcohol(5.0D)
                 .ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수")
                 .sweet(3L)
                 .sour(4L)

@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto;
 
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;

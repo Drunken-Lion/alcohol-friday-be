@@ -117,7 +117,7 @@ public class RestaurantServiceTest {
                 .name(dongdongju)
                 .price(productPrice1)
                 .quantity(quantitys)
-                .alcohol(100L)
+                .alcohol(100D)
                 .build();
 
         Product product2 = Product.builder()
@@ -125,7 +125,7 @@ public class RestaurantServiceTest {
                 .name(takju)
                 .price(productPrice2)
                 .quantity(quantitys)
-                .alcohol(100L)
+                .alcohol(100D)
                 .build();
 
         MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
