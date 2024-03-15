@@ -4573,8 +4573,7 @@ public class NotProd {
     }
 
     void initRestauranStock() {
-        restaurantStockRepository.save(
-                restaurantStockRepository.save(RestaurantStock.builder().product(productRepository.findById(1L).get()).quantity(100L).restaurant(restaurantRepository.findById(1L).get()).build()));
+        restaurantStockRepository.save(RestaurantStock.builder().product(productRepository.findById(1L).get()).quantity(100L).restaurant(restaurantRepository.findById(1L).get()).build());
         restaurantStockRepository.save(RestaurantStock.builder().product(productRepository.findById(2L).get()).quantity(100L).restaurant(restaurantRepository.findById(2L).get()).build());
         restaurantStockRepository.save(RestaurantStock.builder().product(productRepository.findById(3L).get()).quantity(100L).restaurant(restaurantRepository.findById(3L).get()).build());
         restaurantStockRepository.save(RestaurantStock.builder().product(productRepository.findById(4L).get()).quantity(100L).restaurant(restaurantRepository.findById(4L).get()).build());
