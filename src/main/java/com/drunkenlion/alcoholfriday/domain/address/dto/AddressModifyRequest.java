@@ -19,7 +19,7 @@ public class AddressModifyRequest {
     private String addressDetail;
 
     @Schema(description = "우편 번호")
-    private Long postcode;
+    private String postcode;
 
     @Schema(description = "받는 사람 연락처")
     private Long phone;

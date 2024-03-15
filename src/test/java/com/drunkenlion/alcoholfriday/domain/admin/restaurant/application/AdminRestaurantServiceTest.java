@@ -1,8 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.dto.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application.AdminRestaurantServiceImpl;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;

@@ -15,7 +15,7 @@ public class ReviewResponse {
     private Long id;
 
     @Schema(description = "별점")
-    private Long score;
+    private Double score;
 
     @Schema(description = "리뷰 내용")
     private String content;

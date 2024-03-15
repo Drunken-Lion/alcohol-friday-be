@@ -8,7 +8,9 @@ import lombok.*;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,12 +42,28 @@ public class SearchItemResponse {
     }
 
     public static SearchItemResponse of(Item item, List<NcpFileResponse> files) {
+        List<NcpFileResponse> itemFile = files.stream()
+                .map(file -> {
+                    if (file != null && Objects.equals(item.getId(), file.getEntityId())) {
+                        return file;
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        // 필터에서 null을 거르면 비어있는 files가 나와서 비어있는 files에 임의로 null 입력
+        if (itemFile.isEmpty()) {
+            itemFile = Collections.singletonList(null);
+        }
+
         return SearchItemResponse.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .price(item.getPrice())
                 .category(FindCategoryResponse.of(item.getCategory()))
-                .files(files)
+                .files(itemFile)
                 .build();
     }
 

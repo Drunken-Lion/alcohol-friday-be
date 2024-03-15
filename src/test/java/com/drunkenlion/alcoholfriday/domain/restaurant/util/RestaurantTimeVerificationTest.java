@@ -139,7 +139,7 @@ public class RestaurantTimeVerificationTest {
                 .name(dongdongju)
                 .price(productPrice1)
                 .quantity(quantitys)
-                .alcohol(100L)
+                .alcohol(100D)
                 .build();
 
         Product product2 = Product.builder()
@@ -147,7 +147,7 @@ public class RestaurantTimeVerificationTest {
                 .name(takju)
                 .price(productPrice2)
                 .quantity(quantitys)
-                .alcohol(100L)
+                .alcohol(100D)
                 .build();
 
         MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));

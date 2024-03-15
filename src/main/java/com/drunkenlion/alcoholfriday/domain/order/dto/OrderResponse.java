@@ -38,7 +38,7 @@ public class OrderResponse {
     private Long phone;
 
     @Schema(description = "배송지 우편번호")
-    private Long postcode;
+    private String postcode;
 
     @Schema(description = "배송지 주소")
     private String address;
