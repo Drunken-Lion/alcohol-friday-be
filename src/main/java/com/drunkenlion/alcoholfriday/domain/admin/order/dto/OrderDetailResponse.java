@@ -49,7 +49,7 @@ public class OrderDetailResponse {
     private String addressDetail;
 
     @Schema(description = "배송지 우편번호")
-    private Long postcode;
+    private String postcode;
 
     @Schema(description = "배송지 메모")
     private String description;
