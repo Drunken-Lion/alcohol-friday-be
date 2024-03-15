@@ -92,14 +92,14 @@ public class RestaurantControllerTest {
                 .name(dongdongju)
                 .price(BigDecimal.valueOf(0L))
                 .quantity(0L)
-                .alcohol(100L)
+                .alcohol(100D)
                 .build();
 
         Product product2 = Product.builder()
                 .name(takju)
                 .price(BigDecimal.valueOf(0L))
                 .quantity(0L)
-                .alcohol(100L)
+                .alcohol(100D)
                 .build();
 
         productRepository.save(product1);

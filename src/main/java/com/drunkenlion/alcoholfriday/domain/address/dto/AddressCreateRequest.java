@@ -27,7 +27,7 @@ public class AddressCreateRequest {
     private String detail;
 
     @Schema(description = "우편 번호")
-    private Long postcode;
+    private String postcode;
 
     @Schema(description = "대표 주소 여부")
     private Boolean isPrimary;

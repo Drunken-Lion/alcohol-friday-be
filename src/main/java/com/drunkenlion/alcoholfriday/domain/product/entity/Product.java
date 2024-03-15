@@ -37,8 +37,8 @@ public class Product extends BaseEntity {
     private Long quantity;
 
     @Comment("술 도수")
-    @Column(name = "alcohol", columnDefinition = "BIGINT")
-    private Long alcohol;
+    @Column(name = "alcohol", columnDefinition = "DOUBLE")
+    private Double alcohol;
 
     @Comment("제품 재료")
     @Column(name = "ingredient", columnDefinition = "VARCHAR(1000)")

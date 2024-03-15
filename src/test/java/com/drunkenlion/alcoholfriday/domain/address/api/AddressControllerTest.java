@@ -67,7 +67,7 @@ public class AddressControllerTest {
                 .isPrimary(true)
                 .address("서울특별시 마포구 연남동")
                 .addressDetail("123-12번지")
-                .postcode(123123L)
+                .postcode("123123")
                 .recipient("테스트유저55")
                 .phone(1012345678L)
                 .request("부재시 연락주세요.")
@@ -113,7 +113,7 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$.isPrimary", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.addressDetail", notNullValue()))
-                .andExpect(jsonPath("$.postcode", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.postcode", instanceOf(String.class)))
                 .andExpect(jsonPath("$.recipient", notNullValue()))
                 .andExpect(jsonPath("$.phone", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.request", notNullValue()));
@@ -141,7 +141,7 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$.isPrimary", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.addressDetail", notNullValue()))
-                .andExpect(jsonPath("$.postcode", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.postcode", instanceOf(String.class)))
                 .andExpect(jsonPath("$.recipient", notNullValue()))
                 .andExpect(jsonPath("$.phone", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.request", notNullValue()));
@@ -181,7 +181,7 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$.isPrimary", instanceOf(Boolean.class)))
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.addressDetail", notNullValue()))
-                .andExpect(jsonPath("$.postcode", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.postcode", instanceOf(String.class)))
                 .andExpect(jsonPath("$.recipient", notNullValue()))
                 .andExpect(jsonPath("$.phone", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.request", notNullValue()));

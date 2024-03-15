@@ -21,7 +21,7 @@ import org.hibernate.annotations.Comment;
 public class Review extends BaseEntity {
     @Comment("별점")
     @Column(name = "score", columnDefinition = "BIGINT")
-    private Long score;
+    private Double score;
 
     @Comment("리뷰 내용")
     @Column(name = "content", columnDefinition = "MEDIUMTEXT")

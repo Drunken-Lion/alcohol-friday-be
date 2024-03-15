@@ -85,7 +85,7 @@ public class AdminProductServiceTest {
     private final String name = "1000억 막걸리 프리바이오";
     private final BigDecimal price = BigDecimal.valueOf(10000);
     private final Long quantity = 1000L;
-    private final Long alcohol = 10L;
+    private final Double alcohol = 10.0D;
     private final String ingredient = "쌀(국내산), 밀(국내산), 누룩, 정제수";
     private final Long sweet = 10L;
     private final Long sour = 10L;
@@ -98,7 +98,7 @@ public class AdminProductServiceTest {
     private final String modifyName = "1000억 막걸리 프리바이오 수정";
     private final BigDecimal modifyPrice = BigDecimal.valueOf(1000);
     private final Long modifyQuantity = 100L;
-    private final Long modifyAlcohol = 1L;
+    private final Double modifyAlcohol = 1.0D;
     private final String modifyIngredient = "쌀(국내산), 밀(국내산), 누룩, 정제수 수정";
     private final Long modifySweet = 1L;
     private final Long modifySour = 1L;
