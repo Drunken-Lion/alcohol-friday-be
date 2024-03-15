@@ -176,6 +176,7 @@ public class MemberControllerTest {
 
         Order order =
                 orderRepository.save(Order.builder()
+                        .member(member)
                         .orderNo("order_no")
                         .orderStatus(OrderStatus.PAYMENT_COMPLETED)
                         .price(BigDecimal.valueOf(20000L))
@@ -188,7 +189,6 @@ public class MemberControllerTest {
                         .description("부재시 연락주세요.")
                         .postcode("123123")
                         .build());
-        order.addMember(member);
 
         OrderDetail orderDetail =
                 orderDetailRepository.save(

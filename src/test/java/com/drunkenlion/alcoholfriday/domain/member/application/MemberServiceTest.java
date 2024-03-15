@@ -360,6 +360,7 @@ public class MemberServiceTest {
         Order order =
                 Order.builder()
                         .id(orderId)
+                        .member(this.getMemberData())
                         .orderNo(orderNo)
                         .orderStatus(OrderStatus.valueOf(orderStatus))
                         .price(orderPrice)
@@ -373,7 +374,6 @@ public class MemberServiceTest {
                         .postcode(postcode)
                         .createdAt(createdAt)
                         .build();
-        order.addMember(this.getMemberData());
 
         return order;
     }
