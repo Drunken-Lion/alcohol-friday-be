@@ -59,7 +59,7 @@ public class OrderResponseList {
     private String postcode;
 
     @Schema(description = "상품 리스트")
-    private List<OrderDetailResponse> itemList;
+    private List<OrderDetailResponse> orderDetails;
 
     public static OrderResponseList of(Order order, List<OrderDetail> orderDetailList) {
         List<OrderDetailResponse> itemList = orderDetailList.stream()
@@ -81,7 +81,7 @@ public class OrderResponseList {
                 .detail(order.getAddressDetail())
                 .description(order.getDescription())
                 .postcode(order.getPostcode())
-                .itemList(itemList)
+                .orderDetails(itemList)
                 .build();
 
     }

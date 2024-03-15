@@ -10,6 +10,7 @@ import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
+import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -34,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = Order.builder()
                 .orderStatus(OrderStatus.ORDER_RECEIVED)
                 .price(BigDecimal.valueOf(0))
-                .deliveryPrice(BigDecimal.valueOf(2500))
+                .deliveryPrice(OrderUtil.orderRelated.getDeliveryPrice())
                 .totalPrice(BigDecimal.valueOf(0))
                 .recipient(orderRequestList.getRecipient())
                 .phone(orderRequestList.getPhone())
@@ -42,8 +43,8 @@ public class OrderServiceImpl implements OrderService {
                 .addressDetail(orderRequestList.getAddressDetail())
                 .description(orderRequestList.getDescription())
                 .postcode(orderRequestList.getPostcode())
-                .member(member)
                 .build();
+        order.addMember(member);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -52,11 +53,11 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
 
         // 주문 고유번호 만들기
-        savedOrder.genOrderNo(savedOrder.getId());
+        savedOrder.genOrderNo();
         // 주문 총 금액
         savedOrder.addPrice(orderDetailList);
         // 주문 총 금액 + 배송비
-        savedOrder.addTotalPrice(savedOrder);
+        savedOrder.addTotalPrice();
 
         return OrderResponseList.of(savedOrder, orderDetailList);
     }
@@ -73,9 +74,9 @@ public class OrderServiceImpl implements OrderService {
                 .itemPrice(item.getPrice())
                 .quantity(orderItemRequest.getQuantity())
                 .totalPrice(totalItemPrice)
-                .item(item)
-                .order(order)
                 .build();
+        orderDetail.addItem(item);
+        orderDetail.addOrder(order);
 
         return orderDetailRepository.save(orderDetail);
     }
