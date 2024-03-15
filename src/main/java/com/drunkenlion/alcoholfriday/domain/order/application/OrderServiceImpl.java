@@ -76,8 +76,12 @@ public class OrderServiceImpl implements OrderService {
                 .item(item)
                 .order(order)
                 .build();
+        
 
-        return orderDetailRepository.save(orderDetail);
+        OrderDetail save = orderDetailRepository.save(orderDetail);
+        save.addItemTotalPrice(totalItemPrice);
+
+        return save;
     }
 
     private static BigDecimal getTotalItemPrice(OrderItemRequest orderItemRequest, Item item) {
