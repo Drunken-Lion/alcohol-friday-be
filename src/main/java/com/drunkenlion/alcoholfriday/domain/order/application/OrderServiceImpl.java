@@ -35,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = Order.builder()
                 .orderStatus(OrderStatus.ORDER_RECEIVED)
                 .price(BigDecimal.valueOf(0))
-                .deliveryPrice(OrderUtil.orderRelated.getDeliveryPrice())
+                .deliveryPrice(OrderUtil.price.getDeliveryPrice())
                 .totalPrice(BigDecimal.valueOf(0))
                 .recipient(orderRequestList.getRecipient())
                 .phone(orderRequestList.getPhone())

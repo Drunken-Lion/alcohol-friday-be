@@ -83,6 +83,5 @@ public class OrderResponseList {
                 .postcode(order.getPostcode())
                 .orderDetails(itemList)
                 .build();
-
     }
 }

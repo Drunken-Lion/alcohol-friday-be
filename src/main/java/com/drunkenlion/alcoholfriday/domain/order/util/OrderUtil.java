@@ -26,7 +26,7 @@ public class OrderUtil {
         }
     }
 
-    public static class orderRelated {
+    public static class price {
         public static BigDecimal getDeliveryPrice() {
             return BigDecimal.valueOf(2500);
         }
