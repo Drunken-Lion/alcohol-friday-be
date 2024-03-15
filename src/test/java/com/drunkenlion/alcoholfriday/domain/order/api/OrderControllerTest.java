@@ -71,7 +71,7 @@ class OrderControllerTest {
         Product product = Product.builder()
                 .name("test data")
                 .quantity(10L)
-                .alcohol(17L)
+                .alcohol(17D)
                 .ingredient("알콜, 누룩 등등...")
                 .sweet(1L)
                 .sour(1L)
@@ -108,7 +108,7 @@ class OrderControllerTest {
         Product product2 = Product.builder()
                 .name("test data2")
                 .quantity(10L)
-                .alcohol(17L)
+                .alcohol(17D)
                 .ingredient("알콜 등등...")
                 .sweet(1L)
                 .sour(1L)
@@ -171,7 +171,11 @@ class OrderControllerTest {
                                   "recipient" : "홍길동",
                                   "phone" : "1012345678",
                                   "address" : "서울특별시 중구 세종대로 110(태평로1가)",
+<<<<<<< HEAD
                                   "addressDetail" : "서울특별시청 103호",
+=======
+                                  "detail" : "서울특별시청 103호",
+>>>>>>> 7bed094 ([af-63] test: 주문 접수 - 한 개 상품 주문 접수 Controller 테스트 완료)
                                   "description" : "부재시 문앞에 놓아주세요.",
                                   "postcode" : "04524"
                                 }
