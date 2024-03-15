@@ -42,7 +42,7 @@ public class ProductDetailResponse {
     private Long quantity;
 
     @Schema(description = "술 도수")
-    private Long alcohol;
+    private Double alcohol;
 
     @Schema(description = "제품 재료")
     private String ingredient;

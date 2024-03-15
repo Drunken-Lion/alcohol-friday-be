@@ -10,7 +10,12 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByMakerAndDeletedAtIsNull(Maker maker);
+
     Optional<Product> findByIdAndDeletedAtIsNull(Long productId);
+
     boolean existsByCategoryAndDeletedAtIsNull(Category category);
+
     boolean existsByCategoryInAndDeletedAtIsNull(List<Category> categories);
+
+    Optional<Product> findByName(String name);
 }

@@ -23,7 +23,7 @@ public class ProductResponse {
     private BigDecimal price;
 
     @Schema(description = "제품의 도수")
-    private Long alcohol;
+    private Double alcohol;
 
     @Schema(description = "레스토랑 재고 수량")
     private Long quantity;
