@@ -96,7 +96,7 @@ public class AddressControllerTest {
                                     "request" : "부재시 문 앞",
                                     "address" : "서울특별시 마포구 상암동",
                                     "detail" : "123-12번지",
-                                    "postcode" : 123123,
+                                    "postcode" : "123123",
                                     "isPrimary" : true
                                 }
                                 """)
