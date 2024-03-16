@@ -55,28 +55,6 @@ public class OrderResponse {
     @Schema(description = "주문한 상품 정보 목록")
     private List<OrderDetailResponse> orderDetails;
 
-    public static OrderResponse of(Order order) {
-        List<OrderDetailResponse> orderDetailResponses =
-                order.getOrderDetails().stream().map(OrderDetailResponse::of).toList();
-
-        return OrderResponse.builder()
-                .id(order.getId())
-                .orderNo(order.getOrderNo())
-                .orderStatus(order.getOrderStatus().name())
-                .price(order.getPrice())
-                .deliveryPrice(order.getDeliveryPrice())
-                .totalPrice(order.getTotalPrice())
-                .recipient(order.getRecipient())
-                .phone(order.getPhone())
-                .postcode(order.getPostcode())
-                .address(order.getAddress())
-                .addressDetail(order.getAddressDetail())
-                .description(order.getDescription())
-                .createdAt(order.getCreatedAt())
-                .orderDetails(orderDetailResponses)
-                .build();
-    }
-
     public static OrderResponse of(Order order, List<OrderDetailResponse> orderDetailResponses) {
         return OrderResponse.builder()
                 .id(order.getId())
