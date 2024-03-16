@@ -3,6 +3,8 @@ package com.drunkenlion.alcoholfriday.domain.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.restaurant.application.RestaurantService;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantLocationResponse;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantNearbyResponse;
+import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,5 +35,18 @@ public class RestaurantController {
     ) {
         List<RestaurantLocationResponse> restaurantSearch = restaurantService.getRestaurants( neLatitude,  neLongitude,  swLatitude,  swLongitude);
         return ResponseEntity.ok().body(restaurantSearch);
+    }
+
+    @Operation(summary = "주변 레스토랑 정보 조회")
+    @GetMapping("/nearby")
+    public ResponseEntity<PageResponse<RestaurantNearbyResponse>> getRestaurants(
+            @RequestParam(name = "userLocationLatitude") double userLocationLatitude,
+            @RequestParam(name = "userLocationLongitude")  double userLocationLongitude,
+            @RequestParam(name = "keyword") String keyword,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "5")  int size
+    ) {
+        PageResponse<RestaurantNearbyResponse> dev = PageResponse.of(restaurantService.get(userLocationLatitude, userLocationLongitude, keyword, page, size));
+        return ResponseEntity.ok().body(dev);
     }
 }

@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.restaurant.application;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantLocationResponse;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantNearbyResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
@@ -11,6 +12,8 @@ import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -52,5 +55,17 @@ public class RestaurantServiceImpl implements RestaurantService {
         getRestaurantBusinessStatus(restaurant , LocalTime.now());
 
         return restaurant;
+    }
+
+    @Override
+    public Page<RestaurantNearbyResponse> get(double userLocationLatitude, double userLocationLongitude, String keyword, int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+
+        Page<RestaurantNearbyResponse> search = restaurantRepository.getRestaurantSellingProducts(userLocationLatitude, userLocationLongitude , keyword, pageable);
+
+        if (search.isEmpty()) throw BusinessException.builder().response(HttpResponse.Fail.NOT_FOUND_RESTAURANT).build();
+
+        return search;
+
     }
 }
