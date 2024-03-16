@@ -1,7 +1,6 @@
 package com.drunkenlion.alcoholfriday.global.file.dao;
 
 import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class FileRepositoryTest {

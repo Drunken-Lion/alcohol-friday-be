@@ -5,10 +5,10 @@ import com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.req
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.response.AdminAnswerResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.response.AdminAnswerSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.util.AdminAnswerValidator;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.AnswerRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.dao.AnswerRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dao.QuestionRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;

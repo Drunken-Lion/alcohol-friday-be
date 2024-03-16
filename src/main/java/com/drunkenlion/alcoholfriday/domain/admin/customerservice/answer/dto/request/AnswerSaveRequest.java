@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.request;
 
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;

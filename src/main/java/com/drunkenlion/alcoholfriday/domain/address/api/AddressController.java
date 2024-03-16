@@ -41,8 +41,9 @@ public class AddressController {
 
     @Operation(summary = "배송지 조회", description = "회원의 배송지 단건 조회")
     @GetMapping("{id}")
-    public ResponseEntity<AddressResponse> getAddress(@PathVariable("id") Long addressId) {
-        AddressResponse addressResponse = addressService.getAddress(addressId);
+    public ResponseEntity<AddressResponse> getAddress(@PathVariable("id") Long addressId,
+                                                      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        AddressResponse addressResponse = addressService.getAddress(addressId, userPrincipal.getMember());
         return ResponseEntity.ok().body(addressResponse);
     }
 
@@ -53,8 +54,18 @@ public class AddressController {
                                                          @RequestBody AddressModifyRequest modifyRequest) {
 
         AddressResponse addressResponse = addressService.modifyAddress(
-                addressId, userPrincipal.getMember().getId(), modifyRequest);
+                addressId, userPrincipal.getMember(), modifyRequest);
 
         return ResponseEntity.ok().body(addressResponse);
+    }
+
+    @Operation(summary = "배송지 삭제", description = "회원의 배송지 삭제")
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteAddress(@PathVariable("id") Long addressId,
+                                              @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        addressService.deleteAddress(addressId, userPrincipal.getMember());
+
+        return ResponseEntity.noContent().build();
     }
 }
