@@ -43,7 +43,8 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
                 .select(order.count())
                 .from(order)
                 .leftJoin(order.member)
-                .leftJoin(order.orderDetails)
+                .leftJoin(order.orderDetails, orderDetail)
+                .leftJoin(orderDetail.item, item)
                 .where(builder);
 
         return PageableExecutionUtils.getPage(orders, pageable, total::fetchOne);
