@@ -67,7 +67,7 @@ public class MemberController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        Page<OrderResponse> pageOrders = memberService.getMyOrders(userPrincipal.getMember().getId(), page, size);
+        Page<OrderResponse> pageOrders = memberService.getMyOrders(userPrincipal.getMember(), page, size);
         PageResponse<OrderResponse> pageResponse = PageResponse.of(pageOrders);
 
         return ResponseEntity.ok().body(pageResponse);
