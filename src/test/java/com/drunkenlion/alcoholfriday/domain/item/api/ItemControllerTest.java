@@ -465,6 +465,9 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.data[0].price", notNullValue()))
                 .andExpect(jsonPath("$.data[0].category.firstName", notNullValue()))
                 .andExpect(jsonPath("$.data[0].category.lastName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].itemRating.avgItemScore", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].itemRating.totalReviewCount", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[1].itemRating", nullValue()))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
                 .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
