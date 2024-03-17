@@ -390,8 +390,8 @@ class ItemServiceTest {
                 .description(description)
                 .postcode(postcode)
                 .createdAt(LocalDateTime.now())
+                .member(getDataMember())
                 .build();
-        order.addMember(this.getDataMember());
 
         return order;
     }
