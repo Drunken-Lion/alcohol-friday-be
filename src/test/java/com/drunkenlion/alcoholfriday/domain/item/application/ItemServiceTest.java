@@ -144,6 +144,12 @@ class ItemServiceTest {
         List<String> list = new ArrayList<>();
         list.add("type");
         list.add("name");
+
+        List<Review> reviewList = new ArrayList<>();
+        reviewList.add(getDataReview());
+        reviewList.add(getDataReview2());
+        Mockito.when((this.reviewRepository.findAllByItemIdAndDeletedAtIsNull(itemId1))).thenReturn(reviewList);
+
         // when
         Page<SearchItemResponse> search = this.itemService.search(10, "탁주", list);
         // then
@@ -155,6 +161,8 @@ class ItemServiceTest {
         assertThat(content.get(0).getPrice()).isEqualTo(price);
         assertThat(content.get(0).getCategory().getFirstName()).isEqualTo(firstName);
         assertThat(content.get(0).getCategory().getLastName()).isEqualTo(lastName);
+        assertThat(content.get(0).getItemRating().getAvgItemScore()).isEqualTo(4.5);
+        assertThat(content.get(0).getItemRating().getTotalReviewCount()).isEqualTo(2);
     }
 
     @Test
