@@ -46,7 +46,6 @@ public class OrderServiceImpl implements OrderService {
                 .postcode(orderRequestList.getPostcode())
                 .member(member)
                 .build();
-//        order.addMember(member);
 
         Order savedOrder = orderRepository.save(order);
 
