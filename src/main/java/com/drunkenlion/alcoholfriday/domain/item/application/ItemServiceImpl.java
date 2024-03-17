@@ -38,7 +38,11 @@ public class ItemServiceImpl implements ItemService {
                 .map(this.fileService::findAll)
                 .toList();
 
-        return SearchItemResponse.of(search, files);
+        List<ItemRating> itemRatingList = searchItems.stream()
+                .map(this::itemRating)
+                .toList();
+
+        return SearchItemResponse.of(search, files, itemRatingList);
     }
 
     @Override
@@ -56,7 +60,7 @@ public class ItemServiceImpl implements ItemService {
         return FindItemResponse.of(item, file, itemRating);
     }
 
-    // 리뷰 평점과 리뷰 갯수 데이터
+    // 리뷰 평점과 리뷰 개수 데이터
     private ItemRating itemRating(Item item) {
         List<Review> itemTotalReview = reviewRepository.findAllByItemIdAndDeletedAtIsNull(item.getId());
 
@@ -69,6 +73,7 @@ public class ItemServiceImpl implements ItemService {
         Double averageScore = totalScore / itemTotalReview.size();
 
         return ItemRating.builder()
+                .itemId(item.getId())
                 .avgItemScore(averageScore)
                 .totalReviewCount(itemTotalReview.size())
                 .build();

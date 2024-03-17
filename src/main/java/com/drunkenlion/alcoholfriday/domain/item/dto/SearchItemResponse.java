@@ -33,15 +33,22 @@ public class SearchItemResponse {
     @Schema(description = "상품에 포함된 이미지")
     private List<NcpFileResponse> files;
 
-    public static Page<SearchItemResponse> of(Page<Item> items, List<NcpFileResponse> files) {
-        return items.map(item -> SearchItemResponse.of(item, files));
+    @Schema(description = "상품 총 평점 / 상품 리뷰 총 개수")
+    private ItemRating itemRating;
+
+    public static Page<SearchItemResponse> of(Page<Item> items, List<NcpFileResponse> files, List<ItemRating> itemRatingList) {
+        return items.map(item -> SearchItemResponse.of(item, files, itemRatingList));
     }
 
     public static Page<SearchItemResponse> of(Page<Item> items) {
         return items.map((SearchItemResponse::of));
     }
 
-    public static SearchItemResponse of(Item item, List<NcpFileResponse> files) {
+    public static SearchItemResponse of(Item item) {
+        return SearchItemResponse.of(item, Collections.singletonList(null));
+    }
+
+    public static SearchItemResponse of(Item item, List<NcpFileResponse> files, List<ItemRating> itemRatingList) {
         List<NcpFileResponse> itemFile = files.stream()
                 .map(file -> {
                     if (file != null && Objects.equals(item.getId(), file.getEntityId())) {
@@ -58,21 +65,42 @@ public class SearchItemResponse {
             itemFile = Collections.singletonList(null);
         }
 
+        ItemRating foundItemRating = getFoundItemRating(item, itemRatingList);
+
         return SearchItemResponse.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .price(item.getPrice())
                 .category(FindCategoryResponse.of(item.getCategory()))
                 .files(itemFile)
+                .itemRating(foundItemRating)
                 .build();
     }
 
-    public static SearchItemResponse of(Item item) {
+    public static SearchItemResponse of(Item item, List<ItemRating> itemRatingList) {
+        ItemRating foundItemRating = getFoundItemRating(item, itemRatingList);
+
         return SearchItemResponse.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .price(item.getPrice())
                 .category(FindCategoryResponse.of(item.getCategory()))
+                .itemRating(foundItemRating)
                 .build();
+    }
+
+    // 리뷰 평점 & 리뷰 개수
+    private static ItemRating getFoundItemRating(Item item, List<ItemRating> itemRatingList) {
+        return itemRatingList.stream()
+                .map(itemRating -> {
+                    if (itemRating != null && Objects.equals(item.getId(), itemRating.getItemId())) {
+                        return itemRating;
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 }
