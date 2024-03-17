@@ -75,16 +75,14 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
 
     @Override
     public Page<RestaurantNearbyResponse> getRestaurantSellingProducts(double userLocationLatitude, double userLocationLongitude, String keyword, Pageable pageable) {
-        BooleanExpression isMeasurement = isWithinDistance(userLocationLongitude, userLocationLatitude, 5000);
+        BooleanExpression isMeasurement = isRestaurantWithinRadius(userLocationLongitude, userLocationLatitude, 5000);
         OrderSpecifier<Double> closestStoreDistanceFromUser = getClosestStoreDistanceFromUser(userLocationLatitude, userLocationLongitude);
 
         List<RestaurantNearbyResponse> restaurants = jpaQueryFactory
                 .select(Projections.constructor(
                         RestaurantNearbyResponse.class,
                         restaurant.id,
-                        restaurant.members.id,
                         restaurant.name,
-                        restaurant.location,
                         restaurant.address,
                         product.name,
                         Expressions.numberTemplate(Double.class, "ST_Distance_Sphere(point({0}, {1}), restaurant.location)", userLocationLongitude, userLocationLatitude).as("distance")
@@ -93,9 +91,9 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                 .leftJoin(restaurant.restaurantStocks, restaurantStock)
                 .leftJoin(restaurantStock.product, product)
                 .where(isMeasurement
-                        .and(isProductName(keyword))
+                        .and(isMatchesProductName(keyword))
                         .and(isNullDeleted())
-                        .and(isNotQuantity())
+                        .and(isProductOutOfStock())
                 ).orderBy(closestStoreDistanceFromUser)
                 .fetch();
 
@@ -105,7 +103,7 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
 
         return PageableExecutionUtils.getPage(restaurants, pageable, total::fetchOne);
     }
-    public BooleanExpression isProductName(String keyword) {
+    public BooleanExpression isMatchesProductName(String keyword) {
         return !StringUtils.hasText(keyword) ? null : product.name.eq(keyword);
     }
     public OrderSpecifier<Double> getClosestStoreDistanceFromUser(double userLocationLatitude, double userLocationLongitude) {
@@ -113,13 +111,13 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                 "ST_Distance_Sphere(point({0}, {1}), restaurant.location)",
                 userLocationLongitude, userLocationLatitude).asc();
     }
-    public BooleanExpression isWithinDistance(double userLocationLongitude, double userLocationLatitude, double radius) {
+    public BooleanExpression isRestaurantWithinRadius(double userLocationLongitude, double userLocationLatitude, double radius) {
         return Expressions.booleanTemplate(
                 "ST_Distance_Sphere(point({0}, {1}), restaurant.location) <= {2}",
                 userLocationLongitude, userLocationLatitude, radius);
     }
-    public BooleanExpression isNotQuantity() {
-        return product.quantity.isNotNull().and(product.quantity.gt(0));
+    public BooleanExpression isProductOutOfStock() {
+        return product.quantity.isNull().or(product.quantity.loe(0));
     }
     public BooleanExpression isNullDeleted() {
         return restaurant.deletedAt.isNull();

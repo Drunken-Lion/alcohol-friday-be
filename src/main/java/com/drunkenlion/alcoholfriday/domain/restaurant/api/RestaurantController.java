@@ -27,7 +27,7 @@ public class RestaurantController {
 
     @Operation(summary = "모든 레스토랑 정보 조회")
     @GetMapping
-    public ResponseEntity<List<RestaurantLocationResponse>> getRestaurants(
+    public ResponseEntity<List<RestaurantLocationResponse>> getRestaurantsWithinBounds(
             @RequestParam(name = "neLatitude") double neLatitude,
             @RequestParam(name = "neLongitude")  double neLongitude,
             @RequestParam(name = "swLatitude") double swLatitude,
@@ -39,7 +39,7 @@ public class RestaurantController {
 
     @Operation(summary = "주변 레스토랑 정보 조회")
     @GetMapping("/nearby")
-    public ResponseEntity<PageResponse<RestaurantNearbyResponse>> getRestaurants(
+    public ResponseEntity<PageResponse<RestaurantNearbyResponse>> getRestaurantsWithinNearby(
             @RequestParam(name = "userLocationLatitude") double userLocationLatitude,
             @RequestParam(name = "userLocationLongitude")  double userLocationLongitude,
             @RequestParam(name = "keyword") String keyword,
