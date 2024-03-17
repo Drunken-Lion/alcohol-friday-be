@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.response;
 
-import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.CsMemberResponse;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Answer;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.response.CsMemberResponse;
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;

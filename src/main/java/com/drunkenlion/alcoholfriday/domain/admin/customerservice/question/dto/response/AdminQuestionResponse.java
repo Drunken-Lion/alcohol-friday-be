@@ -1,9 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.dto.response;
 
-import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.AnswerResponse;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dto.response.CsMemberResponse;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
-import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.dto.response.AnswerResponse;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.response.CsMemberResponse;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
