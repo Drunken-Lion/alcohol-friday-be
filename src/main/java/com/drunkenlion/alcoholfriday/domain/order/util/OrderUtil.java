@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.order.util;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -22,6 +23,12 @@ public class OrderUtil {
 
         public static String getTimeMillis(LocalDateTime createdAt) {
             return String.valueOf(createdAt).split("\\.")[1].substring(0, 6);
+        }
+    }
+
+    public static class orderRelated {
+        public static BigDecimal getDeliveryPrice() {
+            return BigDecimal.valueOf(2500);
         }
     }
 }
