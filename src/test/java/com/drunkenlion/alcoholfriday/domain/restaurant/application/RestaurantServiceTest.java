@@ -6,6 +6,7 @@ import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantLocationResponse;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantNearbyResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
@@ -13,6 +14,8 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Coordinate;
@@ -21,6 +24,10 @@ import org.locationtech.jts.geom.Point;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.math.BigDecimal;
@@ -32,8 +39,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,6 +68,24 @@ public class RestaurantServiceTest {
     private final String restaurantAddress = "우정산 서울강서 캠퍼스";
     private final String dongdongju = "동동주";
     private final String takju = "탁주";
+    private final Double distance = 370.7980969075162;
+    private final Long totalSize = 1L;
+
+    @Test
+    public void nearby() {
+        Page<RestaurantNearbyResponse> restaurant = this.getRestaurant();
+        when(restaurantRepository.getRestaurantSellingProducts(anyDouble(), anyDouble(), any(), any(Pageable.class))).thenReturn(restaurant);
+
+        Page<RestaurantNearbyResponse> restaurantSellingProducts = restaurantService.get(37.552250, 126.845024, "동동주", 0, 5);
+
+        RestaurantNearbyResponse firstResult = restaurantSellingProducts.getContent().get(0);
+        assertEquals(restaurantId, firstResult.getRestaurantId());
+        assertEquals(totalSize, restaurantSellingProducts.getTotalElements());
+        assertEquals(restaurantName, firstResult.getRestaurantName());
+        assertEquals(restaurantAddress, firstResult.getAddress());
+        assertEquals(dongdongju, firstResult.getProductName());
+        assertEquals(distance, firstResult.getDistance());
+    }
 
     @Test
     public void get() {
@@ -88,6 +113,21 @@ public class RestaurantServiceTest {
 
     private List<Restaurant> of() {
         return List.of(this.getRestaurantData());
+    }
+
+    private Page<RestaurantNearbyResponse> getRestaurant() {
+        List<Restaurant> restaurantData = List.of(this.getRestaurantData());
+
+        List<RestaurantNearbyResponse> restaurantNearbyResponses = List.of(RestaurantNearbyResponse.builder()
+                .restaurantId(restaurantData.get(0).getId())
+                .restaurantName(restaurantData.get(0).getName())
+                .address(restaurantData.get(0).getAddress())
+                .productName(restaurantData.get(0).getRestaurantStocks().get(0).getProduct().getName())
+                .distance(370.7980969075162).build());
+
+        Pageable pageable = PageRequest.of(0, 5);
+
+        return new PageImpl<>(restaurantNearbyResponses, pageable, restaurantNearbyResponses.size());
     }
 
     public Restaurant getRestaurantData() {

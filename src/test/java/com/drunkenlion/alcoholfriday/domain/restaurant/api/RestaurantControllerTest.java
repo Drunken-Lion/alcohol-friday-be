@@ -16,6 +16,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -193,8 +194,32 @@ public class RestaurantControllerTest {
         }
         return frame;
     }
+    @Test
+    @DisplayName("사용자 위치로 부터 내의 모든 레스토랑 정보 조회")
+    public void nearby() throws Exception  {
+        ResultActions getRestaurants = mvc
+                .perform(get("/v1/restaurants/nearby")
+                        .param("userLocationLatitude", "37.552250")
+                        .param("userLocationLongitude", "126.845024")
+                        .param("keyword", "동동주")
+                        .param("page", "0")
+                        .param("size", "5"))
+                .andDo(print());
+        getRestaurants
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantController.class))
+                .andExpect(handler().methodName("getRestaurantsWithinNearby"))
+                .andExpect(jsonPath("$.data[0].restaurantId", notNullValue()))
+                .andExpect(jsonPath("$.data[0].restaurantName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].address", notNullValue()))
+                .andExpect(jsonPath("$.data[0].productName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].distance", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+    }
 
     @Test
+    @DisplayName("polygon 영역 내의 모든 레스토랑 정보 조회")
     public void search() throws Exception {
 
         ResultActions resultActions = mvc.perform(get("/v1/restaurants")
@@ -207,7 +232,7 @@ public class RestaurantControllerTest {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(RestaurantController.class))
-                .andExpect(handler().methodName("getRestaurants"))
+                .andExpect(handler().methodName("getRestaurantsWithinBounds"))
                 .andExpect(jsonPath("$.[0].id", notNullValue()))
                 .andExpect(jsonPath("$.[0].memberId", notNullValue()))
                 .andExpect(jsonPath("$.[0].category", notNullValue()))

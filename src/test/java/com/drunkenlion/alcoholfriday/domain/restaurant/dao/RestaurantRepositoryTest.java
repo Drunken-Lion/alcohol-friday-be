@@ -8,6 +8,7 @@ import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.application.RestaurantService;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantLocationResponse;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantNearbyResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
@@ -21,6 +22,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,9 +59,15 @@ public class RestaurantRepositoryTest {
     private final double swLongitude = 126.8421905;
     private final double restaurantLatitude = 37.549636;
     private final double restaurantLongitude = 126.842299;
+    private final double userLocationLatitude = 37.552096;
+    private final double userLocationLongitude = 126.845166;
+    private final Integer page = 0;
+    private final Integer size = 5;
+    private final Double distance = 372.4291590383813;
     private final String restaurantName = "학식";
     private final String dongdongju = "동동주";
     private final String takju = "탁주";
+    private final Long restaurantId = 1L;
     private final String restaurantCategory = "우정산 폴리텍대학";
     private final String restaurantAddress = "우정산 서울강서 캠퍼스";
     private final BigDecimal productPrice1 = BigDecimal.valueOf(30000);
@@ -183,8 +191,6 @@ public class RestaurantRepositoryTest {
         return frame;
     }
 
-
-
     @Test
     @DisplayName("범위 내의 모든 레스토랑 정보 찾기")
     public void nearbyRestaurant() {
@@ -199,6 +205,22 @@ public class RestaurantRepositoryTest {
         assertThat(restaurants.get(0).getLongitude()).isEqualTo(restaurantLongitude);
         assertThat(restaurants.get(0).getProductResponses().get(0).getPrice()).isEqualByComparingTo(productPrice2);
         assertThat(restaurants.get(0).getProductResponses().get(1).getPrice()).isEqualByComparingTo(productPrice1);
+    }
+
+    @Test
+    @DisplayName("사용자의 위치로 부터 5km 이내의 가게 정보 조회")
+    public void get() {
+        //when
+        Page<RestaurantNearbyResponse> restaurantNearbyResponses = restaurantService.get(userLocationLatitude, userLocationLongitude, dongdongju, page, size);
+
+        List<RestaurantNearbyResponse> content = restaurantNearbyResponses.getContent();
+
+        //then
+        assertThat(content.get(0).getRestaurantId()).isEqualTo(2L);
+        assertThat(content.get(0).getAddress()).isEqualTo(restaurantAddress);
+        assertThat(content.get(0).getRestaurantName()).isEqualTo(restaurantName);
+        assertThat(content.get(0).getProductName()).isEqualTo(dongdongju);
+        assertThat(content.get(0).getDistance()).isEqualTo(distance);
     }
 
     @AfterEach
