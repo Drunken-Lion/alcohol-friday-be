@@ -322,7 +322,7 @@ class OrderControllerTest {
                 .andExpect(handler().methodName("receive"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
-//                .andExpect(jsonPath("$.orderNo", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.orderNo", instanceOf(String.class)))
                 .andExpect(jsonPath("$.orderStatus").value(OrderStatus.ORDER_RECEIVED.name()))
                 .andExpect(jsonPath("$.totalPrice").value(200000L))
                 .andExpect(jsonPath("$.totalQuantity").value(3L))
