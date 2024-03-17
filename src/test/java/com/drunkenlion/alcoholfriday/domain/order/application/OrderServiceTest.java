@@ -343,8 +343,8 @@ class OrderServiceTest {
                 .description(description)
                 .postcode(postcode)
                 .createdAt(LocalDateTime.now())
+                .member(this.getDataMember())
                 .build();
-        order.addMember(this.getDataMember());
 
         return order;
     }
