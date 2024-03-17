@@ -73,6 +73,11 @@ public class Order extends BaseEntity {
     @Builder.Default
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
+    public void addMember(Member member) {
+        this.member = member;
+        member.getOrders().add(this);
+    }
+
     public void genOrderNo(Long id) {
         // yyyy-MM-dd 형식의 DateTimeFormatter 생성
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

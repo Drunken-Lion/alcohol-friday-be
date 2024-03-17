@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.auth.util.ProviderTypeConverter;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.member.util.MemberRoleConverter;
+import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -68,4 +69,9 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member")
     @Builder.Default
     private List<Question> questions = new ArrayList<>();
+
+    @Comment("회원의 주문 내역")
+    @OneToMany(mappedBy = "member")
+    @Builder.Default
+    private List<Order> orders = new ArrayList<>();
 }
