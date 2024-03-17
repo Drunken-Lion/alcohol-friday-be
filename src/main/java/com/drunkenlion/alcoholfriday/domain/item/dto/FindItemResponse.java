@@ -38,6 +38,27 @@ public class FindItemResponse {
     @Schema(description = "상품에 포함된 파일")
     private NcpFileResponse file;
 
+    @Schema(description = "상품 총 평점 / 상품 리뷰 총 개수")
+    private ItemRating itemRating;
+
+    public static FindItemResponse of(Item item, NcpFileResponse file, ItemRating itemRating) {
+        List<FindProductResponse> list = item.getItemProducts().stream()
+                .map(ItemProduct::getProduct)
+                .map(FindProductResponse::of)
+                .toList();
+
+        return FindItemResponse.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .price(item.getPrice())
+                .info(item.getInfo())
+                .category(FindCategoryResponse.of(item.getCategory()))
+                .products(list)
+                .file(file)
+                .itemRating(itemRating)
+                .build();
+    }
+
     public static FindItemResponse of(Item item, NcpFileResponse file) {
         List<FindProductResponse> list = item.getItemProducts().stream()
                 .map(ItemProduct::getProduct)
@@ -52,6 +73,23 @@ public class FindItemResponse {
                 .category(FindCategoryResponse.of(item.getCategory()))
                 .products(list)
                 .file(file)
+                .build();
+    }
+
+    public static FindItemResponse of(Item item, ItemRating itemRating) {
+        List<FindProductResponse> list = item.getItemProducts().stream()
+                .map(ItemProduct::getProduct)
+                .map(FindProductResponse::of)
+                .toList();
+
+        return FindItemResponse.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .price(item.getPrice())
+                .info(item.getInfo())
+                .category(FindCategoryResponse.of(item.getCategory()))
+                .products(list)
+                .itemRating(itemRating)
                 .build();
     }
 
