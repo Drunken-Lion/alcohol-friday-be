@@ -93,6 +93,7 @@ class OrderControllerTest {
         ItemProduct itemProduct = ItemProduct.builder()
                 .item(item)
                 .product(product)
+                .quantity(3L)
                 .build();
         itemProduct.addItem(item);
         itemProduct.addProduct(product);
@@ -130,6 +131,7 @@ class OrderControllerTest {
         ItemProduct itemProduct2 = ItemProduct.builder()
                 .item(item2)
                 .product(product2)
+                .quantity(3L)
                 .build();
         itemProduct2.addItem(item2);
         itemProduct2.addProduct(product2);
@@ -281,5 +283,45 @@ class OrderControllerTest {
                 .andExpect(handler().handlerType(OrderController.class))
                 .andExpect(handler().methodName("receive"))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 상품입니다."));
+    }
+
+    @Test
+    @DisplayName("주문 접수 시 상품에 재고가 없을 때")
+    @WithAccount
+    void orderReceive_outOfItemStock() throws Exception {
+        // given
+        Product product = productRepository.findById(1L).get();
+        product.updateQuantity(1L);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "orderItemList": [
+                                    {
+                                      "itemId": "1",
+                                      "quantity": "2"
+                                    }
+                                  ],
+                                  "recipient" : "홍길동",
+                                  "phone" : "1012345678",
+                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
+                                  "addressDetail" : "서울특별시청 103호",
+                                  "description" : "부재시 문앞에 놓아주세요.",
+                                  "postcode" : "04524"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().is4xxClientError())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("receive"))
+                .andExpect(jsonPath("$.message").value("현재 상품에 재고가 없습니다."));
     }
 }

@@ -12,6 +12,7 @@ import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -80,28 +81,13 @@ public class OrderServiceImpl implements OrderService {
         orderDetail.addOrder(order);
 
         // 재고 줄이기
-        // 리스트로 만들어서 각각의 Product 재고 빼기
         List<ItemProduct> itemProducts = item.getItemProducts();
-
-        /*for (ItemProduct ip : itemProducts) {
-            System.out.println("ip.getProduct().getQuantity() = " + ip.getProduct().getQuantity());
-        }
         itemProducts.forEach(itemProduct -> updateProductQuantity(orderItemRequest.getQuantity(), itemProduct));
-
-        *//*for (ItemProduct itemProduct : itemProducts) {
-            System.out.println(itemProduct.getProduct().getId());
-            Product product = itemProduct.getProduct();
-            Long itemQuantity = itemProduct.getQuantity(); // item에 따른 개수
-            product.updateQuantity(orderItemRequest.getQuantity() * itemQuantity);
-        }*//*
-
-        for (ItemProduct ip : itemProducts) {
-            System.out.println("ip.getProduct().getQuantity()222 = " + ip.getProduct().getQuantity());
-        }*/
 
         return orderDetailRepository.save(orderDetail);
     }
 
+    @Override
     public BigDecimal getTotalItemPrice(OrderItemRequest orderItemRequest, Item item) {
         // Long 타입의 quantity를 BigDecimal로 변환
         BigDecimal quantityBigDecimal = BigDecimal.valueOf(orderItemRequest.getQuantity());
@@ -109,11 +95,22 @@ public class OrderServiceImpl implements OrderService {
         return quantityBigDecimal.multiply(item.getPrice());
     }
 
-    /*@Transactional
+    @Override
+    @Transactional
     public void updateProductQuantity(Long orderItemRequestQuantity, ItemProduct itemProduct) {
-        // TODO itemProduct, Product가 없을 수 있을까? 무슨 상황이든 예외는 처리해야겠지?
         Product product = itemProduct.getProduct();
+        Long productQuantity = product.getQuantity();
+
         Long itemQuantity = itemProduct.getQuantity(); // item에 따른 개수
-        product.updateQuantity(orderItemRequestQuantity * itemQuantity);
-    }*/
+        Long minusProductQuantity = orderItemRequestQuantity * itemQuantity;
+
+        // 제품의 수량이 원하는 수량 보다 적을 때
+        if (productQuantity < minusProductQuantity) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.OUT_OF_ITEM_STOCK)
+                    .build();
+        }
+
+        product.updateQuantity(productQuantity - minusProductQuantity);
+    }
 }
