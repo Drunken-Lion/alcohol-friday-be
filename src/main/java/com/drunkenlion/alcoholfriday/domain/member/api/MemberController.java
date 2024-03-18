@@ -7,9 +7,17 @@ import com.drunkenlion.alcoholfriday.domain.member.enumerated.ReviewStatus;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
+import com.drunkenlion.alcoholfriday.domain.review.application.ReviewService;
+import com.drunkenlion.alcoholfriday.domain.review.dto.request.ReviewSaveRequest;
+import com.drunkenlion.alcoholfriday.domain.review.dto.response.ReviewModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.review.dto.response.ReviewModifyResponse;
+import com.drunkenlion.alcoholfriday.domain.review.dto.response.ReviewOrderDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.review.dto.response.ReviewSaveResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import java.net.URI;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +30,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Slf4j
 @RestController
@@ -31,6 +41,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 public class MemberController {
     private final MemberService memberService;
+    private final ReviewService reviewService;
 
     @Operation(summary = "회원 정보 조회", description = "마이페이지 회원 정보 조회")
     @GetMapping("me")
@@ -80,19 +91,53 @@ public class MemberController {
         return ResponseEntity.ok().body(addressResponses);
     }
 
-    @Operation(summary = "나의 리뷰 목록", description = "내가 쓸 or 쓴 리뷰 목록")
+    @PostMapping("me/reviews")
+    @Operation(summary = "리뷰 등록")
+    public ResponseEntity<ReviewSaveResponse> saveReview(@Valid @RequestPart("request") ReviewSaveRequest request,
+                                                         @RequestPart("files") List<MultipartFile> files,
+                                                         @AuthenticationPrincipal UserPrincipal user) {
+        ReviewSaveResponse response = reviewService.saveReview(request, files, user.getMember());
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(response);
+    }
+
     @GetMapping("me/reviews")
-    public ResponseEntity<PageResponse<MemberReviewResponse<?>>> getMyReviews(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam(name = "status", defaultValue = "pending") ReviewStatus reviewStatus,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
+    @Operation(summary = "작성한 리뷰 목록", description = "내가 쓴 리뷰 목록")
+    public ResponseEntity<PageResponse<ReviewOrderDetailResponse>> getReviews(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                                              @RequestParam(name = "size", defaultValue = "10") int size,
+                                                                              @AuthenticationPrincipal UserPrincipal user) {
+        PageResponse<ReviewOrderDetailResponse> response = PageResponse.of(reviewService.getReviews(user.getMember(), page, size));
+        return ResponseEntity.ok(response);
+    }
 
-        Page<MemberReviewResponse<?>> pageReviews = memberService.getMyReviews(
-                userPrincipal.getMember().getId(), reviewStatus, page, size);
+    @GetMapping("me/reviews/unwritten")
+    @Operation(summary = "작성하지 않은 리뷰 목록")
+    public ResponseEntity<PageResponse<ReviewOrderDetailResponse>> getUnwrittenReviews(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                                                       @RequestParam(name = "size", defaultValue = "10") int size,
+                                                                                       @AuthenticationPrincipal UserPrincipal user) {
+        PageResponse<ReviewOrderDetailResponse> response = PageResponse.of(reviewService.getUnwrittenReviews(user.getMember(), page, size));
+        return ResponseEntity.ok(response);
+    }
 
-        PageResponse<MemberReviewResponse<?>> pageResponse = PageResponse.of(pageReviews);
+    @PutMapping("me/reviews/{id}")
+    @Operation(summary = "리뷰 수정")
+    public ResponseEntity<ReviewModifyResponse> updateReview(@PathVariable("id") Long id,
+                                                             @RequestPart("request") ReviewModifyRequest request,
+                                                             @RequestPart("files") List<MultipartFile> files,
+                                                             @AuthenticationPrincipal UserPrincipal user) {
+        ReviewModifyResponse response = reviewService.updateReview(id, request, user.getMember(), files);
+        return ResponseEntity.ok(response);
+    }
 
-        return ResponseEntity.ok().body(pageResponse);
+    @DeleteMapping("me/reviews/{id}")
+    @Operation(summary = "리뷰 삭제")
+    public ResponseEntity<Void> deleteReview(@PathVariable("id") Long id,
+                                             @AuthenticationPrincipal UserPrincipal user) {
+        reviewService.deleteReview(id, user.getMember());
+        return ResponseEntity.noContent().build();
     }
 }
