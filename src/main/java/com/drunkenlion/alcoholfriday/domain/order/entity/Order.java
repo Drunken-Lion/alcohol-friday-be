@@ -55,7 +55,7 @@ public class Order extends BaseEntity {
 
     @Comment("배송지 상세 주소")
     @Column(name = "address_detail", columnDefinition = "VARCHAR(200)")
-    private String addressDetail ;
+    private String addressDetail;
 
     @Comment("배송시 주의사항")
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
@@ -72,11 +72,6 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order")
     @Builder.Default
     private List<OrderDetail> orderDetails = new ArrayList<>();
-
-    public void addMember(Member member) {
-        this.member = member;
-        member.getOrders().add(this);
-    }
 
     public void genOrderNo(Long id) {
         // yyyy-MM-dd 형식의 DateTimeFormatter 생성
