@@ -24,8 +24,12 @@ import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
+import com.drunkenlion.alcoholfriday.domain.review.dto.request.ReviewSaveRequest;
+import com.drunkenlion.alcoholfriday.domain.review.dto.response.ReviewModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
+import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
+import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -36,9 +40,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -47,8 +56,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -82,6 +94,8 @@ public class MemberControllerTest {
     private AddressRepository addressRepository;
     @Autowired
     private ReviewRepository reviewRepository;
+    @Autowired
+    private FileRepository fileRepository;
 
 
     public static final String EMAIL = "test@example.com";
@@ -123,7 +137,6 @@ public class MemberControllerTest {
                         CategoryClass.builder()
                                 .firstName("식품")
                                 .build());
-
 
         Category category =
                 categoryRepository.save(
@@ -247,6 +260,7 @@ public class MemberControllerTest {
         categoryClassRepository.deleteAll();
         addressRepository.deleteAll();
         reviewRepository.deleteAll();
+        fileRepository.deleteAll();
     }
 
     @Test
@@ -270,8 +284,10 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$.nickname", notNullValue()))
                 .andExpect(jsonPath("$.provider", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.updatedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(
+                        jsonPath("$.updatedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
+                .andExpect(
+                        jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
@@ -305,7 +321,8 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$.phone", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+                .andExpect(
+                        jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
     @Test
@@ -395,54 +412,231 @@ public class MemberControllerTest {
     }
 
     @Test
-    @DisplayName("나의 작성할 리뷰 목록 조회")
+    @DisplayName("리뷰 등록")
     @WithAccount
-    void getMyPendingReviewsTest() throws Exception {
-        // when
-        ResultActions resultActions = mvc
-                .perform(get("/v1/members/me/reviews")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print());
+    public void t1() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
 
-        // then
-        resultActions
-                .andExpect(status().isOk())
+        Order order = Order.builder()
+                .orderStatus(OrderStatus.DELIVERED)
+                .member(member)
+                .build();
+        orderRepository.save(order);
+
+        Item item = Item.builder().name("테스트 상품").build();
+        itemRepository.save(item);
+
+        OrderDetail orderDetail = OrderDetail.builder().order(order).item(item).build();
+        orderDetailRepository.save(orderDetail);
+
+        ReviewSaveRequest request = ReviewSaveRequest.builder()
+                .score(4.0d)
+                .content("리뷰 저장 테스트")
+                .orderDetailId(orderDetail.getId())
+                .build();
+
+        MockMultipartFile mockRequest = JsonConvertor.mockBuild(request);
+        MockMultipartFile mockImg = JsonConvertor.getMockImg();
+
+        ResultActions actions = mvc
+                .perform(multipart("/v1/members/me/reviews")
+                        .file(mockRequest)
+                        .file(mockImg)
+                ).andDo(print());
+
+        actions
+                .andExpect(status().isCreated())
                 .andExpect(handler().handlerType(MemberController.class))
-                .andExpect(handler().methodName("getMyReviews"))
-                .andExpect(jsonPath("$.data", instanceOf(List.class)))
-                .andExpect(jsonPath("$.data.length()", is(1)))
-                .andExpect(jsonPath("$.data[0].status", notNullValue()))
-                .andExpect(jsonPath("$.data[0].response.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.data[0].response.name", notNullValue()))
-                .andExpect(jsonPath("$.data[0].response.quantity", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.data[0].response.totalPrice", instanceOf(Number.class)));
+                .andExpect(handler().methodName("saveReview"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.score", notNullValue()))
+                .andExpect(jsonPath("$.content", notNullValue()))
+                .andExpect(jsonPath("$.createdAt", notNullValue()))
+                .andExpect(jsonPath("$.member.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.member.name", notNullValue()))
+                .andExpect(jsonPath("$.member.nickname", notNullValue()))
+                .andExpect(jsonPath("$.member.email", notNullValue()))
+                .andExpect(jsonPath("$.files", notNullValue()))
+        ;
     }
 
     @Test
-    @DisplayName("나의 작성한 리뷰 목록 조회")
+    @DisplayName("리뷰 수정")
     @WithAccount
-    void getMyCompleteReviewsTest() throws Exception {
-        // when
-        ResultActions resultActions = mvc
-                .perform(get("/v1/members/me/reviews")
-                        .param("status", "complete")
-                        .contentType(MediaType.APPLICATION_JSON))
+    public void t2() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
+
+        Order order = Order.builder()
+                .orderStatus(OrderStatus.DELIVERED)
+                .member(member)
+                .build();
+        orderRepository.save(order);
+
+        Item item = Item.builder().name("테스트 상품").build();
+        itemRepository.save(item);
+
+        OrderDetail orderDetail = OrderDetail.builder().order(order).item(item).build();
+        orderDetailRepository.save(orderDetail);
+
+        Review review = Review.builder().item(item).score(4.0d).content("리뷰 저장 테스트").member(member).orderDetail(orderDetail).build();
+        reviewRepository.save(review);
+
+        ReviewModifyRequest request = ReviewModifyRequest.builder()
+                .updateScore(3.0d)
+                .updateContent("리뷰 수정 테스트")
+                .removeImageSeqList(List.of())
+                .build();
+
+        MockMultipartFile mockRequest = JsonConvertor.mockBuild(request);
+        MockMultipartFile mockImg = JsonConvertor.getMockImg();
+
+        MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart(
+                "/v1/members/me/reviews/" + review.getId());
+
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+
+        ResultActions actions = mvc
+                .perform(builder
+                        .file(mockRequest)
+                        .file(mockImg)
+                )
                 .andDo(print());
 
-        // then
-        resultActions
+        actions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(MemberController.class))
-                .andExpect(handler().methodName("getMyReviews"))
-                .andExpect(jsonPath("$.data", instanceOf(List.class)))
-                .andExpect(jsonPath("$.data.length()", is(1)))
-                .andExpect(jsonPath("$.data[0].status", notNullValue()))
-                .andExpect(jsonPath("$.data[0].response.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.data[0].response.score", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.data[0].response.content", notNullValue()))
-                .andExpect(jsonPath("$.data[0].response.productInfo.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.data[0].response.productInfo.name", notNullValue()))
-                .andExpect(jsonPath("$.data[0].response.productInfo.quantity", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.data[0].response.productInfo.totalPrice", instanceOf(Number.class)));
+                .andExpect(handler().methodName("updateReview"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.score", notNullValue()))
+                .andExpect(jsonPath("$.content", notNullValue()))
+                .andExpect(jsonPath("$.member.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.member.name", notNullValue()))
+                .andExpect(jsonPath("$.member.nickname", notNullValue()))
+                .andExpect(jsonPath("$.member.email", notNullValue()))
+                .andExpect(jsonPath("$.files", notNullValue()))
+        ;
+    }
+
+    @Test
+    @DisplayName("리뷰 삭제")
+    @WithAccount
+    public void t3() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
+
+        Order order = Order.builder()
+                .orderStatus(OrderStatus.DELIVERED)
+                .member(member)
+                .build();
+        orderRepository.save(order);
+
+        Item item = Item.builder().name("테스트 상품").build();
+        itemRepository.save(item);
+
+        OrderDetail orderDetail = OrderDetail.builder().order(order).item(item).build();
+        orderDetailRepository.save(orderDetail);
+
+        Review review = Review.builder().item(item).score(4.0d).content("리뷰 저장 테스트").member(member).orderDetail(orderDetail).build();
+        reviewRepository.save(review);
+
+
+        MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart(
+                "/v1/members/me/reviews/" + review.getId());
+
+        builder.with(new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.setMethod("DELETE");
+                return request;
+            }
+        });
+
+        ResultActions actions = mvc
+                .perform(builder)
+                .andDo(print());
+
+        actions
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("deleteReview"))
+        ;
+    }
+
+    @Test
+    @DisplayName("작성된 리뷰 조회")
+    @WithAccount
+    public void t4() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
+
+        Order order = Order.builder()
+                .orderStatus(OrderStatus.DELIVERED)
+                .member(member)
+                .build();
+        orderRepository.save(order);
+
+        Item item = Item.builder().name("테스트 상품").build();
+        itemRepository.save(item);
+
+        OrderDetail orderDetail = OrderDetail.builder().order(order).item(item).build();
+        orderDetailRepository.save(orderDetail);
+
+        Review review = Review.builder().item(item).score(4.0d).content("리뷰 저장 테스트").member(member).orderDetail(orderDetail).build();
+        reviewRepository.save(review);
+
+        ResultActions actions = mvc
+                .perform(get("/v1/members/me/reviews"))
+                .andDo(print());
+
+        actions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getReviews"))
+                .andExpect(jsonPath("$.data.[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data.[0].score", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].content", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].orderDetail.orderDetailId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data.[0].orderDetail.itemName", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].orderDetail.itemPrice", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].orderDetail.quantity", notNullValue()))
+        ;
+    }
+
+    @Test
+    @DisplayName("작성하지 않은 리뷰 조회")
+    @WithAccount
+    public void t5() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
+        Order order = Order.builder()
+                .orderStatus(OrderStatus.DELIVERED)
+                .member(member)
+                .build();
+        orderRepository.save(order);
+
+        Item item = Item.builder().name("테스트 상품").price(BigDecimal.valueOf(1000)).build();
+        itemRepository.save(item);
+
+        OrderDetail orderDetail = OrderDetail.builder().order(order).item(item).itemPrice(BigDecimal.valueOf(1000)).quantity(2L).build();
+        orderDetailRepository.save(orderDetail);
+
+        ResultActions actions = mvc
+                .perform(get("/v1/members/me/reviews/unwritten"))
+                .andDo(print());
+
+        actions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("getUnwrittenReviews"))
+                .andExpect(jsonPath("$.data.[0].orderDetailId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data.[0].itemName", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].itemPrice", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].quantity", notNullValue()))
+        ;
     }
 }
