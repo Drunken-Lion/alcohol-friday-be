@@ -64,7 +64,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
         QPayment p2 = new QPayment("p2");
 
         if (status != null) {
-            builder.and(order.orderStatus.eq(status));
+            builder.and(o.orderStatus.eq(status));
         }
 
         List<OrderListResponse> orders = jpaQueryFactory
@@ -84,8 +84,8 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
                 .fetch();
 
         JPAQuery<Long> total = jpaQueryFactory
-                .select(order.count())
-                .from(order)
+                .select(o.count())
+                .from(o)
                 .where(builder);
 
         return PageableExecutionUtils.getPage(orders, pageable, total::fetchOne);
