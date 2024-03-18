@@ -45,9 +45,27 @@ public class SecurityConfig {
                                 )
                 )
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        //관리자 - 공지사항 관리
+                        .requestMatchers("/v1/admin/notices/**")
+                        .hasRole(MemberRole.ADMIN.getRole())
+
                         // 관리자 - 회원 관리
                         .requestMatchers("/v1/admin/members/**")
                         .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.SUPER_VISOR.getRole())
+
+                        // 관리자 - 고객센터 문의사항 답변
+                        .requestMatchers(HttpMethod.POST, "/v1/admin/answers")
+                        .hasAnyRole(
+                                MemberRole.ADMIN.getRole(),
+                                MemberRole.SUPER_VISOR.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/answers/**")
+                        .hasAnyRole(
+                                MemberRole.ADMIN.getRole(),
+                                MemberRole.SUPER_VISOR.getRole())
+                        .requestMatchers(HttpMethod.DELETE, "/v1/admin/answers/**")
+                        .hasAnyRole(
+                                MemberRole.ADMIN.getRole(),
+                                MemberRole.SUPER_VISOR.getRole())
 
                         // 관리자 - 매장 관리
                         .requestMatchers(HttpMethod.POST, "/v1/admin/restaurants")
@@ -83,23 +101,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/v1/questions/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/v1/questions/**").authenticated()
 
-                        // 고객센터 - 답변
-                        .requestMatchers(HttpMethod.POST, "/v1/admin/answers")
-                        .hasAnyRole(
-                                MemberRole.ADMIN.getRole(),
-                                MemberRole.SUPER_VISOR.getRole())
-                        .requestMatchers(HttpMethod.PUT, "/v1/admin/answers/**")
-                        .hasAnyRole(
-                                MemberRole.ADMIN.getRole(),
-                                MemberRole.SUPER_VISOR.getRole())
-                        .requestMatchers(HttpMethod.DELETE, "/v1/admin/answers/**")
-                        .hasAnyRole(
-                                MemberRole.ADMIN.getRole(),
-                                MemberRole.SUPER_VISOR.getRole())
-
                         .requestMatchers("/v1/members/me/**", "/v1/addresses/**", "/v1/orders/**", "/v1/carts/**").authenticated()
 
-                        .requestMatchers(HttpMethod.GET, "/v1/restaurants", "/v1/items", "/v1/items/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/restaurants/**", "/v1/items/**", "/v1/notices/**").permitAll()
                         .requestMatchers("/v1/auth/**", "/error", "/docs").permitAll()
 
                         .anyRequest().authenticated()
