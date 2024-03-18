@@ -193,7 +193,7 @@ public class RestaurantRepositoryTest {
 
     @Test
     @DisplayName("범위 내의 모든 레스토랑 정보 찾기")
-    public void nearbyRestaurant() {
+    public void bounds() {
         //when
         List<RestaurantLocationResponse> restaurants = restaurantService.getRestaurants(neLatitude, neLongitude, swLatitude, swLongitude);
 
@@ -209,7 +209,7 @@ public class RestaurantRepositoryTest {
 
     @Test
     @DisplayName("사용자의 위치로 부터 5km 이내의 가게 정보 조회")
-    public void get() {
+    public void nearby() {
         //when
         Page<RestaurantNearbyResponse> restaurantNearbyResponses = restaurantService.get(userLocationLatitude, userLocationLongitude, dongdongju, page, size);
 

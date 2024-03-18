@@ -194,10 +194,11 @@ public class RestaurantControllerTest {
         }
         return frame;
     }
+
     @Test
     @DisplayName("사용자 위치로 부터 내의 모든 레스토랑 정보 조회")
-    public void nearby() throws Exception  {
-        ResultActions getRestaurants = mvc
+    public void nearby() throws Exception {
+        ResultActions nearby = mvc
                 .perform(get("/v1/restaurants/nearby")
                         .param("userLocationLatitude", "37.552250")
                         .param("userLocationLongitude", "126.845024")
@@ -205,7 +206,7 @@ public class RestaurantControllerTest {
                         .param("page", "0")
                         .param("size", "5"))
                 .andDo(print());
-        getRestaurants
+        nearby
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(RestaurantController.class))
                 .andExpect(handler().methodName("getRestaurantsWithinNearby"))
@@ -220,16 +221,16 @@ public class RestaurantControllerTest {
 
     @Test
     @DisplayName("polygon 영역 내의 모든 레스토랑 정보 조회")
-    public void search() throws Exception {
+    public void bounds() throws Exception {
 
-        ResultActions resultActions = mvc.perform(get("/v1/restaurants")
+        ResultActions bounds = mvc.perform(get("/v1/restaurants")
                         .param("neLatitude", String.valueOf(neLatitude))
                         .param("neLongitude", String.valueOf(neLongitude))
                         .param("swLatitude", String.valueOf(swLatitude))
                         .param("swLongitude", String.valueOf(swLongitude)))
                 .andDo(print());
 
-        resultActions
+        bounds
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(RestaurantController.class))
                 .andExpect(handler().methodName("getRestaurantsWithinBounds"))

@@ -14,8 +14,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Coordinate;
@@ -88,7 +86,7 @@ public class RestaurantServiceTest {
     }
 
     @Test
-    public void get() {
+    public void bounds() {
         List<Restaurant> restaurants = this.of();
 
         when(restaurantRepository.getRestaurant(anyDouble(), anyDouble(), anyDouble(), anyDouble())).thenReturn(restaurants);
