@@ -40,9 +40,9 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     @Override
     public Page<OrderListResponse> getOrdersByOrderStatus(int page, int size, OrderStatus status) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Order> orders = orderRepository.findOrders(pageable, status);
+        Page<OrderListResponse> orders = orderRepository.findOrderList(pageable, status);
 
-        return orders.map(OrderListResponse::of);
+        return orders;
     }
 
     public OrderDetailResponse getOrder(Long id) {

@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.order.dto;
 
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
+import com.drunkenlion.alcoholfriday.domain.payment.enumerated.PaymentCardCode;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -32,9 +33,8 @@ public class OrderListResponse {
     @Schema(description = "주문 총 금액")
     private BigDecimal price;
 
-    // TODO: 결제 플랫폼 추가 필요
-//    @Schema(description = "결제 플랫폼")
-//    private String platform;
+    @Schema(description = "카드 발급사 이름")
+    private String issuerName;
 
     @Schema(description = "생성일시")
     private LocalDateTime createdAt;
@@ -42,16 +42,15 @@ public class OrderListResponse {
     @Schema(description = "삭제여부")
     private boolean deleted;
 
-    public static OrderListResponse of(Order order) {
-        return OrderListResponse.builder()
-                .id(order.getId())
-                .orderNo(order.getOrderNo())
-                .customerName(order.getMember().getName())
-                .customerNickname(order.getMember().getNickname())
-                .orderStatus(order.getOrderStatus())
-                .price(order.getPrice())
-                .createdAt(order.getCreatedAt())
-                .deleted(order.getDeletedAt() != null)
-                .build();
+    public OrderListResponse(Order order, PaymentCardCode issuerCode) {
+        this.id = order.getId();
+        this.orderNo = order.getOrderNo();
+        this.customerName = order.getMember().getName();
+        this.customerNickname = order.getMember().getNickname();
+        this.orderStatus = order.getOrderStatus();
+        this.price = order.getPrice();
+        this.issuerName =  PaymentCardCode.ofCardName(issuerCode);
+        this.createdAt = order.getCreatedAt();
+        this.deleted = order.getDeletedAt() != null;
     }
 }

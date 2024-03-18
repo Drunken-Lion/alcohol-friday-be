@@ -114,7 +114,7 @@ public class AdminOrderServiceTest {
     @DisplayName("주문 목록 조회 성공 - All")
     public void getAllOrdersTest() {
         // given
-        when(this.orderRepository.findOrders(any(Pageable.class), any())).thenReturn(this.getOrders());
+        when(this.orderRepository.findOrderList(any(Pageable.class), any())).thenReturn(this.getOrderList());
 
         // when
         Page<OrderListResponse> orders = this.adminOrderService.getOrdersByOrderStatus(page, size, null);
@@ -130,6 +130,7 @@ public class AdminOrderServiceTest {
         assertThat(content.get(0).getCustomerNickname()).isEqualTo(memberNickname);
         assertThat(content.get(0).getOrderStatus()).isEqualTo(orderStatus);
         assertThat(content.get(0).getPrice()).isEqualTo(price);
+        assertThat(content.get(0).getIssuerName()).isEqualTo(PaymentCardCode.ofCardName(issuerCode));
         assertThat(content.get(0).getCreatedAt()).isEqualTo(createdAt);
         assertThat(content.get(0).isDeleted()).isEqualTo(false);
     }
@@ -138,7 +139,7 @@ public class AdminOrderServiceTest {
     @DisplayName("주문 목록 조회 성공 - OrderStatus")
     public void getStatusOrdersTest() {
         // given
-        when(this.orderRepository.findOrders(any(Pageable.class), any())).thenReturn(this.getStatusOrders());
+        when(this.orderRepository.findOrderList(any(Pageable.class), any())).thenReturn(this.getStatusOrderList());
 
         // when
         Page<OrderListResponse> orders = this.adminOrderService.getOrdersByOrderStatus(page, size, OrderStatus.CANCELLED);
@@ -154,6 +155,7 @@ public class AdminOrderServiceTest {
         assertThat(content.get(0).getCustomerNickname()).isEqualTo(memberNickname);
         assertThat(content.get(0).getOrderStatus()).isEqualTo(OrderStatus.CANCELLED);
         assertThat(content.get(0).getPrice()).isEqualTo(price);
+        assertThat(content.get(0).getIssuerName()).isEqualTo(PaymentCardCode.ofCardName(issuerCode));
         assertThat(content.get(0).getCreatedAt()).isEqualTo(createdAt);
         assertThat(content.get(0).isDeleted()).isEqualTo(false);
     }
@@ -304,16 +306,16 @@ public class AdminOrderServiceTest {
         assertEquals(HttpResponse.Fail.NOT_FOUND_ORDER.getMessage(), exception.getMessage());
     }
 
-    private Page<Order> getOrders() {
-        List<Order> list = List.of(this.getOrderData());
+    private Page<OrderListResponse> getOrderList() {
+        List<OrderListResponse> list = List.of(this.getOrderListData());
         Pageable pageable = PageRequest.of(page, size);
-        return new PageImpl<Order>(list, pageable, list.size());
+        return new PageImpl<OrderListResponse>(list, pageable, list.size());
     }
 
-    private Page<Order> getStatusOrders() {
-        List<Order> list = List.of(this.getCancelledOrderData());
+    private Page<OrderListResponse> getStatusOrderList() {
+        List<OrderListResponse> list = List.of(this.getCancelledOrderListData());
         Pageable pageable = PageRequest.of(page, size);
-        return new PageImpl<Order>(list, pageable, list.size());
+        return new PageImpl<OrderListResponse>(list, pageable, list.size());
     }
 
     private List<OrderDetail> getOrderDetails() {
@@ -453,28 +455,6 @@ public class AdminOrderServiceTest {
                 .build();
     }
 
-    private Order getCancelledOrderData() {
-        Member member = getMemberData();
-
-        return com.drunkenlion.alcoholfriday.domain.order.entity.Order.builder()
-                .id(orderId)
-                .orderNo(orderNo)
-                .orderStatus(OrderStatus.CANCELLED)
-                .price(price)
-                .deliveryPrice(deliveryPrice)
-                .totalPrice(totalPrice)
-                .recipient(recipient)
-                .phone(phone)
-                .address(address)
-                .addressDetail(addressDetail)
-                .description(description)
-                .postcode(postcode)
-                .member(member)
-                .createdAt(createdAt)
-                .updatedAt(updatedAt)
-                .build();
-    }
-
     private OrderDetail getOrderDetailData() {
         Order order = getOrderData();
         Item item = getItemData();
@@ -508,6 +488,34 @@ public class AdminOrderServiceTest {
                 .currency("KRW")
                 .order(order)
                 .member(member)
+                .build();
+    }
+
+    private OrderListResponse getOrderListData() {
+        return OrderListResponse.builder()
+                .id(orderId)
+                .orderNo(orderNo)
+                .customerName(memberName)
+                .customerNickname(memberNickname)
+                .orderStatus(orderStatus)
+                .price(price)
+                .issuerName(PaymentCardCode.ofCardName(issuerCode))
+                .createdAt(createdAt)
+                .deleted(false)
+                .build();
+    }
+
+    private OrderListResponse getCancelledOrderListData() {
+        return OrderListResponse.builder()
+                .id(orderId)
+                .orderNo(orderNo)
+                .customerName(memberName)
+                .customerNickname(memberNickname)
+                .orderStatus(OrderStatus.CANCELLED)
+                .price(price)
+                .issuerName(PaymentCardCode.ofCardName(issuerCode))
+                .createdAt(createdAt)
+                .deleted(false)
                 .build();
     }
 }
