@@ -100,10 +100,7 @@ public class OrderServiceImpl implements OrderService {
             System.out.println("ip.getProduct().getQuantity()222 = " + ip.getProduct().getQuantity());
         }*/
 
-        OrderDetail save = orderDetailRepository.save(orderDetail);
-        save.addItemTotalPrice(totalItemPrice);
-
-        return save;
+        return orderDetailRepository.save(orderDetail);
     }
 
     public BigDecimal getTotalItemPrice(OrderItemRequest orderItemRequest, Item item) {
