@@ -290,7 +290,8 @@ class OrderControllerTest {
     @WithAccount
     void orderReceive_outOfItemStock() throws Exception {
         // given
-        Product product = productRepository.findById(1L).get();
+        Item item = itemRepository.findByIdAndDeletedAtIsNull(itemId).get();
+        Product product = productRepository.findById(item.getItemProducts().get(0).getProduct().getId()).get();
         product.updateQuantity(1L);
 
         // when
@@ -302,7 +303,7 @@ class OrderControllerTest {
                                 {
                                   "orderItemList": [
                                     {
-                                      "itemId": "1",
+                                      "itemId": "%d",
                                       "quantity": "2"
                                     }
                                   ],
@@ -313,7 +314,7 @@ class OrderControllerTest {
                                   "description" : "부재시 문앞에 놓아주세요.",
                                   "postcode" : "04524"
                                 }
-                                """)
+                                """.formatted(itemId))
                 )
                 .andDo(print());
 
