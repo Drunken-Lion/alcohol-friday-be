@@ -61,7 +61,7 @@ class CartServiceTest {
     private final BigDecimal price = new BigDecimal(50000);
     private final String info = "이 상품은 테스트 상품입니다.";
     private final Long quantity = 10L;
-    private final Long alcohol = 17L;
+    private final Double alcohol = 17.0D;
     private final String ingredient = "알콜, 누룩 등등...";
     private final Long sweet = 10L;
     private final Long sour = 10L;
@@ -80,7 +80,7 @@ class CartServiceTest {
     private final BigDecimal price2 = new BigDecimal(100_000);
     private final String info2 = "이 상품은 테스트 상품2 입니다.";
     private final Long quantity2 = 10L;
-    private final Long alcohol2 = 17L;
+    private final Double alcohol2 = 17.0D;
     private final String ingredient2 = "알콜, 누룩 등등...";
     private final Long sweet2 = 10L;
     private final Long sour2 = 10L;
@@ -381,14 +381,14 @@ class CartServiceTest {
 
         when(cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getOneCartDetail());
 
-        doNothing().when(cartDetailRepository).deleteByIdAndCart(getDataItem().getId(), cart);
+        doNothing().when(cartDetailRepository).deleteByItemAndCart(getDataItem(), cart);
 
         // when
         cartService.deleteCartList(cartRequests, member);
 
         // then
         // 메서드 호출 여부를 검증
-        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest.getItemId(), cart);
+        verify(cartDetailRepository, times(1)).deleteByItemAndCart(item, cart);
     }
 
     @Test
@@ -428,16 +428,16 @@ class CartServiceTest {
         when(cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getOneCartDetail());
         when(cartDetailRepository.findByItemAndCart(item2, cart)).thenReturn(getOneCartDetail2());
 
-        doNothing().when(cartDetailRepository).deleteByIdAndCart(getDataItem().getId(), cart);
-        doNothing().when(cartDetailRepository).deleteByIdAndCart(getDataItem2().getId(), cart);
+        doNothing().when(cartDetailRepository).deleteByItemAndCart(getDataItem(), cart);
+        doNothing().when(cartDetailRepository).deleteByItemAndCart(getDataItem2(), cart);
 
         // when
         cartService.deleteCartList(cartRequests, member);
 
         // then
         // 메서드 호출 여부를 검증
-        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest.getItemId(), cart);
-        verify(cartDetailRepository, times(1)).deleteByIdAndCart(cartRequest2.getItemId(), cart);
+        verify(cartDetailRepository, times(1)).deleteByItemAndCart(item, cart);
+        verify(cartDetailRepository, times(1)).deleteByItemAndCart(item2, cart);
     }
 
     @Test
@@ -519,10 +519,10 @@ class CartServiceTest {
         return Member.builder()
                 .id(id)
                 .email(email)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(name)
                 .nickname(nickname)
-                .role(MemberRole.ofRole(role))
+                .role(MemberRole.byRole(role))
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)

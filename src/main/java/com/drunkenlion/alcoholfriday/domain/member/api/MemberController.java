@@ -9,6 +9,7 @@ import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListRespons
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/v1/members")
 @Tag(name = "v1-members", description = "회원 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class MemberController {
     private final MemberService memberService;
 
@@ -65,7 +67,7 @@ public class MemberController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        Page<OrderResponse> pageOrders = memberService.getMyOrders(userPrincipal.getMember().getId(), page, size);
+        Page<OrderResponse> pageOrders = memberService.getMyOrders(userPrincipal.getMember(), page, size);
         PageResponse<OrderResponse> pageResponse = PageResponse.of(pageOrders);
 
         return ResponseEntity.ok().body(pageResponse);
@@ -78,6 +80,7 @@ public class MemberController {
         return ResponseEntity.ok().body(addressResponses);
     }
 
+    @Operation(summary = "나의 리뷰 목록", description = "내가 쓸 or 쓴 리뷰 목록")
     @GetMapping("me/reviews")
     public ResponseEntity<PageResponse<MemberReviewResponse<?>>> getMyReviews(
             @AuthenticationPrincipal UserPrincipal userPrincipal,

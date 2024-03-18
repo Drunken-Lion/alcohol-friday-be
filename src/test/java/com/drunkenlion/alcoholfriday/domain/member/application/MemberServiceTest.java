@@ -4,12 +4,15 @@ import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
 import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
-import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dao.QuestionRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
-import com.drunkenlion.alcoholfriday.domain.member.dto.*;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberQuestionListResponse;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.ReviewStatus;
@@ -23,6 +26,7 @@ import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
 import com.drunkenlion.alcoholfriday.domain.review.dto.ReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +46,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -61,6 +65,9 @@ public class MemberServiceTest {
     private AddressRepository addressRepository;
     @Mock
     private ReviewRepository reviewRepository;
+    @Mock
+    private FileService fileService;
+
 
     private final Long memberId = 1L;
     private final String email = "test@example.com";
@@ -93,6 +100,8 @@ public class MemberServiceTest {
     private final String orderNo = "order_" + orderId;
     private final String orderStatus = OrderStatus.PAYMENT_COMPLETED.name();
     private final BigDecimal orderPrice = BigDecimal.valueOf(100000);
+    private final BigDecimal deliveryPrice = BigDecimal.valueOf(3000);
+    private final BigDecimal orderTotalPrice = orderPrice.add(deliveryPrice);
     private final String recipient = "테스트";
     private final Long recipientPhone = 1012345678L;
     private final String description = "부재시 연락주세요.";
@@ -104,10 +113,10 @@ public class MemberServiceTest {
 
     private final String address = "서울시 마포구 연남동";
     private final String addressDetail = "123-12";
-    private final Long postcode = 123123L;
+    private final String postcode = "123123";
 
     private final Long reviewId = 1L;
-    private final Long score = 5L;
+    private final Double score = 5D;
     private final String reviewContent = "맛있어요.";
     private final String pendingStatus = ReviewStatus.PENDING.getStatus();
     private final String completeStatus = ReviewStatus.COMPLETE.getStatus();
@@ -132,7 +141,7 @@ public class MemberServiceTest {
         Member member = Member.builder()
                 .id(memberId)
                 .nickname(memberModifyRequest.getNickname())
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .phone(memberModifyRequest.getPhone())
                 .build();
 
@@ -168,14 +177,14 @@ public class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("나의 주문내역 조회")
+    @DisplayName("나의 주문내역 조회 성공 - 이미지가 없을 경우")
     public void getMyOrdersTest() {
         // given
-        when(this.orderRepository.findByMemberIdOrderByCreatedAtDesc(any(), any(Pageable.class))).thenReturn(this.getOrders());
+        when(this.orderRepository.findMyOrderList(any(), any(Pageable.class))).thenReturn(this.getOrders());
+        when(this.fileService.findOne(any())).thenReturn(null);
 
         // when
-        Page<OrderResponse> orders = this.memberService.getMyOrders(memberId, page, size);
-
+        Page<OrderResponse> orders = this.memberService.getMyOrders(getMemberData(), page, size);
 
         // then
         List<OrderResponse> content = orders.getContent();
@@ -186,7 +195,9 @@ public class MemberServiceTest {
         assertThat(content.get(0).getId()).isEqualTo(orderId);
         assertThat(content.get(0).getOrderNo()).isEqualTo(orderNo);
         assertThat(content.get(0).getOrderStatus()).isEqualTo(orderStatus);
-        assertThat(content.get(0).getOrderPrice()).isEqualTo(orderPrice);
+        assertThat(content.get(0).getPrice()).isEqualTo(orderPrice);
+        assertThat(content.get(0).getDeliveryPrice()).isEqualTo(deliveryPrice);
+        assertThat(content.get(0).getTotalPrice()).isEqualTo(orderTotalPrice);
         assertThat(content.get(0).getRecipient()).isEqualTo(recipient);
         assertThat(content.get(0).getPhone()).isEqualTo(recipientPhone);
         assertThat(content.get(0).getPostcode()).isEqualTo(postcode);
@@ -198,8 +209,12 @@ public class MemberServiceTest {
         assertThat(orderDetails).isInstanceOf(List.class);
         assertThat(orderDetails.size()).isEqualTo(1);
         assertThat(orderDetails.get(0).getId()).isEqualTo(orderDetailId);
+        assertThat(orderDetails.get(0).getName()).isEqualTo(itemName);
         assertThat(orderDetails.get(0).getQuantity()).isEqualTo(quantity);
         assertThat(orderDetails.get(0).getTotalPrice()).isEqualTo(totalPrice);
+        assertThat(orderDetails.get(0).getFile()).isNull();
+
+        verify(fileService).findOne(any());
     }
 
     @Test
@@ -307,10 +322,10 @@ public class MemberServiceTest {
         return Member.builder()
                 .id(memberId)
                 .email(email)
-                .provider(ProviderType.ofProvider(provider))
+                .provider(ProviderType.byProviderName(provider))
                 .name(name)
                 .nickname(nickname)
-                .role(MemberRole.ofRole(role))
+                .role(MemberRole.byRole(role))
                 .phone(phone)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)
@@ -345,18 +360,20 @@ public class MemberServiceTest {
         Order order =
                 Order.builder()
                         .id(orderId)
+                        .member(this.getMemberData())
                         .orderNo(orderNo)
                         .orderStatus(OrderStatus.valueOf(orderStatus))
                         .price(orderPrice)
+                        .deliveryPrice(deliveryPrice)
+                        .totalPrice(orderTotalPrice)
                         .recipient(recipient)
                         .phone(recipientPhone)
                         .address(address)
-                        .detail(addressDetail)
+                        .addressDetail(addressDetail)
                         .description(description)
                         .postcode(postcode)
                         .createdAt(createdAt)
                         .build();
-        order.addMember(this.getMemberData());
 
         return order;
     }

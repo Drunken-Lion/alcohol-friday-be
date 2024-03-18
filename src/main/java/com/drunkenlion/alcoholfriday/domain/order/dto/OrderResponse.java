@@ -22,8 +22,14 @@ public class OrderResponse {
     @Schema(description = "주문 상태")
     private String orderStatus;
 
-    @Schema(description = "총 주문 금액")
-    private BigDecimal orderPrice;
+    @Schema(description = "주문 상품 총 금액")
+    private BigDecimal price;
+
+    @Schema(description = "배송 금액")
+    private BigDecimal deliveryPrice;
+
+    @Schema(description = "배송비 포함 주문 총 금액")
+    private BigDecimal totalPrice;
 
     @Schema(description = "배송받는 사람")
     private String recipient;
@@ -32,7 +38,7 @@ public class OrderResponse {
     private Long phone;
 
     @Schema(description = "배송지 우편번호")
-    private Long postcode;
+    private String postcode;
 
     @Schema(description = "배송지 주소")
     private String address;
@@ -49,20 +55,19 @@ public class OrderResponse {
     @Schema(description = "주문한 상품 정보 목록")
     private List<OrderDetailResponse> orderDetails;
 
-    public static OrderResponse of(Order order) {
-        List<OrderDetailResponse> orderDetailResponses =
-                order.getOrderDetails().stream().map(OrderDetailResponse::of).toList();
-
+    public static OrderResponse of(Order order, List<OrderDetailResponse> orderDetailResponses) {
         return OrderResponse.builder()
                 .id(order.getId())
                 .orderNo(order.getOrderNo())
                 .orderStatus(order.getOrderStatus().name())
-                .orderPrice(order.getPrice())
+                .price(order.getPrice())
+                .deliveryPrice(order.getDeliveryPrice())
+                .totalPrice(order.getTotalPrice())
                 .recipient(order.getRecipient())
                 .phone(order.getPhone())
                 .postcode(order.getPostcode())
                 .address(order.getAddress())
-                .addressDetail(order.getDetail())
+                .addressDetail(order.getAddressDetail())
                 .description(order.getDescription())
                 .createdAt(order.getCreatedAt())
                 .orderDetails(orderDetailResponses)

@@ -1,5 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.admin.item.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemProductInfo;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
@@ -14,6 +17,7 @@ import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
+import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
@@ -36,7 +40,6 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -101,7 +104,7 @@ public class AdminItemControllerTest {
                 .name("1000억 막걸리 프리바이오")
                 .price(BigDecimal.valueOf(10000))
                 .quantity(100L)
-                .alcohol(5L)
+                .alcohol(5.0D)
                 .ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수")
                 .sweet(3L)
                 .sour(4L)
@@ -123,8 +126,8 @@ public class AdminItemControllerTest {
                         .category(카테고리_소분류1)
                         .build());
 
-        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
-        MockMultipartFile multipartFile2 = new MockMultipartFile("files", "test2.txt", "text/plain", "test2 file".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile multipartFile1 = JsonConvertor.getMockImg("files", "test1.txt", "test1 file");
+        MockMultipartFile multipartFile2 = JsonConvertor.getMockImg("files", "test1.txt", "test1 file");
 
         fileService.saveFiles(상품_1, List.of(multipartFile1, multipartFile2));
 
@@ -216,28 +219,26 @@ public class AdminItemControllerTest {
     @WithAccount(role = MemberRole.ADMIN)
     void createItemTest() throws Exception {
         // given
-        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "create-test1.txt", "text/plain", "create-test1 file".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile multipartFile1 = JsonConvertor.getMockImg("files", "create-test1.txt", "create-test1 file");
 
         Long productId = this.productRepository.findAll().get(0).getId();
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
 
-        String itemCreateRequestJson = String.format("""
-                {
-                  "itemProductInfos": [
-                   {
-                     "productId": %d,
-                     "quantity": 0
-                   }
-                  ],
-                  "categoryLastId": %d,
-                  "name": "test 제품명",
-                  "price": 100000,
-                  "info": "test 정보",
-                  "type": "PROMOTION"
-                }
-                """, productId, categoryLastId);
+        ItemCreateRequest itemCreateRequest =  ItemCreateRequest.builder()
+                .itemProductInfos(List.of(
+                        ItemProductInfo.builder()
+                                .productId(productId)
+                                .quantity(0L)
+                                .build()
+                ))
+                .categoryLastId(categoryLastId)
+                .name("test 제품명")
+                .price(BigDecimal.valueOf(100000))
+                .info("test 정보")
+                .type(ItemType.PROMOTION)
+                .build();
 
-        MockMultipartFile itemRequest = new MockMultipartFile("itemRequest", "itemRequest", "application/json", itemCreateRequestJson.getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile itemRequest = JsonConvertor.mockBuild(itemCreateRequest, "itemRequest");
 
         // when
         ResultActions resultActions = mvc
@@ -273,32 +274,28 @@ public class AdminItemControllerTest {
     @WithAccount(role = MemberRole.ADMIN)
     void modifyItemTest() throws Exception {
         // given
-        MockMultipartFile multipartFile1 = new MockMultipartFile("files", "modify-test1.txt", "text/plain", "modify-test1 file".getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile multipartFile1 = JsonConvertor.getMockImg("files", "modify-test1.txt", "modify-test1 file");
 
         Item item = this.itemRepository.findAll().get(0);
         Long productId = this.productRepository.findAll().get(0).getId();
         Long categoryLastId = this.categoryRepository.findAll().get(0).getId();
 
-        String itemModifyRequestJson = String.format("""
-                {
-                  "itemProductInfos": [
-                   {
-                     "productId": %d,
-                     "quantity": 0
-                   }
-                  ],
-                  "categoryLastId": %d,
-                  "name": "test 제품명 수정",
-                  "price": 2000,
-                  "info": "test 정보 수정",
-                  "type": "PROMOTION",
-                  "remove": [
-                        1
-                      ]
-                }
-                """, productId, categoryLastId);
+        ItemModifyRequest itemModifyRequest =  ItemModifyRequest.builder()
+                .itemProductInfos(List.of(
+                        ItemProductInfo.builder()
+                                .productId(productId)
+                                .quantity(0L)
+                                .build()
+                ))
+                .categoryLastId(categoryLastId)
+                .name("test 제품명 수정")
+                .price(BigDecimal.valueOf(2000))
+                .info("test 정보 수정")
+                .type(ItemType.PROMOTION)
+                .remove(List.of(1))
+                .build();
 
-        MockMultipartFile itemRequest = new MockMultipartFile("itemRequest", "itemRequest", "application/json", itemModifyRequestJson.getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile itemRequest = JsonConvertor.mockBuild(itemModifyRequest, "itemRequest");
 
         MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart("/v1/admin/items/" + item.getId());
         builder.with(new RequestPostProcessor() {

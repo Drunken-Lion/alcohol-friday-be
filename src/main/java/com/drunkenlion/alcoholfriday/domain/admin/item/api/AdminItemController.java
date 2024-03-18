@@ -7,6 +7,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.item.dto.ItemModifyRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,14 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/admin")
+@RequestMapping("/v1/admin/items")
 @Tag(name = "v1-admin-item", description = "관리자 상품 관리 API")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminItemController {
     private final AdminItemService adminItemService;
 
     @Operation(summary = "전체 상품 조회", description = "관리자 권한에 대한 전체 상품 조회")
-    @GetMapping(value = "items")
+    @GetMapping
     public ResponseEntity<PageResponse<ItemListResponse>> getItems(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size
@@ -36,7 +38,7 @@ public class AdminItemController {
     }
 
     @Operation(summary = "상품 상세 조회", description = "관리자 권한에 대한 상품 상세 조회")
-    @GetMapping(value = "items/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<ItemDetailResponse> getItem(
             @PathVariable("id") Long id
     ) {
@@ -45,7 +47,7 @@ public class AdminItemController {
     }
 
     @Operation(summary = "상품 등록", description = "관리자 권한에 대한 상품 등록")
-    @PostMapping(value = "items")
+    @PostMapping
     public ResponseEntity<ItemDetailResponse> createItem(
             @Valid @RequestPart("itemRequest") ItemCreateRequest itemCreateRequest,
             @RequestPart("files") List<MultipartFile> files
@@ -62,7 +64,7 @@ public class AdminItemController {
     }
 
     @Operation(summary = "상품 수정", description = "관리자 권한에 대한 상품 수정")
-    @PutMapping(value = "items/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<ItemDetailResponse> modifyItem(
             @PathVariable("id") Long id,
             @Valid @RequestPart("itemRequest") ItemModifyRequest itemModifyRequest,
@@ -73,7 +75,7 @@ public class AdminItemController {
     }
 
     @Operation(summary = "상품 삭제", description = "관리자 권한에 대한 상품 삭제")
-    @DeleteMapping(value = "items/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteItem(
             @PathVariable("id") Long id
     ) {

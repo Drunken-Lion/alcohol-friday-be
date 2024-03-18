@@ -85,7 +85,7 @@ public class AdminProductServiceTest {
     private final String name = "1000억 막걸리 프리바이오";
     private final BigDecimal price = BigDecimal.valueOf(10000);
     private final Long quantity = 1000L;
-    private final Long alcohol = 10L;
+    private final Double alcohol = 10.0D;
     private final String ingredient = "쌀(국내산), 밀(국내산), 누룩, 정제수";
     private final Long sweet = 10L;
     private final Long sour = 10L;
@@ -98,7 +98,7 @@ public class AdminProductServiceTest {
     private final String modifyName = "1000억 막걸리 프리바이오 수정";
     private final BigDecimal modifyPrice = BigDecimal.valueOf(1000);
     private final Long modifyQuantity = 100L;
-    private final Long modifyAlcohol = 1L;
+    private final Double modifyAlcohol = 1.0D;
     private final String modifyIngredient = "쌀(국내산), 밀(국내산), 누룩, 정제수 수정";
     private final Long modifySweet = 1L;
     private final Long modifySour = 1L;
@@ -208,8 +208,8 @@ public class AdminProductServiceTest {
 
         List<MultipartFile> files = new ArrayList<>();
 
-        when(categoryRepository.findById(categoryLastId)).thenReturn(this.getCategoryOne());
-        when(makerRepository.findById(makerId)).thenReturn(this.getMakerOne());
+        when(categoryRepository.findByIdAndDeletedAtIsNull(categoryLastId)).thenReturn(this.getCategoryOne());
+        when(makerRepository.findByIdAndDeletedAtIsNull(makerId)).thenReturn(this.getMakerOne());
         Mockito.when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -244,7 +244,7 @@ public class AdminProductServiceTest {
                 .makerId(makerId)
                 .build();
 
-        when(categoryRepository.findById(any())).thenReturn(Optional.empty());
+        when(categoryRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -265,8 +265,8 @@ public class AdminProductServiceTest {
                 .makerId(makerId)
                 .build();
 
-        when(categoryRepository.findById(categoryLastId)).thenReturn(this.getCategoryOne());
-        when(makerRepository.findById(any())).thenReturn(Optional.empty());
+        when(categoryRepository.findByIdAndDeletedAtIsNull(categoryLastId)).thenReturn(this.getCategoryOne());
+        when(makerRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -302,9 +302,9 @@ public class AdminProductServiceTest {
         List<Integer> remove = new ArrayList<>();
         List<MultipartFile> files = new ArrayList<>();
 
-        when(productRepository.findById(id)).thenReturn(this.getProductOne());
-        when(categoryRepository.findById(modifyCategoryLastId)).thenReturn(this.getModifyCategoryOne());
-        when(makerRepository.findById(modifyMakerId)).thenReturn(this.getModifyMakerOne());
+        when(productRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(this.getProductOne());
+        when(categoryRepository.findByIdAndDeletedAtIsNull(modifyCategoryLastId)).thenReturn(this.getModifyCategoryOne());
+        when(makerRepository.findByIdAndDeletedAtIsNull(modifyMakerId)).thenReturn(this.getModifyMakerOne());
         Mockito.when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -335,7 +335,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 수정 실패 - 찾을 수 없는 제품")
     public void modifyProductFailNotFoundTest() {
         // given
-        Mockito.when(this.productRepository.findById(id)).thenReturn(Optional.empty());
+        Mockito.when(this.productRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -356,8 +356,8 @@ public class AdminProductServiceTest {
                 .makerId(modifyMakerId)
                 .build();
 
-        when(productRepository.findById(id)).thenReturn(this.getProductOne());
-        when(categoryRepository.findById(any())).thenReturn(Optional.empty());
+        when(productRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(this.getProductOne());
+        when(categoryRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -378,9 +378,9 @@ public class AdminProductServiceTest {
                 .makerId(makerId)
                 .build();
 
-        when(productRepository.findById(id)).thenReturn(this.getProductOne());
-        when(categoryRepository.findById(categoryLastId)).thenReturn(this.getCategoryOne());
-        when(makerRepository.findById(any())).thenReturn(Optional.empty());
+        when(productRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(this.getProductOne());
+        when(categoryRepository.findByIdAndDeletedAtIsNull(categoryLastId)).thenReturn(this.getCategoryOne());
+        when(makerRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -396,7 +396,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 삭제 성공")
     public void deleteProductTest() {
         // given
-        when(productRepository.findById(id)).thenReturn(this.getProductOne());
+        when(productRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(this.getProductOne());
         ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
 
         // When
@@ -412,28 +412,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 삭제 실패 - 찾을 수 없는 제품")
     public void deleteProductFailNotFoundTest() {
         // given
-        Mockito.when(this.productRepository.findById(any())).thenReturn(Optional.empty());
-
-        // when
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminProductService.deleteProduct(id);
-        });
-
-        // then
-        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getStatus(), exception.getStatus());
-        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getMessage(), exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("제품 삭제 실패 - 이미 삭제된 제품")
-    public void deleteProductFailAlreadyDeletedTest() {
-        // given
-        Product deletedProduct = this.getProductOne().get();
-        deletedProduct = deletedProduct.toBuilder()
-                .deletedAt(LocalDateTime.now())
-                .build();
-
-        when(productRepository.findById(any())).thenReturn(Optional.of(deletedProduct));
+        Mockito.when(this.productRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
@@ -449,7 +428,7 @@ public class AdminProductServiceTest {
     @DisplayName("제품 삭제 실패 - 상품과 연결된 제품")
     public void deleteProductFailItemProductInUseTest() {
         // given
-        Mockito.when(productRepository.findById(any())).thenReturn(this.getProductOne());
+        Mockito.when(productRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getProductOne());
         Mockito.when(itemProductRepository.existsByProductAndDeletedAtIsNull(any(Product.class))).thenReturn(true);
 
         // when

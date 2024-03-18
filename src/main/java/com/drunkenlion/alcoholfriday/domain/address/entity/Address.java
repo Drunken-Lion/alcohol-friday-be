@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.address.entity;
 
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -12,14 +13,14 @@ import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "address")
 public class Address extends BaseEntity {
     @Comment("주소 소유자")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
     @Comment("대표 주소 여부")
@@ -35,8 +36,8 @@ public class Address extends BaseEntity {
     private String addressDetail;
 
     @Comment("우편번호")
-    @Column(name = "postcode", columnDefinition = "BIGINT")
-    private Long postcode;
+    @Column(name = "postcode", columnDefinition = "VARCHAR(50)")
+    private String postcode;
 
     @Comment("받는 사람")
     @Column(name = "recipient", columnDefinition = "VARCHAR(50)")
@@ -52,5 +53,15 @@ public class Address extends BaseEntity {
 
     public void changePrimary(Boolean isPrimary) {
         this.isPrimary = isPrimary;
+    }
+
+    public void updateAddress(AddressModifyRequest modifyRequest) {
+        this.recipient = modifyRequest.getRecipient();
+        this.address = modifyRequest.getAddress();
+        this.addressDetail = modifyRequest.getAddressDetail();
+        this.postcode = modifyRequest.getPostcode();
+        this.phone = modifyRequest.getPhone();
+        this.request = modifyRequest.getRequest();
+        this.isPrimary = modifyRequest.getIsPrimary();
     }
 }

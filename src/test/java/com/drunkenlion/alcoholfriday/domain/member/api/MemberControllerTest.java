@@ -7,9 +7,9 @@ import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
-import com.drunkenlion.alcoholfriday.domain.customerservice.dao.QuestionRepository;
-import com.drunkenlion.alcoholfriday.domain.customerservice.entity.Question;
-import com.drunkenlion.alcoholfriday.domain.customerservice.enumerated.QuestionStatus;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dao.QuestionRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
@@ -137,7 +137,7 @@ public class MemberControllerTest {
                         Product.builder()
                                 .name("테스트 상품")
                                 .quantity(10L)
-                                .alcohol(17L)
+                                .alcohol(17D)
                                 .ingredient("알콜, 누룩 등등...")
                                 .sweet(1L)
                                 .sour(1L)
@@ -176,17 +176,19 @@ public class MemberControllerTest {
 
         Order order =
                 orderRepository.save(Order.builder()
+                        .member(member)
                         .orderNo("order_no")
                         .orderStatus(OrderStatus.PAYMENT_COMPLETED)
                         .price(BigDecimal.valueOf(20000L))
+                        .deliveryPrice(BigDecimal.valueOf(3000L))
+                        .totalPrice(BigDecimal.valueOf(23000L))
                         .recipient("테스트1")
                         .phone(1012345678L)
                         .address("서울특별시 마포구 연남동")
-                        .detail("123-12")
+                        .addressDetail("123-12")
                         .description("부재시 연락주세요.")
-                        .postcode(123123L)
+                        .postcode("123123")
                         .build());
-        order.addMember(member);
 
         OrderDetail orderDetail =
                 orderDetailRepository.save(
@@ -214,7 +216,7 @@ public class MemberControllerTest {
                 .isPrimary(true)
                 .address("서울시 마포구 연남동")
                 .addressDetail("123-12번지")
-                .postcode(123123L)
+                .postcode("123123")
                 .recipient("테스트유저55")
                 .phone(1012345678L)
                 .request("부재시 문 앞")
@@ -223,7 +225,7 @@ public class MemberControllerTest {
 
         Review review = reviewRepository.save(
                 Review.builder()
-                        .score(5L)
+                        .score(5D)
                         .content("맛있어요")
                         .item(item)
                         .member(member)
@@ -352,7 +354,9 @@ public class MemberControllerTest {
                 .andExpect(jsonPath("$.data[0].id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.data[0].orderNo", notNullValue()))
                 .andExpect(jsonPath("$.data[0].orderStatus", notNullValue()))
-                .andExpect(jsonPath("$.data[0].orderPrice", notNullValue()))
+                .andExpect(jsonPath("$.data[0].price", notNullValue()))
+                .andExpect(jsonPath("$.data[0].deliveryPrice", notNullValue()))
+                .andExpect(jsonPath("$.data[0].totalPrice", notNullValue()))
                 .andExpect(jsonPath("$.data[0].recipient", notNullValue()))
                 .andExpect(jsonPath("$.data[0].phone", notNullValue()))
                 .andExpect(jsonPath("$.data[0].postcode", notNullValue()))

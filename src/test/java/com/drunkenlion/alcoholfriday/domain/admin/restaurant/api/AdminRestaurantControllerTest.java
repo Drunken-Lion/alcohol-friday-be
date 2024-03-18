@@ -1,11 +1,13 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.api.AdminRestaurantController;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
-import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -14,6 +16,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
@@ -35,8 +38,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
@@ -70,7 +71,7 @@ public class AdminRestaurantControllerTest {
     private RestaurantStockRepository restaurantStockRepository;
 
     @Autowired
-    private ItemRepository itemRepository;
+    private ProductRepository productRepository;
 
     @Autowired
     private FileService fileService;
@@ -151,27 +152,23 @@ public class AdminRestaurantControllerTest {
 
         restaurantRepository.save(restaurant);
 
-        List<Item> items = LongStream.rangeClosed(1, 2).mapToObj(i -> {
-            Item item =  Item.builder()
-                    .id(i)
-                    .name("itemName" + i)
-                    .price(BigDecimal.valueOf(i))
-                    .info("info")
+        List<Product> products = LongStream.rangeClosed(1, 2).mapToObj(i -> {
+            Product product =  Product.builder()
+                    .name("productName" + i)
                     .build();
 
-            itemRepository.save(item);
+            productRepository.save(product);
 
-            MockMultipartFile multipartFile1 = new MockMultipartFile("files", "test1.txt", "text/plain", "test1 file".getBytes(StandardCharsets.UTF_8));
+            MockMultipartFile multipartFile1 = JsonConvertor.getMockImg("files", "test1.txt", "test1 file");
 
-            fileService.saveFiles(item, List.of(multipartFile1));
+            fileService.saveFiles(product, List.of(multipartFile1));
 
-            return item;
+            return product;
         }).toList();
 
-        List<RestaurantStock> restaurantStocks = items.stream().map(item -> {
+        List<RestaurantStock> restaurantStocks = products.stream().map(product -> {
             return RestaurantStock.builder()
-                    .id(item.getId())
-                    .item(item)
+                    .product(product)
                     .restaurant(restaurant)
                     .quantity(100L)
                     .createdAt(LocalDateTime.now())
@@ -186,6 +183,8 @@ public class AdminRestaurantControllerTest {
     void afterEach() {
         memberRepository.deleteAll();
         restaurantRepository.deleteAll();
+        restaurantStockRepository.deleteAll();
+        productRepository.deleteAll();
     }
 
     @Test
@@ -252,10 +251,10 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemId", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemName", notNullValue()))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockQuantity", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemFile", notNullValue()));
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductName", notNullValue()))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockQuantity", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductFile", notNullValue()));
     }
 
     @Test
@@ -265,51 +264,24 @@ public class AdminRestaurantControllerTest {
         // given
         Long memberId = this.memberRepository.findAll().get(0).getId();
 
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(memberId)
+                .name("test 매장")
+                .category("test 카테고리")
+                .address("test 주소")
+                .longitude(10.123456)
+                .latitude(15.321654)
+                .contact(212354678L)
+                .menu(getMenuTest())
+                .time(getTimeTest())
+                .provision(getProvisionTest())
+                .build();
+
         // when
         ResultActions resultActions = mvc
                 .perform(post("/v1/admin/restaurants")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "memberId": %d,
-                                  "name": "test 매장",
-                                  "category": "test 카테고리",
-                                  "address": "test 주소",
-                                  "longitude": 10.123456,
-                                  "latitude": 15.321654,
-                                  "contact": 212354678,
-                                  "menu": {
-                                    "test 메뉴1": 10000,
-                                    "test 메뉴2": 20000,
-                                    "test 메뉴3": 30000
-                                  },
-                                  "time": {
-                                    "HOLIDAY": true,
-                                    "ETC": "명절 당일만 휴업",
-                                    "MONDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[11,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "TUESDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "WEDNESDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "THURSDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "FRIDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "SATURDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "SUNDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]}
-                                  },
-                                  "provision": {
-                                    "PET": true,
-                                    "PARKING": true,
-                                    "GROUP_MEETING": true,
-                                    "PHONE_RESERVATION": true,
-                                    "WIFI": true,
-                                    "GENDER_SEPARATED_RESTROOM": true,
-                                    "PACKAGING": true,
-                                    "WAITING_AREA": true,
-                                    "BABY_CHAIR": true,
-                                    "WHEELCHAIR_ACCESSIBLE_ENTRANCE": true,
-                                    "WHEELCHAIR_ACCESSIBLE_SEAT": true,
-                                    "DISABLED_PARKING_AREA": true
-                                  }
-                                }
-                                """, memberId))
+                        .content(JsonConvertor.build(restaurantRequest))
                 )
                 .andDo(print());
 
@@ -334,7 +306,7 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.stockItemInfos", notNullValue()));
+                .andExpect(jsonPath("$.stockProductInfos", notNullValue()));
     }
 
     @Test
@@ -345,51 +317,24 @@ public class AdminRestaurantControllerTest {
         Long memberId = this.memberRepository.findAll().get(0).getId();
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
 
+        RestaurantRequest restaurantRequest = RestaurantRequest.builder()
+                .memberId(memberId)
+                .name("test 매장")
+                .category("test 카테고리")
+                .address("test 주소")
+                .longitude(10.123456)
+                .latitude(15.321654)
+                .contact(212354678L)
+                .menu(getMenuTest())
+                .time(getTimeTest())
+                .provision(getProvisionTest())
+                .build();
+
         // when
         ResultActions resultActions = mvc
                 .perform(put("/v1/admin/restaurants/" + restaurant.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format("""
-                                {
-                                  "memberId": %d,
-                                  "name": "test 매장",
-                                  "category": "test 카테고리",
-                                  "address": "test 주소",
-                                  "longitude": 10.123456,
-                                  "latitude": 15.321654,
-                                  "contact": 212354678,
-                                  "menu": {
-                                    "test 메뉴1": 10000,
-                                    "test 메뉴2": 20000,
-                                    "test 메뉴3": 30000
-                                  },
-                                  "time": {
-                                    "HOLIDAY": true,
-                                    "ETC": "명절 당일만 휴업",
-                                    "MONDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[11,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "TUESDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "WEDNESDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "THURSDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "FRIDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "SATURDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]},
-                                    "SUNDAY": {"businessStatus":true,"startTime":[9,0],"endTime":[22,0],"breakBusinessStatus":true,"breakStartTime":[15,0],"breakEndTime":[17,0]}
-                                  },
-                                  "provision": {
-                                    "PET": true,
-                                    "PARKING": true,
-                                    "GROUP_MEETING": true,
-                                    "PHONE_RESERVATION": true,
-                                    "WIFI": true,
-                                    "GENDER_SEPARATED_RESTROOM": true,
-                                    "PACKAGING": true,
-                                    "WAITING_AREA": true,
-                                    "BABY_CHAIR": true,
-                                    "WHEELCHAIR_ACCESSIBLE_ENTRANCE": true,
-                                    "WHEELCHAIR_ACCESSIBLE_SEAT": true,
-                                    "DISABLED_PARKING_AREA": true
-                                  }
-                                }
-                                """, memberId))
+                        .content(JsonConvertor.build(restaurantRequest))
                 )
                 .andDo(print());
 
@@ -414,10 +359,10 @@ public class AdminRestaurantControllerTest {
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemId", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemName", notNullValue()))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockQuantity", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.stockItemInfos[0].stockItemFile", notNullValue()));
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductName", notNullValue()))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockQuantity", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.stockProductInfos[0].stockProductFile", notNullValue()));
     }
 
     @Test

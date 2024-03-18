@@ -31,6 +31,7 @@ public class HttpResponse {
         BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청 입니다."),
         INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "잘못된 입력값 입니다."),
         ADDRESS_LIMIT_OVER(HttpStatus.BAD_REQUEST, "주소는 3개까지 등록할 수 있습니다."),
+        BAD_REQUEST_AMOUNT(HttpStatus.BAD_REQUEST, "잘못된 가격값 입니다."),
 
         // 401
         UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 접근입니다."),
@@ -48,6 +49,7 @@ public class HttpResponse {
         NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 리소스입니다."),
         NOT_FOUND_FILE(HttpStatus.NOT_FOUND, "존재하지 않는 파일입니다."),
         NOT_FOUND_ROLE(HttpStatus.NOT_FOUND, "존재하지 않는 권한입니다."),
+        NOT_FOUND_ROLE_NUMBER(HttpStatus.NOT_FOUND, "존재하지 않는 Role Number"),
         NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
         NOT_FOUND_RESTAURANT(HttpStatus.NOT_FOUND, "존재하지 않는 매장입니다."),
         NOT_FOUND_MAKER(HttpStatus.NOT_FOUND, "존재하지 않는 제조사입니다."),
@@ -57,7 +59,21 @@ public class HttpResponse {
         NOT_FOUND_CATEGORY_CLASS(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리 대분류입니다."),
         NOT_FOUND_CART(HttpStatus.NOT_FOUND, "장바구니에 상품 내역이 없습니다."),
         NOT_FOUND_PROVIDER(HttpStatus.NOT_FOUND, "지원하지 않는 로그인입니다."),
+        NOT_FOUND_PROVIDER_NUMBER(HttpStatus.NOT_FOUND, "존재하지 않는 Provider Number"),
         NOT_FOUND_ADDRESSES(HttpStatus.NOT_FOUND, "등록된 주소가 없습니다."),
+        NOT_FOUND_ADDRESS(HttpStatus.NOT_FOUND, "존재하지 않는 주소입니다."),
+        NOT_FOUND_NOTICE(HttpStatus.NOT_FOUND, "존재하지 않는 공지사항입니다."),
+        NOT_FOUND_QUESTION(HttpStatus.NOT_FOUND, "존재하지 않는 문의입니다."),
+        NOT_FOUND_RESTAURANT_ORDER_NUMBER(HttpStatus.NOT_FOUND, "존재하지 않는 Restaurant Order Number"),
+        NOT_FOUND_STATUS(HttpStatus.NOT_FOUND, "존재하지 않는 상태값 입니다."),
+        NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
+        NOT_FOUND_PAYMENT_CARD_TYPE(HttpStatus.NOT_FOUND, "존재하지 않는 카드 종류 입니다."),
+        NOT_FOUND_PAYMENT_METHOD(HttpStatus.NOT_FOUND, "존재하지 않는 결제 수단 입니다."),
+        NOT_FOUND_PAYMENT_OWNER_TYPE(HttpStatus.NOT_FOUND, "존재하지 않는 카드의 소유자 타입 입니다."),
+        NOT_FOUND_PAYMENT_PROVIDER(HttpStatus.NOT_FOUND, "존재하지 않는 간편결제사 코드 입니다."),
+        NOT_FOUND_PAYMENT_STATUS(HttpStatus.NOT_FOUND, "존재하지 않는 결제 처리 상태 입니다."),
+        NOT_FOUND_PAYMENT_CARD_CODE(HttpStatus.NOT_FOUND, "존재하지 않는 카드사 코드 입니다."),
+        NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "존재하지 답변 입니다."),
 
         // 405
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP METHOD 입니다."),
@@ -68,6 +84,11 @@ public class HttpResponse {
         NICKNAME_IN_USE(HttpStatus.CONFLICT, "사용중인 닉네임입니다."),
         PRODUCT_IN_USE(HttpStatus.CONFLICT, "사용중인 제품입니다."),
         CATEGORY_IN_USE(HttpStatus.CONFLICT, "사용중인 카테고리입니다."),
+        ORDER_ALREADY_PAID(HttpStatus.CONFLICT, "이미 결제 완료된 주문입니다."),
+        ORDER_ALREADY_CANCEL(HttpStatus.CONFLICT, "이미 취소된 주문입니다."),
+        ORDER_ISSUE(HttpStatus.CONFLICT, "주문 처리 중에 문제가 발생 했습니다."),
+        DELETED_QUESTION(HttpStatus.CONFLICT, "삭제된 문의사항 입니다."),
+        DELETED_ANSWER(HttpStatus.CONFLICT, "삭제 처리가 된 답변 입니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");

@@ -12,7 +12,9 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -20,47 +22,69 @@ import java.util.Map;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "restaurant")
 public class Restaurant extends BaseEntity {
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member members;
 
-    @Column(length = 50)
     @Comment("레스토랑 분류")
+    @Column(name = "category", columnDefinition = "VARCHAR(50)")
     private String category;
 
-    @Column(length = 200)
     @Comment("레스토랑 이름")
+    @Column(name = "name", columnDefinition = "VARCHAR(200)")
     private String name;
 
-    @Column(length = 200)
     @Comment("레스토랑 주소")
+    @Column(name = "address", columnDefinition = "VARCHAR(200)")
     private String address;
 
+    @Comment("레스토랑 상세 주소")
+    @Column(name = "address_detail", columnDefinition = "VARCHAR(200)")
+    private String addressDetail;
+
+    @Comment("우편번호")
+    @Column(name = "postcode", columnDefinition = "VARCHAR(50)")
+    private String postcode;
+
     @Comment("위도, 경도")
+    @Column(name = "location", columnDefinition = "POINT")
     private Point location;
 
     @Comment("가게 연락처")
+    @Column(name = "contact", columnDefinition = "BIGINT")
     private Long contact;
+
+    @Comment("사업자 등록증 내 기재된 사업장명")
+    @Column(name = "businessName", columnDefinition = "VARCHAR(50)")
+    private String businessName;
+
+    @Comment("사업자 등록증 내 기재된 사업자번호")
+    @Column(name = "businessNumber", columnDefinition = "VARCHAR(50)")
+    private String businessNumber;
 
     @Type(JsonType.class)
     @Comment("메뉴")
-    @Column(name = "menu", columnDefinition ="json")
+    @Column(name = "menu", columnDefinition ="JSON")
     @Builder.Default
     private Map<String, Object> menu = new HashMap<>();
 
     @Type(JsonType.class)
     @Comment("영업시간")
-    @Column(name = "time", columnDefinition ="json")
+    @Column(name = "time", columnDefinition ="JSON")
     @Builder.Default
     private Map<String, Object> time = new HashMap<>();
 
     @Type(JsonType.class)
     @Comment("레스토랑의 편의시설")
-    @Column(name = "provision", columnDefinition ="json")
+    @Column(name = "provision", columnDefinition ="JSON")
     @Builder.Default
     private Map<String , Object> provision = new HashMap<>();
+
+    @OneToMany(mappedBy = "restaurant")
+    @Builder.Default
+    private List<RestaurantStock> restaurantStocks = new ArrayList<>();
 
     public static Point genPoint(Double longitude, Double latitude) {
         GeometryFactory geometryFactory = new GeometryFactory();
