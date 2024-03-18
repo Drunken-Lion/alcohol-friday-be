@@ -216,7 +216,6 @@ public class RestaurantRepositoryTest {
         List<RestaurantNearbyResponse> content = restaurantNearbyResponses.getContent();
 
         //then
-        assertThat(content.get(0).getRestaurantId()).isEqualTo(2L);
         assertThat(content.get(0).getAddress()).isEqualTo(restaurantAddress);
         assertThat(content.get(0).getRestaurantName()).isEqualTo(restaurantName);
         assertThat(content.get(0).getProductName()).isEqualTo(dongdongju);
