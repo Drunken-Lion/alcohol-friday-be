@@ -89,6 +89,7 @@ public class HttpResponse {
         ORDER_ISSUE(HttpStatus.CONFLICT, "주문 처리 중에 문제가 발생 했습니다."),
         DELETED_QUESTION(HttpStatus.CONFLICT, "삭제된 문의사항 입니다."),
         DELETED_ANSWER(HttpStatus.CONFLICT, "삭제 처리가 된 답변 입니다."),
+        OUT_OF_ITEM_STOCK(HttpStatus.CONFLICT, "현재 상품에 재고가 없습니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");

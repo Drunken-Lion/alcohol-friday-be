@@ -279,6 +279,39 @@ class OrderServiceTest {
         });
     }
 
+    @Test
+    @DisplayName("주문 접수 시 상품에 재고가 없을 때")
+    void orderReceive_outOfItemStock() {
+        // given
+        // orderRepository.save(order)
+        when(orderRepository.save(any(Order.class))).thenReturn(this.getDataOrder());
+
+        // itemRepository.findById(orderItemRequest.getItemId())
+        when(itemRepository.findById(itemId1)).thenReturn(this.getOneItem3());
+
+        List<OrderItemRequest> orderItemRequestList = new ArrayList<>();
+        OrderItemRequest orderItemRequest = OrderItemRequest.builder()
+                .itemId(itemId1)
+                .quantity(quantityItem)
+                .build();
+        orderItemRequestList.add(orderItemRequest);
+
+        OrderRequestList orderRequestList = OrderRequestList.builder()
+                .orderItemList(orderItemRequestList)
+                .recipient(recipient)
+                .phone(phone)
+                .address(address)
+                .addressDetail(addressDetail)
+                .description(description)
+                .postcode(postcode)
+                .build();
+
+        // when & then
+        Assertions.assertThrows(BusinessException.class, () -> {
+            orderService.receive(orderRequestList, getDataMember());
+        });
+    }
+
 
     private Optional<OrderDetail> getOneOrderDetail() {
         return Optional.of(this.getDataOrderDetail());
@@ -412,6 +445,7 @@ class OrderServiceTest {
         ItemProduct itemProduct = ItemProduct.builder()
                 .item(item)
                 .product(product)
+                .quantity(3L)
                 .build();
         itemProduct.addItem(item);
         itemProduct.addProduct(product);
@@ -459,6 +493,55 @@ class OrderServiceTest {
         ItemProduct itemProduct = ItemProduct.builder()
                 .item(item)
                 .product(product)
+                .quantity(3L)
+                .build();
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product);
+
+        return item;
+    }
+
+    private Optional<Item> getOneItem3() {
+        return Optional.of(this.getDataItem3());
+    }
+
+    private Item getDataItem3() {
+        CategoryClass categoryClass = CategoryClass.builder()
+                .firstName(firstName2)
+                .build();
+
+        Category category = Category.builder()
+                .lastName(lastName2)
+                .build();
+        category.addCategoryClass(categoryClass);
+
+        Product product = Product.builder()
+                .name(productName2)
+                .quantity(1L)
+                .alcohol(alcohol2)
+                .ingredient(ingredient2)
+                .sweet(sweet2)
+                .sour(sour2)
+                .cool(cool2)
+                .body(body2)
+                .balance(balance2)
+                .incense(incense2)
+                .throat(throat2)
+                .build();
+        product.addCategory(category);
+
+        Item item = Item.builder()
+                .id(itemId2)
+                .name(itemName2)
+                .price(price2)
+                .info(info2)
+                .build();
+        item.addCategory(category);
+
+        ItemProduct itemProduct = ItemProduct.builder()
+                .item(item)
+                .product(product)
+                .quantity(3L)
                 .build();
         itemProduct.addItem(item);
         itemProduct.addProduct(product);
