@@ -1,6 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.payment.application;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.cart.application.CartService;
+import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
+import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
+import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
@@ -11,6 +15,7 @@ import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
+import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
 import com.drunkenlion.alcoholfriday.domain.payment.dao.PaymentRepository;
 import com.drunkenlion.alcoholfriday.domain.payment.dto.request.TossPaymentsReq;
 import com.drunkenlion.alcoholfriday.domain.payment.entity.Payment;
@@ -30,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -38,6 +42,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @Transactional
 class PaymentServiceTest {
+    @Mock
+    private CartService cartService;
     @InjectMocks
     private PaymentServiceImpl paymentService;
     @Mock
@@ -46,8 +52,11 @@ class PaymentServiceTest {
     private MemberRepository memberRepository;
     @Mock
     private PaymentRepository paymentRepository;
+    @Mock
+    private CartRepository cartRepository;
 
     // test를 위한 임의 변수
+    private BigDecimal deliveryPrice = BigDecimal.valueOf(2500);
     // Item
     private final Long itemId1 = 1L;
     private final String firstName = "식품";
@@ -55,6 +64,7 @@ class PaymentServiceTest {
     private final String productName = "test data";
     private final String itemName = "test ddaattaa";
     private final BigDecimal price = new BigDecimal(50000);
+    private final BigDecimal totalPrice = price.add(deliveryPrice);
     private final String info = "이 상품은 테스트 상품입니다.";
     private final Long quantity = 10L;
     private final Double alcohol = 17D;
@@ -74,6 +84,7 @@ class PaymentServiceTest {
     private final String productName2 = "test data2";
     private final String itemName2 = "test ddaattaa";
     private final BigDecimal price2 = new BigDecimal(100_000);
+    private final BigDecimal totalPrice2 = price2.add(deliveryPrice);
     private final String info2 = "이 상품은 테스트 상품2 입니다.";
     private final Long quantity2 = 10L;
     private final Double alcohol2 = 17D;
@@ -105,16 +116,24 @@ class PaymentServiceTest {
     private final int size = 20;
 
     // Order
-    private String orderNo = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "__" + 1;
+    private final Long orderId = 1L;
+    private String orderNo = OrderUtil.date.getDate(getDataOrder().getCreatedAt()) + "-"
+            + OrderUtil.date.getTime() + "-"
+            + OrderUtil.date.getTimeMillis(getDataOrder().getCreatedAt()) + "-"
+            + 1;
     private OrderStatus orderStatus = OrderStatus.ORDER_RECEIVED;
     private String recipient = "홍길동";
     private String address = "서울특별시 중구 세종대로 110(태평로1가)";
-    private String detail = "서울특별시청 103호";
+    private String addressDetail = "서울특별시청 103호";
     private String description = "부재시 문앞에 놓아주세요.";
     private String postcode = "04524";
 
-    // Order
-    private String orderNo2 = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "__" + 2;
+    // Order2
+    private final Long orderId2 = 2L;
+    private String orderNo2 = OrderUtil.date.getDate(getDataOrder().getCreatedAt()) + "-"
+            + OrderUtil.date.getTime() + "-"
+            + OrderUtil.date.getTimeMillis(getDataOrder().getCreatedAt()) + "-"
+            + 2;
     private OrderStatus orderStatus2 = OrderStatus.PAYMENT_COMPLETED;
 
     private String notExistOrderNo = "2024-02-28_100";
@@ -132,10 +151,25 @@ class PaymentServiceTest {
     private String paymentProvider = "토스페이";
     private String issuerCode = "41";
     private String acquirerCode = "41";
-    private String totalAmount = "53000";
+    private String totalAmount = "52500";
     private String requestedAt = "2024-02-26T11:14:52+09:00";
     private String approvedAt = "2024-02-26T11:15:14+09:00";
     private String currency = "KRW";
+
+    // OrderDetail
+    private final Long orderDetailId = 1L;
+    private final Long orderDetailId2 = 2L;
+
+    // Cart
+    private final Long cartId = 1L;
+    private final Member member = getDataMember();
+
+    // CartDetail
+    private final Cart cart = getDataCart();
+    private final Item item = getDataItem();
+    private final Item item2 = getDataItem2();
+    private final Long quantityCart = 2L;
+    private final Long quantityCart2 = 1L;
 
 
     @Test
@@ -321,13 +355,18 @@ class PaymentServiceTest {
     BigDecimal totalItemPrice = quantityBigDecimal.multiply(price);
 
     private OrderDetail getDataOrderDetail() {
-        return OrderDetail.builder()
+        OrderDetail orderDetail = OrderDetail.builder()
+                .id(orderDetailId)
                 .itemPrice(price)
                 .quantity(quantityItem)
                 .totalPrice(totalItemPrice)
                 .item(getDataItem())
                 .order(getDataOrder())
                 .build();
+        orderDetail.addItem(getDataItem());
+        orderDetail.addOrder(getDataOrder());
+
+        return orderDetail;
     }
 
     private Optional<OrderDetail> getOneOrderDetail2() {
@@ -340,55 +379,68 @@ class PaymentServiceTest {
     BigDecimal totalItemPrice2 = quantityBigDecimal2.multiply(price2);
 
     private OrderDetail getDataOrderDetail2() {
-        return OrderDetail.builder()
+        OrderDetail orderDetail = OrderDetail.builder()
+                .id(orderDetailId2)
                 .itemPrice(price2)
                 .quantity(quantityItem2)
                 .totalPrice(totalItemPrice2)
-                .item(getDataItem2())
-                .order(getDataOrder())
                 .build();
+        orderDetail.addItem(this.getDataItem2());
+        orderDetail.addOrder(getDataOrder());
+
+        return orderDetail;
     }
 
     private Optional<Order> getOneOrder() {
         return Optional.of(this.getDataOrder());
     }
 
+    // 주문 접수
     private Order getDataOrder() {
-        return Order.builder()
-                .id(1L)
+        Order order = Order.builder()
+                .id(orderId)
                 .orderNo(orderNo)
                 .orderStatus(orderStatus)
-                .price(new BigDecimal(totalAmount))
+                .price(price)
+                .deliveryPrice(deliveryPrice)
+                .totalPrice(totalPrice)
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)
-                .addressDetail(detail)
+                .addressDetail(addressDetail)
                 .description(description)
                 .postcode(postcode)
-                .member(getDataMember())
                 .createdAt(LocalDateTime.now())
+                .member(this.getDataMember())
                 .build();
+
+        return order;
     }
 
     private Optional<Order> getOneOrder2() {
         return Optional.of(this.getDataOrder2());
     }
 
+    // 결제 완료
     private Order getDataOrder2() {
-        return Order.builder()
-                .id(2L)
+        Order order = Order.builder()
+                .id(orderId2)
                 .orderNo(orderNo2)
                 .orderStatus(orderStatus2)
-                .price(new BigDecimal(totalAmount))
+                .price(price2)
+                .deliveryPrice(deliveryPrice)
+                .totalPrice(totalPrice2)
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)
-                .addressDetail(detail)
+                .addressDetail(addressDetail)
                 .description(description)
                 .postcode(postcode)
-                .member(getDataMember())
                 .createdAt(LocalDateTime.now())
+                .member(this.getDataMember())
                 .build();
+
+        return order;
     }
 
     private Optional<Member> getOneMember() {
@@ -504,5 +556,40 @@ class PaymentServiceTest {
         itemProduct.addProduct(product);
 
         return item;
+    }
+
+    private Optional<Cart> getOneCart() {
+        return Optional.of(this.getDataCart());
+    }
+
+    private Cart getDataCart() {
+        return Cart.builder()
+                .id(cartId)
+                .member(member)
+                .build();
+    }
+
+    private Optional<CartDetail> getOneCartDetail() {
+        return Optional.of(this.getDataCartDetail());
+    }
+
+    private CartDetail getDataCartDetail() {
+        return CartDetail.builder()
+                .cart(cart)
+                .item(item)
+                .quantity(quantityCart)
+                .build();
+    }
+
+    private Optional<CartDetail> getOneCartDetail2() {
+        return Optional.of(this.getDataCartDetail2());
+    }
+
+    private CartDetail getDataCartDetail2() {
+        return CartDetail.builder()
+                .cart(cart)
+                .item(item2)
+                .quantity(quantityCart2)
+                .build();
     }
 }
