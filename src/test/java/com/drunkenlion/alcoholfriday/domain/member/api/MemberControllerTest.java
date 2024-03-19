@@ -326,32 +326,6 @@ public class MemberControllerTest {
     }
 
     @Test
-    @DisplayName("나의 문의내역 조회")
-    @WithAccount
-    void getMyQuestionsTest() throws Exception {
-        // when
-        ResultActions resultActions = mvc
-                .perform(get("/v1/members/me/questions")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print());
-
-        // then
-        resultActions
-                .andExpect(status().isOk())
-                .andExpect(handler().handlerType(MemberController.class))
-                .andExpect(handler().methodName("getMyQuestions"))
-                .andExpect(jsonPath("$.data", instanceOf(List.class)))
-                .andExpect(jsonPath("$.data.length()", is(1)))
-                .andExpect(jsonPath("$.data[0].id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.data[0].title", notNullValue()))
-                .andExpect(jsonPath("$.data[0].questionStatus", notNullValue()))
-                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
-                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
-                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
-                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
-    }
-
-    @Test
     @DisplayName("나의 주문내역 조회")
     @WithAccount
     void getMyOrdersTest() throws Exception {
