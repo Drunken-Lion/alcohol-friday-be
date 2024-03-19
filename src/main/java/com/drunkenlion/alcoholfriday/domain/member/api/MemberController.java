@@ -1,6 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.member.api;
 
 import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.application.QuestionService;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.request.QuestionModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.request.QuestionSaveRequest;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.response.QuestionResponse;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.response.QuestionSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.member.application.MemberService;
 import com.drunkenlion.alcoholfriday.domain.member.dto.*;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.ReviewStatus;
@@ -41,6 +46,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @SecurityRequirement(name = "bearerAuth")
 public class MemberController {
     private final MemberService memberService;
+    private final QuestionService questionService;
     private final ReviewService reviewService;
 
     @Operation(summary = "회원 정보 조회", description = "마이페이지 회원 정보 조회")
@@ -56,19 +62,6 @@ public class MemberController {
                                                        @RequestBody MemberModifyRequest modifyRequest) {
         MemberResponse memberResponse = memberService.modifyMember(userPrincipal.getMember(), modifyRequest);
         return ResponseEntity.ok().body(memberResponse);
-    }
-
-    @Operation(summary = "나의 문의 내역", description = "내가 쓴 문의 목록")
-    @GetMapping("me/questions")
-    public ResponseEntity<PageResponse<MemberQuestionListResponse>> getMyQuestions(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-
-        Page<MemberQuestionListResponse> pageQuestions = memberService.getMyQuestions(userPrincipal.getMember().getId(), page, size);
-        PageResponse<MemberQuestionListResponse> pageResponse = PageResponse.of(pageQuestions);
-
-        return ResponseEntity.ok().body(pageResponse);
     }
 
     @Operation(summary = "나의 주문 내역", description = "내가 주문한 내역 목록")
@@ -138,6 +131,56 @@ public class MemberController {
     public ResponseEntity<Void> deleteReview(@PathVariable("id") Long id,
                                              @AuthenticationPrincipal UserPrincipal user) {
         reviewService.deleteReview(id, user.getMember());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("me/questions")
+    @Operation(summary = "문의사항 등록")
+    public ResponseEntity<QuestionSaveResponse> saveQuestion(@Valid @RequestPart("request") QuestionSaveRequest request,
+                                                             @RequestPart("files") List<MultipartFile> files,
+                                                             @AuthenticationPrincipal UserPrincipal user) {
+        QuestionSaveResponse response = questionService.saveQuestion(request, files, user.getMember());
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(response);
+    }
+
+    @GetMapping("me/questions")
+    @Operation(summary = "문의사항 전체 조회", description = "로그인 회원이 작성한 문의사항 전체 조회")
+    public ResponseEntity<PageResponse<QuestionResponse>> findQuestions(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                                        @RequestParam(name = "size", defaultValue = "10") int size,
+                                                                        @AuthenticationPrincipal UserPrincipal user) {
+        PageResponse<QuestionResponse> findAll = PageResponse.of(questionService.findQuestions(user.getMember(), page, size));
+        return ResponseEntity.ok(findAll);
+    }
+
+    @GetMapping("me/questions/{id}")
+    @Operation(summary = "문의사항 상세 조회")
+    public ResponseEntity<QuestionResponse> findQuestion(@PathVariable("id") Long id,
+                                                         @AuthenticationPrincipal UserPrincipal user) {
+        QuestionResponse response = questionService.findQuestion(user.getMember(), id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("me/questions/{id}")
+    @Operation(summary = "문의사항 수정")
+    public ResponseEntity<QuestionResponse> updateQuestion(@PathVariable("id") Long id,
+                                                   @RequestPart("request") QuestionModifyRequest request,
+                                                   @RequestPart("files") List<MultipartFile> files,
+                                                   @AuthenticationPrincipal UserPrincipal user) {
+        QuestionResponse questionResponse = questionService.updateQuestion(id, user.getMember(), request, files);
+        return ResponseEntity.ok(questionResponse);
+    }
+
+    @DeleteMapping("me/questions/{id}")
+    @Operation(summary = "문의사항 삭제")
+    public ResponseEntity<Void> deleteQuestion(@PathVariable("id") Long id,
+                                       @AuthenticationPrincipal UserPrincipal user) {
+        questionService.deleteQuestion(id, user.getMember());
         return ResponseEntity.noContent().build();
     }
 }
