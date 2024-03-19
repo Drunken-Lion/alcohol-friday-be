@@ -2,8 +2,11 @@ package com.drunkenlion.alcoholfriday.domain.item.application;
 
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
+import com.drunkenlion.alcoholfriday.domain.item.dto.ItemRating;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
+import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
@@ -22,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final ReviewRepository reviewRepository;
     private final FileService fileService;
 
     @Override
@@ -34,7 +38,11 @@ public class ItemServiceImpl implements ItemService {
                 .map(this.fileService::findAll)
                 .toList();
 
-        return SearchItemResponse.of(search, files);
+        List<ItemRating> itemRatingList = searchItems.stream()
+                .map(this::itemRating)
+                .toList();
+
+        return SearchItemResponse.of(search, files, itemRatingList);
     }
 
     @Override
@@ -46,6 +54,28 @@ public class ItemServiceImpl implements ItemService {
 
         NcpFileResponse file = this.fileService.findOne(item);
 
-        return FindItemResponse.of(item, file);
+        // 리뷰 평점
+        ItemRating itemRating = itemRating(item);
+
+        return FindItemResponse.of(item, file, itemRating);
+    }
+
+    // 리뷰 평점과 리뷰 개수 데이터
+    private ItemRating itemRating(Item item) {
+        List<Review> itemTotalReview = reviewRepository.findAllByItemIdAndDeletedAtIsNull(item.getId());
+
+        if (itemTotalReview.isEmpty())
+            return null;
+
+        double totalScore = itemTotalReview.stream()
+                .mapToDouble(Review::getScore)
+                .sum();
+        Double averageScore = totalScore / itemTotalReview.size();
+
+        return ItemRating.builder()
+                .itemId(item.getId())
+                .avgItemScore(averageScore)
+                .totalReviewCount(itemTotalReview.size())
+                .build();
     }
 }
