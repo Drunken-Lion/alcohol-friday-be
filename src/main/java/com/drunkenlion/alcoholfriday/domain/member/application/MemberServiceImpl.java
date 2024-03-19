@@ -19,7 +19,7 @@ import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
-import com.drunkenlion.alcoholfriday.domain.review.dto.ReviewResponse;
+import com.drunkenlion.alcoholfriday.domain.review.dto.response.ReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
