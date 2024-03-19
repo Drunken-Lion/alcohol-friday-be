@@ -75,7 +75,7 @@ public class HttpResponse {
         NOT_FOUND_PAYMENT_STATUS(HttpStatus.NOT_FOUND, "존재하지 않는 결제 처리 상태 입니다."),
         NOT_FOUND_PAYMENT_CARD_CODE(HttpStatus.NOT_FOUND, "존재하지 않는 카드사 코드 입니다."),
         NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "존재하지 답변 입니다."),
-        NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "존재하지 리뷰 입니다."),
+        NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "존재하는 리뷰가 없습니다."),
 
         // 405
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP METHOD 입니다."),
