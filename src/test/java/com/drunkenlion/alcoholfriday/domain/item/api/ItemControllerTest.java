@@ -209,8 +209,8 @@ class ItemControllerTest {
                         .addressDetail("123-12")
                         .description("부재시 연락주세요.")
                         .postcode("123123")
+                        .member(member)
                         .build());
-        order.addMember(member);
 
         OrderDetail orderDetail =
                 orderDetailRepository.save(
