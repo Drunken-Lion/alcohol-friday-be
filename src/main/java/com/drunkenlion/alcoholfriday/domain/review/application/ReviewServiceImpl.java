@@ -51,25 +51,20 @@ public class ReviewServiceImpl implements ReviewService {
         OrderDetail orderDetail = orderDetailRepository.findById(request.getOrderDetailId())
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_ORDER_DETAIL));
 
-        System.out.println("에러 포인트 1");
         ReviewValidator.compareEntityIdToMemberId(orderDetail.getOrder(), member);
-        System.out.println("에러 포인트 2");
         ReviewValidator.checkedStatus(orderDetail.getOrder());
-        System.out.println("에러 포인트 3");
 
         Optional<Review> byOrderDetail = reviewRepository.findByOrderDetail(orderDetail);
-        System.out.println("에러 포인트 4");
+
         if (byOrderDetail.isPresent() && byOrderDetail.get().getDeletedAt() == null) {
             throw new BusinessException(Fail.EXIST_REVIEW);
         }
 
-        System.out.println("에러 포인트 5");
         Review review = ReviewSaveRequest.toEntity(request, member);
         review.addOrderDetail(orderDetail);
         review.addItem(orderDetail.getItem());
         reviewRepository.save(review);
 
-        System.out.println("에러 포인트 6");
         NcpFileResponse ncpFileResponse = fileService.saveFiles(review, files);
         return ReviewSaveResponse.of(review, ncpFileResponse);
     }
@@ -82,7 +77,8 @@ public class ReviewServiceImpl implements ReviewService {
         log.info("[ReviewServiceImpl.getReviews] : 접근");
         Pageable pageable = PageRequest.of(page, size);
         Page<OrderDetail> findAll = orderDetailRepository.findOrderDetailsMember(member, pageable);
-        return findAll.map(orderDetail -> ReviewOrderDetailResponse.of(orderDetail, fileService.findOne(orderDetail.getItem())));
+        return findAll.map(
+                orderDetail -> ReviewOrderDetailResponse.of(orderDetail, fileService.findOne(orderDetail.getItem())));
     }
 
     /**

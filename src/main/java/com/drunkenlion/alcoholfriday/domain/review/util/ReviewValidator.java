@@ -22,7 +22,6 @@ public class ReviewValidator {
     }
 
     public static void checkedStatus(Order order) {
-        System.out.println("order = " + order.getOrderStatus());
         if (!order.getOrderStatus().equals(OrderStatus.DELIVERED)) {
             throw new BusinessException(Fail.BAD_REQUEST);
         }

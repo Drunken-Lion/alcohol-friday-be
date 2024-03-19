@@ -62,8 +62,6 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public NcpFileResponse findOne(BaseEntity entity) {
-
-        System.out.println("entity = " + entity);
         NcpFile ncpFile1 =
                 fileRepository.findByEntityIdAndEntityType(entity.getId(), EntityTypeV2.getEntityType(entity))
                         .orElse(null);
