@@ -7,4 +7,5 @@ import java.math.BigDecimal;
 public interface PaymentService {
     void checkAmountValidity(String orderNo, BigDecimal amount);
     void saveSuccessPayment(TossPaymentsReq tossPaymentsReq);
+    void deletedCartItems(String orderNo);
 }

@@ -11,4 +11,10 @@ import lombok.*;
 public class DeleteCartRequest {
     @Schema(description = "장바구니에서 삭제할 상품 고유 번호")
     private Long itemId;
+
+    public static DeleteCartRequest of(Long itemId) {
+        return DeleteCartRequest.builder()
+                .itemId(itemId)
+                .build();
+    }
 }
