@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.refund.entity;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity;
 
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;

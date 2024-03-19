@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.refund.enumerated;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated;
 
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
