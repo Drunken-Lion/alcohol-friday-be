@@ -15,6 +15,7 @@ public interface FileService {
 
     NcpFileResponse updateFiles(BaseEntity entity, List<Integer> removeSeq, List<MultipartFile> multipartFiles);
 
+    void deleteFiles(BaseEntity entity);
     List<NcpFileResponse> findAllByEntityIds(List<Long> entityIds, String entityType);
 
     NcpFileResponse findByEntityId(Long entityId, String entityType);

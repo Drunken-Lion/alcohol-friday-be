@@ -67,6 +67,7 @@ public class HttpResponse {
         NOT_FOUND_RESTAURANT_ORDER_NUMBER(HttpStatus.NOT_FOUND, "존재하지 않는 Restaurant Order Number"),
         NOT_FOUND_STATUS(HttpStatus.NOT_FOUND, "존재하지 않는 상태값 입니다."),
         NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
+        NOT_FOUND_ORDER_DETAIL(HttpStatus.NOT_FOUND, "존재하지 않는 주문상세내역입니다."),
         NOT_FOUND_PAYMENT_CARD_TYPE(HttpStatus.NOT_FOUND, "존재하지 않는 카드 종류 입니다."),
         NOT_FOUND_PAYMENT_METHOD(HttpStatus.NOT_FOUND, "존재하지 않는 결제 수단 입니다."),
         NOT_FOUND_PAYMENT_OWNER_TYPE(HttpStatus.NOT_FOUND, "존재하지 않는 카드의 소유자 타입 입니다."),
@@ -90,6 +91,7 @@ public class HttpResponse {
         ORDER_ISSUE(HttpStatus.CONFLICT, "주문 처리 중에 문제가 발생 했습니다."),
         DELETED_QUESTION(HttpStatus.CONFLICT, "삭제된 문의사항 입니다."),
         DELETED_ANSWER(HttpStatus.CONFLICT, "삭제 처리가 된 답변 입니다."),
+        EXIST_REVIEW(HttpStatus.CONFLICT, "작성된 리뷰가 존재합니다."),
         OUT_OF_ITEM_STOCK(HttpStatus.CONFLICT, "현재 상품에 재고가 없습니다."),
 
         // 500 서버 에러

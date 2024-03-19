@@ -43,4 +43,13 @@ public class Review extends BaseEntity {
         this.orderDetail = orderDetail;
         if (orderDetail.getReview() != this) orderDetail.addReview(this);
     }
+
+    public void addItem(Item item) {
+        this.item = item;
+    }
+
+    public void updateReview(Double score, String content) {
+        this.score = score;
+        this.content = content;
+    }
 }
