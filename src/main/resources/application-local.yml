@@ -19,4 +19,8 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect
-
+custom:
+  tossPayments:
+    widget:
+      clientKey: test_ck_yZqmkKeP8g9y6Z7oq0GdVbQRxB9l
+      secretKey: ON_SECRET
