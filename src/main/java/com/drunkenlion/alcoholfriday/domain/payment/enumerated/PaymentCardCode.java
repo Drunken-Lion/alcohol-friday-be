@@ -118,7 +118,25 @@ public enum PaymentCardCode {
         this.cardCode = cardCode;
     }
 
+    public static String ofCardName(PaymentCardCode cardCode) {
+        if (cardCode == null) {
+            return "";
+        }
+
+        for (PaymentCardCode value : PaymentCardCode.values()) {
+            if (value.cardCode.equals(cardCode.getCardCode())) {
+                return value.cardName;
+            }
+        }
+
+        throw new BusinessException(HttpResponse.Fail.NOT_FOUND_PAYMENT_CARD_CODE);
+    }
+
     public static PaymentCardCode ofCardCode(String cardCode) {
+        if (cardCode == null) {
+            return null;
+        }
+
         return Arrays.stream(PaymentCardCode.values())
                 .filter(value -> value.cardCode.equals(cardCode))
                 .findFirst()
