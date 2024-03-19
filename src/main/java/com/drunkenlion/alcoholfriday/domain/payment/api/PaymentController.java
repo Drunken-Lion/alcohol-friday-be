@@ -84,7 +84,10 @@ public class PaymentController {
         JSONObject jsonObject = (JSONObject) parser.parse(reader);
         responseStream.close();
 
-        if (isSuccess) paymentService.saveSuccessPayment(TossPaymentsReq.of(orderId, paymentKey, jsonObject));
+        if (isSuccess) {
+            paymentService.saveSuccessPayment(TossPaymentsReq.of(orderId, paymentKey, jsonObject));
+            paymentService.deletedCartItems(orderId);
+        }
 
         return ResponseEntity.status(code).body(jsonObject);
     }
