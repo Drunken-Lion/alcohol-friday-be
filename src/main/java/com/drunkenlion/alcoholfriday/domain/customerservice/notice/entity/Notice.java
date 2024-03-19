@@ -1,5 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity;
 
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumerated.NoticeStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.util.converter.NoticeStatusConverter;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -29,4 +31,9 @@ public class Notice extends BaseEntity {
     @Comment("공지사항 내용")
     @Column(name = "content", columnDefinition = "MEDIUMTEXT")
     private String content;
+
+    @Comment("작성 상태")
+    @Column(name = "status", columnDefinition = "VARCHAR(20)")
+    @Convert(converter = NoticeStatusConverter.class)
+    private NoticeStatus status;
 }

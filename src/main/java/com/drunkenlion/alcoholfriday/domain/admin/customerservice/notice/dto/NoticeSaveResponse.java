@@ -1,7 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.dto;
 
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumerated.NoticeStatus;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
+import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -24,6 +26,9 @@ public class NoticeSaveResponse {
 
     @Schema(description = "공지사항 내용")
     private String content;
+
+    @Schema(description = "공지사항 작성 상태")
+    private NoticeStatus status;
 
     @Schema(description = "생성일시")
     private LocalDateTime createdAt;
