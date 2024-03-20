@@ -18,6 +18,7 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.request
 import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.enumerated.QuestionStatus;
+import com.drunkenlion.alcoholfriday.domain.member.api.MemberController;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
@@ -93,12 +94,12 @@ class QuestionControllerTest {
         questionRepository.save(question);
 
         ResultActions actions = mvc
-                .perform(get("/v1/questions"))
+                .perform(get("/v1/members/me/questions"))
                 .andDo(print());
 
         actions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(QuestionController.class))
+                .andExpect(handler().handlerType(MemberController.class))
                 .andExpect(handler().methodName("findQuestions"))
                 .andExpect(jsonPath("$.data", instanceOf(List.class)))
                 .andExpect(jsonPath("$.data.[0].id", instanceOf(Number.class)))
@@ -141,12 +142,12 @@ class QuestionControllerTest {
         questionRepository.save(question);
 
         ResultActions actions = mvc
-                .perform(get("/v1/questions/" + question.getId()))
+                .perform(get("/v1/members/me/questions/" + question.getId()))
                 .andDo(print());
 
         actions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(QuestionController.class))
+                .andExpect(handler().handlerType(MemberController.class))
                 .andExpect(handler().methodName("findQuestion"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
@@ -200,12 +201,12 @@ class QuestionControllerTest {
         questionRepository.save(question);
 
         ResultActions actions = mvc
-                .perform(get("/v1/questions/" + question.getId()))
+                .perform(get("/v1/members/me/questions/" + question.getId()))
                 .andDo(print());
 
         actions
                 .andExpect(status().is4xxClientError())
-                .andExpect(handler().handlerType(QuestionController.class))
+                .andExpect(handler().handlerType(MemberController.class))
                 .andExpect(handler().methodName("findQuestion"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.message", notNullValue()));
@@ -224,7 +225,7 @@ class QuestionControllerTest {
         MockMultipartFile files = JsonConvertor.getMockImg("files");
 
         ResultActions actions = mvc
-                .perform(multipart("/v1/questions")
+                .perform(multipart("/v1/members/me/questions")
                         .file(requestData)
                         .file(files)
                 )
@@ -232,7 +233,7 @@ class QuestionControllerTest {
 
         actions
                 .andExpect(status().isCreated())
-                .andExpect(handler().handlerType(QuestionController.class))
+                .andExpect(handler().handlerType(MemberController.class))
                 .andExpect(handler().methodName("saveQuestion"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
@@ -272,7 +273,7 @@ class QuestionControllerTest {
         MockMultipartFile multipartFile1 = JsonConvertor.getMockImg();
 
         MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart(
-                "/v1/questions/" + question.getId());
+                "/v1/members/me/questions/" + question.getId());
         builder.with(new RequestPostProcessor() {
             @Override
             public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
@@ -290,8 +291,8 @@ class QuestionControllerTest {
 
         actions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(QuestionController.class))
-                .andExpect(handler().methodName("update"))
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("updateQuestion"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.title", notNullValue()))
@@ -321,14 +322,14 @@ class QuestionControllerTest {
         );
 
         ResultActions actions = mvc
-                .perform(delete("/v1/questions/" + question.getId())
+                .perform(delete("/v1/members/me/questions/" + question.getId())
                 )
                 .andDo(print());
 
         actions
                 .andExpect(status().isNoContent())
-                .andExpect(handler().handlerType(QuestionController.class))
-                .andExpect(handler().methodName("delete"))
+                .andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("deleteQuestion"))
         ;
     }
 }

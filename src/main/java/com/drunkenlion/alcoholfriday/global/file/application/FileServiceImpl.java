@@ -66,7 +66,7 @@ public class FileServiceImpl implements FileService {
                 fileRepository.findByEntityIdAndEntityType(entity.getId(), EntityTypeV2.getEntityType(entity))
                         .orElse(null);
 
-        if (ncpFile1 == null) {
+        if (ncpFile1 == null || ncpFile1.getS3Files().isEmpty()) {
             return null;
         }
 
@@ -117,6 +117,12 @@ public class FileServiceImpl implements FileService {
 
         fileRepository.save(ncpFile);
         return NcpFileResponse.of(ncpFile);
+    }
+
+    @Override
+    public void deleteFiles(BaseEntity entity) {
+        fileRepository.findByEntityIdAndEntityType(entity.getId(), EntityTypeV2.getEntityType(entity))
+                .ifPresent(fileRepository::delete);
     }
 
     /**

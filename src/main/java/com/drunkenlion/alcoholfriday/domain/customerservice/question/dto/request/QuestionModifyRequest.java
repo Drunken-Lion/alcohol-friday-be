@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "문의사항 등록 요청 항목")
+@Schema(description = "문의사항 수정 요청 항목")
 public class QuestionModifyRequest {
     @Schema(description = "문의사항 제목")
     private String updateTitle;

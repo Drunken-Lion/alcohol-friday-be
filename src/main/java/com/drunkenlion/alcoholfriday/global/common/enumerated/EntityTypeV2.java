@@ -6,9 +6,12 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Ques
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.LazyInitializer;
 
 public enum EntityTypeV2 {
 
@@ -17,7 +20,8 @@ public enum EntityTypeV2 {
     ITEM("item", Item.builder().build()),
     PRODUCT("product", Product.builder().build()),
     MEMBER("member", Member.builder().build()),
-    NOTICE("notice", Notice.builder().build())
+    NOTICE("notice", Notice.builder().build()),
+    REVIEW("review", Review.builder().build())
     ;
 
     private final String entityType;
@@ -29,11 +33,24 @@ public enum EntityTypeV2 {
     }
 
     public static String getEntityType(BaseEntity entityObj) {
+        Class<?> classType = getClassType(entityObj);
+
         for (EntityTypeV2 entity : EntityTypeV2.values()) {
-            if (entityObj.getClass().isInstance(entity.entityObj)) {
+            if (classType.isInstance(entity.entityObj)) {
                 return entity.entityType;
             }
         }
+
         throw new BusinessException(HttpResponse.Fail.NOT_FOUND);
+    }
+
+    private static Class<?> getClassType(BaseEntity entityObj) {
+        if (entityObj instanceof HibernateProxy) {
+            HibernateProxy hProxy = (HibernateProxy) entityObj;
+            LazyInitializer initializer = hProxy.getHibernateLazyInitializer();
+            return initializer.getPersistentClass();
+        }
+
+        return entityObj.getClass();
     }
 }
