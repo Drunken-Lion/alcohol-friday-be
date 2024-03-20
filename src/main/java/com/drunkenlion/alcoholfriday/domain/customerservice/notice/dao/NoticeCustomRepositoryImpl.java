@@ -38,17 +38,4 @@ public class NoticeCustomRepositoryImpl implements NoticeCustomRepository{
 
         return PageableExecutionUtils.getPage(fetch, pageable, where::fetchOne);
     }
-
-    @Override
-    public Optional<Notice> findNotice(Long id) {
-        BooleanExpression conditions =
-                notice.status.eq(NoticeStatus.PUBLISHED)
-                        .and(notice.deletedAt.isNull())
-                        .and(notice.id.eq(id));
-
-        return Optional.of(jpaQueryFactory
-                .selectFrom(notice)
-                .where(conditions)
-                .fetchFirst());
-    }
 }

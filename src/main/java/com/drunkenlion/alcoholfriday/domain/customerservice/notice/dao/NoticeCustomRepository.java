@@ -8,6 +8,4 @@ import java.util.Optional;
 
 public interface NoticeCustomRepository {
     Page<Notice> findNotices(Pageable pageable);
-
-    Optional<Notice> findNotice(Long id);
 }
