@@ -36,4 +36,10 @@ public class Notice extends BaseEntity {
     @Column(name = "status", columnDefinition = "VARCHAR(20)")
     @Convert(converter = NoticeStatusConverter.class)
     private NoticeStatus status;
+
+    public void updateNotice(String title, String content) {
+        this.title = title;
+        this.content = content;
+        this.status = NoticeStatus.PUBLISHED;
+    }
 }
