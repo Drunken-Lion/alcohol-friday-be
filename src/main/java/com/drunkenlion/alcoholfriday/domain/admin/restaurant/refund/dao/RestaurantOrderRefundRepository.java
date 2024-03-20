@@ -10,4 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RestaurantOrderRefundRepository extends JpaRepository<RestaurantOrderRefund, Long> {
     Page<RestaurantOrderRefund> findByRestaurant(Restaurant restaurant, Pageable pageable);
     boolean existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(Long orderId, RestaurantOrderRefundStatus restaurantOrderRefundStatus);
+    Page<RestaurantOrderRefund> findByRestaurantAndDeletedAtIsNull(Restaurant restaurant, Pageable pageable);
 }

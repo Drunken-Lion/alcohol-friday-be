@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface RestaurantOrderRefundDetailRepository extends JpaRepository<RestaurantOrderRefundDetail, Long> {
-    List<RestaurantOrderRefundDetail> findByRestaurantOrderRefund(RestaurantOrderRefund refund);
+    List<RestaurantOrderRefundDetail> findByRestaurantOrderRefundAndDeletedAtIsNull(RestaurantOrderRefund refund);
 }

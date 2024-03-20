@@ -47,18 +47,19 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
 
     @Override
     public Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(RestaurantInfoRequest request, int page, int size) {
-        Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(request.getRestaurantId())
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByRestaurant(restaurant, pageable);
+        Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByRestaurantAndDeletedAtIsNull(restaurant, pageable);
 
         List<RestaurantOrderRefundResponse> refundResponses = refundPage.getContent().stream()
                 .map(refund -> {
-                    List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository.findByRestaurantOrderRefund(refund);
+                    List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository
+                            .findByRestaurantOrderRefundAndDeletedAtIsNull(refund);
                     List<RestaurantOrderRefundDetailResponse> refundDetailResponses = refundDetails.stream()
                             .map(refundDetail -> {
                                 NcpFileResponse file = fileService.findOne(refundDetail.getProduct());
