@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.application.RestaurantOrderRefundService;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantInfoRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,5 +35,21 @@ public class RestaurantOrderRefundController {
                 this.restaurantOrderRefundService.getRestaurantOrderRefunds(request, page, size)
         );
         return ResponseEntity.ok().body(pageResponse);
+    }
+
+    @Operation(summary = "매장 환불 추가(사장)", description = "사장 권한에 대한 매장 환불 추가")
+    @PostMapping("/owner")
+    public ResponseEntity<RestaurantOrderRefundResponse> createRestaurantOrderRefund(
+            @Valid @RequestBody RestaurantOrderRefundCreateRequest request
+    ) {
+        RestaurantOrderRefundResponse restaurantOrderRefundResponse = restaurantOrderRefundService.createRestaurantOrderRefund(request);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(restaurantOrderRefundResponse.getOrderId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(restaurantOrderRefundResponse);
     }
 }
