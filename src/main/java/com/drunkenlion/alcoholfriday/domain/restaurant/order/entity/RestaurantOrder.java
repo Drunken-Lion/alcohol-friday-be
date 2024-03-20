@@ -5,7 +5,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.util.RestaurantOrderStatusConverter;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,5 +84,9 @@ public class RestaurantOrder extends BaseEntity {
 
     public void updateStatus(RestaurantOrderStatus status) {
         this.orderStatus = status;
+    }
+
+    public String getFullAddress() {
+        return this.address + " " + this.addressDetail + " [" + this.postcode + "]";
     }
 }
