@@ -8,16 +8,29 @@ import java.util.Arrays;
 
 @Getter
 public enum NoticeStatus {
-    DRAFT("작성 중"),
-    PUBLISHED("작성 완료");
+    DRAFT("작성 중", "1"),
+    PUBLISHED("작성 완료", "2");
 
-    private final String label;
+    private final String status;
+    private final String statusNumber;
 
-    NoticeStatus(String status) { this.label = status; }
+    NoticeStatus(String status, String statusNumber) {
+        this.status = status;
+        this.statusNumber = statusNumber;
+    }
 
-    public static NoticeStatus ofStatus(String status) {
+    public static NoticeStatus byStatus(String status) {
         return Arrays.stream(NoticeStatus.values())
-                .filter(value -> value.label.equals(status))
+                .filter(value -> value.status.equals(status))
+                .findFirst()
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND)
+                        .build());
+    }
+
+    public static NoticeStatus byStatusNumber(String statusNumber) {
+        return Arrays.stream(NoticeStatus.values())
+                .filter(value -> value.status.equals(statusNumber))
                 .findFirst()
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND)

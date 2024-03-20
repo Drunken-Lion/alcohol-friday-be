@@ -9,12 +9,12 @@ public class NoticeStatusConverter implements AttributeConverter<NoticeStatus, S
 
     @Override
     public String convertToDatabaseColumn(NoticeStatus attribute) {
-        return attribute.getLabel();
+        return attribute.getStatus();
     }
 
     @Override
     public NoticeStatus convertToEntityAttribute(String dbData) {
-        return NoticeStatus.ofStatus(dbData);
+        return NoticeStatus.byStatusNumber(dbData);
     }
 
 }
