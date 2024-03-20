@@ -1,8 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.notice.application;
+package com.drunkenlion.alcoholfriday.domain.customerservice.notice.application;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
-import com.drunkenlion.alcoholfriday.domain.customerservice.notice.application.NoticeServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dto.response.NoticeDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dto.response.NoticeListResponse;
@@ -64,7 +63,7 @@ public class NoticeServiceTest {
     @Test
     public void getNoticesTest() {
 
-        when(this.noticeRepository.findAllByDeletedAtIsNull(any(Pageable.class))).thenReturn(this.getNotices());
+        when(this.noticeRepository.findNotices(any(Pageable.class))).thenReturn(this.getNotices());
 
         Page<NoticeListResponse> notices = noticeService.getNotices(page, size);
 

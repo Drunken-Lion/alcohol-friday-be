@@ -1,7 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.notice.api;
+package com.drunkenlion.alcoholfriday.domain.customerservice.notice.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumerated.NoticeStatus;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.customerservice.notice.api.NoticeController;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
@@ -69,6 +69,7 @@ public class NoticeControllerTest {
                 Notice.builder()
                         .title("test title")
                         .content("test content")
+                        .status(NoticeStatus.PUBLISHED)
                         .member(member)
                         .build());
         noticeRepository.save(notice);

@@ -1,11 +1,13 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.api;
 
-import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.api.AdminNoticeController;
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumerated.NoticeStatus;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -16,15 +18,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole.ADMIN;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -46,29 +48,25 @@ public class AdminNoticeControllerTest {
     @BeforeEach
     @Transactional
     void beforeEach() {
-        Member member = Member.builder()
-                .email("smileby95@nate.com")
+        Member member = memberRepository.save(Member.builder()
+                .email("member1@example.com")
                 .provider(ProviderType.KAKAO)
-                .name("김태섭")
-                .nickname("seop")
-                .role(ADMIN)
-                .phone(1041932693L)
-                .certifyAt(null)
+                .name("Member1")
+                .nickname("Member1")
+                .role(MemberRole.MEMBER)
+                .phone(1012345678L)
+                .certifyAt(LocalDate.now())
                 .agreedToServiceUse(true)
                 .agreedToServicePolicy(true)
                 .agreedToServicePolicyUse(true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(null)
-                .deletedAt(null)
-                .build();
-
-        memberRepository.save(member);
+                .build());
 
         Notice notice = noticeRepository.save(
                 Notice.builder()
                         .title("test title")
                         .content("test content")
                         .member(member)
+                        .status(NoticeStatus.PUBLISHED)
                         .build());
         noticeRepository.save(notice);
     }
@@ -137,9 +135,9 @@ public class AdminNoticeControllerTest {
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
     }
 
-    @DisplayName("공지사항 등록 성공")
+    @DisplayName("공지사항 빈 엔티티 생성")
     @Test
-    void saveNoticeTest() throws Exception {
+    void initNoticeTest() throws Exception {
 
         ResultActions resultActions = mvc
                 .perform(post("/v1/admin/notices")
@@ -157,14 +155,38 @@ public class AdminNoticeControllerTest {
         resultActions
                 .andExpect(status().isCreated())
                 .andExpect(handler().handlerType(AdminNoticeController.class))
-                .andExpect(handler().methodName("saveNotice"))
+                .andExpect(handler().methodName("initNotice"))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.member", notNullValue()))
-                .andExpect(jsonPath("$.title", notNullValue()))
-                .andExpect(jsonPath("$.content", notNullValue()))
+                .andExpect(jsonPath("$.title", is(nullValue())))
+                .andExpect(jsonPath("$.content", is(nullValue())))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.updatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
                 .andExpect(jsonPath("$.deletedAt", anyOf(is(matchesPattern(TestUtil.DATETIME_PATTERN)), is(nullValue()))));
+    }
+
+    @DisplayName("공지사항 이미지 등록")
+    @Test
+    void saveNoticeImageTest() throws Exception {
+
+        Notice notice = noticeRepository.findAll().get(0);
+
+        MockMultipartFile file = JsonConvertor.getMockImg("file");
+        String entityDomain = "https://alcohol.friday.image.bucket.kr.object.ncloudstorage.com/notice";
+        String entityId = notice.getId() + "_";
+
+        ResultActions resultActions = mvc
+                .perform(multipart("/v1/admin/notices/" + notice.getId())
+                        .file(file)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isCreated())
+                .andExpect(handler().handlerType(AdminNoticeController.class))
+                .andExpect(handler().methodName("saveNoticeImage"))
+                .andExpect(content().string(containsString(entityDomain)))
+                .andExpect(content().string(containsString(entityId)));
     }
 
     @DisplayName("공지사항 수정 성공")

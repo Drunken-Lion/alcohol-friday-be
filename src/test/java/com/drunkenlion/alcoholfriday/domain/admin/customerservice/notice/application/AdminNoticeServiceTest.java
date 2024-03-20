@@ -1,6 +1,5 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.application.AdminNoticeServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.dto.NoticeSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.dto.NoticeSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
@@ -65,33 +64,6 @@ public class AdminNoticeServiceTest {
 
     private final String modifyTitle = "test title update";
     private final String modifyContent = "test content update";
-
-    @DisplayName("관리자 공지사항 등록 성공")
-    @Test
-    public void createAdminNoticeTest() {
-        // given 준비
-        NoticeSaveRequest noticeSaveRequest = NoticeSaveRequest.builder()
-                .title(title)
-                .content(content)
-                .build();
-        // 메서드 모의
-        when(noticeRepository.save(any(Notice.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // When 실행
-        NoticeSaveResponse noticeResponse = adminNoticeService.saveNotice(noticeSaveRequest, getMemberData());
-
-        // then 검증
-        assertThat(noticeResponse.getTitle()).isEqualTo(title);
-        assertThat(noticeResponse.getContent()).isEqualTo(content);
-
-        assertThat(noticeResponse.getMember().getId()).isEqualTo(memberId);
-        assertThat(noticeResponse.getMember().getName()).isEqualTo(name);
-        assertThat(noticeResponse.getMember().getNickname()).isEqualTo(nickname);
-        assertThat(noticeResponse.getMember().getProvider()).isEqualTo(provider);
-        assertThat(noticeResponse.getMember().getPhone()).isEqualTo(phone);
-        assertThat(noticeResponse.getMember().getEmail()).isEqualTo(email);
-        assertThat(noticeResponse.getMember().getCreatedAt()).isEqualTo(memberCreatedAt);
-    }
 
     @DisplayName("관리자 공지사항 목록 조회 성공")
     @Test
@@ -165,7 +137,7 @@ public class AdminNoticeServiceTest {
     @Test
     public void updateAdminNoticeTest() {
         // given 준비
-        NoticeSaveRequest noticeSaveRequest = NoticeSaveRequest.builder()
+        NoticeSaveRequest request = NoticeSaveRequest.builder()
                 .title(modifyTitle)
                 .content(modifyContent)
                 .build();
@@ -175,7 +147,7 @@ public class AdminNoticeServiceTest {
         Mockito.when(noticeRepository.save(any(Notice.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When 실행
-        NoticeSaveResponse noticeResponse = adminNoticeService.modifyNotice(noticeId, noticeSaveRequest, getMemberData());
+        NoticeSaveResponse noticeResponse = adminNoticeService.modifyNotice(noticeId, request, getMemberData());
 
         // then 검증
         assertThat(noticeResponse.getId()).isEqualTo(noticeId);
@@ -188,7 +160,7 @@ public class AdminNoticeServiceTest {
     @Test
     public void updateAdminNoticeNotFoundTest() {
         // given 준비
-        NoticeSaveRequest noticeSaveRequest = NoticeSaveRequest.builder()
+        NoticeSaveRequest request = NoticeSaveRequest.builder()
                 .title(modifyTitle)
                 .content(modifyContent)
                 .build();
@@ -198,7 +170,7 @@ public class AdminNoticeServiceTest {
 
         // When 실행
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminNoticeService.modifyNotice(noticeId, noticeSaveRequest, getMemberData());
+            adminNoticeService.modifyNotice(noticeId, request, getMemberData());
         });
         // then
         // (예상값, 발생한 상태 코드값)
