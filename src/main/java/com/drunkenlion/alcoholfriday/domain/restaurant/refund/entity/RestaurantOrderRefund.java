@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.refund.entity;
 
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
 import com.drunkenlion.alcoholfriday.domain.restaurant.refund.util.RestaurantOrderRefundStatusConverter;
@@ -21,9 +22,14 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "restaurant_order_refund")
 public class RestaurantOrderRefund extends BaseEntity {
+    @Comment("레스토랑 정보")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Restaurant restaurant;
+
     @Comment("레스토랑 주문 정보")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurantOrder_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "restaurant_order_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private RestaurantOrder restaurantOrder;
 
     @Comment("환불 총 가격")

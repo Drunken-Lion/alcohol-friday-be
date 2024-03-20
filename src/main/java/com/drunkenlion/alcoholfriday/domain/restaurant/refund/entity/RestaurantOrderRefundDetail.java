@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 public class RestaurantOrderRefundDetail extends BaseEntity {
     @Comment("반품 정보")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurantOrderRefund_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "restaurant_order_refund_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private RestaurantOrderRefund restaurantOrderRefund;
 
     @Comment("상품 정보")
