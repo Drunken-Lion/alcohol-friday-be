@@ -42,8 +42,12 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
 
     @Override
     @Transactional
-    public NoticeSaveResponse saveNotice(NoticeSaveRequest request, Member member) {
-        Notice notice = noticeRepository.save(NoticeSaveRequest.toEntity(request, member));
+    public NoticeSaveResponse initNotice(Member member) {
+        Notice notice = Notice.builder()
+                .member(member)
+                .status(NoticeStatus.DRAFT)
+                .build();
+        noticeRepository.save(notice);
 
         return NoticeSaveResponse.of(notice);
     }
