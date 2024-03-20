@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.applic
 
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.dto.NoticeSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.dto.NoticeSaveResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumerated.NoticeStatus;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -26,9 +27,7 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     @Override
     public NoticeSaveResponse getNotice(Long id, Member member) {
         Notice notice = noticeRepository.findById(id)
-                .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_NOTICE)
-                        .build());
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_NOTICE));
 
         return NoticeSaveResponse.of(notice);
     }
@@ -53,15 +52,9 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     @Transactional
     public NoticeSaveResponse modifyNotice(Long id, NoticeSaveRequest request, Member member) {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_NOTICE)
-                        .build());
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_NOTICE));
 
-        notice = notice.toBuilder()
-                .title(request.getTitle())
-                .content(request.getContent())
-                .updatedAt(LocalDateTime.now())
-                .build();
+        notice.updateNotice(request.getTitle(), request.getContent());
 
         noticeRepository.save(notice);
 
@@ -72,9 +65,7 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     @Transactional
     public void deleteNotice(Long id, Member member) {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_NOTICE)
-                        .build());
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_NOTICE));
 
         notice = notice.toBuilder()
                 .deletedAt(LocalDateTime.now())
