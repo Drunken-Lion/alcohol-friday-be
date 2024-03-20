@@ -3,7 +3,6 @@ package com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.dto;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumerated.NoticeStatus;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
-import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -45,6 +44,7 @@ public class NoticeSaveResponse {
                 .member(MemberResponse.of(notice.getMember()))
                 .title(notice.getTitle())
                 .content(notice.getContent())
+                .status(notice.getStatus())
                 .createdAt(notice.getCreatedAt())
                 .updatedAt(notice.getUpdatedAt())
                 .deletedAt(notice.getDeletedAt())
