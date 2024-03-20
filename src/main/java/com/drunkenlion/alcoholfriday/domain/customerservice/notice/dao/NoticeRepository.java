@@ -12,7 +12,4 @@ import java.util.Optional;
 @Repository
 public interface NoticeRepository extends JpaRepository<Notice, Long>, NoticeCustomRepository {
 
-    Optional<Notice> findByIdAndDeletedAtIsNull(Long id);
-
-    Page<Notice> findAllByDeletedAtIsNull(Pageable pageable);
 }

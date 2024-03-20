@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class NoticeCustomRepositoryImpl implements NoticeCustomRepository{
@@ -36,5 +37,18 @@ public class NoticeCustomRepositoryImpl implements NoticeCustomRepository{
                 .where(conditions);
 
         return PageableExecutionUtils.getPage(fetch, pageable, where::fetchOne);
+    }
+
+    @Override
+    public Optional<Notice> findNotice(Long id) {
+        BooleanExpression conditions =
+                notice.status.eq(NoticeStatus.PUBLISHED)
+                        .and(notice.deletedAt.isNull())
+                        .and(notice.id.eq(id));
+
+        return Optional.of(jpaQueryFactory
+                .selectFrom(notice)
+                .where(conditions)
+                .fetchFirst());
     }
 }

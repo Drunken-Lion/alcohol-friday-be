@@ -21,7 +21,7 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public NoticeDetailResponse getNotice(Long id) {
-        Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
+        Notice notice = noticeRepository.findNotice(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_NOTICE)
                 .build());
