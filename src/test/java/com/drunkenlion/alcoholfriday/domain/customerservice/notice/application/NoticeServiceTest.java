@@ -89,14 +89,9 @@ public class NoticeServiceTest {
         assertThat(noticeResponse.getCreatedAt()).isEqualTo(noticeCreatedAt);
         assertThat(noticeResponse.getUpdatedAt()).isEqualTo(noticeUpdatedAt);
 
-        assertThat(noticeResponse.getMember().getId()).isEqualTo(memberId);
-        assertThat(noticeResponse.getMember().getName()).isEqualTo(name);
-        assertThat(noticeResponse.getMember().getNickname()).isEqualTo(nickname);
-        assertThat(noticeResponse.getMember().getProvider()).isEqualTo(provider);
-        assertThat(noticeResponse.getMember().getPhone()).isEqualTo(phone);
-        assertThat(noticeResponse.getMember().getEmail()).isEqualTo(email);
-        assertThat(noticeResponse.getMember().getCreatedAt()).isEqualTo(memberCreatedAt);
-        assertThat(noticeResponse.getMember().getDeletedAt()).isEqualTo(memberDeletedAt);
+        assertThat(noticeResponse.getMemberId()).isEqualTo(memberId);
+        assertThat(noticeResponse.getMemberName()).isEqualTo(name);
+        assertThat(noticeResponse.getMemberNickname()).isEqualTo(nickname);
     }
 
     @DisplayName("공지사항 상세 조회 실패 - 찾을 수 없는 공지사항")

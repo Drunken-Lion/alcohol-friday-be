@@ -124,7 +124,7 @@ public class NoticeControllerTest {
                 .andExpect(handler().methodName("getNotice"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.member", notNullValue()))
+                .andExpect(jsonPath("$.memberId", notNullValue()))
                 .andExpect(jsonPath("$.title", notNullValue()))
                 .andExpect(jsonPath("$.content", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
