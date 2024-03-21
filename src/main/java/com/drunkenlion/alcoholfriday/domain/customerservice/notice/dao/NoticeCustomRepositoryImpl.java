@@ -5,7 +5,6 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice
 import static com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.QNotice.notice;
 
 import com.querydsl.core.BooleanBuilder;
-
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
