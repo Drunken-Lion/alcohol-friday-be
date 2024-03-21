@@ -46,8 +46,8 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
     private final FileService fileService;
 
     @Override
-    public Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(RestaurantInfoRequest request, int page, int size) {
-        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(request.getRestaurantId())
+    public Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(Long restaurantId, int page, int size) {
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());

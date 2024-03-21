@@ -1,7 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.application.RestaurantOrderRefundService;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantInfoRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
@@ -29,10 +28,10 @@ public class RestaurantOrderRefundController {
     public ResponseEntity<PageResponse<RestaurantOrderRefundResponse>> getRestaurantOrderRefunds(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
-            @Valid @RequestBody RestaurantInfoRequest request
+            @RequestParam(name = "restaurantId") Long restaurantId
     ) {
         PageResponse<RestaurantOrderRefundResponse> pageResponse = PageResponse.of(
-                this.restaurantOrderRefundService.getRestaurantOrderRefunds(request, page, size)
+                this.restaurantOrderRefundService.getRestaurantOrderRefunds(restaurantId, page, size)
         );
         return ResponseEntity.ok().body(pageResponse);
     }
