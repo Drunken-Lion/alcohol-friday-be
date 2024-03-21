@@ -46,6 +46,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class RestaurantOrderServiceImplV2 {
+    //TODO
+    // - 레스토랑 관리자 기능 전체 구현 후 패키지 구조 및 Controller, Service 병합 예정
+    
     private final RestaurantOrderRepository restaurantOrderRepository;
     private final RestaurantOrderDetailRepository restaurantOrderDetailRepository;
     private final ProductRepository productRepository;
