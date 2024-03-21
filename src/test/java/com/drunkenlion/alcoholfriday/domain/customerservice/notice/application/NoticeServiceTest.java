@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,9 +64,9 @@ public class NoticeServiceTest {
     @Test
     public void getNoticesTest() {
 
-        when(this.noticeRepository.findNotices(any(Pageable.class))).thenReturn(this.getNotices());
+        when(this.noticeRepository.findNotices(any(Pageable.class), any(), any())).thenReturn(this.getNotices());
 
-        Page<NoticeListResponse> notices = noticeService.getNotices(page, size);
+        Page<NoticeListResponse> notices = noticeService.getNotices(page, size, null, null);
 
         List<NoticeListResponse> noticeResponse = notices.getContent();
         assertThat(noticeResponse).isInstanceOf(List.class);
@@ -73,6 +74,28 @@ public class NoticeServiceTest {
         assertThat(noticeResponse.get(0).getTitle()).isEqualTo(title);
         assertThat(noticeResponse.get(0).getCreatedAt()).isEqualTo(noticeCreatedAt);
         assertThat(noticeResponse.get(0).getUpdatedAt()).isEqualTo(noticeUpdatedAt);
+    }
+
+    @DisplayName("공지사항 목록 검색 성공")
+    @Test
+    public void getNoticesSearchTest() {
+
+        when(this.noticeRepository.findNotices(any(Pageable.class), any(), any())).thenReturn(this.getNotices());
+
+        List<String> keywordType = new ArrayList<>();
+        keywordType.add("title");
+        keywordType.add("content");
+        String keyword = "test";
+
+        Page<NoticeListResponse> notices = noticeService.getNotices(page, size, keyword, keywordType);
+
+        List<NoticeListResponse> noticeResponse = notices.getContent();
+        assertThat(noticeResponse).isInstanceOf(List.class);
+        assertThat(noticeResponse.get(0).getId()).isEqualTo(noticeId);
+        assertThat(noticeResponse.get(0).getTitle()).contains(keyword);
+        assertThat(noticeResponse.get(0).getCreatedAt()).isEqualTo(noticeCreatedAt);
+        assertThat(noticeResponse.get(0).getUpdatedAt()).isEqualTo(noticeUpdatedAt);
+        assertThat(keywordType.get(0)).isEqualTo("title");
     }
 
     @DisplayName("공지사항 상세 조회 성공")
