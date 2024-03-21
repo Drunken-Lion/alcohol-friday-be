@@ -30,8 +30,7 @@ public class NoticeController {
     @GetMapping
     public ResponseEntity<PageResponse<NoticeListResponse>> getNotices(
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size
-    ) {
+            @RequestParam(name = "size", defaultValue = "10") int size) {
         PageResponse<NoticeListResponse> noticeListResponse = PageResponse.of(noticeService.getNotices(page, size));
         return ResponseEntity.ok().body(noticeListResponse);
     }

@@ -1,9 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.application.AdminNoticeServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.dto.NoticeSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.dto.NoticeSaveResponse;
-import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -54,44 +52,11 @@ public class AdminNoticeServiceTest {
     private final int size = 20;
 
     private final Long memberId = 1L;
-    private final String email = "test@example.com";
-    private final String provider = ProviderType.KAKAO.getProviderName();
     private final String name = "테스트";
     private final String nickname = "test";
-    private final Long phone = 1012345678L;
-    private final LocalDateTime memberCreatedAt = LocalDateTime.now();
-    private final LocalDateTime memberUpdatedAt = null;
-    private final LocalDateTime memberDeletedAt = null;
 
     private final String modifyTitle = "test title update";
     private final String modifyContent = "test content update";
-
-    @DisplayName("관리자 공지사항 등록 성공")
-    @Test
-    public void createAdminNoticeTest() {
-        // given 준비
-        NoticeSaveRequest noticeSaveRequest = NoticeSaveRequest.builder()
-                .title(title)
-                .content(content)
-                .build();
-        // 메서드 모의
-        when(noticeRepository.save(any(Notice.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        // When 실행
-        NoticeSaveResponse noticeResponse = adminNoticeService.saveNotice(noticeSaveRequest, getMemberData());
-
-        // then 검증
-        assertThat(noticeResponse.getTitle()).isEqualTo(title);
-        assertThat(noticeResponse.getContent()).isEqualTo(content);
-
-        assertThat(noticeResponse.getMember().getId()).isEqualTo(memberId);
-        assertThat(noticeResponse.getMember().getName()).isEqualTo(name);
-        assertThat(noticeResponse.getMember().getNickname()).isEqualTo(nickname);
-        assertThat(noticeResponse.getMember().getProvider()).isEqualTo(provider);
-        assertThat(noticeResponse.getMember().getPhone()).isEqualTo(phone);
-        assertThat(noticeResponse.getMember().getEmail()).isEqualTo(email);
-        assertThat(noticeResponse.getMember().getCreatedAt()).isEqualTo(memberCreatedAt);
-    }
 
     @DisplayName("관리자 공지사항 목록 조회 성공")
     @Test
@@ -110,13 +75,9 @@ public class AdminNoticeServiceTest {
         assertThat(noticeResponse.get(0).getContent()).isEqualTo(content);
         assertThat(noticeResponse.get(0).getCreatedAt()).isEqualTo(noticeCreatedAt);
 
-        assertThat(noticeResponse.get(0).getMember().getId()).isEqualTo(memberId);
-        assertThat(noticeResponse.get(0).getMember().getName()).isEqualTo(name);
-        assertThat(noticeResponse.get(0).getMember().getNickname()).isEqualTo(nickname);
-        assertThat(noticeResponse.get(0).getMember().getProvider()).isEqualTo(provider);
-        assertThat(noticeResponse.get(0).getMember().getPhone()).isEqualTo(phone);
-        assertThat(noticeResponse.get(0).getMember().getEmail()).isEqualTo(email);
-        assertThat(noticeResponse.get(0).getMember().getCreatedAt()).isEqualTo(memberCreatedAt);
+        assertThat(noticeResponse.get(0).getMemberId()).isEqualTo(memberId);
+        assertThat(noticeResponse.get(0).getMemberName()).isEqualTo(name);
+        assertThat(noticeResponse.get(0).getMemberNickname()).isEqualTo(nickname);
     }
 
     @DisplayName("관리자 공지사항 상세 조회 성공")
@@ -134,13 +95,9 @@ public class AdminNoticeServiceTest {
         assertThat(noticeResponse.getContent()).isEqualTo(content);
         assertThat(noticeResponse.getCreatedAt()).isEqualTo(noticeCreatedAt);
 
-        assertThat(noticeResponse.getMember().getId()).isEqualTo(memberId);
-        assertThat(noticeResponse.getMember().getName()).isEqualTo(name);
-        assertThat(noticeResponse.getMember().getNickname()).isEqualTo(nickname);
-        assertThat(noticeResponse.getMember().getProvider()).isEqualTo(provider);
-        assertThat(noticeResponse.getMember().getPhone()).isEqualTo(phone);
-        assertThat(noticeResponse.getMember().getEmail()).isEqualTo(email);
-        assertThat(noticeResponse.getMember().getCreatedAt()).isEqualTo(memberCreatedAt);
+        assertThat(noticeResponse.getMemberId()).isEqualTo(memberId);
+        assertThat(noticeResponse.getMemberName()).isEqualTo(name);
+        assertThat(noticeResponse.getMemberNickname()).isEqualTo(nickname);
     }
 
     @DisplayName("관리자 공지사항 상세 조회 실패 - 찾을 수 없는 공지사항")
@@ -165,17 +122,17 @@ public class AdminNoticeServiceTest {
     @Test
     public void updateAdminNoticeTest() {
         // given 준비
-        NoticeSaveRequest noticeSaveRequest = NoticeSaveRequest.builder()
+        NoticeSaveRequest request = NoticeSaveRequest.builder()
                 .title(modifyTitle)
                 .content(modifyContent)
                 .build();
-
         // 메서드 모의
+        // Mock 객체를 정의하는 테스트의 준비 과정, 무엇을 호출하면 어떻게 반환할 지 미리 정의
         Mockito.when(noticeRepository.findByIdAndDeletedAtIsNull(noticeId)).thenReturn(this.getNoticeOne());
         Mockito.when(noticeRepository.save(any(Notice.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When 실행
-        NoticeSaveResponse noticeResponse = adminNoticeService.modifyNotice(noticeId, noticeSaveRequest, getMemberData());
+        NoticeSaveResponse noticeResponse = adminNoticeService.modifyNotice(noticeId, request, getMemberData());
 
         // then 검증
         assertThat(noticeResponse.getId()).isEqualTo(noticeId);
@@ -188,7 +145,7 @@ public class AdminNoticeServiceTest {
     @Test
     public void updateAdminNoticeNotFoundTest() {
         // given 준비
-        NoticeSaveRequest noticeSaveRequest = NoticeSaveRequest.builder()
+        NoticeSaveRequest request = NoticeSaveRequest.builder()
                 .title(modifyTitle)
                 .content(modifyContent)
                 .build();
@@ -198,7 +155,7 @@ public class AdminNoticeServiceTest {
 
         // When 실행
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            adminNoticeService.modifyNotice(noticeId, noticeSaveRequest, getMemberData());
+            adminNoticeService.modifyNotice(noticeId, request, getMemberData());
         });
         // then
         // (예상값, 발생한 상태 코드값)
@@ -267,14 +224,8 @@ public class AdminNoticeServiceTest {
     private Member getMemberData() {
         return Member.builder()
                 .id(memberId)
-                .email(email)
-                .provider(ProviderType.byProviderName(provider))
                 .name(name)
                 .nickname(nickname)
-                .phone(phone)
-                .createdAt(memberCreatedAt)
-                .updatedAt(memberUpdatedAt)
-                .deletedAt(memberDeletedAt)
                 .build();
     }
 }

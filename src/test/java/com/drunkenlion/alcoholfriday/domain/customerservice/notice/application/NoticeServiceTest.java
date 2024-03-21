@@ -1,8 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.notice.application;
+package com.drunkenlion.alcoholfriday.domain.customerservice.notice.application;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
-import com.drunkenlion.alcoholfriday.domain.customerservice.notice.application.NoticeServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dto.response.NoticeDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dto.response.NoticeListResponse;
@@ -64,7 +63,7 @@ public class NoticeServiceTest {
     @Test
     public void getNoticesTest() {
 
-        when(this.noticeRepository.findAllByDeletedAtIsNull(any(Pageable.class))).thenReturn(this.getNotices());
+        when(this.noticeRepository.findNotices(any(Pageable.class))).thenReturn(this.getNotices());
 
         Page<NoticeListResponse> notices = noticeService.getNotices(page, size);
 
@@ -90,14 +89,9 @@ public class NoticeServiceTest {
         assertThat(noticeResponse.getCreatedAt()).isEqualTo(noticeCreatedAt);
         assertThat(noticeResponse.getUpdatedAt()).isEqualTo(noticeUpdatedAt);
 
-        assertThat(noticeResponse.getMember().getId()).isEqualTo(memberId);
-        assertThat(noticeResponse.getMember().getName()).isEqualTo(name);
-        assertThat(noticeResponse.getMember().getNickname()).isEqualTo(nickname);
-        assertThat(noticeResponse.getMember().getProvider()).isEqualTo(provider);
-        assertThat(noticeResponse.getMember().getPhone()).isEqualTo(phone);
-        assertThat(noticeResponse.getMember().getEmail()).isEqualTo(email);
-        assertThat(noticeResponse.getMember().getCreatedAt()).isEqualTo(memberCreatedAt);
-        assertThat(noticeResponse.getMember().getDeletedAt()).isEqualTo(memberDeletedAt);
+        assertThat(noticeResponse.getMemberId()).isEqualTo(memberId);
+        assertThat(noticeResponse.getMemberName()).isEqualTo(name);
+        assertThat(noticeResponse.getMemberNickname()).isEqualTo(nickname);
     }
 
     @DisplayName("공지사항 상세 조회 실패 - 찾을 수 없는 공지사항")
