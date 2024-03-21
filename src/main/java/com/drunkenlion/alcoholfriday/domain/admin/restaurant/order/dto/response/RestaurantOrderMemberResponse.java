@@ -1,7 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.domain.review.dto.response.ReviewMemberResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;

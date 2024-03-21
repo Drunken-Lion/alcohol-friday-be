@@ -1,7 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

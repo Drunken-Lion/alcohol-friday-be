@@ -1,6 +1,5 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response;
 
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrderDetail;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;

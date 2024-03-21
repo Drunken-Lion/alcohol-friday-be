@@ -5,7 +5,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.Restaura
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
