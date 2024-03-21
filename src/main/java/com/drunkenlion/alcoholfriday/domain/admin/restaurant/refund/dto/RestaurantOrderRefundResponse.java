@@ -15,6 +15,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "매장 재고 환불 항목")
 public class RestaurantOrderRefundResponse {
+    @Schema(description = "환불 고유 아이디")
+    private Long refundId;
+
     @Schema(description = "발주 고유 아이디")
     private Long orderId;
 
@@ -44,6 +47,7 @@ public class RestaurantOrderRefundResponse {
 
     public static RestaurantOrderRefundResponse of(RestaurantOrderRefund refund, List<RestaurantOrderRefundDetailResponse> refundDetails) {
         return RestaurantOrderRefundResponse.builder()
+                .refundId(refund.getId())
                 .orderId(refund.getRestaurantOrder().getId())
                 .orderCreatedAt(refund.getRestaurantOrder().getCreatedAt())
                 .businessName(refund.getRestaurantOrder().getRestaurant().getBusinessName())
