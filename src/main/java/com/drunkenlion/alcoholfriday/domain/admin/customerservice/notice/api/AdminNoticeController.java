@@ -46,7 +46,7 @@ public class AdminNoticeController {
         return ResponseEntity.ok().body(noticeSaveResponse);
     }
 
-    @Operation(summary = "공지사항 등록", description = "관리자 권한 - 공지사항 등록")
+    @Operation(summary = "공지사항 초기화", description = "관리자 권한 - 공지사항 초기 빈 객체 생성")
     @PostMapping
     public ResponseEntity<NoticeSaveResponse> initNotice(@AuthenticationPrincipal UserPrincipal user) {
         NoticeSaveResponse initResponse = adminNoticeService.initNotice(user.getMember());
@@ -59,7 +59,7 @@ public class AdminNoticeController {
         return ResponseEntity.created(location).body(initResponse);
     }
 
-    @Operation(summary = "공지사항 수정", description = "관리자 권한 - 공지사항 수정")
+    @Operation(summary = "공지사항 등록, 수정", description = "관리자 권한 - 공지사항 등록, 수정")
     @PutMapping("{id}")
     public ResponseEntity<NoticeSaveResponse> modifyNotice(@PathVariable("id") Long id,
                                                            @RequestBody @Valid NoticeSaveRequest request,
