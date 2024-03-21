@@ -73,6 +73,7 @@ public class PaymentServiceImpl implements PaymentService {
         List<DeleteCartRequest> deleteCartRequests = order.getOrderDetails().stream()
                 .map(orderDetail -> DeleteCartRequest.of(orderDetail.getItem().getId()))
                 .toList();
+
         cartService.deleteCartList(deleteCartRequests, order.getMember());
     }
 }
