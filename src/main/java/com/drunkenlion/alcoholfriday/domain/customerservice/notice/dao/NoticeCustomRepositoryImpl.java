@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 public class NoticeCustomRepositoryImpl implements NoticeCustomRepository{
@@ -22,20 +21,20 @@ public class NoticeCustomRepositoryImpl implements NoticeCustomRepository{
     public Page<Notice> findNotices(Pageable pageable) {
         BooleanExpression conditions =
                 notice.status.eq(NoticeStatus.PUBLISHED)
-                        .and(notice.deletedAt.isNull()); //where 조건
+                        .and(notice.deletedAt.isNull()); //where 조건 설정
 
-        List<Notice> fetch = jpaQueryFactory
+        List<Notice> fetch = jpaQueryFactory // 데이터 조회 쿼리
                 .selectFrom(notice)
                 .where(conditions)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        JPAQuery<Long> where = jpaQueryFactory
+        JPAQuery<Long> total = jpaQueryFactory 
                 .select(notice.count())
                 .from(notice)
                 .where(conditions);
 
-        return PageableExecutionUtils.getPage(fetch, pageable, where::fetchOne);
+        return PageableExecutionUtils.getPage(fetch, pageable, total::fetchOne);
     }
 }
