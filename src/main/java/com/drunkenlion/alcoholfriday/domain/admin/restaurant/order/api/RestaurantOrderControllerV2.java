@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,7 +32,7 @@ public class RestaurantOrderControllerV2 {
     private final RestaurantOrderServiceImplV2 restaurantOrderService;
 
     @PostMapping("restaurant-orders/owner")
-    @Operation(summary = "발주에 필요한 ID 요청", description = "제품 발주 요청 시 필요한 ID 값에 요청 및 장바구니 데이터 저장")
+    @Operation(summary = "발주에 필요한 ID 요청 (Owner)", description = "제품 발주 요청 시 필요한 ID 값에 요청 및 장바구니 데이터 저장")
     public ResponseEntity<RestaurantOrderSaveCodeResponse> getSaveCode(@RequestBody RestaurantOrderSaveCodeRequest request,
                                                                        @AuthenticationPrincipal UserPrincipal user) {
         RestaurantOrderSaveCodeResponse response = restaurantOrderService.getSaveCode(request, user.getMember());
@@ -47,6 +46,7 @@ public class RestaurantOrderControllerV2 {
     }
 
     @PutMapping("restaurant-orders/{id}/owner")
+    @Operation(summary = "발주 등록 (Owner)", description = "제품 발주 요청 사항 저장 및 작성 완료 처리")
     public ResponseEntity<RestaurantOrderSaveResponse> saveRestaurantOrder(@PathVariable("id") Long restaurantOrderId,
                                                                            @RequestBody RestaurantOrderSaveRequest request,
                                                                            @AuthenticationPrincipal UserPrincipal user) {
@@ -56,6 +56,7 @@ public class RestaurantOrderControllerV2 {
     }
 
     @PutMapping("restaurant-orders/{id}")
+    @Operation(summary = "관리자 발주 승인 처리 (Admin)")
     public ResponseEntity<RestaurantAdminOrderApprovalResponse> adminOrderApproval(@PathVariable("id") Long restaurantOrderId,
                                                                                    @AuthenticationPrincipal UserPrincipal user) {
         RestaurantAdminOrderApprovalResponse response = restaurantOrderService.adminOrderApproval(restaurantOrderId, user.getMember());
@@ -64,8 +65,9 @@ public class RestaurantOrderControllerV2 {
 
 
     @DeleteMapping("restaurant-orders/{id}")
+    @Operation(summary = "관리자 발주 반려 처리 (Admin)")
     public ResponseEntity<RestaurantAdminOrderApprovalResponse> adminOrderRejectedApproval(@PathVariable("id") Long restaurantOrderId,
-                                                         @AuthenticationPrincipal UserPrincipal user) {
+                                                                                           @AuthenticationPrincipal UserPrincipal user) {
         RestaurantAdminOrderApprovalResponse response = restaurantOrderService.adminOrderRejectedApproval(restaurantOrderId, user.getMember());
         return ResponseEntity.ok(response);
     }

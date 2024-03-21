@@ -62,7 +62,7 @@ public class RestaurantOrderServiceImplV2 {
     public RestaurantOrderSaveCodeResponse getSaveCode(RestaurantOrderSaveCodeRequest request,
                                                        Member member) {
         RestaurantOrderOwnerValidator.isOwner(member);
-        
+
         Restaurant restaurant =
                 restaurantRepository.findById(request.getRestaurantId())
                         .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT));
@@ -83,6 +83,7 @@ public class RestaurantOrderServiceImplV2 {
         if (cartDetails.isEmpty()) {
             throw new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL);
         }
+        
         List<RestaurantOrderDetailResponse> restaurantOrderDetails = new ArrayList<>();
 
         // 장바구니 Product 처리
@@ -117,7 +118,8 @@ public class RestaurantOrderServiceImplV2 {
      * 발주 정보 저장 (Owner)
      */
     @Transactional
-    public RestaurantOrderSaveResponse updateRestaurantOrder(Long id, RestaurantOrderSaveRequest request,
+    public RestaurantOrderSaveResponse updateRestaurantOrder(Long id,
+                                                             RestaurantOrderSaveRequest request,
                                                              Member member) {
         // Order 수정 로직
         RestaurantOrderOwnerValidator.isOwner(member);
@@ -235,6 +237,7 @@ public class RestaurantOrderServiceImplV2 {
                     .orElse(RestaurantStock.builder()
                             .product(detail.getProduct())
                             .restaurant(detail.getRestaurantOrder().getRestaurant())
+                            .price(detail.getProduct().getPrice().multiply(BigDecimal.valueOf(11)))
                             .build());
 
             restaurantStock.plusQuantity(detail.getQuantity());

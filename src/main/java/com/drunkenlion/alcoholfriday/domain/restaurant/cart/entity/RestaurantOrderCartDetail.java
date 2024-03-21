@@ -32,4 +32,9 @@ public class RestaurantOrderCartDetail extends BaseEntity {
     public void minusQuantity(Long quantity) {
         this.quantity = this.quantity - quantity;
     }
+
+    public void addCart(RestaurantOrderCart cart) {
+        this.restaurantOrderCart = cart;
+        this.restaurantOrderCart.getRestaurantDetailOrders().add(this);
+    }
 }

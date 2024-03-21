@@ -1,11 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderAddressConvertor;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
-import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
+import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +30,9 @@ public class RestaurantOrderSaveCodeResponse {
     @Schema(description = "발주 총 금액")
     private BigDecimal totalPrice;
 
+    @Schema(description = "발주 상태")
+    private RestaurantOrderStatus status;
+
     @Schema(description = "레스토랑 주문자 정보")
     private RestaurantOrderMemberResponse member;
 
@@ -40,8 +43,9 @@ public class RestaurantOrderSaveCodeResponse {
         return RestaurantOrderSaveCodeResponse.builder()
                 .id(rs.getId())
                 .businessName(rs.getRestaurant().getBusinessName())
-                .address("%s %s [%s]".formatted(rs.getAddress(), rs.getAddressDetail(), rs.getPostcode()))
+                .address(RestaurantOrderAddressConvertor.getRestaurantAddress(rs.getRestaurant()))
                 .totalPrice(rs.getTotalPrice())
+                .status(rs.getOrderStatus())
                 .member(RestaurantOrderMemberResponse.of(rs.getMember()))
                 .details(details)
                 .build();

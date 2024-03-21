@@ -19,8 +19,6 @@ public class RestaurantOrderDetailCustomRepositoryImpl implements RestaurantOrde
 
     @Override
     public Optional<RestaurantOrderDetail> findRestaurantOrderAndProduct(RestaurantOrder order, Product product) {
-        System.out.println("여기는 Repo : order :: " + order);
-        System.out.println("여기는 Repo : product :: " + product);
         BooleanExpression conditions =
                 restaurantOrderDetail.restaurantOrder.eq(order)
                         .and(restaurantOrderDetail.product.eq(product))
