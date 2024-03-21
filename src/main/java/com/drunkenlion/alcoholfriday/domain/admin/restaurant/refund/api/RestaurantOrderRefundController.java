@@ -52,4 +52,13 @@ public class RestaurantOrderRefundController {
 
         return ResponseEntity.created(location).body(restaurantOrderRefundResponse);
     }
+
+    @Operation(summary = "매장 환불 취소(사장)", description = "사장 권한에 대한 매장 환불 취소")
+    @DeleteMapping("/{id}/owner")
+    public ResponseEntity<Void> cancelRestaurantOrderRefund(
+            @PathVariable("id") Long id
+    ) {
+        restaurantOrderRefundService.cancelRestaurantOrderRefund(id);
+        return ResponseEntity.noContent().build();
+    }
 }

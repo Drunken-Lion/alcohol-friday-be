@@ -8,4 +8,5 @@ import org.springframework.data.domain.Page;
 public interface RestaurantOrderRefundService {
     Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(RestaurantInfoRequest request, int page, int size);
     RestaurantOrderRefundResponse createRestaurantOrderRefund(RestaurantOrderRefundCreateRequest request);
+    void cancelRestaurantOrderRefund(Long id);
 }

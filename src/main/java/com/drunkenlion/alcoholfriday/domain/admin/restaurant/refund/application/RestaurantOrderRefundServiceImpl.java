@@ -122,6 +122,49 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
         return RestaurantOrderRefundResponse.of(refund, refundDetailResponses);
     }
 
+    @Override
+    @Transactional
+    public void cancelRestaurantOrderRefund(Long id) {
+        RestaurantOrderRefund refund = restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND)
+                        .build());
+
+        // 환불 승인 대기 이외에는 환불 취소 불가
+        if (!refund.getStatus().equals(RestaurantOrderRefundStatus.WAITING_APPROVAL)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.RESTAURANT_REFUND_CANCEL_FAIL)
+                    .build();
+        }
+
+        List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(refund);
+
+        if (refundDetails.isEmpty()) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND_DETAIL)
+                    .build();
+        }
+
+        for (RestaurantOrderRefundDetail refundDetail : refundDetails) {
+            RestaurantStock restaurantStock = restaurantStockRepository
+                    .findByRestaurantIdAndProductIdAndDeletedAtIsNull(refund.getRestaurant().getId(), refundDetail.getProduct().getId())
+                    .orElseThrow(() -> BusinessException.builder()
+                            .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_STOCK)
+                            .build());
+
+            // 환불 취소 시 매장 재고가 다시 플러스 된다.
+            restaurantStock.plusQuantity(refundDetail.getQuantity());
+            restaurantStockRepository.save(restaurantStock);
+        }
+
+        // 환불 상태 취소로 변경
+        refund = refund.toBuilder()
+                .status(RestaurantOrderRefundStatus.CANCELLED)
+                .build();
+
+        restaurantOrderRefundRepository.save(refund);
+    }
+
     private boolean checkRefundEligibility(RestaurantOrderRefundCreateRequest request) {
         // 발주 완료 이외의 상태는 환불 불가
         if (!request.getStatus().equals(RestaurantOrderStatus.COMPLETED)) {

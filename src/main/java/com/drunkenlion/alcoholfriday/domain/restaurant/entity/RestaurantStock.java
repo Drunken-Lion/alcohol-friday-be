@@ -49,4 +49,8 @@ public class RestaurantStock extends BaseEntity {
     public void minusQuantity(Long quantity) {
         this.quantity -= quantity;
     }
+
+    public void plusQuantity(Long quantity) {
+        this.quantity += quantity;
+    }
 }
