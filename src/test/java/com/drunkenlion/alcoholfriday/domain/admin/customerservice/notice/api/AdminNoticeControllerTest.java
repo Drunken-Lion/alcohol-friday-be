@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -219,7 +220,6 @@ public class AdminNoticeControllerTest {
     @DisplayName("공지사항 빈 엔티티 생성")
     @Test
     void initAdminNoticeTest() throws Exception {
-
         ResultActions resultActions = mvc
                 .perform(post("/v1/admin/notices")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -251,7 +251,6 @@ public class AdminNoticeControllerTest {
     @DisplayName("공지사항 이미지 등록")
     @Test
     void saveAdminNoticeImageTest() throws Exception {
-
         Notice notice = noticeRepository.findAll().get(0);
 
         MockMultipartFile file = JsonConvertor.getMockImg("file");
@@ -275,7 +274,6 @@ public class AdminNoticeControllerTest {
     @DisplayName("공지사항 수정 성공")
     @Test
     void modifyAdminNoticeTest() throws Exception {
-
         Notice notice = noticeRepository.findAll().get(0);
 
         ResultActions resultActions = mvc
@@ -308,7 +306,6 @@ public class AdminNoticeControllerTest {
     @DisplayName("공지사항 삭제 성공")
     @Test
     void deleteAdminNoticeTest() throws Exception {
-
         Notice notice = noticeRepository.findAll().get(0);
 
         ResultActions resultActions = mvc

@@ -26,6 +26,7 @@ public class NoticeController {
     public ResponseEntity<NoticeDetailResponse> getNotice(
             @PathVariable("id") Long id) {
         NoticeDetailResponse noticeDetailResponse = noticeService.getNotice(id);
+      
         return ResponseEntity.ok().body(noticeDetailResponse);
     }
 
@@ -38,6 +39,7 @@ public class NoticeController {
             @RequestParam(name = "size", defaultValue = "10") int size) {
         List<String> parseType = List.of(keywordType.split(","));
         PageResponse<NoticeListResponse> noticeListResponse = PageResponse.of(noticeService.getNotices(page, size, keyword, parseType));
+      
         return ResponseEntity.ok().body(noticeListResponse);
     }
 }

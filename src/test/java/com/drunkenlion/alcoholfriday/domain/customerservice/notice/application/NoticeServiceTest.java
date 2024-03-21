@@ -63,7 +63,6 @@ public class NoticeServiceTest {
     @DisplayName("공지사항 목록 조회 성공")
     @Test
     public void getNoticesTest() {
-
         when(this.noticeRepository.findNotices(any(Pageable.class), any(), any())).thenReturn(this.getNotices());
 
         Page<NoticeListResponse> notices = noticeService.getNotices(page, size, null, null);
@@ -79,7 +78,6 @@ public class NoticeServiceTest {
     @DisplayName("공지사항 목록 검색 성공")
     @Test
     public void getNoticesSearchTest() {
-
         when(this.noticeRepository.findNotices(any(Pageable.class), any(), any())).thenReturn(this.getNotices());
 
         List<String> keywordType = new ArrayList<>();
@@ -101,7 +99,6 @@ public class NoticeServiceTest {
     @DisplayName("공지사항 상세 조회 성공")
     @Test
     public void getNoticeTest() {
-
         when(this.noticeRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getNoticeOne());
 
         NoticeDetailResponse noticeResponse = noticeService.getNotice(noticeId);

@@ -41,7 +41,6 @@ public class NoticeRepositoryTest {
     @BeforeEach
     @Transactional
     public void beforeEach() {
-        // test db가 mySql로 변경됨에 따라 auto_increment가 초기화되지 않으므로 시작 시 강제 초기화 진행
         em.createNativeQuery("ALTER TABLE member AUTO_INCREMENT = 1").executeUpdate();
         em.createNativeQuery("ALTER TABLE notice AUTO_INCREMENT = 1").executeUpdate();
 
@@ -151,8 +150,5 @@ public class NoticeRepositoryTest {
 
         assertThat(findNotices.getContent()).isInstanceOf(List.class);
         assertThat(findNotices.getContent().size()).isEqualTo(2);
-        System.out.println("zzz "+keyword);
-        System.out.println("zzz "+keywordType);
-
     }
 }

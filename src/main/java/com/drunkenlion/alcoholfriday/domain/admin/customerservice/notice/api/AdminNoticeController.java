@@ -36,6 +36,7 @@ public class AdminNoticeController {
     public ResponseEntity<NoticeSaveResponse> getNotice(@PathVariable("id") Long id,
                                                         @AuthenticationPrincipal UserPrincipal user) {
         NoticeSaveResponse noticeSaveResponse = adminNoticeService.getNotice(id, user.getMember());
+      
         return ResponseEntity.ok().body(noticeSaveResponse);
     }
 
@@ -49,6 +50,7 @@ public class AdminNoticeController {
             @AuthenticationPrincipal UserPrincipal user) {
         List<String> parseType = List.of(keywordType.split(","));
         PageResponse<NoticeSaveResponse> noticeSaveResponse = PageResponse.of(adminNoticeService.getNotices(page, size, user.getMember(), keyword, parseType));
+
         return ResponseEntity.ok().body(noticeSaveResponse);
     }
 
@@ -62,6 +64,7 @@ public class AdminNoticeController {
                 .path("/{id}")
                 .buildAndExpand(initResponse.getId())
                 .toUri();
+      
         return ResponseEntity.created(location).body(initResponse);
     }
 
@@ -71,6 +74,7 @@ public class AdminNoticeController {
                                                            @RequestBody @Valid NoticeSaveRequest request,
                                                            @AuthenticationPrincipal UserPrincipal user) {
         NoticeSaveResponse response = adminNoticeService.modifyNotice(id, request, user.getMember());
+      
         return ResponseEntity.ok(response);
     }
 
@@ -79,6 +83,7 @@ public class AdminNoticeController {
     public ResponseEntity<Void> deleteNotice(@PathVariable("id") Long id,
                                              @AuthenticationPrincipal UserPrincipal user) {
         adminNoticeService.deleteNotice(id, user.getMember());
+      
         return ResponseEntity.noContent().build();
     }
 
@@ -93,6 +98,7 @@ public class AdminNoticeController {
                 .path("/{id}")
                 .buildAndExpand(id)
                 .toUri();
+      
         return ResponseEntity.created(location).body(response);
     }
 }
