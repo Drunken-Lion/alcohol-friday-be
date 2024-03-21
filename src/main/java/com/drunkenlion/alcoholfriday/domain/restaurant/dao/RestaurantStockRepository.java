@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface RestaurantStockRepository extends JpaRepository<RestaurantStock, Long> {
+public interface RestaurantStockRepository extends JpaRepository<RestaurantStock, Long>, RestaurantStockCustomRepository {
     List<RestaurantStock> findByRestaurantAndDeletedAtIsNull(Restaurant restaurant);
 }

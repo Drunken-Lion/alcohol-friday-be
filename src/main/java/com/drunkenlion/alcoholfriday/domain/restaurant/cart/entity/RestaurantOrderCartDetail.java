@@ -28,4 +28,8 @@ public class RestaurantOrderCartDetail extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Product product;
+
+    public void minusQuantity(Long quantity) {
+        this.quantity = this.quantity - quantity;
+    }
 }
