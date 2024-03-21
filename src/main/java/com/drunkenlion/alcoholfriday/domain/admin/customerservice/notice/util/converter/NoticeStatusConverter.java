@@ -9,7 +9,7 @@ public class NoticeStatusConverter implements AttributeConverter<NoticeStatus, S
 
     @Override
     public String convertToDatabaseColumn(NoticeStatus attribute) {
-        return attribute.getStatus();
+        return attribute.getStatusNumber();
     }
 
     @Override
