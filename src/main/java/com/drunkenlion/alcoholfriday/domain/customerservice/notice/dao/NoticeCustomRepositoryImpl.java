@@ -30,7 +30,7 @@ public class NoticeCustomRepositoryImpl implements NoticeCustomRepository{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        JPAQuery<Long> total = jpaQueryFactory 
+        JPAQuery<Long> total = jpaQueryFactory // 전체 개수 조회 쿼리
                 .select(notice.count())
                 .from(notice)
                 .where(conditions);
