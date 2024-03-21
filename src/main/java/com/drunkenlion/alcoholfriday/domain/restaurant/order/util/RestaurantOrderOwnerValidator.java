@@ -14,6 +14,12 @@ public class RestaurantOrderOwnerValidator {
         }
     }
 
+    public static void isOwner(Member member) {
+        if (!member.getRole().equals(MemberRole.OWNER)) {
+            throw new BusinessException(Fail.FORBIDDEN);
+        }
+    }
+
     public static void isAdmin(Member member) {
         if (!member.getRole().equals(MemberRole.ADMIN)) {
             throw new BusinessException(Fail.FORBIDDEN);

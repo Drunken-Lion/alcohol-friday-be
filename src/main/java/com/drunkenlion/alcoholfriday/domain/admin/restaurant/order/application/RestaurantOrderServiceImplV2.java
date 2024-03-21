@@ -61,6 +61,8 @@ public class RestaurantOrderServiceImplV2 {
     @Transactional
     public RestaurantOrderSaveCodeResponse getSaveCode(RestaurantOrderSaveCodeRequest request,
                                                        Member member) {
+        RestaurantOrderOwnerValidator.isOwner(member);
+        
         Restaurant restaurant =
                 restaurantRepository.findById(request.getRestaurantId())
                         .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT));
@@ -118,6 +120,8 @@ public class RestaurantOrderServiceImplV2 {
     public RestaurantOrderSaveResponse updateRestaurantOrder(Long id, RestaurantOrderSaveRequest request,
                                                              Member member) {
         // Order 수정 로직
+        RestaurantOrderOwnerValidator.isOwner(member);
+
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderOwner(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_NUMBER));
 
