@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.payment.application;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.cart.application.CartService;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.request.DeleteCartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
@@ -35,6 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -273,7 +276,7 @@ class PaymentServiceTest {
                 .method(method)
                 .cardType(cardType)
                 .ownerType(ownerType)
-                .provider(provider)
+                .provider(paymentProvider)
                 .issuerCode(issuerCode)
                 .acquirerCode(acquirerCode)
                 .totalAmount(totalAmount)
@@ -313,6 +316,38 @@ class PaymentServiceTest {
         // when & then
         Assertions.assertThrows(BusinessException.class, () -> {
             paymentService.saveSuccessPayment(tossPaymentsReq);
+        } );
+    }
+
+    @Test
+    @DisplayName("결제 성공 후 장바구니에서 주문 아이템 삭제")
+    void paymentSuccess_deleteCartItems() {
+        // given
+        // orderRepository.findByOrderNo(orderNo)
+//        when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
+
+        List<DeleteCartRequest> deleteCartRequests = new ArrayList<>();
+        deleteCartRequests.add(DeleteCartRequest.of(1L));
+        deleteCartRequests.add(DeleteCartRequest.of(2L));
+
+        doNothing().when(cartService).deleteCartList(deleteCartRequests, member);
+
+        // cartService.deleteCartList(deleteCartRequests, order.getMember())
+        cartService.deleteCartList(deleteCartRequests, member);
+
+//        verify(orderRepository, times(1)).findByOrderNo(orderNo);
+//        verify(cartService, times(1));
+    }
+
+    @Test
+    @DisplayName("결제 성공 후 주문번호가 없는 경우")
+    void paymentSuccess_deleteCartItems_fail() {
+        // given
+        when(orderRepository.findByOrderNo(orderNo)).thenReturn(Optional.empty());
+
+        // when & then
+        Assertions.assertThrows(BusinessException.class, () -> {
+            paymentService.deletedCartItems(orderNo);
         } );
     }
 
