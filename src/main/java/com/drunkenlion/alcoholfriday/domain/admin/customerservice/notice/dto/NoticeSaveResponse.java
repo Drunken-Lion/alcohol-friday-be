@@ -4,6 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumera
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 
@@ -56,5 +57,9 @@ public class NoticeSaveResponse {
                 .updatedAt(notice.getUpdatedAt())
                 .deletedAt(notice.getDeletedAt())
                 .build();
+    }
+
+    public static Page<NoticeSaveResponse> of(Page<Notice> notices) {
+        return notices.map((NoticeSaveResponse::of));
     }
 }
