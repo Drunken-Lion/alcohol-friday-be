@@ -43,7 +43,7 @@ public class RestaurantOrderRefundResponse {
     private BigDecimal totalPrice;
 
     @Schema(description = "환불 제품 정보")
-    private List<RestaurantOrderRefundDetailResponse> RefundDetails;
+    private List<RestaurantOrderRefundDetailResponse> refundDetails;
 
     public static RestaurantOrderRefundResponse of(RestaurantOrderRefund refund, List<RestaurantOrderRefundDetailResponse> refundDetails) {
         return RestaurantOrderRefundResponse.builder()
@@ -56,7 +56,7 @@ public class RestaurantOrderRefundResponse {
                 .refundCreatedAt(refund.getCreatedAt())
                 .status(refund.getStatus())
                 .totalPrice(refund.getTotalPrice())
-                .RefundDetails(refundDetails)
+                .refundDetails(refundDetails)
                 .build();
     }
 }

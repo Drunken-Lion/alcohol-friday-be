@@ -2,7 +2,10 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.application
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.*;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundDetailCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
@@ -10,7 +13,6 @@ import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
@@ -47,14 +49,8 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
 
     @Override
     public Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(Long restaurantId, int page, int size) {
-        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
-                .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
-                        .build());
-
         Pageable pageable = PageRequest.of(page, size);
-
-        Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByRestaurantAndDeletedAtIsNull(restaurant, pageable);
+        Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByRestaurantIdAndDeletedAtIsNull(restaurantId, pageable);
 
         List<RestaurantOrderRefundResponse> refundResponses = refundPage.getContent().stream()
                 .map(refund -> {
