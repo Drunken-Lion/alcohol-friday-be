@@ -33,7 +33,7 @@ public class RestaurantOrderCartDetailCustomRepositoryImpl implements Restaurant
     public List<RestaurantOrderCartDetail> findRestaurantAndMember(Restaurant restaurantData, Member memberData) {
         BooleanExpression conditions =
                 restaurant.eq(restaurantData)
-                        .and(restaurant.members.eq(memberData))
+                        .and(restaurant.member.eq(memberData))
                         .and(restaurantOrderCartDetail.deletedAt.isNull())
                         .and(restaurantOrderCartDetail.quantity.gt(0L));
 
