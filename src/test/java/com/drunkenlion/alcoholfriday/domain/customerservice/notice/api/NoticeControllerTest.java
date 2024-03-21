@@ -1,7 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.notice.api;
+package com.drunkenlion.alcoholfriday.domain.customerservice.notice.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumerated.NoticeStatus;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
-import com.drunkenlion.alcoholfriday.domain.customerservice.notice.api.NoticeController;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
@@ -69,6 +69,7 @@ public class NoticeControllerTest {
                 Notice.builder()
                         .title("test title")
                         .content("test content")
+                        .status(NoticeStatus.PUBLISHED)
                         .member(member)
                         .build());
         noticeRepository.save(notice);
@@ -123,7 +124,7 @@ public class NoticeControllerTest {
                 .andExpect(handler().methodName("getNotice"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.member", notNullValue()))
+                .andExpect(jsonPath("$.memberId", notNullValue()))
                 .andExpect(jsonPath("$.title", notNullValue()))
                 .andExpect(jsonPath("$.content", notNullValue()))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))

@@ -10,8 +10,8 @@ public interface AdminNoticeService {
 
     Page<NoticeSaveResponse> getNotices(int page, int size, Member member);
 
-    NoticeSaveResponse saveNotice(NoticeSaveRequest request, Member member);
-
+    NoticeSaveResponse initNotice(Member member);
+    
     NoticeSaveResponse modifyNotice(Long id, NoticeSaveRequest request, Member member);
 
     void deleteNotice(Long id, Member member);

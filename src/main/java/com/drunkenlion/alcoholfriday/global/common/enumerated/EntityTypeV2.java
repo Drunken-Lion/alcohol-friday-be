@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.global.common.enumerated;
 
 import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
+import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -19,7 +20,8 @@ public enum EntityTypeV2 {
     ITEM("item", Item.builder().build()),
     PRODUCT("product", Product.builder().build()),
     MEMBER("member", Member.builder().build()),
-    REVIEW("review", Review.builder().build()),
+    NOTICE("notice", Notice.builder().build()),
+    REVIEW("review", Review.builder().build())
     ;
 
     private final String entityType;
