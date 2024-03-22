@@ -843,7 +843,7 @@ public class AdminRestaurantServiceTest {
 
         return Restaurant.builder()
                 .id(id)
-                .members(member)
+                .member(member)
                 .category(category)
                 .name(name)
                 .address(address)

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -33,11 +34,11 @@ public class AdminNoticeServiceImpl implements AdminNoticeService {
     }
 
     @Override
-    public Page<NoticeSaveResponse> getNotices(int page, int size, Member member) {
+    public Page<NoticeSaveResponse> getNotices(int page, int size, Member member, String keyword, List<String> keywordType) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Notice> notices = noticeRepository.findAll(pageable);
+        Page<Notice> notices = noticeRepository.findAllNotices(pageable, keyword, keywordType);
 
-        return notices.map(NoticeSaveResponse::of);
+        return NoticeSaveResponse.of(notices);
     }
 
     @Override

@@ -45,7 +45,7 @@ public class RestaurantRequest {
 
     public static Restaurant toEntity(RestaurantRequest request, Member member) {
         return Restaurant.builder()
-                .members(member)
+                .member(member)
                 .category(request.getCategory())
                 .name(request.getName())
                 .address(request.getAddress())

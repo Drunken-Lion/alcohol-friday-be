@@ -76,6 +76,11 @@ public class HttpResponse {
         NOT_FOUND_PAYMENT_CARD_CODE(HttpStatus.NOT_FOUND, "존재하지 않는 카드사 코드 입니다."),
         NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "존재하지 답변 입니다."),
         NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "존재하는 리뷰가 없습니다."),
+        NOT_FOUND_RESTAURANT_ORDER_CART(HttpStatus.NOT_FOUND, "카트가 존재하지 않습니다."),
+        NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL(HttpStatus.NOT_FOUND, "장바구니에 제품이 존재하지 않습니다. 확인 후 다시 시도해 주세요."),
+        NOT_FOUND_RESTAURANT_ORDER_DETAIL(HttpStatus.NOT_FOUND, "발주 상세 내역이 존재하지 않습니다. 확인 후 다시 시도해 주세요."),
+        NOT_FOUND_RESTAURANT_STOCK(HttpStatus.NOT_FOUND, "레스토랑 재고가 존재하지 않습니다."),
+        NOT_FOUND_RESTAURANT_ORDER(HttpStatus.NOT_FOUND, "상태 변경 가능한 발주 건이 없습니다."),
 
         // 405
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP METHOD 입니다."),

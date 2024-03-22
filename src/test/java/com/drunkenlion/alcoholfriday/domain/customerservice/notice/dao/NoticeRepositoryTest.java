@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +41,6 @@ public class NoticeRepositoryTest {
     @BeforeEach
     @Transactional
     public void beforeEach() {
-        // test db가 mySql로 변경됨에 따라 auto_increment가 초기화되지 않으므로 시작 시 강제 초기화 진행
         em.createNativeQuery("ALTER TABLE member AUTO_INCREMENT = 1").executeUpdate();
         em.createNativeQuery("ALTER TABLE notice AUTO_INCREMENT = 1").executeUpdate();
 
@@ -59,7 +59,7 @@ public class NoticeRepositoryTest {
 
         Notice notice = noticeRepository.save(
                 Notice.builder()
-                        .title("test title")
+                        .title("test title1")
                         .content("test content")
                         .member(member)
                         .status(NoticeStatus.PUBLISHED)
@@ -68,7 +68,7 @@ public class NoticeRepositoryTest {
 
         Notice notice2 = noticeRepository.save(
                 Notice.builder()
-                        .title("test title")
+                        .title("test title1")
                         .content("test content")
                         .member(member)
                         .status(NoticeStatus.PUBLISHED)
@@ -77,7 +77,7 @@ public class NoticeRepositoryTest {
 
         Notice notice3 = noticeRepository.save(
                 Notice.builder()
-                        .title("test title")
+                        .title("test title3")
                         .content("test content")
                         .member(member)
                         .status(NoticeStatus.PUBLISHED)
@@ -86,7 +86,7 @@ public class NoticeRepositoryTest {
 
         Notice notice4 = noticeRepository.save(
                 Notice.builder()
-                        .title("test title")
+                        .title("test title4")
                         .content("test content")
                         .member(member)
                         .status(NoticeStatus.PUBLISHED)
@@ -95,8 +95,8 @@ public class NoticeRepositoryTest {
 
         Notice notice5 = noticeRepository.save(
                 Notice.builder()
-                        .title("test title")
-                        .content("test content")
+                        .title("테스트 제목5")
+                        .content("테스트 내용5")
                         .member(member)
                         .status(NoticeStatus.DRAFT)
                         .build());
@@ -104,8 +104,8 @@ public class NoticeRepositoryTest {
 
         Notice notice6 = noticeRepository.save(
                 Notice.builder()
-                        .title("test title")
-                        .content("test content")
+                        .title("테스트 제목6")
+                        .content("테스트 내용6")
                         .member(member)
                         .status(NoticeStatus.PUBLISHED)
                         .deletedAt(LocalDateTime.now())
@@ -125,9 +125,30 @@ public class NoticeRepositoryTest {
     void findNoticesTest() {
         Pageable pageable = PageRequest.of(0, 10);
 
-        Page<Notice> findNotices = noticeRepository.findNotices(pageable);
+        List<String> keywordType = new ArrayList<>();
+        keywordType.add("title");
+        keywordType.add("content");
+        String keyword = "";
+
+        Page<Notice> findNotices = noticeRepository.findNotices(pageable, keyword, keywordType);
 
         assertThat(findNotices.getContent()).isInstanceOf(List.class);
         assertThat(findNotices.getContent().size()).isEqualTo(4);
+    }
+
+    @Test
+    @DisplayName("공지사항 목록 검색 성공")
+    void findNoticesSearchTest() {
+        Pageable pageable = PageRequest.of(0, 10);
+
+        List<String> keywordType = new ArrayList<>();
+        keywordType.add("title");
+        keywordType.add("content");
+        String keyword = "title1";
+
+        Page<Notice> findNotices = noticeRepository.findNotices(pageable, keyword, keywordType);
+
+        assertThat(findNotices.getContent()).isInstanceOf(List.class);
+        assertThat(findNotices.getContent().size()).isEqualTo(2);
     }
 }

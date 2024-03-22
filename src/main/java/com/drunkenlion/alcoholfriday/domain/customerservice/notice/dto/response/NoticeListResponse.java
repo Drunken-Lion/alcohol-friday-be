@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.customerservice.notice.dto.response
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 
@@ -31,5 +32,9 @@ public class NoticeListResponse {
                 .createdAt(notice.getCreatedAt())
                 .updatedAt(notice.getUpdatedAt())
                 .build();
+    }
+
+    public static Page<NoticeListResponse> of(Page<Notice> notices) {
+        return notices.map((NoticeListResponse::of));
     }
 }
