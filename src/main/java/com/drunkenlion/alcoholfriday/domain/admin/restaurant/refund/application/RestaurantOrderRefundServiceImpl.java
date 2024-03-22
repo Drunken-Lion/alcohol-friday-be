@@ -11,7 +11,6 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.Resta
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderRepository;
@@ -39,7 +38,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundService {
-    private final RestaurantRepository restaurantRepository;
     private final RestaurantOrderRefundRepository restaurantOrderRefundRepository;
     private final RestaurantOrderRefundDetailRepository restaurantOrderRefundDetailRepository;
     private final ProductRepository productRepository;
