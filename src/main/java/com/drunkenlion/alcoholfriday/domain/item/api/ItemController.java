@@ -2,12 +2,14 @@ package com.drunkenlion.alcoholfriday.domain.item.api;
 
 import com.drunkenlion.alcoholfriday.domain.item.application.ItemService;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
+import com.drunkenlion.alcoholfriday.domain.item.dto.ItemReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,5 +41,14 @@ public class ItemController {
     ) {
         FindItemResponse findItemResponse = this.itemService.get(id);
         return ResponseEntity.ok().body(findItemResponse);
+    }
+
+    @GetMapping("{id}/reviews")
+    @Operation(summary = "상품 리뷰 조회")
+    public ResponseEntity<PageResponse<ItemReviewResponse>> getReview(@PathVariable("id") Long id,
+                                       @RequestParam(name = "page", defaultValue = "0") int page,
+                                       @RequestParam(name = "size", defaultValue = "10") int size) {
+        PageResponse<ItemReviewResponse> response = PageResponse.of(itemService.getReviews(id, page, size));
+        return ResponseEntity.ok(response);
     }
 }
