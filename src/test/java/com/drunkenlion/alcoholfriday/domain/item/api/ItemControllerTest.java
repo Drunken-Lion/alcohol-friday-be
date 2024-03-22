@@ -657,7 +657,7 @@ class ItemControllerTest {
         reviewRepository.save(Review.builder().score(3.0d).content("리뷰 테스트").member(member).item(item).build());
         
         ResultActions actions = mvc
-                .perform(get("/v1/items/reviews/" + item.getId()))
+                .perform(get("/v1/items/" + item.getId()+"/reviews"))
                 .andDo(print());
 
         actions

@@ -43,7 +43,7 @@ public class ItemController {
         return ResponseEntity.ok().body(findItemResponse);
     }
 
-    @GetMapping("reviews/{id}")
+    @GetMapping("{id}/reviews")
     @Operation(summary = "상품 리뷰 조회")
     public ResponseEntity<PageResponse<ItemReviewResponse>> getReview(@PathVariable("id") Long id,
                                        @RequestParam(name = "page", defaultValue = "0") int page,
