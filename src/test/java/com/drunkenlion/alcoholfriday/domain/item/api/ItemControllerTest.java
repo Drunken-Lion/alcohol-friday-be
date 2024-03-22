@@ -123,7 +123,7 @@ class ItemControllerTest {
                 .build();
 
         Category 카테고리_소분류1 = Category.builder()
-                .lastName("탁주")
+                .lastName("탁주/막걸리")
                 .build();
         카테고리_소분류1.addCategoryClass(카테고리_대분류1);
 
@@ -267,7 +267,7 @@ class ItemControllerTest {
 
 
         Category 카테고리_소분류2 = Category.builder()
-                .lastName("와인")
+                .lastName("과실주/와인")
                 .build();
         카테고리_소분류2.addCategoryClass(카테고리_대분류1);
 
@@ -350,7 +350,7 @@ class ItemControllerTest {
 
 
         Category 카테고리_소분류3 = Category.builder()
-                .lastName("소주")
+                .lastName("증류주/소주/리큐르")
                 .build();
         카테고리_소분류3.addCategoryClass(카테고리_대분류1);
 
@@ -449,8 +449,8 @@ class ItemControllerTest {
         // when
         ResultActions resultActions = mvc
                 .perform(get("/v1/items")
-                        .param("size", "10")
-                        .param("keywordType", "type,name")
+                        .param("size", "12")
+                        .param("categories", "탁주/막걸리")
                         .param("keyword", "탁주")
                 )
                 .andDo(print());
@@ -481,8 +481,8 @@ class ItemControllerTest {
         // when
         ResultActions resultActions = mvc
                 .perform(get("/v1/items")
-                        .param("size", "10")
-                        .param("keywordType", "type, name")
+                        .param("size", "12")
+                        .param("categories", "과실주/와인")
                         .param("keyword", "와인")
                 )
                 .andDo(print());
@@ -510,8 +510,8 @@ class ItemControllerTest {
         // when
         ResultActions resultActions = mvc
                 .perform(get("/v1/items")
-                        .param("size", "10")
-                        .param("keywordType", "type, name")
+                        .param("size", "12")
+                        .param("categories", "증류주/소주/리큐르")
                         .param("keyword", "소주")
                 )
                 .andDo(print());
@@ -540,7 +540,7 @@ class ItemControllerTest {
         ResultActions resultActions = mvc
                 .perform(get("/v1/items")
                         .param("size", "10")
-                        .param("keywordType", "type, name")
+                        .param("categories", "type, name")
                         .param("keyword", "탁주 와인")
                 )
                 .andDo(print());
