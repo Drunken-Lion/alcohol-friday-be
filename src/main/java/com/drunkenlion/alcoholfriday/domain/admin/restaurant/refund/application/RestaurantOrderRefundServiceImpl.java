@@ -92,6 +92,9 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
         restaurantOrderRefundRepository.save(refund);
 
         List<RestaurantOrderRefundDetailResponse> refundDetailResponses = new ArrayList<>();
+        List<RestaurantOrderRefundDetail> refundDetails = new ArrayList<>();
+        List<RestaurantStock> stocks = new ArrayList<>();
+
         for (RestaurantOrderRefundDetailCreateRequest detailRequest : request.getRefundDetails()) {
             Product product = productRepository.findByIdAndDeletedAtIsNull(detailRequest.getProductId())
                     .orElseThrow(() -> BusinessException.builder()
@@ -99,7 +102,7 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
                             .build());
 
             RestaurantOrderRefundDetail refundDetail = RestaurantOrderRefundDetailCreateRequest.toEntity(detailRequest, refund, product);
-            restaurantOrderRefundDetailRepository.save(refundDetail);
+            refundDetails.add(refundDetail);
 
             NcpFileResponse file = fileService.findOne(refundDetail.getProduct());
             refundDetailResponses.add(RestaurantOrderRefundDetailResponse.of(refundDetail, file));
@@ -112,8 +115,11 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
 
             // 환불 요청 시 매장의 재고가 마이너스 된다.
             restaurantStock.minusQuantity(detailRequest.getQuantity());
-            restaurantStockRepository.save(restaurantStock);
+            stocks.add(restaurantStock);
         }
+
+        restaurantOrderRefundDetailRepository.saveAll(refundDetails);
+        restaurantStockRepository.saveAll(stocks);
 
         return RestaurantOrderRefundResponse.of(refund, refundDetailResponses);
     }
@@ -141,6 +147,7 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
                     .build();
         }
 
+        List<RestaurantStock> stocks = new ArrayList<>();
         for (RestaurantOrderRefundDetail refundDetail : refundDetails) {
             RestaurantStock restaurantStock = restaurantStockRepository
                     .findByRestaurantIdAndProductIdAndDeletedAtIsNull(refund.getRestaurant().getId(), refundDetail.getProduct().getId())
@@ -150,8 +157,10 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
 
             // 환불 취소 시 매장 재고가 다시 플러스 된다.
             restaurantStock.plusQuantity(refundDetail.getQuantity());
-            restaurantStockRepository.save(restaurantStock);
+            stocks.add(restaurantStock);
         }
+
+        restaurantStockRepository.saveAll(stocks);
 
         // 환불 상태 취소로 변경
         refund = refund.toBuilder()
@@ -162,17 +171,22 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
     }
 
     private boolean checkRefundEligibility(RestaurantOrderRefundCreateRequest request) {
-        // 발주 완료 이외의 상태는 환불 불가
+        // 1. 발주 완료 이외의 상태는 환불 불가
         if (!request.getStatus().equals(RestaurantOrderStatus.COMPLETED)) {
             return false;
         }
 
-        // 환불은 발주 일자로 부터 7일이 넘으면 환불 불가
+        // 2. 환불은 발주 일자로 부터 7일이 넘으면 환불 불가
         if (request.getOrderDate().plusDays(7).isBefore(LocalDateTime.now())) {
             return false;
         }
 
-        // 해당 주문에 진행 중인 환불이 있으면 환불 불가
+        // 3. 환불 제품이 존재하지 않으면 환불 불가
+        if (request.getRefundDetails() == null || request.getRefundDetails().isEmpty()) {
+            return false;
+        }
+
+        // 4. 해당 주문에 진행 중인 환불이 있으면 환불 불가
         boolean hasWaitingRefund = restaurantOrderRefundRepository
                 .existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(request.getOrderId(), RestaurantOrderRefundStatus.WAITING_APPROVAL);
 
@@ -180,21 +194,21 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
             return false;
         }
 
-        // 환불 요청의 환불 개수가 0개 이면 환불 불가
+        // 5. 환불 요청의 환불 개수가 0개 이면 환불 불가
         for (RestaurantOrderRefundDetailCreateRequest detailRequest : request.getRefundDetails()) {
             if (detailRequest.getQuantity() <= 0) {
                 return false;
             }
         }
 
-        // 주문의 환불 가능한 재고 보다 환불 개수가 많으면 환불 불가
+        // 6. 주문의 환불 가능한 재고 보다 환불 개수가 많으면 환불 불가
         for (RestaurantOrderRefundDetailCreateRequest detailRequest : request.getRefundDetails()) {
             if (detailRequest.getQuantity() > detailRequest.getPossibleQuantity()) {
                 return false;
             }
         }
 
-        // 매장의 재고 보다 환불 개수가 많으면 환불 불가
+        // 7. 매장의 재고 보다 환불 개수가 많으면 환불 불가
         for (RestaurantOrderRefundDetailCreateRequest detailRequest : request.getRefundDetails()) {
             RestaurantStock restaurantStock = restaurantStockRepository
                     .findByRestaurantIdAndProductIdAndDeletedAtIsNull(request.getRestaurantId(), detailRequest.getProductId())
