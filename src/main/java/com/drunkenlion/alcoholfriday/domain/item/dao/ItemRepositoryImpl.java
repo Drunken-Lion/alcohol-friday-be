@@ -33,7 +33,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 .reduce(BooleanExpression::or)
                 .orElse(null);
 
-        // keyword가 없는 경우 카테고리로만 검색
+        // 키워드 검색 조건 생성 - keyword가 없는 경우 카테고리로만 검색
         BooleanExpression searchPredicate = keyword.isBlank()
                 ? categoryPredicate
                 : categoryPredicate.and(item.name.contains(keyword))
