@@ -29,9 +29,9 @@ public class ItemServiceImpl implements ItemService {
     private final FileService fileService;
 
     @Override
-    public Page<SearchItemResponse> search(Integer size, String keyword, List<String> keywordType) {
-        Pageable pageable = PageRequest.of(0, size);
-        Page<Item> search = this.itemRepository.search(keywordType, keyword, pageable);
+    public Page<SearchItemResponse> search(int page, Integer size, String keyword, List<String> categories) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Item> search = this.itemRepository.search(categories, keyword, pageable);
 
         List<Item> searchItems = search.getContent();
         List<NcpFileResponse> files = searchItems.stream()
