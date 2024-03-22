@@ -34,8 +34,12 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
             List<BooleanExpression> conditions = new ArrayList<>();
 
             // TODO: hashtag에 대한 부분 명확하게 이야기 하지 않음... 일단 미 구현
-            if (keywordType.contains("type")) conditions.add(category.lastName.contains(keyword));
-            if (keywordType.contains("name")) conditions.add(item.name.contains(keyword));
+            if (keywordType.contains("type")) {
+                conditions.add(category.lastName.contains(keyword));
+            }
+            if (keywordType.contains("name")) {
+                conditions.add(item.name.contains(keyword));
+            }
 
             conditions.stream()
                     .reduce(BooleanExpression::or)

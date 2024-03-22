@@ -138,7 +138,7 @@ public class AdminRestaurantControllerTest {
         final Coordinate coordinate = new Coordinate(126.984634, 37.569833);
         Point restaurant_location = geometryFactory.createPoint(coordinate);
         Restaurant restaurant = Restaurant.builder()
-                .members(member)
+                .member(member)
                 .category("한식")
                 .name("맛있는 한식당")
                 .address("서울시 강남구")

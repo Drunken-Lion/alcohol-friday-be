@@ -33,7 +33,7 @@ public class RestaurantListResponse {
     public static RestaurantListResponse of(Restaurant restaurant) {
         return RestaurantListResponse.builder()
                 .id(restaurant.getId())
-                .memberNickname(restaurant.getMembers().getNickname())
+                .memberNickname(restaurant.getMember().getNickname())
                 .name(restaurant.getName())
                 .category(restaurant.getCategory())
                 .createdAt(restaurant.getCreatedAt())

@@ -7,8 +7,11 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.order.util.RestaurantOrde
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -28,9 +31,10 @@ public class RestaurantOrder extends BaseEntity {
     @Convert(converter = RestaurantOrderStatusConverter.class)
     private RestaurantOrderStatus orderStatus;
 
+    @Builder.Default
     @Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
     @Comment("주문 총 금액")
-    private BigDecimal totalPrice;
+    private BigDecimal totalPrice = BigDecimal.ZERO;
 
     @Column(name = "address", columnDefinition = "VARCHAR(200)")
     @Comment("배송지 주소")
@@ -63,4 +67,23 @@ public class RestaurantOrder extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Member member;
+
+    @Builder.Default
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "restaurantOrder")
+    public List<RestaurantOrderDetail> details = new ArrayList<>();
+
+    public void addTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = this.totalPrice.add(totalPrice);
+    }
+
+    public void updateOrders(String description, String recipient, Long phone) {
+        this.description = description;
+        this.phone = phone;
+        this.recipient = recipient;
+        this.orderStatus = RestaurantOrderStatus.WAITING_APPROVAL;
+    }
+
+    public void updateStatus(RestaurantOrderStatus status) {
+        this.orderStatus = status;
+    }
 }

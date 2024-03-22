@@ -51,7 +51,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
                         .build());
 
-        if (!authMember.getRole().equals(MemberRole.ADMIN) && !authMember.getId().equals(restaurant.getMembers().getId())) {
+        if (!authMember.getRole().equals(MemberRole.ADMIN) && !authMember.getId().equals(restaurant.getMember().getId())) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.FORBIDDEN)
                     .build();
@@ -123,7 +123,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
 
         if (authMember.getRole().equals(MemberRole.ADMIN)) {
             restaurant = restaurant.toBuilder()
-                    .members(member)
+                    .member(member)
                     .build();
         }
 
