@@ -48,7 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RestaurantOrderServiceImplV2 {
     //TODO
     // - 레스토랑 관리자 기능 전체 구현 후 패키지 구조 및 Controller, Service 병합 예정
-    
+
     private final RestaurantOrderRepository restaurantOrderRepository;
     private final RestaurantOrderDetailRepository restaurantOrderDetailRepository;
     private final ProductRepository productRepository;
@@ -86,7 +86,7 @@ public class RestaurantOrderServiceImplV2 {
         if (cartDetails.isEmpty()) {
             throw new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL);
         }
-        
+
         List<RestaurantOrderDetailResponse> restaurantOrderDetails = new ArrayList<>();
 
         // 장바구니 Product 처리
@@ -145,15 +145,13 @@ public class RestaurantOrderServiceImplV2 {
                 restaurantOrderCartRepository.findRestaurantAndMember(restaurantOrder.getRestaurant(), member)
                         .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
 
-
         for (RestaurantOrderCartDetail rocd : restaurantOrderCart.getRestaurantDetailOrders()) {
-            RestaurantOrderCartDetail orderCartDetail =
-                    restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, rocd.getProduct())
-                            .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
+            RestaurantOrderCartDetail orderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(
+                            restaurantOrderCart, rocd.getProduct()).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
 
             RestaurantOrderDetail orderDetail = restaurantOrderDetailRepository.findRestaurantOrderAndProduct(
-                            restaurantOrder, orderCartDetail.getProduct())
-                    .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_DETAIL));
+                            restaurantOrder, orderCartDetail.getProduct()).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_DETAIL));
+
 
             Long minusQuantity = RestaurantOrderValidator.checkedQuantity(orderDetail, orderCartDetail);
             orderCartDetail.minusQuantity(minusQuantity);
@@ -232,15 +230,17 @@ public class RestaurantOrderServiceImplV2 {
                 + "처리 데이터 수 : %s \n".formatted(orderToDeletes.size())
         );
     }
+
     private void orderCompleted(RestaurantOrder order) {
         order.updateStatus(RestaurantOrderStatus.COMPLETED);
 
         for (RestaurantOrderDetail detail : order.getDetails()) {
-            RestaurantStock restaurantStock = restaurantStockRepository.findRestaurantAndProduct(order.getRestaurant(), detail.getProduct())
+            RestaurantStock restaurantStock = restaurantStockRepository.findRestaurantAndProduct(order.getRestaurant(),
+                            detail.getProduct())
                     .orElse(RestaurantStock.builder()
                             .product(detail.getProduct())
                             .restaurant(detail.getRestaurantOrder().getRestaurant())
-                            .price(detail.getProduct().getPrice().multiply(BigDecimal.valueOf(11)))
+                            .price(detail.getProduct().getDistributionPrice().multiply(BigDecimal.valueOf(1.1)))
                             .build());
 
             restaurantStock.plusQuantity(detail.getQuantity());
