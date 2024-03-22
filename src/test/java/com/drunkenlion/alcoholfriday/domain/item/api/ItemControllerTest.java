@@ -24,10 +24,12 @@ import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -643,5 +645,32 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.products[0].sweet", notNullValue()))
                 .andExpect(jsonPath("$.products[0].sweet", notNullValue()))
                 .andExpect(jsonPath("$.itemRating", nullValue()));
+    }
+
+    @Test
+    @DisplayName("상품 상세페이지의 리뷰는 누구나 확인이 가능하다.")
+    public void t1() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
+        Item item = itemRepository.save(Item.builder().id(1L).build());
+
+        reviewRepository.save(Review.builder().score(4.0d).content("리뷰 테스트").member(member).item(item).build());
+        reviewRepository.save(Review.builder().score(3.0d).content("리뷰 테스트").member(member).item(item).build());
+        
+        ResultActions actions = mvc
+                .perform(get("/v1/items/reviews/" + item.getId()))
+                .andDo(print());
+
+        actions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ItemController.class))
+                .andExpect(handler().methodName("getReview"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.data.[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data.[0].nickname", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].content", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].score", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].createdAt", notNullValue()))
+        ;
+
     }
 }

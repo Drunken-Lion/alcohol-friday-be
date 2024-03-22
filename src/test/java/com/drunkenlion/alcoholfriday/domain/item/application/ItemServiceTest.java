@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
+import com.drunkenlion.alcoholfriday.domain.item.dto.ItemReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
@@ -474,5 +475,39 @@ class ItemServiceTest {
         review.addOrderDetail(getDataOrderDetail());
 
         return review;
+    }
+
+    @Test
+    @DisplayName("상품 리뷰 조회")
+    public void t1() {
+        Member member = Member.builder().id(1L).nickname("테스터").build();
+        Item item = Item.builder().id(1L).build();
+
+        Mockito.when(itemRepository.findById(1L)).thenReturn(
+                Optional.ofNullable(item)
+        );
+
+        Review firstReview = Review.builder().id(1L).score(4.0d).content("리뷰 테스트").member(member).item(item).build();
+        Review secondReview = Review.builder().id(2L).score(3.0d).content("리뷰 테스트").member(member).item(item).build();
+
+        List<Review> reviews = List.of(firstReview, secondReview);
+        Page<Review> reviewPage = new PageImpl<>(reviews);
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Mockito.when(reviewRepository.findItemDetailReview(item,pageable)).thenReturn(
+                reviewPage
+        );
+
+        assert item != null;
+        Page<ItemReviewResponse> pageReviews = itemService.getReviews(item.getId(), 0, 10);
+        List<ItemReviewResponse> reviewsResponse = pageReviews.getContent();
+        ItemReviewResponse response = reviewsResponse.get(0);
+
+        assertThat(reviewsResponse.size()).isEqualTo(reviews.size());
+        assertThat(response.getId()).isEqualTo(firstReview.getId());
+        assertThat(response.getScore()).isEqualTo(firstReview.getScore());
+        assertThat(response.getContent()).isEqualTo(firstReview.getContent());
+        assertThat(response.getNickname()).isEqualTo(member.getNickname());
     }
 }
