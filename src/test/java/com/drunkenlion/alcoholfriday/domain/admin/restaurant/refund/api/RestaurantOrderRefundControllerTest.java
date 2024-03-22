@@ -243,11 +243,12 @@ public class RestaurantOrderRefundControllerTest {
         // given
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
         RestaurantOrder restaurantOrder = this.restaurantOrderRepository.findAll().get(0);
+        RestaurantOrderDetail restaurantOrderDetail1 = this.restaurantOrderDetailRepository.findAll().get(0);
         Product product1 = this.productRepository.findAll().get(0);
 
         RestaurantOrderRefundDetailCreateRequest detailRequest = RestaurantOrderRefundDetailCreateRequest.builder()
                 .productId(product1.getId())
-                .price(product1.getPrice().multiply(BigDecimal.valueOf(1.1)))
+                .price(restaurantOrderDetail1.getPrice().multiply(BigDecimal.valueOf(1.1)))
                 .possibleQuantity(100L)
                 .quantity(10L)
                 .build();
