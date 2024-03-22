@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;

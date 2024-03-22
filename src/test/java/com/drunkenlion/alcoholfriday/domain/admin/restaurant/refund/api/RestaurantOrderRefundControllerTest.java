@@ -2,8 +2,8 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundCreateRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundDetailCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;

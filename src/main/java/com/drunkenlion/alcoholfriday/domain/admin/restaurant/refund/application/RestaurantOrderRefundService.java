@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundCreateRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.RestaurantOrderRefundResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
 import org.springframework.data.domain.Page;
 
 public interface RestaurantOrderRefundService {
