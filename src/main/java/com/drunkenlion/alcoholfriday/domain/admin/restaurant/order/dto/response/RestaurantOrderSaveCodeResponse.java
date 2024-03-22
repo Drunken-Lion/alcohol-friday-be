@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "레스토랑 발주 저장 코드 반환 객체")
 public class RestaurantOrderSaveCodeResponse {
-    @Schema(description = "레스토랑 발주 고육 식별 ID")
+    @Schema(description = "레스토랑 발주 고유 식별 ID")
     private Long id;
 
     @Schema(description = "레스토랑 사업자 이름")
@@ -43,7 +43,7 @@ public class RestaurantOrderSaveCodeResponse {
         return RestaurantOrderSaveCodeResponse.builder()
                 .id(rs.getId())
                 .businessName(rs.getRestaurant().getBusinessName())
-                .address(RestaurantOrderAddressConvertor.getRestaurantAddress(rs.getRestaurant()))
+                .address(RestaurantOrderAddressConvertor.addressFormatter(rs.getRestaurant()))
                 .totalPrice(rs.getTotalPrice())
                 .status(rs.getOrderStatus())
                 .member(RestaurantOrderMemberResponse.of(rs.getMember()))

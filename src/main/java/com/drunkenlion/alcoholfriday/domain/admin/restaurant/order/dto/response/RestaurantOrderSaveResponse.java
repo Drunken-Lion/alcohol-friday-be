@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderAddressConvertor;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -45,7 +46,7 @@ public class RestaurantOrderSaveResponse {
         return RestaurantOrderSaveResponse.builder()
                 .id(rs.getId())
                 .businessName(rs.getRestaurant().getBusinessName())
-                .address("%s %s [%s]".formatted(rs.getAddress(), rs.getAddressDetail(), rs.getPostcode()))
+                .address(RestaurantOrderAddressConvertor.addressFormatter(rs.getRestaurant()))
                 .description(rs.getDescription())
                 .totalPrice(rs.getTotalPrice())
                 .status(rs.getOrderStatus())

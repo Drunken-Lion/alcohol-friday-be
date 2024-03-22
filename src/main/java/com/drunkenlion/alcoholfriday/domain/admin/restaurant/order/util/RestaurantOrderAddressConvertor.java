@@ -4,7 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import java.util.Optional;
 
 public class RestaurantOrderAddressConvertor {
-    public static String getRestaurantAddress(Restaurant restaurant) {
+    public static String addressFormatter(Restaurant restaurant) {
         String address = Optional.ofNullable(restaurant.getAddress()).orElse("");
         String addressDetail = Optional.ofNullable(restaurant.getAddressDetail()).orElse("");
         String postcode = " [" + restaurant.getPostcode() + "]";
