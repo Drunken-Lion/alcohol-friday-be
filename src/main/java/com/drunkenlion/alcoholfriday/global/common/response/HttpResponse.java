@@ -52,7 +52,6 @@ public class HttpResponse {
         NOT_FOUND_ROLE_NUMBER(HttpStatus.NOT_FOUND, "존재하지 않는 Role Number"),
         NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
         NOT_FOUND_RESTAURANT(HttpStatus.NOT_FOUND, "존재하지 않는 매장입니다."),
-        NOT_FOUND_RESTAURANT_STOCK(HttpStatus.NOT_FOUND, "존재하지 않는 매장 재고입니다."),
         NOT_FOUND_RESTAURANT_REFUND(HttpStatus.NOT_FOUND, "존재하지 않는 매장 환불입니다."),
         NOT_FOUND_RESTAURANT_REFUND_DETAIL(HttpStatus.NOT_FOUND, "존재하지 않는 매장 환불 상세입니다."),
         NOT_FOUND_MAKER(HttpStatus.NOT_FOUND, "존재하지 않는 제조사입니다."),

@@ -875,7 +875,7 @@ public class RestaurantOrderRefundServiceTest {
         Member owner = getOwner();
         return Restaurant.builder()
                 .id(1L)
-                .members(owner).category("음식점").name("레스쁘아").address("서울특별시 종로구 종로8길 16").location(Restaurant.genPoint(37.569343, 126.983857)).contact(212345678L).menu(getMenuTest()).time(getTimeTest()).provision(getProvisionTest())
+                .member(owner).category("음식점").name("레스쁘아").address("서울특별시 종로구 종로8길 16").location(Restaurant.genPoint(37.569343, 126.983857)).contact(212345678L).menu(getMenuTest()).time(getTimeTest()).provision(getProvisionTest())
                 .businessName(businessName)
                 .businessNumber("101-10-10001").addressDetail("101").postcode("00001")
                 .createdAt(createdAt)
@@ -960,7 +960,7 @@ public class RestaurantOrderRefundServiceTest {
 
     private RestaurantOrder getRestaurantOrder() {
         Restaurant restaurant = getRestaurant();
-        Member owner = restaurant.getMembers();
+        Member owner = restaurant.getMember();
 
         return RestaurantOrder.builder()
                 .id(orderId)
@@ -970,7 +970,7 @@ public class RestaurantOrderRefundServiceTest {
                 .addressDetail(orderAddressDetail)
                 .description("조심히 배송 부탁드립니다.")
                 .postcode(orderPostcode)
-                .recipient(owner.getName()).phone(owner.getPhone()).restaurant(restaurant).member(restaurant.getMembers())
+                .recipient(owner.getName()).phone(owner.getPhone()).restaurant(restaurant).member(restaurant.getMember())
                 .createdAt(createdAt)
                 .build();
     }

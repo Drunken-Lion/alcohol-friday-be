@@ -151,7 +151,7 @@ public class RestaurantOrderRefundControllerTest {
     @Transactional
     void beforeEach() throws IOException {
         Member owner = memberRepository.save(Member.builder().email("owner1@af.shop").provider(ProviderType.KAKAO).name("owner1").nickname("owner1").role(MemberRole.OWNER).phone(1012345687L).certifyAt(LocalDate.now()).agreedToServiceUse(true).agreedToServicePolicy(true).agreedToServicePolicyUse(true).build());
-        Restaurant restaurant = restaurantRepository.save(Restaurant.builder().members(owner).category("음식점").name("레스쁘아").address("서울특별시 종로구 종로8길 16").location(geometryFactory.createPoint(new Coordinate(37.569343,126.983857))).contact(212345678L).menu(getMenuTest()).time(getTimeTest()).provision(getProvisionTest()).businessName("레스쁘아").businessNumber("101-10-10001").addressDetail("101").postcode("00001").build());
+        Restaurant restaurant = restaurantRepository.save(Restaurant.builder().member(owner).category("음식점").name("레스쁘아").address("서울특별시 종로구 종로8길 16").location(geometryFactory.createPoint(new Coordinate(37.569343,126.983857))).contact(212345678L).menu(getMenuTest()).time(getTimeTest()).provision(getProvisionTest()).businessName("레스쁘아").businessNumber("101-10-10001").addressDetail("101").postcode("00001").build());
 
         CategoryClass categoryClass = categoryClassRepository.save(CategoryClass.builder().firstName("전통주").build());
         Category category = categoryRepository.save(Category.builder().categoryClass(categoryClass).lastName("탁주/막걸리").build());
@@ -168,7 +168,7 @@ public class RestaurantOrderRefundControllerTest {
         restaurantStockRepository.save(RestaurantStock.builder().product(product1).quantity(100L).restaurant(restaurant).build());
         restaurantStockRepository.save(RestaurantStock.builder().product(product2).quantity(100L).restaurant(restaurant).build());
 
-        RestaurantOrder restaurantOrder = restaurantOrderRepository.save(RestaurantOrder.builder().orderStatus(RestaurantOrderStatus.COMPLETED).totalPrice(BigDecimal.valueOf(58300)).address(restaurant.getAddress()).addressDetail(restaurant.getAddressDetail()).description("조심히 배송 부탁드립니다.").postcode(restaurant.getPostcode()).recipient(memberRepository.findById(restaurant.getMembers().getId()).get().getName()).phone(memberRepository.findById(restaurant.getMembers().getId()).get().getPhone()).restaurant(restaurant).member(restaurant.getMembers()).build());
+        RestaurantOrder restaurantOrder = restaurantOrderRepository.save(RestaurantOrder.builder().orderStatus(RestaurantOrderStatus.COMPLETED).totalPrice(BigDecimal.valueOf(58300)).address(restaurant.getAddress()).addressDetail(restaurant.getAddressDetail()).description("조심히 배송 부탁드립니다.").postcode(restaurant.getPostcode()).recipient(memberRepository.findById(restaurant.getMember().getId()).get().getName()).phone(memberRepository.findById(restaurant.getMember().getId()).get().getPhone()).restaurant(restaurant).member(restaurant.getMember()).build());
 
         restaurantOrderDetailRepository.save(RestaurantOrderDetail.builder().quantity(2L).price(product1.getDistributionPrice()).totalPrice(product1.getDistributionPrice().multiply(BigDecimal.valueOf(2))).restaurantOrder(restaurantOrder).product(product1).build());
         restaurantOrderDetailRepository.save(RestaurantOrderDetail.builder().quantity(2L).price(product2.getDistributionPrice()).totalPrice(product2.getDistributionPrice().multiply(BigDecimal.valueOf(2))).restaurantOrder(restaurantOrder).product(product2).build());
