@@ -4,6 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.Restaura
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOwnerOrderRefundCancelResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
@@ -124,7 +125,7 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
 
     @Override
     @Transactional
-    public void cancelRestaurantOrderRefund(Long id) {
+    public RestaurantOwnerOrderRefundCancelResponse cancelRestaurantOrderRefund(Long id) {
         RestaurantOrderRefund refund = restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND)
@@ -166,6 +167,8 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
                 .build();
 
         restaurantOrderRefundRepository.save(refund);
+
+        return RestaurantOwnerOrderRefundCancelResponse.of(refund);
     }
 
     private boolean checkRefundEligibility(RestaurantOrderRefundCreateRequest request) {

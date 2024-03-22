@@ -302,15 +302,19 @@ public class RestaurantOrderRefundControllerTest {
 
         // when
         ResultActions resultActions = mvc
-                .perform(delete("/v1/admin/restaurant-order-refunds/" + refund.getId() + "/owner")
+                .perform(put("/v1/admin/restaurant-order-refunds/" + refund.getId() + "/cancel/owner")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print());
 
         // then
         resultActions
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andExpect(handler().handlerType(RestaurantOrderRefundController.class))
-                .andExpect(handler().methodName("cancelRestaurantOrderRefund"));
+                .andExpect(handler().methodName("cancelRestaurantOrderRefund"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.ownerReason", notNullValue()))
+                .andExpect(jsonPath("$.status", notNullValue()));
     }
 }

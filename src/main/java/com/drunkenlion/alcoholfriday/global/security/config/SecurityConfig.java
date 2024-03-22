@@ -90,7 +90,7 @@ public class SecurityConfig {
                         //관리자 - 매장 재고 관리 (사장)
                         .requestMatchers(
                                 "/v1/admin/restaurant-order-refunds/owner",
-                                "/v1/admin/restaurant-order-refunds/*/owner")
+                                "/v1/admin/restaurant-order-refunds/*/cancel/owner")
                         .hasRole(MemberRole.OWNER.getRole())
 
                         // 관리자

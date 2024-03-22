@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.application.RestaurantOrderRefundService;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOwnerOrderRefundCancelResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,11 +54,11 @@ public class RestaurantOrderRefundController {
     }
 
     @Operation(summary = "매장 환불 취소(사장)", description = "사장 권한에 대한 매장 환불 취소")
-    @DeleteMapping("/{id}/owner")
-    public ResponseEntity<Void> cancelRestaurantOrderRefund(
+    @PutMapping("/{id}/cancel/owner")
+    public ResponseEntity<RestaurantOwnerOrderRefundCancelResponse> cancelRestaurantOrderRefund(
             @PathVariable("id") Long id
     ) {
-        restaurantOrderRefundService.cancelRestaurantOrderRefund(id);
-        return ResponseEntity.noContent().build();
+        RestaurantOwnerOrderRefundCancelResponse response = restaurantOrderRefundService.cancelRestaurantOrderRefund(id);
+        return ResponseEntity.ok(response);
     }
 }

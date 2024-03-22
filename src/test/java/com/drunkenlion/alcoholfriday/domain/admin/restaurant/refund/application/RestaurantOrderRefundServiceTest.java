@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.Restaura
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOwnerOrderRefundCancelResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
@@ -744,7 +745,7 @@ public class RestaurantOrderRefundServiceTest {
         ArgumentCaptor<List<RestaurantStock>> restaurantStocksCaptor = ArgumentCaptor.forClass(List.class);
 
         // When
-        restaurantOrderRefundService.cancelRestaurantOrderRefund(restaurantOrderRefund.getId());
+        RestaurantOwnerOrderRefundCancelResponse response = restaurantOrderRefundService.cancelRestaurantOrderRefund(restaurantOrderRefund.getId());
 
         // then
         verify(restaurantOrderRefundRepository, times(1)).save(any(RestaurantOrderRefund.class));
@@ -759,6 +760,10 @@ public class RestaurantOrderRefundServiceTest {
         assertThat(savedRestaurantOrderRefund.getStatus()).isEqualTo(RestaurantOrderRefundStatus.CANCELLED);
         assertThat(savedRestaurantStocks.get(0).getQuantity()).isEqualTo(stockQuantity1 + refundDetailQuantity1);
         assertThat(savedRestaurantStocks.get(1).getQuantity()).isEqualTo(stockQuantity2 + refundDetailQuantity2);
+
+        assertThat(response.getId()).isEqualTo(refundId);
+        assertThat(response.getOwnerReason()).isEqualTo(refundOwnerReason);
+        assertThat(response.getStatus()).isEqualTo(RestaurantOrderRefundStatus.CANCELLED);
     }
 
     @Test
