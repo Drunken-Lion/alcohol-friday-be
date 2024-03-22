@@ -10,18 +10,13 @@ import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
@@ -67,7 +62,7 @@ public class RestaurantOrderControllerV2 {
     }
 
 
-    @DeleteMapping("restaurant-orders/{id}")
+    @PutMapping("restaurant-orders/{id}/reject")
     @Operation(summary = "관리자 발주 반려 처리 (Admin)")
     public ResponseEntity<RestaurantAdminOrderApprovalResponse> adminOrderRejectedApproval(@PathVariable("id") Long restaurantOrderId,
                                                                                            @AuthenticationPrincipal UserPrincipal user) {
