@@ -151,7 +151,7 @@ class ItemServiceTest {
         Mockito.when((this.reviewRepository.findAllByItemIdAndDeletedAtIsNull(itemId1))).thenReturn(reviewList);
 
         // when
-        Page<SearchItemResponse> search = this.itemService.search(10, "탁주", list);
+        Page<SearchItemResponse> search = this.itemService.search(0, 10, "탁주", list);
         // then
         List<SearchItemResponse> content = search.getContent();
 
