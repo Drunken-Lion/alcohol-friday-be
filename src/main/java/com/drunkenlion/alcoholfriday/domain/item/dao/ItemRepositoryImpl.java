@@ -32,15 +32,13 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 .map(category.lastName::eq) // categoryLastName -> category.lastName.eq(categoryLastName)
                 .reduce(BooleanExpression::or)
                 .orElse(null);
-        System.out.println("categoryPredicate = " + categoryPredicate);
 
-        // keyword가 없는 경우 카테고리로만 검색
+        // 키워드 검색 조건 생성 - keyword가 없는 경우 카테고리로만 검색
         BooleanExpression searchPredicate = keyword.isBlank()
                 ? categoryPredicate
                 : categoryPredicate.and(item.name.contains(keyword))
                 .or(categoryPredicate.and(product.name.contains(keyword)))
                 .or(categoryPredicate.and(maker.name.contains(keyword)));
-        System.out.println("searchPredicate = " + searchPredicate);
 
         List<Item> items = jpaQueryFactory
                 .select(item)

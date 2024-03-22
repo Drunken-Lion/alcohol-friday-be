@@ -46,12 +46,12 @@ class ItemRepositoryTest {
                 .build();
 
         Category category = Category.builder()
-                .lastName("탁주")
+                .lastName("탁주/막걸리")
                 .build();
         category.addCategoryClass(categoryClass);
 
         Product product = Product.builder()
-                .name("test data")
+                .name("1000억 유산균막걸리")
                 .quantity(10L)
                 .alcohol(17.0D)
                 .ingredient("알콜, 누룩 등등...")
@@ -66,7 +66,7 @@ class ItemRepositoryTest {
         product.addCategory(category);
 
         Item item = Item.builder()
-                .name("test ddaattaa")
+                .name("1000억 유산균막걸리 3개입")
                 .price(new BigDecimal(50000))
                 .info("이 상품은 테스트 상품입니다.")
                 .build();
@@ -99,20 +99,21 @@ class ItemRepositoryTest {
     @Test
     void searchTest() {
         // given
-        List<String> keywordType = new ArrayList<>();
-        keywordType.add("type");
-        keywordType.add("name");
+        List<String> categories = new ArrayList<>();
+        categories.add("탁주/막걸리");
 
-        String keyword = "탁주";
+        String keyword = "1000억 유산균막걸리";
 
-        Pageable pageable = PageRequest.ofSize(10);
+        Pageable pageable = PageRequest.ofSize(12);
         // when
-        Page<Item> search = itemRepository.search(keywordType, keyword, pageable);
+        Page<Item> search = itemRepository.search(categories, keyword, pageable);
         // then
         assertThat(search.getContent()).isInstanceOf(List.class);
         assertThat(search.getContent().size()).isEqualTo(1);
         assertThat(search.getContent().get(0).getCategory().getCategoryClass().getFirstName()).isEqualTo("식품");
-        assertThat(search.getContent().get(0).getCategory().getLastName()).isEqualTo("탁주");
+        assertThat(search.getContent().get(0).getCategory().getLastName()).isEqualTo("탁주/막걸리");
+        assertThat(search.getContent().get(0).getName()).isEqualTo("1000억 유산균막걸리 3개입");
+        assertThat(search.getContent().get(0).getItemProducts().get(0).getProduct().getName()).isEqualTo("1000억 유산균막걸리");
     }
 
     @Test
