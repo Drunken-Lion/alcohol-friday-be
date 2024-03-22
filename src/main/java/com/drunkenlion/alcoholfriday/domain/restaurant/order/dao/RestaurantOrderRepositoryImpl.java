@@ -1,24 +1,23 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.order.dao;
 
-import static com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.QRestaurantOrder.restaurantOrder;
-
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
+
+import static com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.QRestaurantOrder.restaurantOrder;
 
 @RequiredArgsConstructor
 public class RestaurantOrderRepositoryImpl implements RestaurantOrderRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Optional<RestaurantOrder> findRestaurantOrderOwner(Long id) {
+    public Optional<RestaurantOrder> findRestaurantOrderAddInfo(Long id) {
         BooleanExpression conditions =
                 restaurantOrder.id.eq(id)
                         .and(restaurantOrder.orderStatus.eq(RestaurantOrderStatus.ADD_INFO))
@@ -31,7 +30,7 @@ public class RestaurantOrderRepositoryImpl implements RestaurantOrderRepositoryC
     }
 
     @Override
-    public Optional<RestaurantOrder> findRestaurantOrderAdmin(Long id) {
+    public Optional<RestaurantOrder> findRestaurantOrderWaitingApproval(Long id) {
         BooleanExpression conditions =
                 restaurantOrder.id.eq(id)
                         .and(restaurantOrder.orderStatus.eq(RestaurantOrderStatus.WAITING_APPROVAL))

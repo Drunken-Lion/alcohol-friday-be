@@ -161,7 +161,7 @@ class RestaurantOrderServiceImplV2Test {
                 .restaurant(restaurant)
                 .build();
 
-        Mockito.when(restaurantOrderRepository.findRestaurantOrderAdmin(restaurantOrder.getId())).thenReturn(
+        Mockito.when(restaurantOrderRepository.findRestaurantOrderWaitingApproval(restaurantOrder.getId())).thenReturn(
                 Optional.of(restaurantOrder)
         );
 
@@ -187,7 +187,7 @@ class RestaurantOrderServiceImplV2Test {
                 .restaurant(restaurant)
                 .build();
 
-        Mockito.when(restaurantOrderRepository.findRestaurantOrderAdmin(restaurantOrder.getId())).thenReturn(
+        Mockito.when(restaurantOrderRepository.findRestaurantOrderWaitingApproval(restaurantOrder.getId())).thenReturn(
                 Optional.of(restaurantOrder)
         );
 
