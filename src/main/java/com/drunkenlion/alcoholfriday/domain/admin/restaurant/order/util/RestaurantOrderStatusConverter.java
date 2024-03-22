@@ -1,6 +1,6 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.order.util;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util;
 
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

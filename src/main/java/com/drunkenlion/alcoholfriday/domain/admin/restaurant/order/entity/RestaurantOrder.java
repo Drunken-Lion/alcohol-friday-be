@@ -1,20 +1,18 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.order.entity;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderStatusConverter;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.util.RestaurantOrderStatusConverter;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -55,6 +53,10 @@ public class RestaurantOrder extends BaseEntity {
     @Column(name = "phone", columnDefinition = "BIGINT")
     @Comment("배송받는 사람의 연락처")
     private Long phone;
+
+    @OneToMany(mappedBy = "restaurantOrder")
+    @Builder.Default
+    private List<RestaurantOrderDetail> restaurantOrderDetails = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
