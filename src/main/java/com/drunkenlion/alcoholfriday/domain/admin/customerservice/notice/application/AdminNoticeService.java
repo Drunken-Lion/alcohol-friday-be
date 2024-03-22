@@ -5,10 +5,12 @@ import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.dto.Not
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface AdminNoticeService {
     NoticeSaveResponse getNotice(Long id, Member member);
 
-    Page<NoticeSaveResponse> getNotices(int page, int size, Member member);
+    Page<NoticeSaveResponse> getNotices(int page, int size, Member member, String keyword, List<String> keywordType);
 
     NoticeSaveResponse initNotice(Member member);
     
