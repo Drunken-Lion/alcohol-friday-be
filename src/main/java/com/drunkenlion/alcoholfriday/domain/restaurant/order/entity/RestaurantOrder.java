@@ -5,19 +5,14 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.util.RestaurantOrderStatusConverter;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -85,5 +80,9 @@ public class RestaurantOrder extends BaseEntity {
 
     public void updateStatus(RestaurantOrderStatus status) {
         this.orderStatus = status;
+    }
+
+    public String getFullAddress() {
+        return this.address + " " + this.addressDetail + " [" + this.postcode + "]";
     }
 }

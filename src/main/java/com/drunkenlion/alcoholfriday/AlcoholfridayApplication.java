@@ -9,7 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @OpenAPIDefinition(servers = {
 		@Server(url = "https://api.alcoholfriday.store", description = "store"),
-		@Server(url = "https://api.alcoholfriday.shop", description = "shop")
+		@Server(url = "https://api.alcoholfriday.shop", description = "shop"),
+		@Server(url = "/", description = "local")
 })
 @SpringBootApplication
 @EnableScheduling

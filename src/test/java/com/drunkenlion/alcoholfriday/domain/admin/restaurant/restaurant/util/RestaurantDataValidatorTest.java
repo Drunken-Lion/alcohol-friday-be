@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.admin.restaurant.util;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util.RestaurantDataValidator;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
