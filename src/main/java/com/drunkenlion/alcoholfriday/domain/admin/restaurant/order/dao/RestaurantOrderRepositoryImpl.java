@@ -38,7 +38,7 @@ public class RestaurantOrderRepositoryImpl implements RestaurantOrderRepositoryC
                 .from(restaurantOrder)
                 .leftJoin(restaurantOrder.member, member).fetchJoin()
                 .leftJoin(restaurantOrder.restaurant, restaurant).fetchJoin()
-                .leftJoin(restaurantOrder.restaurantOrderDetails, restaurantOrderDetail).fetchJoin()
+                .leftJoin(restaurantOrder.details, restaurantOrderDetail).fetchJoin()
                 .leftJoin(restaurantOrderDetail.product, product).fetchJoin()
                 .where(booleanBuilder)
                 .orderBy(restaurantOrder.createdAt.desc())
@@ -51,7 +51,7 @@ public class RestaurantOrderRepositoryImpl implements RestaurantOrderRepositoryC
                 .from(restaurantOrder)
                 .leftJoin(restaurantOrder.member, member)
                 .leftJoin(restaurantOrder.restaurant, restaurant)
-                .leftJoin(restaurantOrder.restaurantOrderDetails, restaurantOrderDetail)
+                .leftJoin(restaurantOrder.details, restaurantOrderDetail)
                 .leftJoin(restaurantOrderDetail.product, product)
                 .where(booleanBuilder);
 

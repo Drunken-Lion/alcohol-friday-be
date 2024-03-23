@@ -41,6 +41,6 @@ public class RestaurantOrderDetail extends BaseEntity {
 
     public void addOrder(RestaurantOrder order) {
         this.restaurantOrder = order;
-        restaurantOrder.getDetails().add(this);
+        order.getDetails().add(this);
     }
 }

@@ -51,7 +51,7 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
                             refundDetail.getQuantity(),
                             Long::sum)));
 
-            for (RestaurantOrderDetail orderDetail : restaurantOrder.getRestaurantOrderDetails()) {
+            for (RestaurantOrderDetail orderDetail : restaurantOrder.getDetails()) {
                 Long refundableQuantity = orderDetail.getQuantity();
 
                 refundableQuantity -= productRefundQuantities.getOrDefault(

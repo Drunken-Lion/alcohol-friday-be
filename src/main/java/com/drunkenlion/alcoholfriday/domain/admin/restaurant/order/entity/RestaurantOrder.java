@@ -55,10 +55,6 @@ public class RestaurantOrder extends BaseEntity {
     @Comment("배송받는 사람의 연락처")
     private Long phone;
 
-    @OneToMany(mappedBy = "restaurantOrder")
-    @Builder.Default
-    private List<RestaurantOrderDetail> restaurantOrderDetails = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Restaurant restaurant;
