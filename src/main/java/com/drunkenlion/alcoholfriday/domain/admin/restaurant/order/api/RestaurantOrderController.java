@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application.RestaurantOrderService;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.RestaurantOrderListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderValidator;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,7 @@ public class RestaurantOrderController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        // 해당 사용자의 모든 발주내역 확인
+        RestaurantOrderValidator.validateOwnerRole(userPrincipal.getMember());
 
         Page<RestaurantOrderListResponse> pages =
                 restaurantOrderService.getRestaurantOrdersByOwner(userPrincipal.getMember(), page, size);
