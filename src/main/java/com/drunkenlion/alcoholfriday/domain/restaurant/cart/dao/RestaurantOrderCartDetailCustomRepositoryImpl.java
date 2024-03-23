@@ -1,24 +1,16 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.cart.dao;
 
+import static com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.QRestaurantOrderCart.restaurantOrderCart;
 import static com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.QRestaurantOrderCartDetail.restaurantOrderCartDetail;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-
-import static com.drunkenlion.alcoholfriday.domain.member.entity.QMember.member;
-
-import static com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.QRestaurantOrderCart.restaurantOrderCart;
-
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCart;
 import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCartDetail;
-
-import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurant.restaurant;
-import static com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.QRestaurantOrder.restaurantOrder;
-
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import static com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.QRestaurant.restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

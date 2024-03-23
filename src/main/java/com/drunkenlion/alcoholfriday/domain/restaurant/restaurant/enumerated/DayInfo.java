@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.enumerated;
+package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated;
 
 public enum DayInfo {
     MONDAY,

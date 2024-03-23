@@ -1,6 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto;
 
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -13,7 +13,7 @@ import java.util.Map;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Schema(description = "매장 상세 조회 항목")
-public class RestaurantDetailResponse {
+public class RestaurantAdminDetailResponse {
     @Schema(description = "고유 아이디")
     private Long id;
 
@@ -62,8 +62,8 @@ public class RestaurantDetailResponse {
     @Schema(description = "판매하는 상품 정보")
     private List<RestaurantStockProductResponse> stockProductInfos;
 
-    public static RestaurantDetailResponse of(Restaurant restaurant, List<RestaurantStockProductResponse> stockProductInfos) {
-        return RestaurantDetailResponse.builder()
+    public static RestaurantAdminDetailResponse of(Restaurant restaurant, List<RestaurantStockProductResponse> stockProductInfos) {
+        return RestaurantAdminDetailResponse.builder()
                 .id(restaurant.getId())
                 .memberId(restaurant.getMember().getId())
                 .memberNickname(restaurant.getMember().getNickname())

@@ -1,9 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity;
 
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.util.RestaurantOrderRefundStatusConverter;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

@@ -1,5 +1,6 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.vo;
+package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.time.LocalTime;

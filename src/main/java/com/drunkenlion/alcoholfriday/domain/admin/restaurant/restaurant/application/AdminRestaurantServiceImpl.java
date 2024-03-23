@@ -1,6 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantAdminDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantStockProductResponse;
@@ -9,10 +9,10 @@ import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
@@ -45,7 +45,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
         return restaurants.map(RestaurantListResponse::of);
     }
 
-    public RestaurantDetailResponse getRestaurant(Member authMember, Long id) {
+    public RestaurantAdminDetailResponse getRestaurant(Member authMember, Long id) {
         Restaurant restaurant = restaurantRepository.findById(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
@@ -57,10 +57,10 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                     .build();
         }
 
-        return RestaurantDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
+        return RestaurantAdminDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
     }
 
-    public RestaurantDetailResponse createRestaurant(Member authMember, RestaurantRequest restaurantRequest) {
+    public RestaurantAdminDetailResponse createRestaurant(Member authMember, RestaurantRequest restaurantRequest) {
         if (!authMember.getRole().equals(MemberRole.ADMIN)) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.FORBIDDEN)
@@ -81,11 +81,11 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
         Restaurant restaurant = RestaurantRequest.toEntity(restaurantRequest, member);
         restaurantRepository.save(restaurant);
 
-        return RestaurantDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
+        return RestaurantAdminDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
     }
 
     @Transactional
-    public RestaurantDetailResponse modifyRestaurant(Member authMember, Long id, RestaurantRequest restaurantRequest) {
+    public RestaurantAdminDetailResponse modifyRestaurant(Member authMember, Long id, RestaurantRequest restaurantRequest) {
         Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT)
@@ -129,7 +129,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
 
         restaurantRepository.save(restaurant);
 
-        return RestaurantDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
+        return RestaurantAdminDetailResponse.of(restaurant, getRestaurantStockItemResponseList(restaurant));
     }
 
     @Transactional

@@ -1,4 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.enumerated;
+package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated;
+
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
+import java.util.List;
 
 /**
  * 편의 시설
@@ -51,5 +54,13 @@ public enum Provision {
     /**
      * 장애인 주차 구역
      */
-    DISABLED_PARKING_AREA
+    DISABLED_PARKING_AREA,
+    ;
+
+    public static List<Provision> getProvisions(Restaurant restaurant) {
+        return restaurant.getProvision().entrySet().stream()
+                .filter(entry -> (boolean) entry.getValue())
+                .map(entry -> Provision.valueOf(entry.getKey()))
+                .toList();
+    }
 }

@@ -1,9 +1,15 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.dao;
+package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao;
 
+import static com.drunkenlion.alcoholfriday.domain.product.entity.QProduct.product;
+import static com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.QRestaurant.restaurant;
+import static com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.QRestaurantStock.restaurantStock;
+
+import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dto.response.RestaurantNearbyResponse;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response.RestaurantNearbyResponse;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -11,17 +17,12 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.util.StringUtils;
 
-import java.util.List;
-
-import static com.drunkenlion.alcoholfriday.domain.product.entity.QProduct.product;
-import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurant.restaurant;
-import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurantStock.restaurantStock;
 
 @RequiredArgsConstructor
 public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
@@ -52,7 +53,8 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
     }
 
     @Override
-    public List<Restaurant> getRestaurant(double neLatitude, double neLongitude, double swLatitude, double swLongitude) {
+    public List<Restaurant> getRestaurant(double neLatitude, double neLongitude, double swLatitude,
+                                          double swLongitude) {
         String polygon = String.format("POLYGON((%f %f, %f %f, %f %f, %f %f, %f %f))",
                 swLongitude, neLatitude,
                 neLongitude, neLatitude,
@@ -74,9 +76,17 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
     }
 
     @Override
-    public Page<RestaurantNearbyResponse> getRestaurantSellingProducts(double userLocationLatitude, double userLocationLongitude, String keyword, Pageable pageable) {
+    public Page<RestaurantNearbyResponse> getRestaurantSellingProducts(double userLocationLatitude,
+                                                                       double userLocationLongitude, Item item,
+                                                                       Pageable pageable) {
         BooleanExpression isMeasurement = isRestaurantWithinRadius(userLocationLongitude, userLocationLatitude, 5000);
-        OrderSpecifier<Double> closestStoreDistanceFromUser = getClosestStoreDistanceFromUser(userLocationLatitude, userLocationLongitude);
+        OrderSpecifier<Double> closestStoreDistanceFromUser = getClosestStoreDistanceFromUser(userLocationLatitude,
+                userLocationLongitude);
+        BooleanBuilder itemConditions = new BooleanBuilder();
+
+        for (ItemProduct itemProduct : item.getItemProducts()) {
+            itemConditions.or(product.name.eq(itemProduct.getProduct().getName()));
+        }
 
         List<RestaurantNearbyResponse> restaurants = jpaQueryFactory
                 .select(Projections.constructor(
@@ -85,15 +95,16 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                         restaurant.name,
                         restaurant.address,
                         product.name,
-                        Expressions.numberTemplate(Double.class, "ST_Distance_Sphere(point({0}, {1}), restaurant.location)", userLocationLongitude, userLocationLatitude).as("distance")
-                        ))
+                        Expressions.numberTemplate(Double.class,
+                                "ST_Distance_Sphere(point({0}, {1}), restaurant.location)", userLocationLongitude,
+                                userLocationLatitude).as("distance")
+                ))
                 .from(restaurant)
                 .leftJoin(restaurant.restaurantStocks, restaurantStock)
                 .leftJoin(restaurantStock.product, product)
                 .where(isMeasurement
-                        .and(isMatchesProductName(keyword))
+                        .and(itemConditions)
                         .and(isNullDeleted())
-                        .and(isProductOutOfStock())
                 ).orderBy(closestStoreDistanceFromUser)
                 .fetch();
 
@@ -103,22 +114,19 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
 
         return PageableExecutionUtils.getPage(restaurants, pageable, total::fetchOne);
     }
-    public BooleanExpression isMatchesProductName(String keyword) {
-        return !StringUtils.hasText(keyword) ? null : product.name.eq(keyword);
-    }
+
     public OrderSpecifier<Double> getClosestStoreDistanceFromUser(double userLocationLatitude, double userLocationLongitude) {
         return Expressions.numberTemplate(Double.class,
                 "ST_Distance_Sphere(point({0}, {1}), restaurant.location)",
                 userLocationLongitude, userLocationLatitude).asc();
     }
+
     public BooleanExpression isRestaurantWithinRadius(double userLocationLongitude, double userLocationLatitude, double radius) {
         return Expressions.booleanTemplate(
                 "ST_Distance_Sphere(point({0}, {1}), restaurant.location) <= {2}",
                 userLocationLongitude, userLocationLatitude, radius);
     }
-    public BooleanExpression isProductOutOfStock() {
-        return product.quantity.isNull().or(product.quantity.loe(0));
-    }
+
     public BooleanExpression isNullDeleted() {
         return restaurant.deletedAt.isNull();
     }

@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application.AdminRestaurantService;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantAdminDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
@@ -39,21 +39,21 @@ public class AdminRestaurantController {
 
     @Operation(summary = "매장 상세 조회", description = "관리자 권한에 대한 매장 상세 조회")
     @GetMapping("{id}")
-    public ResponseEntity<RestaurantDetailResponse> getRestaurant(
+    public ResponseEntity<RestaurantAdminDetailResponse> getRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id
     ) {
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.getRestaurant(userPrincipal.getMember(), id);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.getRestaurant(userPrincipal.getMember(), id);
         return ResponseEntity.ok().body(restaurantDetailResponse);
     }
 
     @Operation(summary = "매장 등록", description = "관리자 권한에 대한 매장 등록")
     @PostMapping
-    public ResponseEntity<RestaurantDetailResponse> createRestaurant(
+    public ResponseEntity<RestaurantAdminDetailResponse> createRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody RestaurantRequest restaurantRequest
     ) {
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(userPrincipal.getMember(), restaurantRequest);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(userPrincipal.getMember(), restaurantRequest);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -66,12 +66,12 @@ public class AdminRestaurantController {
 
     @Operation(summary = "매장 수정", description = "관리자 권한에 대한 매장 수정")
     @PutMapping("{id}")
-    public ResponseEntity<RestaurantDetailResponse> modifyRestaurant(
+    public ResponseEntity<RestaurantAdminDetailResponse> modifyRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id,
             @Valid @RequestBody RestaurantRequest restaurantRequest
     ) {
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(userPrincipal.getMember(), id, restaurantRequest);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(userPrincipal.getMember(), id, restaurantRequest);
         return ResponseEntity.ok().body(restaurantDetailResponse);
     }
 

@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.dto.response;
+package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response;
 
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import io.swagger.v3.oas.annotations.media.Schema;

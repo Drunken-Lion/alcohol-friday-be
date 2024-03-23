@@ -4,7 +4,7 @@ import static com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.QResta
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCart;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.Optional;

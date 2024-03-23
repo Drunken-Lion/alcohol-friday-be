@@ -1,6 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util;
 
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import java.util.Optional;
 
 public class RestaurantOrderAddressConvertor {

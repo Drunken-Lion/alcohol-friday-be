@@ -15,7 +15,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.cart.dao.RestaurantOrderC
 import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCart;
 import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderDetailRepository;

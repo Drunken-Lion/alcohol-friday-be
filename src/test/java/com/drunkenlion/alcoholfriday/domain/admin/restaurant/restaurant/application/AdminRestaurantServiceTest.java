@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application.AdminRestaurantServiceImpl;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantAdminDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
@@ -9,14 +9,14 @@ import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
-import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.TimeOption;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
@@ -208,7 +208,7 @@ public class AdminRestaurantServiceTest {
         when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
 
         // when
-        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getAdminData(), id);
+        RestaurantAdminDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getAdminData(), id);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
@@ -233,7 +233,7 @@ public class AdminRestaurantServiceTest {
         when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
 
         // when
-        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getOwnerData(), id);
+        RestaurantAdminDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getOwnerData(), id);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
@@ -304,7 +304,7 @@ public class AdminRestaurantServiceTest {
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
 
         // then
         assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
@@ -499,7 +499,7 @@ public class AdminRestaurantServiceTest {
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(getAdminData(), id, restaurantRequest);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(getAdminData(), id, restaurantRequest);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
@@ -538,7 +538,7 @@ public class AdminRestaurantServiceTest {
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(getModifyMemberData(), id, restaurantRequest);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(getModifyMemberData(), id, restaurantRequest);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);

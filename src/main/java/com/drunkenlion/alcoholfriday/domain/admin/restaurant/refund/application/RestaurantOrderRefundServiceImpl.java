@@ -12,11 +12,11 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.Resta
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
