@@ -89,4 +89,15 @@ public class Product extends BaseEntity {
         this.category = category;
         category.getProducts().add(this);
     }
+
+    public void updateQuantity(Long quantity) {
+        this.quantity = quantity;
+    }
+
+    public void minusQuantity(Long quantity) {
+        this.quantity = this.quantity - quantity;
+    }
+    public void plusQuantity(Long quantity) {
+        this.quantity = this.quantity + quantity;
+    }
 }

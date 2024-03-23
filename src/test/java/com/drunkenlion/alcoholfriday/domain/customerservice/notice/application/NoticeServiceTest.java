@@ -1,8 +1,7 @@
-package com.drunkenlion.alcoholfriday.domain.notice.application;
+package com.drunkenlion.alcoholfriday.domain.customerservice.notice.application;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
-import com.drunkenlion.alcoholfriday.domain.customerservice.notice.application.NoticeServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dto.response.NoticeDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dto.response.NoticeListResponse;
@@ -23,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +44,7 @@ public class NoticeServiceTest {
     private final String title = "test title 1";
     private final String content = "test content 1";
     private final LocalDateTime noticeCreatedAt = LocalDateTime.now();
-    private final LocalDateTime noticeUpdatedAt = LocalDateTime.now();
+    private final LocalDateTime noticeUpdatedAt = noticeCreatedAt.plusMinutes(10);
     private final LocalDateTime noticeDeletedAt = null;
 
     private final int page = 0;
@@ -63,10 +63,9 @@ public class NoticeServiceTest {
     @DisplayName("공지사항 목록 조회 성공")
     @Test
     public void getNoticesTest() {
+        when(this.noticeRepository.findNotices(any(Pageable.class), any(), any())).thenReturn(this.getNotices());
 
-        when(this.noticeRepository.findAllByDeletedAtIsNull(any(Pageable.class))).thenReturn(this.getNotices());
-
-        Page<NoticeListResponse> notices = noticeService.getNotices(page, size);
+        Page<NoticeListResponse> notices = noticeService.getNotices(page, size, null, null);
 
         List<NoticeListResponse> noticeResponse = notices.getContent();
         assertThat(noticeResponse).isInstanceOf(List.class);
@@ -76,10 +75,30 @@ public class NoticeServiceTest {
         assertThat(noticeResponse.get(0).getUpdatedAt()).isEqualTo(noticeUpdatedAt);
     }
 
+    @DisplayName("공지사항 목록 검색 성공")
+    @Test
+    public void getNoticesSearchTest() {
+        when(this.noticeRepository.findNotices(any(Pageable.class), any(), any())).thenReturn(this.getNotices());
+
+        List<String> keywordType = new ArrayList<>();
+        keywordType.add("title");
+        keywordType.add("content");
+        String keyword = "test";
+
+        Page<NoticeListResponse> notices = noticeService.getNotices(page, size, keyword, keywordType);
+
+        List<NoticeListResponse> noticeResponse = notices.getContent();
+        assertThat(noticeResponse).isInstanceOf(List.class);
+        assertThat(noticeResponse.get(0).getId()).isEqualTo(noticeId);
+        assertThat(noticeResponse.get(0).getTitle()).contains(keyword);
+        assertThat(noticeResponse.get(0).getCreatedAt()).isEqualTo(noticeCreatedAt);
+        assertThat(noticeResponse.get(0).getUpdatedAt()).isEqualTo(noticeUpdatedAt);
+        assertThat(keywordType.get(0)).isEqualTo("title");
+    }
+
     @DisplayName("공지사항 상세 조회 성공")
     @Test
     public void getNoticeTest() {
-
         when(this.noticeRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(this.getNoticeOne());
 
         NoticeDetailResponse noticeResponse = noticeService.getNotice(noticeId);
@@ -90,14 +109,9 @@ public class NoticeServiceTest {
         assertThat(noticeResponse.getCreatedAt()).isEqualTo(noticeCreatedAt);
         assertThat(noticeResponse.getUpdatedAt()).isEqualTo(noticeUpdatedAt);
 
-        assertThat(noticeResponse.getMember().getId()).isEqualTo(memberId);
-        assertThat(noticeResponse.getMember().getName()).isEqualTo(name);
-        assertThat(noticeResponse.getMember().getNickname()).isEqualTo(nickname);
-        assertThat(noticeResponse.getMember().getProvider()).isEqualTo(provider);
-        assertThat(noticeResponse.getMember().getPhone()).isEqualTo(phone);
-        assertThat(noticeResponse.getMember().getEmail()).isEqualTo(email);
-        assertThat(noticeResponse.getMember().getCreatedAt()).isEqualTo(memberCreatedAt);
-        assertThat(noticeResponse.getMember().getDeletedAt()).isEqualTo(memberDeletedAt);
+        assertThat(noticeResponse.getMemberId()).isEqualTo(memberId);
+        assertThat(noticeResponse.getMemberName()).isEqualTo(name);
+        assertThat(noticeResponse.getMemberNickname()).isEqualTo(nickname);
     }
 
     @DisplayName("공지사항 상세 조회 실패 - 찾을 수 없는 공지사항")

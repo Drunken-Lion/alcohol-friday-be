@@ -109,8 +109,8 @@ public class AdminItemServiceTest {
     private final Long modifySour = 1L;
     private final Long modifyCool = 1L;
     private final Long modifyBody = 1L;
-    private final Long modifyBalence = 1L;
-    private final Long modifyInsense = 1L;
+    private final Long modifyBalance = 1L;
+    private final Long modifyIncense = 1L;
     private final Long modifyThroat = 1L;
 
     private final Long itemId = 1L;
@@ -606,8 +606,8 @@ public class AdminItemServiceTest {
                 .sour(modifySour)
                 .cool(modifyCool)
                 .body(modifyBody)
-                .balance(modifyBalence)
-                .incense(modifyInsense)
+                .balance(modifyBalance)
+                .incense(modifyIncense)
                 .throat(modifyThroat)
                 .maker(modifyMaker)
                 .category(modifyCategory)

@@ -74,7 +74,7 @@ public class RestaurantLocationResponse {
 
         return RestaurantLocationResponse.builder()
                 .id(restaurant.getId())
-                .memberId(restaurant.getMembers().getId())
+                .memberId(restaurant.getMember().getId())
                 .category(restaurant.getCategory())
                 .name(restaurant.getName())
                 .address(restaurant.getAddress())

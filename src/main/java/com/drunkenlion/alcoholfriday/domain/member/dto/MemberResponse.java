@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.member.dto;
 
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import java.time.LocalDateTime;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -37,6 +38,9 @@ public class MemberResponse {
     @Schema(description = "소셜 로그인 제공처", example = "kakao")
     private String provider;
 
+    @Schema(description = "회원 권한", example = "MEMBER")
+    private MemberRole role;
+
     @Schema(description = "회원 가입 일시")
     private LocalDateTime createdAt;
 
@@ -54,6 +58,7 @@ public class MemberResponse {
                 .nickname(member.getNickname())
                 .phone(member.getPhone())
                 .provider(member.getProvider().getProviderName())
+                .role(member.getRole())
                 .createdAt(member.getCreatedAt())
                 .updatedAt(member.getUpdatedAt())
                 .deletedAt(member.getDeletedAt())

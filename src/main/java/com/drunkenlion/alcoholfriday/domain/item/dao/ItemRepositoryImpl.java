@@ -1,17 +1,14 @@
 package com.drunkenlion.alcoholfriday.domain.item.dao;
 
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.support.PageableExecutionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,36 +24,42 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<Item> search(List<String> keywordType, String keyword, Pageable pageable) {
-        BooleanBuilder builder = new BooleanBuilder();
+    public Page<Item> search(List<String> categories, String keyword, Pageable pageable) {
+        // 카테고리 검색 조건 생성
+        BooleanExpression categoryPredicate = categories.isEmpty()
+                ? item.isNotNull() // 카테고리 조건이 없는 경우 기본적으로 모든 아이템을 선택
+                : categories.stream()
+                .map(category.lastName::eq) // categoryLastName -> category.lastName.eq(categoryLastName)
+                .reduce(BooleanExpression::or)
+                .orElse(null);
 
-        if (!keyword.isBlank()) {
-            List<BooleanExpression> conditions = new ArrayList<>();
-
-            // TODO: hashtag에 대한 부분 명확하게 이야기 하지 않음... 일단 미 구현
-            if (keywordType.contains("type")) conditions.add(category.lastName.contains(keyword));
-            if (keywordType.contains("name")) conditions.add(item.name.contains(keyword));
-
-            conditions.stream()
-                    .reduce(BooleanExpression::or)
-                    .ifPresent(builder::and);
-        }
+        // 키워드 검색 조건 생성 - keyword가 없는 경우 카테고리로만 검색
+        BooleanExpression searchPredicate = keyword.isBlank()
+                ? categoryPredicate
+                : categoryPredicate.and(item.name.contains(keyword))
+                .or(categoryPredicate.and(product.name.contains(keyword)))
+                .or(categoryPredicate.and(maker.name.contains(keyword)));
 
         List<Item> items = jpaQueryFactory
                 .select(item)
                 .from(item)
-                .leftJoin(category).on(category.id.eq(item.category.id)).fetchJoin()
-                .leftJoin(categoryClass).on(categoryClass.id.eq(category.categoryClass.id)).fetchJoin()
-                .where(builder)
+                .leftJoin(itemProduct).on(item.eq(itemProduct.item))
+                .leftJoin(product).on(itemProduct.product.eq(product))
+                .leftJoin(maker).on(product.maker.eq(maker))
+                .leftJoin(category).on(item.category.eq(category))
+                .where(searchPredicate)
+                .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         JPAQuery<Long> total = jpaQueryFactory
                 .select(item.count())
                 .from(item)
-                .leftJoin(category).on(category.id.eq(item.category.id)).fetchJoin()
-                .leftJoin(categoryClass).on(categoryClass.id.eq(category.categoryClass.id)).fetchJoin()
-                .where(builder);
+                .leftJoin(itemProduct).on(item.eq(itemProduct.item))
+                .leftJoin(product).on(itemProduct.product.eq(product))
+                .leftJoin(maker).on(product.maker.eq(maker))
+                .leftJoin(category).on(item.category.eq(category))
+                .where(searchPredicate);
 
         return PageableExecutionUtils.getPage(items, pageable, total::fetchOne);
     }

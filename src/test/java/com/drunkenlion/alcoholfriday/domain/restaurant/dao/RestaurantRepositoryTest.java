@@ -115,7 +115,7 @@ public class RestaurantRepositoryTest {
         Point restaurant_location = geometryFactory.createPoint(coordinate);
 
         Restaurant restaurant = Restaurant.builder()
-                .members(member)
+                .member(member)
                 .category(restaurantCategory)
                 .name(restaurantName)
                 .address(restaurantAddress)

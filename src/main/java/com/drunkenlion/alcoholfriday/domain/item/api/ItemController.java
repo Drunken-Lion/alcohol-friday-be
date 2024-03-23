@@ -2,15 +2,18 @@ package com.drunkenlion.alcoholfriday.domain.item.api;
 
 import com.drunkenlion.alcoholfriday.domain.item.application.ItemService;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
+import com.drunkenlion.alcoholfriday.domain.item.dto.ItemReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -23,12 +26,16 @@ public class ItemController {
     @GetMapping
     @Operation(summary = "검색어로 전체 상품 조회", description = "검색어와 검색유형에 따라 전체 상품을 여러개 조회한다.")
     public ResponseEntity<PageResponse<SearchItemResponse>> search(
-            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "12") int size,
             @RequestParam(name = "keyword") String keyword,
-            @RequestParam(name = "keywordType") @Schema(example = "type,name") String keywordType
+            @RequestParam(name = "categories") @Schema(example = "탁주/막걸리 또는 과실주/와인") String categories
     ) {
-        List<String> parseType = List.of(keywordType.split(","));
-        PageResponse<SearchItemResponse> pageResponse = PageResponse.of(this.itemService.search(size, keyword, parseType));
+        List<String> parseType = categories == null || categories.isBlank()
+                ? Collections.emptyList()
+                : List.of(categories.split(","));
+
+        PageResponse<SearchItemResponse> pageResponse = PageResponse.of(this.itemService.search(page, size, keyword, parseType));
         return ResponseEntity.ok().body(pageResponse);
     }
 
@@ -39,5 +46,14 @@ public class ItemController {
     ) {
         FindItemResponse findItemResponse = this.itemService.get(id);
         return ResponseEntity.ok().body(findItemResponse);
+    }
+
+    @GetMapping("{id}/reviews")
+    @Operation(summary = "상품 리뷰 조회")
+    public ResponseEntity<PageResponse<ItemReviewResponse>> getReview(@PathVariable("id") Long id,
+                                       @RequestParam(name = "page", defaultValue = "0") int page,
+                                       @RequestParam(name = "size", defaultValue = "10") int size) {
+        PageResponse<ItemReviewResponse> response = PageResponse.of(itemService.getReviews(id, page, size));
+        return ResponseEntity.ok(response);
     }
 }

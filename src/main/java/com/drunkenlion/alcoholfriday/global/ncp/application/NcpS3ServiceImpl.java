@@ -6,8 +6,12 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.EntityTypeV2;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.ncp.config.NcpS3Properties;
 import com.drunkenlion.alcoholfriday.global.ncp.entity.NcpFile;
 import java.io.IOException;
@@ -28,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class NcpS3ServiceImpl implements NcpS3Service {
+    private final NoticeRepository noticeRepository;
     private final NcpS3Properties ncpS3Properties;
     private final AmazonS3Client amazonS3Client;
 
@@ -52,6 +57,21 @@ public class NcpS3ServiceImpl implements NcpS3Service {
                 .entityType(EntityTypeV2.getEntityType(entity))
                 .s3Files(fileMaps)
                 .build();
+    }
+
+    @Override
+    public String saveFile(Long id, MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new BusinessException(HttpResponse.Fail.NOT_FOUND_NOTICE);
+        }
+
+        Notice entity = noticeRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_NOTICE));
+
+        String keyName = generateFileName(entity, file);
+        uploadBucket(file, keyName);
+
+        return generatePath(keyName);
     }
 
     @Override

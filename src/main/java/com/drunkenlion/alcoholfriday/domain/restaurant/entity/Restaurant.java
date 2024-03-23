@@ -26,7 +26,7 @@ import java.util.Map;
 public class Restaurant extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Member members;
+    private Member member;
 
     @Comment("레스토랑 분류")
     @Column(name = "category", columnDefinition = "VARCHAR(50)")

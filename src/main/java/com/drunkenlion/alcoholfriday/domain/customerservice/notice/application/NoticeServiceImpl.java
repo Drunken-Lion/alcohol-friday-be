@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.customerservice.notice.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumerated.NoticeStatus;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dao.NoticeRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dto.response.NoticeDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.notice.dto.response.NoticeListResponse;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -22,17 +25,19 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public NoticeDetailResponse getNotice(Long id) {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_NOTICE)
-                .build());
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_NOTICE));
+        if(notice.getStatus() == NoticeStatus.DRAFT) {
+            throw new BusinessException(HttpResponse.Fail.NOT_FOUND_NOTICE);
+        }
+
         return NoticeDetailResponse.of(notice);
     }
 
     @Override
-    public Page<NoticeListResponse> getNotices(int page, int size) {
+    public Page<NoticeListResponse> getNotices(int page, int size, String keyword, List<String> keywordType) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Notice> notices = noticeRepository.findAllByDeletedAtIsNull(pageable);
+        Page<Notice> notices = noticeRepository.findNotices(pageable, keyword, keywordType);
 
-        return notices.map(NoticeListResponse::of);
+        return NoticeListResponse.of(notices);
     }
 }
