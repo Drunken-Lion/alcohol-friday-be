@@ -40,4 +40,9 @@ public class RestaurantOrderRefundDetail extends BaseEntity {
     @Comment("환불 총 가격")
     @Column(name = "total_price", columnDefinition = "DECIMAL(64, 3)")
     private BigDecimal totalPrice;
+
+    public void addRestaurantOrderRefund(RestaurantOrderRefund restaurantOrderRefund) {
+        this.restaurantOrderRefund = restaurantOrderRefund;
+        restaurantOrderRefund.getRestaurantOrderRefundDetails().add(this);
+    }
 }

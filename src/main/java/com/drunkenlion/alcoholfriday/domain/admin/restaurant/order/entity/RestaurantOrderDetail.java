@@ -38,4 +38,9 @@ public class RestaurantOrderDetail extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Product product;
+
+    public void addRestaurantOrder(RestaurantOrder restaurantOrder) {
+        this.restaurantOrder = restaurantOrder;
+        restaurantOrder.getRestaurantOrderDetails().add(this);
+    }
 }
