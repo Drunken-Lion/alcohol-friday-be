@@ -39,8 +39,8 @@ public class RestaurantOrderDetail extends BaseEntity {
     @JoinColumn(name = "product_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Product product;
 
-    public void addRestaurantOrder(RestaurantOrder restaurantOrder) {
-        this.restaurantOrder = restaurantOrder;
-        restaurantOrder.getRestaurantOrderDetails().add(this);
+    public void addOrder(RestaurantOrder order) {
+        this.restaurantOrder = order;
+        restaurantOrder.getDetails().add(this);
     }
 }

@@ -5,6 +5,11 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.Restauran
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
@@ -23,11 +28,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.dao.RestaurantOrderRefundDetailRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.dao.RestaurantOrderRefundRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.entity.RestaurantOrderRefund;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.entity.RestaurantOrderRefundDetail;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
@@ -124,7 +124,7 @@ public class RestaurantOrderControllerTest {
 
         Restaurant restaurant = restaurantRepository.save(
                 Restaurant.builder()
-                        .members(owner)
+                        .member(owner)
                         .category("음식점")
                         .name("레스쁘아")
                         .address("서울특별시 종로구 종로8길 16")
@@ -221,7 +221,7 @@ public class RestaurantOrderControllerTest {
                         .description("부재시 연락주세요.")
                         .phone(owner.getPhone())
                         .restaurant(restaurant)
-                        .member(restaurant.getMembers())
+                        .member(restaurant.getMember())
                         .build()
         );
 
@@ -234,7 +234,7 @@ public class RestaurantOrderControllerTest {
                                 .restaurantOrder(restaurantOrder)
                                 .product(product1)
                                 .build());
-        restaurantOrderDetail1.addRestaurantOrder(restaurantOrder);
+        restaurantOrderDetail1.addOrder(restaurantOrder);
 
         RestaurantOrderDetail restaurantOrderDetail2 =
                 restaurantOrderDetailRepository.save(
@@ -245,7 +245,7 @@ public class RestaurantOrderControllerTest {
                                 .restaurantOrder(restaurantOrder)
                                 .product(product2)
                                 .build());
-        restaurantOrderDetail2.addRestaurantOrder(restaurantOrder);
+        restaurantOrderDetail2.addOrder(restaurantOrder);
 
         RestaurantOrderRefund restaurantOrderRefund =
                 restaurantOrderRefundRepository.save(
@@ -266,7 +266,7 @@ public class RestaurantOrderControllerTest {
                                 .price(product1.getDistributionPrice())
                                 .totalPrice(product1.getDistributionPrice().multiply(BigDecimal.valueOf(1)))
                                 .build());
-        restaurantOrderRefundDetail1.addRestaurantOrderRefund(restaurantOrderRefund);
+        restaurantOrderRefundDetail1.addOrderRefund(restaurantOrderRefund);
 
         RestaurantOrderRefundDetail restaurantOrderRefundDetail2 =
                 restaurantOrderRefundDetailRepository.save(
@@ -277,7 +277,7 @@ public class RestaurantOrderControllerTest {
                                 .price(product2.getDistributionPrice())
                                 .totalPrice(product2.getDistributionPrice().multiply(BigDecimal.valueOf(1)))
                                 .build());
-        restaurantOrderRefundDetail2.addRestaurantOrderRefund(restaurantOrderRefund);
+        restaurantOrderRefundDetail2.addOrderRefund(restaurantOrderRefund);
     }
 
     private Map<String, Object> getMenuTest() {

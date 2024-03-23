@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,10 +45,8 @@ public class AdminNoticeServiceTest {
     private final String title = "test title 1";
     private final String content = "test content 1";
     private final LocalDateTime noticeCreatedAt = LocalDateTime.now();
-    private final LocalDateTime noticeUpdatedAt = LocalDateTime.now();
+    private final LocalDateTime noticeUpdatedAt = noticeCreatedAt.plusMinutes(10);
     private final LocalDateTime noticeDeletedAt = null;
-    private final LocalDateTime deletedAt = LocalDateTime.now();
-
     private final int page = 0;
     private final int size = 20;
 
@@ -62,10 +61,10 @@ public class AdminNoticeServiceTest {
     @Test
     public void getAdminNoticesTest() {
         // given
-        when(this.noticeRepository.findAll(any(Pageable.class))).thenReturn(this.getNotices());
+        when(this.noticeRepository.findAllNotices(any(Pageable.class), any(), any())).thenReturn(this.getNotices());
 
         // when
-        Page<NoticeSaveResponse> notices = this.adminNoticeService.getNotices(page, size, getMemberData());
+        Page<NoticeSaveResponse> notices = this.adminNoticeService.getNotices(page, size, getMemberData(), null, null);
 
         // then
         List<NoticeSaveResponse> noticeResponse = notices.getContent();
@@ -74,6 +73,34 @@ public class AdminNoticeServiceTest {
         assertThat(noticeResponse.get(0).getTitle()).isEqualTo(title);
         assertThat(noticeResponse.get(0).getContent()).isEqualTo(content);
         assertThat(noticeResponse.get(0).getCreatedAt()).isEqualTo(noticeCreatedAt);
+
+        assertThat(noticeResponse.get(0).getMemberId()).isEqualTo(memberId);
+        assertThat(noticeResponse.get(0).getMemberName()).isEqualTo(name);
+        assertThat(noticeResponse.get(0).getMemberNickname()).isEqualTo(nickname);
+    }
+
+    @DisplayName("관리자 공지사항 목록 검색 성공")
+    @Test
+    public void getAdminNoticesSearchTest() {
+        // given
+        when(this.noticeRepository.findAllNotices(any(Pageable.class), any(), any())).thenReturn(this.getNotices());
+
+        List<String> keywordType = new ArrayList<>();
+        keywordType.add("title");
+        keywordType.add("content");
+        String keyword = "test";
+
+        // when
+        Page<NoticeSaveResponse> notices = this.adminNoticeService.getNotices(page, size, getMemberData(), keyword, keywordType);
+
+        // then
+        List<NoticeSaveResponse> noticeResponse = notices.getContent();
+        assertThat(noticeResponse).isInstanceOf(List.class);
+        assertThat(noticeResponse.get(0).getId()).isEqualTo(noticeId);
+        assertThat(noticeResponse.get(0).getTitle()).isEqualTo(title);
+        assertThat(noticeResponse.get(0).getContent()).isEqualTo(content);
+        assertThat(noticeResponse.get(0).getCreatedAt()).isEqualTo(noticeCreatedAt);
+        assertThat(noticeResponse.get(0).getTitle()).contains(keyword);
 
         assertThat(noticeResponse.get(0).getMemberId()).isEqualTo(memberId);
         assertThat(noticeResponse.get(0).getMemberName()).isEqualTo(name);
@@ -138,7 +165,6 @@ public class AdminNoticeServiceTest {
         assertThat(noticeResponse.getId()).isEqualTo(noticeId);
         assertThat(noticeResponse.getTitle()).isEqualTo(modifyTitle);
         assertThat(noticeResponse.getContent()).isEqualTo(modifyContent);
-        assertThat(noticeResponse.getUpdatedAt()).isNotEqualTo(noticeCreatedAt);
     }
 
     @DisplayName("관리자 공지사항 수정 실패 - 찾을 수 없는 공지사항")

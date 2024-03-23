@@ -52,6 +52,8 @@ public class HttpResponse {
         NOT_FOUND_ROLE_NUMBER(HttpStatus.NOT_FOUND, "존재하지 않는 Role Number"),
         NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
         NOT_FOUND_RESTAURANT(HttpStatus.NOT_FOUND, "존재하지 않는 매장입니다."),
+        NOT_FOUND_RESTAURANT_REFUND(HttpStatus.NOT_FOUND, "존재하지 않는 매장 환불입니다."),
+        NOT_FOUND_RESTAURANT_REFUND_DETAIL(HttpStatus.NOT_FOUND, "존재하지 않는 매장 환불 상세입니다."),
         NOT_FOUND_MAKER(HttpStatus.NOT_FOUND, "존재하지 않는 제조사입니다."),
         NOT_FOUND_ITEM(HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."),
         NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "존재하지 않는 제품입니다."),
@@ -76,6 +78,11 @@ public class HttpResponse {
         NOT_FOUND_PAYMENT_CARD_CODE(HttpStatus.NOT_FOUND, "존재하지 않는 카드사 코드 입니다."),
         NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "존재하지 답변 입니다."),
         NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "존재하는 리뷰가 없습니다."),
+        NOT_FOUND_RESTAURANT_ORDER_CART(HttpStatus.NOT_FOUND, "카트가 존재하지 않습니다."),
+        NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL(HttpStatus.NOT_FOUND, "장바구니에 제품이 존재하지 않습니다. 확인 후 다시 시도해 주세요."),
+        NOT_FOUND_RESTAURANT_ORDER_DETAIL(HttpStatus.NOT_FOUND, "발주 상세 내역이 존재하지 않습니다. 확인 후 다시 시도해 주세요."),
+        NOT_FOUND_RESTAURANT_STOCK(HttpStatus.NOT_FOUND, "레스토랑 재고가 존재하지 않습니다."),
+        NOT_FOUND_RESTAURANT_ORDER(HttpStatus.NOT_FOUND, "상태 변경 가능한 발주 건이 없습니다."),
 
         // 405
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP METHOD 입니다."),
@@ -93,6 +100,8 @@ public class HttpResponse {
         DELETED_ANSWER(HttpStatus.CONFLICT, "삭제 처리가 된 답변 입니다."),
         EXIST_REVIEW(HttpStatus.CONFLICT, "작성된 리뷰가 존재합니다."),
         OUT_OF_ITEM_STOCK(HttpStatus.CONFLICT, "현재 상품에 재고가 없습니다."),
+        RESTAURANT_REFUND_FAIL(HttpStatus.CONFLICT, "매장 환불 조건에 부합하지 않습니다."),
+        RESTAURANT_REFUND_CANCEL_FAIL(HttpStatus.CONFLICT, "매장 환불 취소 조건에 부합하지 않습니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");

@@ -65,8 +65,8 @@ public class RestaurantDetailResponse {
     public static RestaurantDetailResponse of(Restaurant restaurant, List<RestaurantStockProductResponse> stockProductInfos) {
         return RestaurantDetailResponse.builder()
                 .id(restaurant.getId())
-                .memberId(restaurant.getMembers().getId())
-                .memberNickname(restaurant.getMembers().getNickname())
+                .memberId(restaurant.getMember().getId())
+                .memberNickname(restaurant.getMember().getNickname())
                 .name(restaurant.getName())
                 .category(restaurant.getCategory())
                 .address(restaurant.getAddress())

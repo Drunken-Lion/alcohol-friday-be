@@ -136,7 +136,7 @@ public class RestaurantServiceTest {
 
         Restaurant restaurantData = Restaurant.builder()
                 .id(restaurantId)
-                .members(memberData)
+                .member(memberData)
                 .category(restaurantCategory)
                 .name(restaurantName)
                 .address(restaurantAddress)

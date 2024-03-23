@@ -1,11 +1,15 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.RestaurantOrderDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.RestaurantOrderListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
@@ -17,10 +21,6 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.dao.RestaurantOrderRefundRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.entity.RestaurantOrderRefund;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.entity.RestaurantOrderRefundDetail;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import org.junit.jupiter.api.DisplayName;
@@ -120,11 +120,11 @@ public class RestaurantOrderServiceTest {
         when(fileService.findOne(any())).thenReturn(null);
 
         // when
-        Page<RestaurantOrderListResponse> orders =
+        Page<OwnerRestaurantOrderListResponse> orders =
                 restaurantOrderService.getRestaurantOrdersByOwner(getOwner(), page, size);
 
         // then
-        List<RestaurantOrderListResponse> content = orders.getContent();
+        List<OwnerRestaurantOrderListResponse> content = orders.getContent();
 
         assertThat(content).isInstanceOf(List.class);
         assertThat(content.size()).isEqualTo(1);
@@ -137,7 +137,7 @@ public class RestaurantOrderServiceTest {
         assertThat(content.get(0).getPostcode()).isEqualTo(orderPostcode);
         assertThat(content.get(0).getDescription()).isEqualTo(orderDescription);
 
-        List<RestaurantOrderDetailResponse> details = content.get(0).getOrderDetails();
+        List<OwnerRestaurantOrderDetailResponse> details = content.get(0).getOrderDetails();
 
         assertThat(details).isInstanceOf(List.class);
         assertThat(details.size()).isEqualTo(2);
@@ -158,8 +158,8 @@ public class RestaurantOrderServiceTest {
 
     private Page<RestaurantOrder> getRestaurantOrders() {
         RestaurantOrder order = getRestaurantOrder();
-        getRestaurantOrderDetail1().addRestaurantOrder(order);
-        getRestaurantOrderDetail2().addRestaurantOrder(order);
+        getRestaurantOrderDetail1().addOrder(order);
+        getRestaurantOrderDetail2().addOrder(order);
 
         List<RestaurantOrder> list = List.of(order);
         Pageable pageable = PageRequest.of(page, size);
@@ -169,8 +169,8 @@ public class RestaurantOrderServiceTest {
 
     private List<RestaurantOrderRefund> getRestaurantOrderRefunds() {
         RestaurantOrderRefund refund = getRestaurantOrderRefund();
-        getRestaurantOrderRefundDetail1().addRestaurantOrderRefund(refund);
-        getRestaurantOrderRefundDetail2().addRestaurantOrderRefund(refund);
+        getRestaurantOrderRefundDetail1().addOrderRefund(refund);
+        getRestaurantOrderRefundDetail2().addOrderRefund(refund);
 
         return List.of(refund);
     }
@@ -196,7 +196,7 @@ public class RestaurantOrderServiceTest {
         Member owner = getOwner();
         return Restaurant.builder()
                 .id(1L)
-                .members(owner)
+                .member(owner)
                 .category("음식점")
                 .name("레스쁘아")
                 .address("서울특별시 종로구 종로8길 16")
@@ -329,7 +329,7 @@ public class RestaurantOrderServiceTest {
 
     private RestaurantOrder getRestaurantOrder() {
         Restaurant restaurant = getRestaurant();
-        Member owner = restaurant.getMembers();
+        Member owner = restaurant.getMember();
 
         return RestaurantOrder.builder()
                 .id(orderId)
@@ -342,7 +342,7 @@ public class RestaurantOrderServiceTest {
                 .recipient(owner.getName())
                 .phone(owner.getPhone())
                 .restaurant(restaurant)
-                .member(restaurant.getMembers())
+                .member(restaurant.getMember())
                 .createdAt(createdAt)
                 .build();
     }

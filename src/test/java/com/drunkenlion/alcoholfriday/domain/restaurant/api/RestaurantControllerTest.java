@@ -109,7 +109,7 @@ public class RestaurantControllerTest {
         Point restaurant_location = geometryFactory.createPoint(coordinate);
 
         Restaurant restaurant = Restaurant.builder()
-                .members(member)
+                .member(member)
                 .category("학식")
                 .name("우정산 폴리텍대학")
                 .address("우정산 서울강서 캠퍼스")

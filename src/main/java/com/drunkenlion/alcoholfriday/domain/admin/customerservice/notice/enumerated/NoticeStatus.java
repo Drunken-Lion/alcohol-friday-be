@@ -21,19 +21,19 @@ public enum NoticeStatus {
 
     public static NoticeStatus byStatus(String status) {
         return Arrays.stream(NoticeStatus.values())
-                .filter(value -> value.status.equals(status))
+                .filter(value -> value.getStatus().equals(status))
                 .findFirst()
                 .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND)
+                        .response(HttpResponse.Fail.NOT_FOUND_STATUS)
                         .build());
     }
 
     public static NoticeStatus byStatusNumber(String statusNumber) {
         return Arrays.stream(NoticeStatus.values())
-                .filter(value -> value.status.equals(statusNumber))
+                .filter(value -> value.getStatusNumber().equals(statusNumber))
                 .findFirst()
                 .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND)
+                        .response(HttpResponse.Fail.NOT_FOUND_STATUS)
                         .build());
     }
 }

@@ -28,7 +28,7 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
         BooleanBuilder builder = new BooleanBuilder();
 
         if (!authMember.getRole().equals(MemberRole.ADMIN)) {
-            builder.and(restaurant.members.id.eq(authMember.getId()));
+            builder.and(restaurant.member.id.eq(authMember.getId()));
         }
 
         List<Restaurant> restaurants = jpaQueryFactory

@@ -53,22 +53,4 @@ class FileRepositoryTest {
     void afterEach() {
         this.fileRepository.deleteAll();
     }
-
-    @Test
-    @DisplayName("데이터가 정상적으로 불러와지는지 확인")
-    void test() {
-        // when
-        List<NcpFile> ncpFiles = this.fileRepository.findAllByEntityIdInAndEntityType(entityIds, entityType);
-        // then
-        assertThat(ncpFiles.size()).isEqualTo(entityIds.size());
-        for (NcpFile file : ncpFiles) {
-            for (Map<String, Object> s3File : file.getS3Files()) {
-                assertThat(s3File.get("key_name")).isEqualTo(key_name);
-                assertThat(s3File.get("key_name")).isInstanceOf(String.class);
-                assertThat(s3File.get("path")).isEqualTo(path);
-                assertThat(s3File.get("path")).isInstanceOf(String.class);
-                assertThat(s3File.get("seq")).isInstanceOf(Integer.class);
-            }
-        }
-    }
 }

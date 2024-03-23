@@ -1,13 +1,13 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.RestaurantOrderDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.RestaurantOrderListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.dao.RestaurantOrderRefundRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,14 +31,14 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
     private final FileService fileService;
 
     @Override
-    public Page<RestaurantOrderListResponse> getRestaurantOrdersByOwner(Member member, int page, int size) {
+    public Page<OwnerRestaurantOrderListResponse> getRestaurantOrdersByOwner(Member member, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<RestaurantOrder> restaurantOrders =
                 restaurantOrderRepository.findRestaurantOrdersByOwner(member, pageable);
 
         return restaurantOrders.map(restaurantOrder -> {
-            List<RestaurantOrderDetailResponse> detailResponses = new ArrayList<>();
+            List<OwnerRestaurantOrderDetailResponse> detailResponses = new ArrayList<>();
 
             List<RestaurantOrderRefund> refunds =
                     restaurantOrderRefundRepository.findRefundByRestaurantOrderId(restaurantOrder);
@@ -53,19 +53,19 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
 
             for (RestaurantOrderDetail orderDetail : restaurantOrder.getRestaurantOrderDetails()) {
                 Long refundableQuantity = orderDetail.getQuantity();
-                
+
                 refundableQuantity -= productRefundQuantities.getOrDefault(
                         orderDetail.getProduct().getId(), 0L);
 
                 NcpFileResponse ncpFileResponse = fileService.findOne(orderDetail.getProduct());
 
-                RestaurantOrderDetailResponse response =
-                        RestaurantOrderDetailResponse.of(orderDetail, refundableQuantity, ncpFileResponse);
+                OwnerRestaurantOrderDetailResponse response =
+                        OwnerRestaurantOrderDetailResponse.of(orderDetail, refundableQuantity, ncpFileResponse);
 
                 detailResponses.add(response);
             }
 
-            return RestaurantOrderListResponse.of(restaurantOrder, detailResponses);
+            return OwnerRestaurantOrderListResponse.of(restaurantOrder, detailResponses);
         });
     }
 }

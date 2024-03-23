@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -32,10 +34,10 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public Page<NoticeListResponse> getNotices(int page, int size) {
+    public Page<NoticeListResponse> getNotices(int page, int size, String keyword, List<String> keywordType) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Notice> notices = noticeRepository.findNotices(pageable);
+        Page<Notice> notices = noticeRepository.findNotices(pageable, keyword, keywordType);
 
-        return notices.map(NoticeListResponse::of);
+        return NoticeListResponse.of(notices);
     }
 }

@@ -3,11 +3,13 @@ package com.drunkenlion.alcoholfriday.domain.item.application;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.dto.ItemRating;
+import com.drunkenlion.alcoholfriday.domain.item.dto.ItemReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.item.dto.SearchItemResponse;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
@@ -77,5 +79,13 @@ public class ItemServiceImpl implements ItemService {
                 .avgItemScore(averageScore)
                 .totalReviewCount(itemTotalReview.size())
                 .build();
+    }
+
+    @Override
+    public Page<ItemReviewResponse> getReviews(Long id, int page, int size) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_ITEM));
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Review> reviews = reviewRepository.findItemDetailReview(item, pageable);
+        return reviews.map(review -> ItemReviewResponse.of(review, fileService.findAll(review)));
     }
 }

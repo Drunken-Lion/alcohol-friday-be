@@ -7,6 +7,7 @@ import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.ncp.application.NcpS3Service;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/v1/admin/notices")
@@ -34,15 +36,21 @@ public class AdminNoticeController {
     public ResponseEntity<NoticeSaveResponse> getNotice(@PathVariable("id") Long id,
                                                         @AuthenticationPrincipal UserPrincipal user) {
         NoticeSaveResponse noticeSaveResponse = adminNoticeService.getNotice(id, user.getMember());
+      
         return ResponseEntity.ok().body(noticeSaveResponse);
     }
 
-    @Operation(summary = "공지사항 목록 조회", description = "관리자 권한 - 공지사항 목록 조회")
+    @Operation(summary = "공지사항 목록 조회", description = "관리자 권한 - 공지사항 목록 조회, 검색")
     @GetMapping
-    public ResponseEntity<PageResponse<NoticeSaveResponse>> getNotices(@RequestParam(name = "page", defaultValue = "0") int page,
-                                                                       @RequestParam(name = "size", defaultValue = "10") int size,
-                                                                       @AuthenticationPrincipal UserPrincipal user) {
-        PageResponse<NoticeSaveResponse> noticeSaveResponse = PageResponse.of(adminNoticeService.getNotices(page, size, user.getMember()));
+    public ResponseEntity<PageResponse<NoticeSaveResponse>> getNotices(
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
+            @RequestParam(value = "keywordType", defaultValue = "") @Schema(example = "title,content") String keywordType,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @AuthenticationPrincipal UserPrincipal user) {
+        List<String> parseType = List.of(keywordType.split(","));
+        PageResponse<NoticeSaveResponse> noticeSaveResponse = PageResponse.of(adminNoticeService.getNotices(page, size, user.getMember(), keyword, parseType));
+
         return ResponseEntity.ok().body(noticeSaveResponse);
     }
 
@@ -56,6 +64,7 @@ public class AdminNoticeController {
                 .path("/{id}")
                 .buildAndExpand(initResponse.getId())
                 .toUri();
+      
         return ResponseEntity.created(location).body(initResponse);
     }
 
@@ -65,6 +74,7 @@ public class AdminNoticeController {
                                                            @RequestBody @Valid NoticeSaveRequest request,
                                                            @AuthenticationPrincipal UserPrincipal user) {
         NoticeSaveResponse response = adminNoticeService.modifyNotice(id, request, user.getMember());
+      
         return ResponseEntity.ok(response);
     }
 
@@ -73,6 +83,7 @@ public class AdminNoticeController {
     public ResponseEntity<Void> deleteNotice(@PathVariable("id") Long id,
                                              @AuthenticationPrincipal UserPrincipal user) {
         adminNoticeService.deleteNotice(id, user.getMember());
+      
         return ResponseEntity.noContent().build();
     }
 
@@ -87,6 +98,7 @@ public class AdminNoticeController {
                 .path("/{id}")
                 .buildAndExpand(id)
                 .toUri();
+      
         return ResponseEntity.created(location).body(response);
     }
 }

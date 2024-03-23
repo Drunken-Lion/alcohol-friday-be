@@ -1,8 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.QRestaurantOrder.restaurantOrder;
 import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.QRestaurantOrderDetail.restaurantOrderDetail;
@@ -52,5 +56,44 @@ public class RestaurantOrderRepositoryImpl implements RestaurantOrderRepositoryC
                 .where(booleanBuilder);
 
         return PageableExecutionUtils.getPage(restaurantOrders, pageable, total::fetchOne);
+    }
+
+    @Override
+    public Optional<RestaurantOrder> findRestaurantOrderOwner(Long id) {
+        BooleanExpression conditions =
+                restaurantOrder.id.eq(id)
+                        .and(restaurantOrder.orderStatus.eq(RestaurantOrderStatus.ADD_INFO))
+                        .and(restaurantOrder.deletedAt.isNull());
+
+        return Optional.ofNullable(jpaQueryFactory
+                .selectFrom(restaurantOrder)
+                .where(conditions)
+                .fetchFirst());
+    }
+
+    @Override
+    public Optional<RestaurantOrder> findRestaurantOrderAdmin(Long id) {
+        BooleanExpression conditions =
+                restaurantOrder.id.eq(id)
+                        .and(restaurantOrder.orderStatus.eq(RestaurantOrderStatus.WAITING_APPROVAL))
+                        .and(restaurantOrder.deletedAt.isNull());
+
+        return Optional.ofNullable(jpaQueryFactory
+                .selectFrom(restaurantOrder)
+                .where(conditions)
+                .fetchFirst());
+    }
+
+    @Override
+    public List<RestaurantOrder> findOrderToDelete() {
+        BooleanExpression conditions =
+                restaurantOrder.createdAt.before(LocalDateTime.now().minusMinutes(30))
+                        .and(restaurantOrder.orderStatus.eq(RestaurantOrderStatus.ADD_INFO))
+                        .and(restaurantOrder.deletedAt.isNull());
+
+        return jpaQueryFactory
+                .selectFrom(restaurantOrder)
+                .where(conditions)
+                .fetch();
     }
 }
