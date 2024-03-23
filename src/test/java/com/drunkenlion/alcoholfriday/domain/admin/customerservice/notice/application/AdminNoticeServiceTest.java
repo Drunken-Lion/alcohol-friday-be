@@ -45,10 +45,8 @@ public class AdminNoticeServiceTest {
     private final String title = "test title 1";
     private final String content = "test content 1";
     private final LocalDateTime noticeCreatedAt = LocalDateTime.now();
-    private final LocalDateTime noticeUpdatedAt = LocalDateTime.now();
+    private final LocalDateTime noticeUpdatedAt = noticeCreatedAt.plusMinutes(10);
     private final LocalDateTime noticeDeletedAt = null;
-    private final LocalDateTime deletedAt = LocalDateTime.now();
-
     private final int page = 0;
     private final int size = 20;
 
