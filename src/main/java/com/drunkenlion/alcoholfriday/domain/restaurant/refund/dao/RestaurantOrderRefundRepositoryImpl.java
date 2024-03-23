@@ -22,7 +22,7 @@ public class RestaurantOrderRefundRepositoryImpl implements RestaurantOrderRefun
     public List<RestaurantOrderRefund> findRefundByRestaurantOrderId(RestaurantOrder requestRestaurantOrder) {
         BooleanBuilder condition = new BooleanBuilder();
 
-        condition.and(restaurantOrderRefund.restaurantOrder.id.eq(requestRestaurantOrder.getId()))
+        condition.and(restaurantOrderRefund.restaurantOrder.eq(requestRestaurantOrder))
                 .and(restaurantOrderRefund.status.eq(RestaurantOrderRefundStatus.COMPLETED))
                 .and(restaurantOrderRefund.deletedAt.isNull());
 
