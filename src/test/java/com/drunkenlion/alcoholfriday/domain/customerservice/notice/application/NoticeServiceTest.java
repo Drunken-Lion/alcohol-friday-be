@@ -44,7 +44,7 @@ public class NoticeServiceTest {
     private final String title = "test title 1";
     private final String content = "test content 1";
     private final LocalDateTime noticeCreatedAt = LocalDateTime.now();
-    private final LocalDateTime noticeUpdatedAt = LocalDateTime.now();
+    private final LocalDateTime noticeUpdatedAt = noticeCreatedAt.plusMinutes(10);
     private final LocalDateTime noticeDeletedAt = null;
 
     private final int page = 0;
