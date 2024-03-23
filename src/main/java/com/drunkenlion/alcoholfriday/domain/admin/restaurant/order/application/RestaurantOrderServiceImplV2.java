@@ -193,11 +193,13 @@ public class RestaurantOrderServiceImplV2 {
         restaurantOrder.updateStatus(RestaurantOrderStatus.REJECTED_APPROVAL);
         restaurantOrderRepository.save(restaurantOrder);
 
+        List<Product> products = new ArrayList<>();
         for (RestaurantOrderDetail orderDetail : restaurantOrder.getDetails()) {
             Product product = orderDetail.getProduct();
             product.plusQuantity(orderDetail.getQuantity());
-            productRepository.save(product);
+            products.add(product);
         }
+        productRepository.saveAll(products);
 
         return RestaurantOrderResultResponse.of(restaurantOrder);
     }

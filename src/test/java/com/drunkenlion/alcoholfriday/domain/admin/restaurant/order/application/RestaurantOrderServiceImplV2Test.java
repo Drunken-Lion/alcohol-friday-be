@@ -182,6 +182,7 @@ class RestaurantOrderServiceImplV2Test {
     @Test
     @DisplayName("Admin은 발주 반려가 가능하다.")
     public void t3() {
+        // given
         Member member = Member.builder().id(1L).role(MemberRole.ADMIN).build();
         Restaurant restaurant = Restaurant.builder()
                 .id(1L)
@@ -194,12 +195,61 @@ class RestaurantOrderServiceImplV2Test {
                 .restaurant(restaurant)
                 .build();
 
+        Maker maker = Maker.builder()
+                .name("(주)국순당")
+                .address("강원도 횡성군 둔내면 강변로 975")
+                .region("강원도 횡성군")
+                .detail("101")
+                .build();
+
+        Product product = Product.builder().name("1000억 막걸리 프리바이오")
+                .price(BigDecimal.valueOf(3500))
+                .quantity(100L)
+                .alcohol(5D)
+                .ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수")
+                .sweet(3L)
+                .sour(4L)
+                .cool(3L)
+                .body(3L)
+                .balance(0L)
+                .incense(0L)
+                .throat(0L)
+                .maker(maker)
+                .distributionPrice(BigDecimal.valueOf(3850.0))
+                .build();
+
+        RestaurantOrderDetail restaurantOrderDetail = RestaurantOrderDetail.builder()
+                .quantity(10L)
+                .price(BigDecimal.valueOf(10000))
+                .totalPrice(BigDecimal.valueOf(100000))
+                .product(product)
+                .build();
+
+        restaurantOrderDetail.addOrder(restaurantOrder);
+
         when(restaurantOrderRepository.findRestaurantOrderWaitingApproval(restaurantOrder.getId())).thenReturn(
                 Optional.of(restaurantOrder)
         );
+        when(restaurantOrderRepository.save(any(RestaurantOrder.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
+        List<Product> products = new ArrayList<>();
+        when(productRepository.saveAll(anyList()))
+                .thenAnswer(invocation -> {
+                    products.addAll(invocation.getArgument(0));
+                    return invocation.getArgument(0);
+                });
+
+        ArgumentCaptor<List<Product>> productsCaptor = ArgumentCaptor.forClass(List.class);
+
+        // when
         RestaurantOrderResultResponse response = orderService.adminOrderRejectedApproval(
                 restaurantOrder.getId(), member);
+
+        // then
+        verify(productRepository).saveAll(productsCaptor.capture());
+        List<Product> savedProducts = productsCaptor.getValue();
+
+        assertThat(savedProducts.get(0).getQuantity()).isEqualTo(110L);
 
         assertThat(response.getBusinessName()).isEqualTo(restaurant.getBusinessName());
         assertThat(response.getStatus()).isEqualTo(RestaurantOrderStatus.REJECTED_APPROVAL);
