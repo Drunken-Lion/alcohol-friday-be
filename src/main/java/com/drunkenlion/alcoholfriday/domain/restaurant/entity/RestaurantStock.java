@@ -3,14 +3,11 @@ package com.drunkenlion.alcoholfriday.domain.restaurant.entity;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import java.math.BigDecimal;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
+
+import java.math.BigDecimal;
 
 @Getter
 @Entity
@@ -43,6 +40,11 @@ public class RestaurantStock extends BaseEntity {
     }
 
     public void plusQuantity(Long quantity) {
-        this.quantity = this.quantity + quantity;
+        this.quantity += quantity;
     }
+
+    public void minusQuantity(Long quantity) {
+        this.quantity -= quantity;
+    }
+
 }

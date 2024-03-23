@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.admin.restaurant.application;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application.AdminRestaurantServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantDetailResponse;
