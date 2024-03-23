@@ -163,7 +163,7 @@ public class RestaurantOrderServiceImplV2 {
      * 발주 승인 (Admin)
      */
     @Transactional
-    public RestaurantAdminOrderApprovalResponse adminOrderApproval(Long id, Member member) {
+    public RestaurantOrderResultResponse adminOrderApproval(Long id, Member member) {
         RestaurantOrderOwnerValidator.isAdmin(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
@@ -175,14 +175,14 @@ public class RestaurantOrderServiceImplV2 {
         restaurantOrderRepository.save(restaurantOrder);
 
         orderCompleted(restaurantOrder);
-        return RestaurantAdminOrderApprovalResponse.of(restaurantOrder);
+        return RestaurantOrderResultResponse.of(restaurantOrder);
     }
 
     /**
      * 발주 승인 반려 (Admin)
      */
     @Transactional
-    public RestaurantAdminOrderApprovalResponse adminOrderRejectedApproval(Long id, Member member) {
+    public RestaurantOrderResultResponse adminOrderRejectedApproval(Long id, Member member) {
         RestaurantOrderOwnerValidator.isAdmin(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
@@ -199,14 +199,14 @@ public class RestaurantOrderServiceImplV2 {
             productRepository.save(product);
         }
 
-        return RestaurantAdminOrderApprovalResponse.of(restaurantOrder);
+        return RestaurantOrderResultResponse.of(restaurantOrder);
     }
 
     /**
      * 발주 취소 (Owner)
      */
     @Transactional
-    public RestaurantOwnerOrderCancelResponse ownerOrderCancel(Long id, Member member) {
+    public RestaurantOrderResultResponse ownerOrderCancel(Long id, Member member) {
         RestaurantOrderOwnerValidator.isOwner(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
@@ -215,13 +215,15 @@ public class RestaurantOrderServiceImplV2 {
         restaurantOrder.updateStatus(RestaurantOrderStatus.CANCELLED);
         restaurantOrderRepository.save(restaurantOrder);
 
+        List<Product> products = new ArrayList<>();
         for (RestaurantOrderDetail orderDetail : restaurantOrder.getDetails()) {
             Product product = orderDetail.getProduct();
             product.plusQuantity(orderDetail.getQuantity());
-            productRepository.save(product);
+            products.add(product);
         }
+        productRepository.saveAll(products);
 
-        return RestaurantOwnerOrderCancelResponse.of(restaurantOrder);
+        return RestaurantOrderResultResponse.of(restaurantOrder);
     }
 
     @Transactional

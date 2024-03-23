@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "관리자 레스토랑 발주 승인 반환 객체")
-public class RestaurantAdminOrderApprovalResponse {
+@Schema(description = "관리자 레스토랑 발주 상태 결과 반환 객체")
+public class RestaurantOrderResultResponse {
     @Schema(description = "레스토랑 발주 고유 식별 ID")
     private Long id;
 
@@ -24,8 +24,8 @@ public class RestaurantAdminOrderApprovalResponse {
     @Schema(description = "발주 상태")
     private RestaurantOrderStatus status;
 
-    public static RestaurantAdminOrderApprovalResponse of(RestaurantOrder order) {
-        return RestaurantAdminOrderApprovalResponse.builder()
+    public static RestaurantOrderResultResponse of(RestaurantOrder order) {
+        return RestaurantOrderResultResponse.builder()
                 .id(order.getId())
                 .businessName(order.getRestaurant().getBusinessName())
                 .status(order.getOrderStatus())

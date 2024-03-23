@@ -1,11 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.RestaurantOrderSaveCodeRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantAdminOrderApprovalResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderResultResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveCodeResponse;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -22,22 +18,33 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
+import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrderDetail;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -92,7 +99,7 @@ class RestaurantOrderServiceImplV2Test {
                 .member(member)
                 .build();
 
-        Mockito.when(restaurantRepository.findById(1L)).thenReturn(
+        when(restaurantRepository.findById(1L)).thenReturn(
                 Optional.of(restaurant)
         );
 
@@ -129,7 +136,7 @@ class RestaurantOrderServiceImplV2Test {
 
         List<RestaurantOrderCartDetail> cartDetails = List.of(restaurantOrderCartDetail, restaurantOrderCartDetail2);
 
-        Mockito.when(restaurantOrderCartDetailRepository.findRestaurantAndMember(restaurant, member)).thenReturn(
+        when(restaurantOrderCartDetailRepository.findRestaurantAndMember(restaurant, member)).thenReturn(
                 cartDetails
         );
 
@@ -161,11 +168,11 @@ class RestaurantOrderServiceImplV2Test {
                 .restaurant(restaurant)
                 .build();
 
-        Mockito.when(restaurantOrderRepository.findRestaurantOrderWaitingApproval(restaurantOrder.getId())).thenReturn(
+        when(restaurantOrderRepository.findRestaurantOrderWaitingApproval(restaurantOrder.getId())).thenReturn(
                 Optional.of(restaurantOrder)
         );
 
-        RestaurantAdminOrderApprovalResponse response = orderService.adminOrderApproval(
+        RestaurantOrderResultResponse response = orderService.adminOrderApproval(
                 restaurantOrder.getId(), member);
 
         assertThat(response.getBusinessName()).isEqualTo(restaurant.getBusinessName());
@@ -187,11 +194,11 @@ class RestaurantOrderServiceImplV2Test {
                 .restaurant(restaurant)
                 .build();
 
-        Mockito.when(restaurantOrderRepository.findRestaurantOrderWaitingApproval(restaurantOrder.getId())).thenReturn(
+        when(restaurantOrderRepository.findRestaurantOrderWaitingApproval(restaurantOrder.getId())).thenReturn(
                 Optional.of(restaurantOrder)
         );
 
-        RestaurantAdminOrderApprovalResponse response = orderService.adminOrderRejectedApproval(
+        RestaurantOrderResultResponse response = orderService.adminOrderRejectedApproval(
                 restaurantOrder.getId(), member);
 
         assertThat(response.getBusinessName()).isEqualTo(restaurant.getBusinessName());
@@ -242,5 +249,122 @@ class RestaurantOrderServiceImplV2Test {
 
         assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
         assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 발주 취소 성공 (사장)")
+    public void t6() {
+        // given
+        Member member = Member.builder().id(1L).role(MemberRole.OWNER).build();
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
+                .businessName("섭컴퍼니")
+                .member(member)
+                .build();
+
+        RestaurantOrder restaurantOrder = RestaurantOrder.builder().id(1L)
+                .orderStatus(RestaurantOrderStatus.WAITING_APPROVAL)
+                .restaurant(restaurant)
+                .build();
+
+        Maker maker = Maker.builder()
+                .name("(주)국순당")
+                .address("강원도 횡성군 둔내면 강변로 975")
+                .region("강원도 횡성군")
+                .detail("101")
+                .build();
+
+        Product product = Product.builder().name("1000억 막걸리 프리바이오")
+                .price(BigDecimal.valueOf(3500))
+                .quantity(100L)
+                .alcohol(5D)
+                .ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수")
+                .sweet(3L)
+                .sour(4L)
+                .cool(3L)
+                .body(3L)
+                .balance(0L)
+                .incense(0L)
+                .throat(0L)
+                .maker(maker)
+                .distributionPrice(BigDecimal.valueOf(3850.0))
+                .build();
+
+        RestaurantOrderDetail restaurantOrderDetail = RestaurantOrderDetail.builder()
+                .quantity(10L)
+                .price(BigDecimal.valueOf(10000))
+                .totalPrice(BigDecimal.valueOf(100000))
+                .product(product)
+                .build();
+
+        restaurantOrderDetail.addOrder(restaurantOrder);
+
+        when(restaurantOrderRepository.findRestaurantOrderWaitingApproval(restaurantOrder.getId())).thenReturn(Optional.of(restaurantOrder));
+        when(restaurantOrderRepository.save(any(RestaurantOrder.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<Product> products = new ArrayList<>();
+        when(productRepository.saveAll(anyList()))
+                .thenAnswer(invocation -> {
+                    products.addAll(invocation.getArgument(0));
+                    return invocation.getArgument(0);
+                });
+
+        ArgumentCaptor<List<Product>> productsCaptor = ArgumentCaptor.forClass(List.class);
+
+        // when
+        RestaurantOrderResultResponse response = orderService.ownerOrderCancel(restaurantOrder.getId(), member);
+
+        // then
+        verify(productRepository).saveAll(productsCaptor.capture());
+        List<Product> savedProducts = productsCaptor.getValue();
+
+        assertThat(savedProducts.get(0).getQuantity()).isEqualTo(110L);
+
+        assertThat(response.getBusinessName()).isEqualTo(restaurant.getBusinessName());
+        assertThat(response.getStatus()).isEqualTo(RestaurantOrderStatus.CANCELLED);
+    }
+
+    @Test
+    @DisplayName("매장 발주 취소 실패 (사장) - 사장 이외의 권한이 접근")
+    public void t6_1() {
+        // given
+        Member member = Member.builder().id(1L).role(MemberRole.ADMIN).build();
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
+                .businessName("섭컴퍼니")
+                .member(member)
+                .build();
+
+        RestaurantOrder restaurantOrder = RestaurantOrder.builder().id(1L)
+                .orderStatus(RestaurantOrderStatus.WAITING_APPROVAL)
+                .restaurant(restaurant)
+                .build();
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            orderService.ownerOrderCancel(restaurantOrder.getId(), member);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 발주 취소 실패 (사장) - 해당 매장 발주 건이 없음")
+    public void t6_2() {
+        // given
+        Member member = Member.builder().id(1L).role(MemberRole.OWNER).build();
+
+        when(restaurantOrderRepository.findRestaurantOrderWaitingApproval(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            orderService.ownerOrderCancel(any(), member);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER.getMessage(), exception.getMessage());
     }
 }

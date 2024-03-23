@@ -3,10 +3,9 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.api;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application.RestaurantOrderServiceImplV2;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.RestaurantOrderSaveCodeRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.RestaurantOrderSaveRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantAdminOrderApprovalResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderResultResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveCodeResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOwnerOrderCancelResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -56,25 +55,25 @@ public class RestaurantOrderControllerV2 {
 
     @PutMapping("restaurant-orders/{id}")
     @Operation(summary = "관리자 발주 승인 처리 (Admin)")
-    public ResponseEntity<RestaurantAdminOrderApprovalResponse> adminOrderApproval(@PathVariable("id") Long restaurantOrderId,
-                                                                                   @AuthenticationPrincipal UserPrincipal user) {
-        RestaurantAdminOrderApprovalResponse response = restaurantOrderService.adminOrderApproval(restaurantOrderId, user.getMember());
+    public ResponseEntity<RestaurantOrderResultResponse> adminOrderApproval(@PathVariable("id") Long restaurantOrderId,
+                                                                            @AuthenticationPrincipal UserPrincipal user) {
+        RestaurantOrderResultResponse response = restaurantOrderService.adminOrderApproval(restaurantOrderId, user.getMember());
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("restaurant-orders/{id}/reject")
     @Operation(summary = "관리자 발주 반려 처리 (Admin)")
-    public ResponseEntity<RestaurantAdminOrderApprovalResponse> adminOrderRejectedApproval(@PathVariable("id") Long restaurantOrderId,
-                                                                                           @AuthenticationPrincipal UserPrincipal user) {
-        RestaurantAdminOrderApprovalResponse response = restaurantOrderService.adminOrderRejectedApproval(restaurantOrderId, user.getMember());
+    public ResponseEntity<RestaurantOrderResultResponse> adminOrderRejectedApproval(@PathVariable("id") Long restaurantOrderId,
+                                                                                    @AuthenticationPrincipal UserPrincipal user) {
+        RestaurantOrderResultResponse response = restaurantOrderService.adminOrderRejectedApproval(restaurantOrderId, user.getMember());
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("restaurant-orders/{id}/cancel/owner")
     @Operation(summary = "사장 발주 취소 처리 (Owner)")
-    public ResponseEntity<RestaurantOwnerOrderCancelResponse> ownerOrderCancel(@PathVariable("id") Long restaurantOrderId,
+    public ResponseEntity<RestaurantOrderResultResponse> ownerOrderCancel(@PathVariable("id") Long restaurantOrderId,
                                                                                  @AuthenticationPrincipal UserPrincipal user) {
-        RestaurantOwnerOrderCancelResponse response = restaurantOrderService.ownerOrderCancel(restaurantOrderId, user.getMember());
+        RestaurantOrderResultResponse response = restaurantOrderService.ownerOrderCancel(restaurantOrderId, user.getMember());
         return ResponseEntity.ok(response);
     }
 }
