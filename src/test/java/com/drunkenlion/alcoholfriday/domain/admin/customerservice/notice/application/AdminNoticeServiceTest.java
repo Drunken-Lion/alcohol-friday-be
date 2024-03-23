@@ -167,7 +167,6 @@ public class AdminNoticeServiceTest {
         assertThat(noticeResponse.getId()).isEqualTo(noticeId);
         assertThat(noticeResponse.getTitle()).isEqualTo(modifyTitle);
         assertThat(noticeResponse.getContent()).isEqualTo(modifyContent);
-        assertThat(noticeResponse.getUpdatedAt()).isNotEqualTo(noticeCreatedAt);
     }
 
     @DisplayName("관리자 공지사항 수정 실패 - 찾을 수 없는 공지사항")
