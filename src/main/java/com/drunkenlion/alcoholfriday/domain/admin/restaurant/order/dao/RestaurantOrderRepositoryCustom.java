@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RestaurantOrderRepositoryCustom {
+    Page<RestaurantOrder> findAllRestaurantOrders(Pageable pageable);
+
     Page<RestaurantOrder> findRestaurantOrdersByOwner(Member member, Restaurant restaurant, Pageable pageable);
 
     Optional<RestaurantOrder> findRestaurantOrderAddInfo(Long id);

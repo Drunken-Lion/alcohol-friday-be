@@ -3,6 +3,8 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderValidator;
@@ -35,6 +37,21 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
     private final RestaurantOrderRepository restaurantOrderRepository;
     private final RestaurantOrderRefundRepository restaurantOrderRefundRepository;
     private final FileService fileService;
+
+    @Override
+    public Page<RestaurantOrderListResponse> getRestaurantOrdersByAdminOrStoreManager(Member member, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<RestaurantOrder> orders = restaurantOrderRepository.findAllRestaurantOrders(pageable);
+
+        return orders.map(order -> {
+            List<RestaurantOrderDetailResponse> detailResponses =
+                    order.getDetails().stream().map(detail ->
+                            RestaurantOrderDetailResponse.of(detail, fileService.findOne(detail.getProduct()))).toList();
+
+            return RestaurantOrderListResponse.of(order, detailResponses);
+        });
+    }
 
     @Override
     public Page<OwnerRestaurantOrderListResponse> getRestaurantOrdersByOwner(Member member, Long restaurantId, int page, int size) {

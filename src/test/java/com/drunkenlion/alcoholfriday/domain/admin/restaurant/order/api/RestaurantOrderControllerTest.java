@@ -101,13 +101,13 @@ public class RestaurantOrderControllerTest {
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
-    public static final String EMAIL = "owner1@af.shop";
+    private static final String OWNER = "owner1@test.com";
 
     @BeforeEach
     void beforeEach() {
-        Member owner = memberRepository.findByEmail(EMAIL)
+        Member owner = memberRepository.findByEmail(OWNER)
                 .orElseGet(() -> memberRepository.save(Member.builder()
-                        .email(EMAIL)
+                        .email(OWNER)
                         .provider(ProviderType.KAKAO)
                         .name("owner1")
                         .nickname("owner1")
@@ -325,8 +325,96 @@ public class RestaurantOrderControllerTest {
     }
 
     @Test
+    @DisplayName("모든 발주 내역 조회 (Admin)")
+    @WithAccount(email = "admin@test.com", role = MemberRole.ADMIN)
+    void getRestaurantOrdersByAdminTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/admin/restaurant-orders")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantOrderController.class))
+                .andExpect(handler().methodName("getRestaurantOrdersByAdminOrStoreManager"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].orderStatus", notNullValue()))
+                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].businessName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].address", notNullValue()))
+                .andExpect(jsonPath("$.data[0].addressDetail", notNullValue()))
+                .andExpect(jsonPath("$.data[0].postcode", notNullValue()))
+                .andExpect(jsonPath("$.data[0].description", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].details[0].name", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].makerName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].price", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].orderQuantity", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].totalPrice", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].file", nullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].details[1].name", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].makerName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].price", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].orderQuantity", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].totalPrice", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].file", nullValue()))
+                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("모든 발주 내역 조회 (StoreManager)")
+    @WithAccount(email = "storeManager@test.com", role = MemberRole.STORE_MANAGER)
+    void getRestaurantOrdersByStoreManagerTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/admin/restaurant-orders")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantOrderController.class))
+                .andExpect(handler().methodName("getRestaurantOrdersByAdminOrStoreManager"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].orderStatus", notNullValue()))
+                .andExpect(jsonPath("$.data[0].createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].businessName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].address", notNullValue()))
+                .andExpect(jsonPath("$.data[0].addressDetail", notNullValue()))
+                .andExpect(jsonPath("$.data[0].postcode", notNullValue()))
+                .andExpect(jsonPath("$.data[0].description", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].details[0].name", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].makerName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].price", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].orderQuantity", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].totalPrice", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[0].file", nullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].details[1].name", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].makerName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].price", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].orderQuantity", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].totalPrice", notNullValue()))
+                .andExpect(jsonPath("$.data[0].details[1].file", nullValue()))
+                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+    }
+
+    @Test
     @DisplayName("사장의 발주 내역 조회")
-    @WithAccount(email = EMAIL, role = MemberRole.OWNER)
+    @WithAccount(email = OWNER, role = MemberRole.OWNER)
     void getRestaurantOrdersByOwnerTest() throws Exception {
         Restaurant restaurant = restaurantRepository.findAll().get(0);
 

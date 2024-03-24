@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.QRestaurantOrder.restaurantOrder;
 import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.QRestaurantOrderDetail.restaurantOrderDetail;
+import static com.drunkenlion.alcoholfriday.domain.maker.entity.QMaker.maker;
 import static com.drunkenlion.alcoholfriday.domain.member.entity.QMember.member;
 import static com.drunkenlion.alcoholfriday.domain.product.entity.QProduct.product;
 import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurant.restaurant;
@@ -26,6 +27,32 @@ import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurant
 @RequiredArgsConstructor
 public class RestaurantOrderRepositoryImpl implements RestaurantOrderRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
+
+    @Override
+    public Page<RestaurantOrder> findAllRestaurantOrders(Pageable pageable) {
+        List<RestaurantOrder> restaurantOrders = jpaQueryFactory
+                .selectFrom(restaurantOrder)
+                .leftJoin(restaurantOrder.member, member).fetchJoin()
+                .leftJoin(restaurantOrder.restaurant, restaurant).fetchJoin()
+                .leftJoin(restaurantOrder.details, restaurantOrderDetail).fetchJoin()
+                .leftJoin(restaurantOrderDetail.product, product).fetchJoin()
+                .leftJoin(product.maker, maker).fetchJoin()
+                .orderBy(restaurantOrder.createdAt.desc(), restaurantOrder.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> total = jpaQueryFactory
+                .select(restaurantOrder.count())
+                .from(restaurantOrder)
+                .leftJoin(restaurantOrder.member, member)
+                .leftJoin(restaurantOrder.restaurant, restaurant)
+                .leftJoin(restaurantOrder.details, restaurantOrderDetail)
+                .leftJoin(restaurantOrderDetail.product, product)
+                .leftJoin(product.maker, maker);
+
+        return PageableExecutionUtils.getPage(restaurantOrders, pageable, total::fetchOne);
+    }
 
     @Override
     public Page<RestaurantOrder> findRestaurantOrdersByOwner(Member ownerMember, Restaurant ownerRestaurant, Pageable pageable) {
