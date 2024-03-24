@@ -17,16 +17,19 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
+
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrderDetail;
 import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
-import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.TimeOption;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;

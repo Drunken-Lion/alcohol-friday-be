@@ -19,8 +19,7 @@ public class ProductServiceImpl implements ProductService {
     private final FileService fileService;
     @Override
     public ProductDetailPageResponse findProduct(Long id) {
-        Product product = productRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_PRODUCT));
+        Product product = productRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_PRODUCT));
         NcpFileResponse productImages = fileService.findAll(product);
         return ProductDetailPageResponse.of(product, productImages);
     }

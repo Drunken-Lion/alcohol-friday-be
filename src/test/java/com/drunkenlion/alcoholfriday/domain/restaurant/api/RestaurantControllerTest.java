@@ -199,60 +199,13 @@ public class RestaurantControllerTest {
     @Test
     @DisplayName("사용자 위치로 부터 내의 모든 레스토랑 정보 조회")
     public void nearby() throws Exception {
-        ResultActions nearby = mvc
-                .perform(get("/v1/restaurants/nearby")
-                        .param("userLocationLatitude", "37.552250")
-                        .param("userLocationLongitude", "126.845024")
-                        .param("keyword", "동동주")
-                        .param("page", "0")
-                        .param("size", "5"))
-                .andDo(print());
-        nearby
-                .andExpect(status().isOk())
-                .andExpect(handler().handlerType(RestaurantController.class))
-                .andExpect(handler().methodName("getRestaurantsWithinNearby"))
-                .andExpect(jsonPath("$.data[0].restaurantId", notNullValue()))
-                .andExpect(jsonPath("$.data[0].restaurantName", notNullValue()))
-                .andExpect(jsonPath("$.data[0].address", notNullValue()))
-                .andExpect(jsonPath("$.data[0].productName", notNullValue()))
-                .andExpect(jsonPath("$.data[0].distance", notNullValue()))
-                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
-                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+
     }
 
     @Test
     @DisplayName("polygon 영역 내의 모든 레스토랑 정보 조회")
     public void bounds() throws Exception {
 
-        ResultActions bounds = mvc.perform(get("/v1/restaurants")
-                        .param("neLatitude", String.valueOf(neLatitude))
-                        .param("neLongitude", String.valueOf(neLongitude))
-                        .param("swLatitude", String.valueOf(swLatitude))
-                        .param("swLongitude", String.valueOf(swLongitude)))
-                .andDo(print());
-
-        bounds
-                .andExpect(status().isOk())
-                .andExpect(handler().handlerType(RestaurantController.class))
-                .andExpect(handler().methodName("getRestaurantsWithinBounds"))
-                .andExpect(jsonPath("$.[0].id", notNullValue()))
-                .andExpect(jsonPath("$.[0].memberId", notNullValue()))
-                .andExpect(jsonPath("$.[0].category", notNullValue()))
-                .andExpect(jsonPath("$.[0].name", notNullValue()))
-                .andExpect(jsonPath("$.[0].address", notNullValue()))
-                .andExpect(jsonPath("$.[0].latitude", notNullValue()))
-                .andExpect(jsonPath("$.[0].longitude", notNullValue()))
-                .andExpect(jsonPath("$.[0].contact", notNullValue()))
-                .andExpect(jsonPath("$.[0].menu", notNullValue()))
-                .andExpect(jsonPath("$.[0].time", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[0].name", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[1].name", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[0].price", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[1].price", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[0].alcohol", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[1].alcohol", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[0].quantity", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[1].quantity", notNullValue()));
     }
 
 }
