@@ -3,10 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.RestaurantOrderSaveCodeRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.RestaurantOrderSaveRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantAdminOrderApprovalResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveCodeResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.*;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderValidator;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
@@ -29,17 +26,18 @@ import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -127,7 +125,7 @@ public class RestaurantOrderServiceImplV2 {
         // Order 수정 로직
         RestaurantOrderOwnerValidator.isOwner(member);
 
-        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderOwner(id)
+        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderAddInfo(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_NUMBER));
 
         RestaurantOrderOwnerValidator.compareEntityMemberToMember(restaurantOrder, member);
@@ -165,10 +163,10 @@ public class RestaurantOrderServiceImplV2 {
      * 발주 승인 (Admin)
      */
     @Transactional
-    public RestaurantAdminOrderApprovalResponse adminOrderApproval(Long id, Member member) {
+    public RestaurantOrderResultResponse adminOrderApproval(Long id, Member member) {
         RestaurantOrderOwnerValidator.isAdmin(member);
 
-        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderAdmin(id)
+        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
 
         RestaurantOrderOwnerValidator.restaurantOrderStatusIsApproval(restaurantOrder);
@@ -177,24 +175,57 @@ public class RestaurantOrderServiceImplV2 {
         restaurantOrderRepository.save(restaurantOrder);
 
         orderCompleted(restaurantOrder);
-        return RestaurantAdminOrderApprovalResponse.of(restaurantOrder);
+        return RestaurantOrderResultResponse.of(restaurantOrder);
     }
 
     /**
      * 발주 승인 반려 (Admin)
      */
     @Transactional
-    public RestaurantAdminOrderApprovalResponse adminOrderRejectedApproval(Long id, Member member) {
+    public RestaurantOrderResultResponse adminOrderRejectedApproval(Long id, Member member) {
         RestaurantOrderOwnerValidator.isAdmin(member);
 
-        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderAdmin(id)
+        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
 
         RestaurantOrderOwnerValidator.restaurantOrderStatusIsApproval(restaurantOrder);
 
         restaurantOrder.updateStatus(RestaurantOrderStatus.REJECTED_APPROVAL);
         restaurantOrderRepository.save(restaurantOrder);
-        return RestaurantAdminOrderApprovalResponse.of(restaurantOrder);
+
+        List<Product> products = new ArrayList<>();
+        for (RestaurantOrderDetail orderDetail : restaurantOrder.getDetails()) {
+            Product product = orderDetail.getProduct();
+            product.plusQuantity(orderDetail.getQuantity());
+            products.add(product);
+        }
+        productRepository.saveAll(products);
+
+        return RestaurantOrderResultResponse.of(restaurantOrder);
+    }
+
+    /**
+     * 발주 취소 (Owner)
+     */
+    @Transactional
+    public RestaurantOrderResultResponse ownerOrderCancel(Long id, Member member) {
+        RestaurantOrderOwnerValidator.isOwner(member);
+
+        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
+                .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
+
+        restaurantOrder.updateStatus(RestaurantOrderStatus.CANCELLED);
+        restaurantOrderRepository.save(restaurantOrder);
+
+        List<Product> products = new ArrayList<>();
+        for (RestaurantOrderDetail orderDetail : restaurantOrder.getDetails()) {
+            Product product = orderDetail.getProduct();
+            product.plusQuantity(orderDetail.getQuantity());
+            products.add(product);
+        }
+        productRepository.saveAll(products);
+
+        return RestaurantOrderResultResponse.of(restaurantOrder);
     }
 
     @Transactional

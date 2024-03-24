@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RestaurantOrderRepositoryCustom {
-    Optional<RestaurantOrder> findRestaurantOrderOwner(Long id);
-    Optional<RestaurantOrder> findRestaurantOrderAdmin(Long id);
+    Optional<RestaurantOrder> findRestaurantOrderAddInfo(Long id);
+    Optional<RestaurantOrder> findRestaurantOrderWaitingApproval(Long id);
     List<RestaurantOrder> findOrderToDelete();
 }
