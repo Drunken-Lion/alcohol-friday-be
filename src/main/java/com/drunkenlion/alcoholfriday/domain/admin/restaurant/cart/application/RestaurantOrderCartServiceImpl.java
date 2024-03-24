@@ -131,6 +131,8 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
     public RestaurantOrderCartSaveResponse deleteRestaurantOrderCart(Long id,
                                                                      RestaurantOrderCartDeleteRequest request,
                                                                      Member member) {
+        RestaurantOrderCartValidator.checkedMemberRoleIsOwner(member);
+
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
 
