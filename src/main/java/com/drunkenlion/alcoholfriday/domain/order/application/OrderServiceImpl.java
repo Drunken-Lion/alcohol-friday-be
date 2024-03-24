@@ -17,7 +17,7 @@ import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
-import com.drunkenlion.alcoholfriday.domain.payment.util.OrderValidator;
+import com.drunkenlion.alcoholfriday.domain.order.util.OrderValidator;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;

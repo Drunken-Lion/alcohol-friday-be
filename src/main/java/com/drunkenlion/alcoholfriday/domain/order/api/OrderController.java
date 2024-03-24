@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.order.api;
 
 import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
@@ -10,10 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -40,5 +38,16 @@ public class OrderController {
                 .toUri();
 
         return ResponseEntity.created(location).body(savedOrder);
+    }
+
+    @Operation(summary = "주문 배송지 저장", description = "결제하기 눌렀을 때 주문에 해당 하는 주소 저장 (결제 페이지)")
+    @PostMapping("{id}")
+    public ResponseEntity<Void> saveOrderAddress(
+            @PathVariable("id") Long orderId,
+            @RequestBody OrderAddressRequest orderAddressRequest,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        orderService.updateOrderAddress(orderAddressRequest, orderId, userPrincipal.getMember());
+        return ResponseEntity.noContent().build();
     }
 }
