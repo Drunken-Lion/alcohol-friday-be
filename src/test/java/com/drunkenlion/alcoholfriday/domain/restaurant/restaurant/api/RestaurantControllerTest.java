@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.api;
+package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
@@ -7,14 +7,19 @@ import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.api.RestaurantController;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.application.RestaurantServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response.RestaurantNearbyResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,9 +27,16 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +48,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -199,13 +215,60 @@ public class RestaurantControllerTest {
     @Test
     @DisplayName("사용자 위치로 부터 내의 모든 레스토랑 정보 조회")
     public void nearby() throws Exception {
-
+        ResultActions nearby = mvc
+                .perform(get("/v1/restaurants/nearby")
+                        .param("userLocationLatitude", "37.552250")
+                        .param("userLocationLongitude", "126.845024")
+                        .param("keyword", "동동주")
+                        .param("page", "0")
+                        .param("size", "5"))
+                .andDo(print());
+        nearby
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantController.class))
+                .andExpect(handler().methodName("getRestaurantsWithinNearby"))
+                .andExpect(jsonPath("$.data[0].restaurantId", notNullValue()))
+                .andExpect(jsonPath("$.data[0].restaurantName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].address", notNullValue()))
+                .andExpect(jsonPath("$.data[0].productName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].distance", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
     }
 
     @Test
     @DisplayName("polygon 영역 내의 모든 레스토랑 정보 조회")
     public void bounds() throws Exception {
 
+        ResultActions bounds = mvc.perform(get("/v1/restaurants")
+                        .param("neLatitude", String.valueOf(neLatitude))
+                        .param("neLongitude", String.valueOf(neLongitude))
+                        .param("swLatitude", String.valueOf(swLatitude))
+                        .param("swLongitude", String.valueOf(swLongitude)))
+                .andDo(print());
+
+        bounds
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantController.class))
+                .andExpect(handler().methodName("getRestaurantsWithinBounds"))
+                .andExpect(jsonPath("$.[0].id", notNullValue()))
+                .andExpect(jsonPath("$.[0].memberId", notNullValue()))
+                .andExpect(jsonPath("$.[0].category", notNullValue()))
+                .andExpect(jsonPath("$.[0].name", notNullValue()))
+                .andExpect(jsonPath("$.[0].address", notNullValue()))
+                .andExpect(jsonPath("$.[0].latitude", notNullValue()))
+                .andExpect(jsonPath("$.[0].longitude", notNullValue()))
+                .andExpect(jsonPath("$.[0].contact", notNullValue()))
+                .andExpect(jsonPath("$.[0].menu", notNullValue()))
+                .andExpect(jsonPath("$.[0].time", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[0].name", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[1].name", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[0].price", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[1].price", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[0].alcohol", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[1].alcohol", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[0].quantity", notNullValue()))
+                .andExpect(jsonPath("$.[0].productResponses[1].quantity", notNullValue()));
     }
 
 }

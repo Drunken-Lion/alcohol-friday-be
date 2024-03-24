@@ -1,11 +1,19 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.application;
+package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.application;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
+import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.application.RestaurantServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response.RestaurantDetailProductResponse;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response.RestaurantMapResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response.RestaurantNearbyResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
@@ -13,7 +21,11 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Day
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Coordinate;
@@ -35,6 +47,7 @@ import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,6 +64,20 @@ public class RestaurantServiceTest {
     @Mock
     private RestaurantRepository restaurantRepository;
 
+    @Mock
+    private RestaurantStockRepository restaurantStockRepository;
+
+    @Mock
+    private ItemRepository itemRepository;
+
+    @AfterEach
+    @Transactional
+    public void after() {
+        restaurantRepository.deleteAll();
+        restaurantStockRepository.deleteAll();
+        itemRepository.deleteAll();
+    }
+
     private final GeometryFactory geometryFactory = new GeometryFactory();
     private final double restaurantLatitude = 37.549636;
     private final double restaurantLongitude = 126.842299;
@@ -66,67 +93,132 @@ public class RestaurantServiceTest {
     private final String restaurantAddress = "우정산 서울강서 캠퍼스";
     private final String dongdongju = "동동주";
     private final String takju = "탁주";
-    private final Double distance = 370.7980969075162;
     private final Long totalSize = 1L;
 
     @Test
-    public void nearby() {
-//        Page<RestaurantNearbyResponse> restaurant = this.getRestaurant();
-//        when(restaurantRepository.getRestaurantSellingProducts(anyDouble(), anyDouble(), any(), any(Pageable.class))).thenReturn(restaurant);
-//
-//        Page<RestaurantNearbyResponse> restaurantSellingProducts = restaurantService.findRestaurantWithItem(37.552250, 126.845024, "동동주", 0, 5);
-//
-//        RestaurantNearbyResponse firstResult = restaurantSellingProducts.getContent().get(0);
-//        assertEquals(restaurantId, firstResult.getRestaurantId());
-//        assertEquals(totalSize, restaurantSellingProducts.getTotalElements());
-//        assertEquals(restaurantName, firstResult.getRestaurantName());
-//        assertEquals(restaurantAddress, firstResult.getAddress());
-//        assertEquals(dongdongju, firstResult.getProductName());
-//        assertEquals(distance, firstResult.getDistance());
+    public void t1() {
+        Page<RestaurantNearbyResponse> restaurant = this.getRestaurant();
+        when(restaurantRepository.getRestaurantSellingProducts(anyDouble(), anyDouble(), any(),
+                any(Pageable.class))).thenReturn(restaurant);
+
+        Item item = Item.builder()
+                .id(1L)
+                .name("아이템")
+                .build();
+
+        when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
+
+        Page<RestaurantNearbyResponse> restaurantSellingProducts = restaurantService.findRestaurantWithItem(37.552250, 126.845024, 1L, 0, 5);
+
+        RestaurantNearbyResponse firstResult = restaurantSellingProducts.getContent().get(0);
+        assertEquals(restaurantId, firstResult.getRestaurantId());
+        assertEquals(totalSize, restaurantSellingProducts.getTotalElements());
+        assertEquals(restaurantName, firstResult.getRestaurantName());
+        assertEquals(restaurantAddress, firstResult.getAddress());
+        assertEquals(dongdongju, firstResult.getProductName());
     }
 
     @Test
-    public void bounds() {
-//        List<Restaurant> restaurants = this.of();
-//
-//        when(restaurantRepository.getRestaurant(anyDouble(), anyDouble(), anyDouble(), anyDouble())).thenReturn(restaurants);
-//
-//        List<RestaurantLocationResponse> restaurantLocationResponses = restaurantService.getRestaurants(anyDouble(), anyDouble(), anyDouble(), anyDouble());
-//
-//        assertThat(restaurantLocationResponses.get(0).getId()).isEqualTo(restaurantId);
-//        assertThat(restaurantLocationResponses.get(0).getMemberId()).isEqualTo(memberId);
-//        assertThat(restaurantLocationResponses.get(0).getCategory()).isEqualTo(restaurantCategory);
-//        assertThat(restaurantLocationResponses.get(0).getName()).isEqualTo(restaurantName);
-//        assertThat(restaurantLocationResponses.get(0).getAddress()).isEqualTo(restaurantAddress);
-//        assertThat(restaurantLocationResponses.get(0).getLatitude()).isEqualTo(restaurantLatitude);
-//        assertThat(restaurantLocationResponses.get(0).getLongitude()).isEqualTo(restaurantLongitude);
-//        assertThat(restaurantLocationResponses.get(0).getProductResponses().get(0).getId()).isEqualTo(productFirstId);
-//        assertThat(restaurantLocationResponses.get(0).getProductResponses().get(1).getId()).isEqualTo(productSecondId);
-//        assertThat(restaurantLocationResponses.get(0).getProductResponses().get(0).getName()).isEqualTo(dongdongju);
-//        assertThat(restaurantLocationResponses.get(0).getProductResponses().get(1).getName()).isEqualTo(takju);
-//        assertThat(restaurantLocationResponses.get(0).getProductResponses().get(0).getPrice()).isEqualByComparingTo(productPrice1);
-//        assertThat(restaurantLocationResponses.get(0).getProductResponses().get(1).getPrice()).isEqualByComparingTo(productPrice2);
-//        assertThat(restaurantLocationResponses.get(0).getProductResponses().get(0).getQuantity()).isEqualTo(quantitys);
+    public void t2() {
+        List<Restaurant> restaurants = this.of();
+
+        when(restaurantRepository.getRestaurant(anyDouble(), anyDouble(), anyDouble(), anyDouble())).thenReturn(restaurants);
+
+        List<RestaurantMapResponse> restaurantLocationResponses = restaurantService.findRestaurantInMap(anyDouble(), anyDouble(), anyDouble(), anyDouble());
+
+        assertThat(restaurantLocationResponses.get(0).getRestaurantId()).isEqualTo(restaurantId);
+    }
+
+    @Test
+    @DisplayName("가게 상세 조회")
+    public void t3() {
+        Restaurant restaurant = Restaurant.builder()
+                .id(100L)
+                .category(restaurantCategory)
+                .name(restaurantName)
+                .address(restaurantAddress)
+                .contact(1012345678L)
+                .menu(getMenuTest())
+                .time(getTimeTest())
+                .provision(getProvisionTest())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(restaurant.getId())).thenReturn(
+                Optional.of(restaurant)
+        );
+
+        RestaurantDetailResponse response = restaurantService.findRestaurant(restaurant.getId());
+
+        assertThat(response.getRestaurantId()).isEqualTo(restaurant.getId());
+        assertThat(response.getRestaurantName()).isEqualTo(restaurant.getName());
+        assertThat(response.getRestaurantAddress()).isEqualTo(restaurant.getAddress());
+    }
+
+    @Test
+    @DisplayName("가게 상세 조회")
+    public void t4() {
+        Restaurant restaurant = Restaurant.builder()
+                .id(100L)
+                .category(restaurantCategory)
+                .name(restaurantName)
+                .address(restaurantAddress)
+                .contact(1012345678L)
+                .menu(getMenuTest())
+                .time(getTimeTest())
+                .provision(getProvisionTest())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        Product product = Product.builder()
+                .id(100L)
+                .name("테스트")
+                .quantity(10L)
+                .build();
+
+        RestaurantStock restaurantStock = RestaurantStock.builder()
+                .id(100L)
+                .product(product)
+                .quantity(100L)
+                .restaurant(restaurant)
+                .build();
+
+        List<RestaurantStock> restaurantStockList = List.of(restaurantStock);
+        PageRequest pageable = PageRequest.of(0, 10);
+
+        PageImpl<RestaurantStock> restaurantStocks = new PageImpl<>(restaurantStockList, pageable,
+                restaurantStockList.size());
+
+        when(restaurantStockRepository.findRestaurantStock(restaurant.getId(), pageable)).thenReturn(
+                restaurantStocks
+        );
+
+        Page<RestaurantDetailProductResponse> responses = restaurantService.findRestaurantStock(
+                restaurant.getId(), pageable.getPageNumber(), pageable.getPageSize());
+
+        assertThat(responses.getContent().get(0).getName()).isEqualTo(product.getName());
+        assertThat(responses.getContent().get(0).getStockStatus()).isEqualTo("재고있음");
     }
 
     private List<Restaurant> of() {
         return List.of(this.getRestaurantData());
     }
 
-//    private Page<RestaurantNearbyResponse> getRestaurant() {
-//        List<Restaurant> restaurantData = List.of(this.getRestaurantData());
-//
-//        List<RestaurantNearbyResponse> restaurantNearbyResponses = List.of(RestaurantNearbyResponse.builder()
-//                .restaurantId(restaurantData.get(0).getId())
-//                .restaurantName(restaurantData.get(0).getName())
-//                .address(restaurantData.get(0).getAddress())
-//                .productName(restaurantData.get(0).getRestaurantStocks().get(0).getProduct().getName())
-//                .distance(370.7980969075162).build());
-//
-//        Pageable pageable = PageRequest.of(0, 5);
-//
-//        return new PageImpl<>(restaurantNearbyResponses, pageable, restaurantNearbyResponses.size());
-//    }
+    private Page<RestaurantNearbyResponse> getRestaurant() {
+        List<Restaurant> restaurantData = List.of(this.getRestaurantData());
+
+        List<RestaurantNearbyResponse> restaurantNearbyResponses = List.of(
+                RestaurantNearbyResponse.builder()
+                .restaurantId(restaurantData.get(0).getId())
+                .restaurantName(restaurantData.get(0).getName())
+                .address(restaurantData.get(0).getAddress())
+                .productName(restaurantData.get(0).getRestaurantStocks().get(0).getProduct().getName())
+                .build());
+
+        Pageable pageable = PageRequest.of(0, 5);
+
+        return new PageImpl<>(restaurantNearbyResponses, pageable, restaurantNearbyResponses.size());
+    }
 
     public Restaurant getRestaurantData() {
 
@@ -197,6 +289,7 @@ public class RestaurantServiceTest {
                 .restaurant(restaurantData)
                 .quantity(50L)
                 .build();
+
 
         stock1.addRestaurant(restaurantData);
         stock2.addRestaurant(restaurantData);

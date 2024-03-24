@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.dao;
+package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
