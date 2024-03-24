@@ -103,6 +103,8 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
     public RestaurantOrderCartSaveResponse updateRestaurantOrderCart(Long id,
                                                                      RestaurantOrderCartUpdateRequest request,
                                                                      Member member) {
+        RestaurantOrderCartValidator.checkedMemberRoleIsOwner(member);
+
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
 
@@ -112,6 +114,9 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
         RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(
                         restaurantOrderCart, product)
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+
+        RestaurantOrderCartValidator.checkedQuantity(product, request.getQuantity());
+        RestaurantOrderCartValidator.minimumQuantity(request.getQuantity());
 
         restaurantOrderCartDetail.updateQuantity(request.getQuantity());
 

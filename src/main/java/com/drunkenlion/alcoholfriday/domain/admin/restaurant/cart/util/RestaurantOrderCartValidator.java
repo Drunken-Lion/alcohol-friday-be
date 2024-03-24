@@ -24,4 +24,9 @@ public class RestaurantOrderCartValidator {
             throw new BusinessException(Fail.OUT_OF_PRODUCT_STOCK);
         }
     }
+    public static void minimumQuantity(Long inQuantity) {
+        if (inQuantity < 0) {
+            throw new BusinessException(Fail.INVALID_INPUT_PRODUCT_QUANTITY);
+        }
+    }
 }
