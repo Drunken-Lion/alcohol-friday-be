@@ -1,5 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.order.dto.response;
 
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
@@ -40,28 +42,20 @@ public class OrderResponseList {
     @Schema(description = "주문 상품 총 수량")
     private Long totalQuantity;
 
-    @Schema(description = "배송받는 사람")
-    private String recipient;
+    @Schema(description = "배송 정보")
+    private AddressResponse addressInfo;
 
-    @Schema(description = "배송받는 사람의 연락처")
-    private Long phone;
-
-    @Schema(description = "배송지 주소")
-    private String address;
-
-    @Schema(description = "배송지 상세 주소")
-    private String addressDetail;
-
-    @Schema(description = "배송시 주의사항")
-    private String description;
-
-    @Schema(description = "배송지 우편번호")
-    private String postcode;
+    @Schema(description = "구매자 정보")
+    private MemberResponse memberInfo;
 
     @Schema(description = "상품 리스트")
     private List<OrderDetailResponse> orderDetails;
 
-    public static OrderResponseList of(Order order, List<OrderDetail> orderDetailList) {
+    public static OrderResponseList of(
+            Order order,
+            List<OrderDetail> orderDetailList,
+            AddressResponse addressInfo,
+            MemberResponse memberInfo) {
         List<OrderDetailResponse> itemList = orderDetailList.stream()
                 .map(OrderDetailResponse::of)
                 .toList();
@@ -75,12 +69,8 @@ public class OrderResponseList {
                 .deliveryPrice(order.getDeliveryPrice())
                 .totalPrice(order.getTotalPrice())
                 .totalQuantity(order.getTotalOrderQuantity(orderDetailList))
-                .recipient(order.getRecipient())
-                .phone(order.getPhone())
-                .address(order.getAddress())
-                .addressDetail(order.getAddressDetail())
-                .description(order.getDescription())
-                .postcode(order.getPostcode())
+                .addressInfo(addressInfo)
+                .memberInfo(memberInfo)
                 .orderDetails(itemList)
                 .build();
     }
