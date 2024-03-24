@@ -418,7 +418,7 @@ public class RestaurantOrderControllerTest {
     void getRestaurantOrdersByOwnerTest() throws Exception {
         // when
         ResultActions resultActions = mvc
-                .perform(get("/v1/admin/restaurant-orders/owner")
+                .perform(get("/v1/admin/restaurant-orders/products")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
 
