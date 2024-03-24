@@ -1,10 +1,15 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity;
 
-import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumerated.NoticeStatus;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
