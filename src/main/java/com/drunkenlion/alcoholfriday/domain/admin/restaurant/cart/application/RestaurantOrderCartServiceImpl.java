@@ -2,7 +2,9 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.application;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartDeleteRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartSaveRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartUpdateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderCartSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
@@ -79,4 +81,59 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
 
         return RestaurantOrderCartSaveResponse.of(cartDetail);
     }
+
+    /**
+     * 장바구니 제품 수량 변경
+     */
+    @Override
+    @Transactional
+    public RestaurantOrderCartSaveResponse updateRestaurantOrderCart(Long id,
+                                                                     RestaurantOrderCartUpdateRequest request,
+                                                                     Member member) {
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
+
+        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+
+        restaurantOrderCartDetail.updateQuantity(request.getQuantity());
+
+        return RestaurantOrderCartSaveResponse.of(restaurantOrderCartDetail);
+    }
+
+    /**
+     * 장바구니 제품 삭제
+     */
+    @Override
+    @Transactional
+    public RestaurantOrderCartSaveResponse deleteRestaurantOrderCart(Long id,
+                                                                     RestaurantOrderCartDeleteRequest request,
+                                                                     Member member) {
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
+
+        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+
+        restaurantOrderCartDetail.deleteQuantity(product.getQuantity());
+
+        return RestaurantOrderCartSaveResponse.of(restaurantOrderCartDetail);
+    }
+
+//    private RestaurantOrderCartDetail findRestaurantOrderCartDetail(Long cartId, Long productId) {
+//        Product product = productRepository.findById(productId)
+//                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
+//
+//        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(cartId)
+//                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+//
+//        return restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
+//                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+//    }
 }

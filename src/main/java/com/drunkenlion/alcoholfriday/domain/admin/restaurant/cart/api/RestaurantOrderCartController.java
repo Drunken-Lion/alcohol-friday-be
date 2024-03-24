@@ -4,6 +4,8 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.application.Re
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderCartSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartDeleteRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartUpdateRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,5 +48,25 @@ public class RestaurantOrderCartController {
                 .buildAndExpand(response.getId())
                 .toUri();
         return ResponseEntity.created(location).body(response);
+    }
+
+    @PutMapping("{id}/owner")
+    @Operation(summary = "장바구니 수량 변경 (Owner)", description = "제품 발주 장바구니 수량 변경")
+    public ResponseEntity<RestaurantOrderCartSaveResponse> updateOwnerCart(
+            @PathVariable("id") Long restaurantOrderCartId,
+            @RequestBody RestaurantOrderCartUpdateRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        RestaurantOrderCartSaveResponse response = restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartId, request, user.getMember());
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("{id}/owner")
+    @Operation(summary = "장바구니 삭제 (Owner)", description = "발주 장바구니 제품 삭제")
+    public ResponseEntity<RestaurantOrderCartSaveResponse> deleteOwnerCart(
+            @PathVariable("id") Long restaurantOrderCartId,
+            @RequestBody RestaurantOrderCartDeleteRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        RestaurantOrderCartSaveResponse response = restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartId, request, user.getMember());
+        return ResponseEntity.ok(response);
     }
 }
