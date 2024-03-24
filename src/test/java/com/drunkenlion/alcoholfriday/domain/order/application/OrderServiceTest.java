@@ -1,5 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.order.application;
 
+import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
+import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
@@ -51,6 +53,8 @@ class OrderServiceTest {
     private OrderDetailRepository orderDetailRepository;
     @Mock
     private ItemRepository itemRepository;
+    @Mock
+    private AddressRepository addressRepository;
 
     // test를 위한 임의 변수
     // Item
@@ -129,10 +133,15 @@ class OrderServiceTest {
     private final Long orderDetailId2 = 2L;
     private Long quantityItem2 = 1L;
 
+    // Address
+    private final Long addressId = 1L;
+    private final String request = "부재시 연락주세요.";
+    private final Boolean isPrimaryTrue = true;
+
 
     // 바로 주문
     @Test
-    @DisplayName("상품 한 개 주문할 경우")
+    @DisplayName("[즉시 주문] 상품 한 개 주문할 경우")
     void orderReceive_oneItem() {
         // given
         // orderRepository.save(order)
@@ -154,13 +163,10 @@ class OrderServiceTest {
 
         OrderRequestList orderRequestList = OrderRequestList.builder()
                 .orderItemList(orderItemRequestList)
-                .recipient(recipient)
-                .phone(phone)
-                .address(address)
-                .addressDetail(addressDetail)
-                .description(description)
-                .postcode(postcode)
                 .build();
+
+        // addressRepository.findByMemberAndIsPrimaryIsTrue(member)
+        when(addressRepository.findByMemberAndIsPrimaryIsTrue(getDataMember())).thenReturn(getOneAddress());
 
 
         // when
@@ -169,13 +175,14 @@ class OrderServiceTest {
         // then
         List<OrderDetailResponse> orderDetails = receive.getOrderDetails();
 
-        assertThat(receive.getRecipient()).isEqualTo(recipient);
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
         assertThat(receive.getOrderNo().substring(0, 6)).isEqualTo(orderNo.substring(0, 6));
         assertThat(receive.getPrice()).isEqualTo(new BigDecimal("100000"));
         assertThat(receive.getDeliveryPrice()).isEqualTo(new BigDecimal("2500"));
         assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("102500"));
         assertThat(receive.getTotalQuantity()).isEqualTo(2L);
+        assertThat(receive.getAddressInfo().getRecipient()).isEqualTo(recipient);
+        assertThat(receive.getMemberInfo().getName()).isEqualTo(getDataMember().getName());
 
         assertThat(orderDetails).isInstanceOf(List.class);
         assertThat(orderDetails.size()).isEqualTo(1);
@@ -184,7 +191,7 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("상품 한 개 이상 주문할 경우")
+    @DisplayName("[장바구니 주문] 상품 한 개 이상 주문할 경우")
     void orderReceive_itemList() {
         // given
         // orderRepository.save(order)
@@ -211,13 +218,11 @@ class OrderServiceTest {
 
         OrderRequestList orderRequestList = OrderRequestList.builder()
                 .orderItemList(orderItemRequestList)
-                .recipient(recipient)
-                .phone(phone)
-                .address(address)
-                .addressDetail(addressDetail)
-                .description(description)
-                .postcode(postcode)
                 .build();
+
+        // addressRepository.findByMemberAndIsPrimaryIsTrue(member)
+        when(addressRepository.findByMemberAndIsPrimaryIsTrue(getDataMember())).thenReturn(getOneAddress());
+
 
         // when
         OrderResponseList receive = this.orderService.receive(orderRequestList, getDataMember());
@@ -225,13 +230,14 @@ class OrderServiceTest {
         // then
         List<OrderDetailResponse> orderDetails = receive.getOrderDetails();
 
-        assertThat(receive.getRecipient()).isEqualTo(recipient);
         assertThat(receive.getOrderStatus()).isEqualTo(orderStatus);
         assertThat(receive.getOrderNo().substring(0, 6)).isEqualTo(orderNo.substring(0, 6));
         assertThat(receive.getPrice()).isEqualTo(new BigDecimal("200000"));
         assertThat(receive.getDeliveryPrice()).isEqualTo(new BigDecimal("2500"));
         assertThat(receive.getTotalPrice()).isEqualTo(new BigDecimal("202500"));
         assertThat(receive.getTotalQuantity()).isEqualTo(3L);
+        assertThat(receive.getAddressInfo().getRecipient()).isEqualTo(recipient);
+        assertThat(receive.getMemberInfo().getName()).isEqualTo(getDataMember().getName());
 
         assertThat(orderDetails).isInstanceOf(List.class);
         assertThat(orderDetails.size()).isEqualTo(2);
@@ -265,12 +271,6 @@ class OrderServiceTest {
 
         OrderRequestList orderRequestList = OrderRequestList.builder()
                 .orderItemList(orderItemRequestList)
-                .recipient(recipient)
-                .phone(phone)
-                .address(address)
-                .addressDetail(addressDetail)
-                .description(description)
-                .postcode(postcode)
                 .build();
 
         // when & then
@@ -298,12 +298,6 @@ class OrderServiceTest {
 
         OrderRequestList orderRequestList = OrderRequestList.builder()
                 .orderItemList(orderItemRequestList)
-                .recipient(recipient)
-                .phone(phone)
-                .address(address)
-                .addressDetail(addressDetail)
-                .description(description)
-                .postcode(postcode)
                 .build();
 
         // when & then
@@ -547,5 +541,25 @@ class OrderServiceTest {
         itemProduct.addProduct(product);
 
         return item;
+    }
+
+    private Optional<Address> getOneAddress() {
+        return Optional.of(this.getAddressData());
+    }
+
+    private Address getAddressData() {
+        return Address.builder()
+                .id(addressId)
+                .member(getDataMember())
+                .isPrimary(isPrimaryTrue)
+                .address(address)
+                .addressDetail(addressDetail)
+                .postcode(postcode)
+                .recipient(recipient)
+                .phone(phone)
+                .request(request)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .build();
     }
 }
