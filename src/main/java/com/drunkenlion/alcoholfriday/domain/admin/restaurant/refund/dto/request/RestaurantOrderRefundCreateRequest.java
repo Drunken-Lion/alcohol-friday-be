@@ -1,9 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 

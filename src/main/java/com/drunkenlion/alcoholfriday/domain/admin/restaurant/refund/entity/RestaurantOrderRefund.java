@@ -1,19 +1,18 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.util.RestaurantOrderRefundStatusConverter;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @SuperBuilder(toBuilder = true)
@@ -48,4 +47,8 @@ public class RestaurantOrderRefund extends BaseEntity {
     @Column(name = "status", columnDefinition = "VARCHAR(20)")
     @Convert(converter = RestaurantOrderRefundStatusConverter.class)
     private RestaurantOrderRefundStatus status;
+
+    @OneToMany(mappedBy = "restaurantOrderRefund")
+    @Builder.Default
+    private List<RestaurantOrderRefundDetail> restaurantOrderRefundDetails = new ArrayList<>();
 }

@@ -1,5 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
@@ -19,19 +24,12 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderDetailRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrderDetail;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
-
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
@@ -153,7 +151,7 @@ public class RestaurantOrderRefundControllerTest {
     @Transactional
     void beforeEach() throws IOException {
         Member owner = memberRepository.save(Member.builder().email("owner1@af.shop").provider(ProviderType.KAKAO).name("owner1").nickname("owner1").role(MemberRole.OWNER).phone(1012345687L).certifyAt(LocalDate.now()).agreedToServiceUse(true).agreedToServicePolicy(true).agreedToServicePolicyUse(true).build());
-        Restaurant restaurant = restaurantRepository.save(Restaurant.builder().member(owner).category("음식점").name("레스쁘아").address("서울특별시 종로구 종로8길 16").location(geometryFactory.createPoint(new Coordinate(37.569343,126.983857))).contact(212345678L).menu(getMenuTest()).time(getTimeTest()).provision(getProvisionTest()).businessName("레스쁘아").businessNumber("101-10-10001").addressDetail("101").postcode("00001").build());
+        Restaurant restaurant = restaurantRepository.save(Restaurant.builder().member(owner).category("음식점").name("레스쁘아").address("서울특별시 종로구 종로8길 16").location(geometryFactory.createPoint(new Coordinate(37.569343, 126.983857))).contact(212345678L).menu(getMenuTest()).time(getTimeTest()).provision(getProvisionTest()).businessName("레스쁘아").businessNumber("101-10-10001").addressDetail("101").postcode("00001").build());
 
         CategoryClass categoryClass = categoryClassRepository.save(CategoryClass.builder().firstName("전통주").build());
         Category category = categoryRepository.save(Category.builder().categoryClass(categoryClass).lastName("탁주/막걸리").build());
