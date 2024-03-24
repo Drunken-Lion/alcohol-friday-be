@@ -433,4 +433,112 @@ class RestaurantOrderCartServiceTest {
 
         assertThat(businessException.getStatus()).isEqualTo(Fail.OUT_OF_PRODUCT_STOCK.getStatus());
     }
+
+    @Test
+    @DisplayName("Owner는 장바구니 제품 삭제가 가능하다.")
+    public void t8() {
+        Maker maker = Maker.builder()
+                .id(1L)
+                .name("테스트")
+                .build();
+
+        Product product = Product.builder()
+                .id(1L)
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build();
+
+        Member member = Member.builder()
+                .id(1L)
+                .role(MemberRole.OWNER)
+                .build();
+
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
+                .member(member)
+                .build();
+
+        RestaurantOrderCart restaurantOrderCart = RestaurantOrderCart.builder()
+                .id(1L)
+                .member(member)
+                .restaurant(restaurant)
+                .build();
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = RestaurantOrderCartDetail.builder()
+                .id(1L)
+                .product(product)
+                .quantity(1L)
+                .restaurantOrderCart(restaurantOrderCart)
+                .build();
+
+        RestaurantOrderCartDeleteRequest request = RestaurantOrderCartDeleteRequest.builder()
+                .productId(1L)
+                .build();
+
+        Mockito.when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        Mockito.when(restaurantOrderCartRepository.findById(restaurantOrderCart.getId())).thenReturn(Optional.of(restaurantOrderCart));
+        Mockito.when(restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)).thenReturn(Optional.ofNullable(restaurantOrderCartDetail));
+
+        RestaurantOrderCartSaveResponse response = restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
+
+        assertThat(response.getName()).isEqualTo(product.getName());
+        assertThat(response.getMakerName()).isEqualTo(maker.getName());
+        assertThat(response.getPrice()).isEqualTo(product.getDistributionPrice());
+        assertThat(response.getQuantity()).isEqualTo(restaurantOrderCartDetail.getQuantity());
+
+        assertThat(response.getId()).isEqualTo(product.getId());
+        assertThat(response.getQuantity()).isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("Owner가 아니면 제품 삭제가 불가하다.")
+    public void t9() {
+        Maker maker = Maker.builder()
+                .id(1L)
+                .name("테스트")
+                .build();
+
+        Product product = Product.builder()
+                .id(1L)
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build();
+
+        Member member = Member.builder()
+                .id(1L)
+                .role(MemberRole.MEMBER)
+                .build();
+
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
+                .member(member)
+                .build();
+
+        RestaurantOrderCart restaurantOrderCart = RestaurantOrderCart.builder()
+                .id(1L)
+                .member(member)
+                .restaurant(restaurant)
+                .build();
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = RestaurantOrderCartDetail.builder()
+                .id(1L)
+                .product(product)
+                .quantity(1L)
+                .restaurantOrderCart(restaurantOrderCart)
+                .build();
+
+        RestaurantOrderCartDeleteRequest request = RestaurantOrderCartDeleteRequest.builder()
+                .productId(1L)
+                .build();
+
+        BusinessException businessException = assertThrows(BusinessException.class, () -> {
+            restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
+        });
+
+        assertThat(businessException.getStatus()).isEqualTo(Fail.FORBIDDEN.getStatus());
+    }
 }
