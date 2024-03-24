@@ -10,8 +10,7 @@ import java.util.Optional;
 
 public interface RestaurantOrderRefundRepository extends JpaRepository<RestaurantOrderRefund, Long>, RestaurantOrderRefundRepositoryCustom {
     Page<RestaurantOrderRefund> findByRestaurantIdAndDeletedAtIsNull(Long restaurantId, Pageable pageable);
-
     boolean existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(Long orderId, RestaurantOrderRefundStatus restaurantOrderRefundStatus);
-
     Optional<RestaurantOrderRefund> findByIdAndDeletedAtIsNull(Long id);
+    Page<RestaurantOrderRefund> findByDeletedAtIsNullOrderByIdDesc(Pageable pageable);
 }

@@ -9,4 +9,6 @@ public interface RestaurantOrderRefundService {
     Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(Long restaurantId, int page, int size);
     RestaurantOrderRefundResponse createRestaurantOrderRefund(RestaurantOrderRefundCreateRequest request);
     RestaurantOwnerOrderRefundCancelResponse cancelRestaurantOrderRefund(Long id);
+
+    Page<RestaurantOrderRefundResponse> getAllRestaurantOrderRefunds(int page, int size);
 }

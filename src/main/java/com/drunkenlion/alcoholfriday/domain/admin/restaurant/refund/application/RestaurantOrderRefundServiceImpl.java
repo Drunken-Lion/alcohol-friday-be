@@ -50,21 +50,7 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
     public Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(Long restaurantId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByRestaurantIdAndDeletedAtIsNull(restaurantId, pageable);
-
-        List<RestaurantOrderRefundResponse> refundResponses = refundPage.getContent().stream()
-                .map(refund -> {
-                    List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository
-                            .findByRestaurantOrderRefundAndDeletedAtIsNull(refund);
-                    List<RestaurantOrderRefundDetailResponse> refundDetailResponses = refundDetails.stream()
-                            .map(refundDetail -> {
-                                NcpFileResponse file = fileService.findOne(refundDetail.getProduct());
-                                return RestaurantOrderRefundDetailResponse.of(refundDetail, file);
-                            })
-                            .collect(Collectors.toList());
-
-                    return RestaurantOrderRefundResponse.of(refund, refundDetailResponses);
-                })
-                .collect(Collectors.toList());
+        List<RestaurantOrderRefundResponse> refundResponses = this.getRefundResponses(refundPage);
 
         return new PageImpl<>(refundResponses, pageable, refundPage.getTotalElements());
     }
@@ -169,6 +155,32 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
         restaurantOrderRefundRepository.save(refund);
 
         return RestaurantOwnerOrderRefundCancelResponse.of(refund);
+    }
+
+    @Override
+    public Page<RestaurantOrderRefundResponse> getAllRestaurantOrderRefunds(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByDeletedAtIsNullOrderByIdDesc(pageable);
+        List<RestaurantOrderRefundResponse> refundResponses = this.getRefundResponses(refundPage);
+
+        return new PageImpl<>(refundResponses, pageable, refundPage.getTotalElements());
+    }
+
+    private List<RestaurantOrderRefundResponse> getRefundResponses(Page<RestaurantOrderRefund> refundPage) {
+        return refundPage.getContent().stream()
+                .map(refund -> {
+                    List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository
+                            .findByRestaurantOrderRefundAndDeletedAtIsNull(refund);
+                    List<RestaurantOrderRefundDetailResponse> refundDetailResponses = refundDetails.stream()
+                            .map(refundDetail -> {
+                                NcpFileResponse file = fileService.findOne(refundDetail.getProduct());
+                                return RestaurantOrderRefundDetailResponse.of(refundDetail, file);
+                            })
+                            .collect(Collectors.toList());
+
+                    return RestaurantOrderRefundResponse.of(refund, refundDetailResponses);
+                })
+                .collect(Collectors.toList());
     }
 
     private boolean checkRefundEligibility(RestaurantOrderRefundCreateRequest request) {

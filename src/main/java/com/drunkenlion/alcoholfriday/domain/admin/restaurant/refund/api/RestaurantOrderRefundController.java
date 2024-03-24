@@ -61,4 +61,16 @@ public class RestaurantOrderRefundController {
         RestaurantOwnerOrderRefundCancelResponse response = restaurantOrderRefundService.cancelRestaurantOrderRefund(id);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "전체 매장 환불 조회(관리자)", description = "관리자 권한에 대한 전체 매장 환불 조회")
+    @GetMapping
+    public ResponseEntity<PageResponse<RestaurantOrderRefundResponse>> getAdminRestaurantOrderRefunds(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size
+    ) {
+        PageResponse<RestaurantOrderRefundResponse> pageResponse = PageResponse.of(
+                this.restaurantOrderRefundService.getAllRestaurantOrderRefunds(page, size)
+        );
+        return ResponseEntity.ok().body(pageResponse);
+    }
 }
