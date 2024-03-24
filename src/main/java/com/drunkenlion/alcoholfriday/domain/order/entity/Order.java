@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.order.entity;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
@@ -115,5 +116,14 @@ public class Order extends BaseEntity {
                     .mapToLong(OrderDetail::getQuantity)
                     .sum();
         }
+    }
+
+    public void updateOrderAddress(OrderAddressRequest orderAddressRequest) {
+        this.recipient = orderAddressRequest.getRecipient();
+        this.phone = orderAddressRequest.getPhone();
+        this.address = orderAddressRequest.getAddress();
+        this.addressDetail = orderAddressRequest.getAddressDetail();
+        this.description = orderAddressRequest.getDescription();
+        this.postcode = orderAddressRequest.getPostcode();
     }
 }

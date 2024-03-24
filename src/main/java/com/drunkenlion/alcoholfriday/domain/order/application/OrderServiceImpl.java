@@ -10,12 +10,14 @@ import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderItemRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
+import com.drunkenlion.alcoholfriday.domain.payment.util.OrderValidator;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
@@ -122,5 +124,19 @@ public class OrderServiceImpl implements OrderService {
         }
 
         product.updateQuantity(productQuantity - minusProductQuantity);
+    }
+
+    @Override
+    @Transactional
+    public void updateOrderAddress(OrderAddressRequest orderAddressRequest, Long orderId, Member member) {
+        Order order = orderRepository.findByIdAndDeletedAtIsNull(orderId)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_ORDER)
+                        .build());
+
+        OrderValidator.compareEntityIdToMemberId(order, member);
+        OrderValidator.checkOrderNo(order, orderAddressRequest.getOrderNo());
+
+        order.updateOrderAddress(orderAddressRequest);
     }
 }
