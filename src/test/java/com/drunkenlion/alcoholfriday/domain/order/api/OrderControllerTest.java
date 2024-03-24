@@ -434,7 +434,7 @@ class OrderControllerTest {
     @Test
     @DisplayName("주문 생성 후 배송지 업데이트")
     @WithAccount
-    void saveOrderAddress() throws Exception {
+    void updateOrderAddress() throws Exception {
         // when
         ResultActions resultActions = mvc
                 .perform(post("/v1/orders/" + orderId)
@@ -458,13 +458,13 @@ class OrderControllerTest {
         resultActions
                 .andExpect(status().isNoContent())
                 .andExpect(handler().handlerType(OrderController.class))
-                .andExpect(handler().methodName("saveOrderAddress"));
+                .andExpect(handler().methodName("updateOrderAddress"));
     }
 
     @Test
     @DisplayName("주문 생성 후 배송지 업데이트 - 주문 번호가 맞지 않는 경우")
     @WithAccount
-    void saveOrderAddress_invalidOrderNo() throws Exception {
+    void updateOrderAddress_invalidOrderNo() throws Exception {
         // when
         ResultActions resultActions = mvc
                 .perform(post("/v1/orders/" + orderId)
@@ -488,14 +488,14 @@ class OrderControllerTest {
         resultActions
                 .andExpect(status().isNotFound())
                 .andExpect(handler().handlerType(OrderController.class))
-                .andExpect(handler().methodName("saveOrderAddress"))
+                .andExpect(handler().methodName("updateOrderAddress"))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 주문입니다."));
     }
 
     @Test
     @DisplayName("주문 생성 후 배송지 업데이트 - 주문한 회원이 아닐 경우")
     @WithAccount(email = EMAIL2)
-    void saveOrderAddress_invalidMember() throws Exception {
+    void updateOrderAddress_invalidMember() throws Exception {
         // when
         ResultActions resultActions = mvc
                 .perform(post("/v1/orders/" + orderId)
@@ -519,7 +519,7 @@ class OrderControllerTest {
         resultActions
                 .andExpect(status().isForbidden())
                 .andExpect(handler().handlerType(OrderController.class))
-                .andExpect(handler().methodName("saveOrderAddress"))
+                .andExpect(handler().methodName("updateOrderAddress"))
                 .andExpect(jsonPath("$.message").value("권한이 없는 접근입니다."));
     }
 }
