@@ -21,7 +21,7 @@ public class ProductController {
     private final ProductService productService;
     @GetMapping("{id}")
     @Operation(summary = "제품 상세 조회")
-    public ResponseEntity<?> getRestaurantsWithinBounds(@PathVariable("id") Long productId) {
+    public ResponseEntity<ProductDetailPageResponse> getProduct(@PathVariable("id") Long productId) {
         ProductDetailPageResponse response = productService.findProduct(productId);
         return ResponseEntity.ok(response);
     }
