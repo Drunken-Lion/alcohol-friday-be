@@ -1,6 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity;
 
+import com.drunkenlion.alcoholfriday.domain.admin.customerservice.notice.enumerated.NoticeStatus;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -31,6 +33,18 @@ public class RestaurantOrderCartDetail extends BaseEntity {
 
     public void minusQuantity(Long quantity) {
         this.quantity = this.quantity - quantity;
+    }
+
+    public void plusQuantity(Long quantity) { // 제품 목록에서 사용
+        this.quantity = this.quantity + quantity;
+    }
+
+    public void updateQuantity(Long quantity) {
+        this.quantity = quantity;
+    }
+
+    public void deleteQuantity(Long quantity) {
+        this.quantity = 0L;
     }
 
     public void addCart(RestaurantOrderCart cart) {
