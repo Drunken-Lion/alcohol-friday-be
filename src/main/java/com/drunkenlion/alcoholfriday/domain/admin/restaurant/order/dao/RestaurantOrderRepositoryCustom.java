@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RestaurantOrderRepositoryCustom {
+    Page<RestaurantOrder> findAllRestaurantOrders(Pageable pageable);
+
     Page<RestaurantOrder> findRestaurantOrdersByOwner(Member member, Pageable pageable);
 
     Optional<RestaurantOrder> findRestaurantOrderAddInfo(Long id);
-    
+
     Optional<RestaurantOrder> findRestaurantOrderWaitingApproval(Long id);
 
     List<RestaurantOrder> findOrderToDelete();

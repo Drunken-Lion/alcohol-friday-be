@@ -11,8 +11,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "레스토랑 발주 리스트 응답 항목 (Owner)")
-public class OwnerRestaurantOrderListResponse {
+@Schema(description = "레스토랑 발주 리스트 응답 항목 (Admin)")
+public class RestaurantOrderListResponse {
     @Schema(description = "발주 고유 아이디")
     private Long id;
 
@@ -37,23 +37,20 @@ public class OwnerRestaurantOrderListResponse {
     @Schema(description = "배송시 주의사항")
     private String description;
 
-    @Schema(description = "발주 상품 리스트")
-    private List<OwnerRestaurantOrderDetailResponse> orderDetails;
+    @Schema(description = "발주 제품 목록")
+    private List<RestaurantOrderDetailResponse> details;
 
-    public static OwnerRestaurantOrderListResponse of(
-            RestaurantOrder restaurantOrder,
-            List<OwnerRestaurantOrderDetailResponse> restaurantOrderDetailResponses) {
-
-        return OwnerRestaurantOrderListResponse.builder()
-                .id(restaurantOrder.getId())
-                .orderStatus(restaurantOrder.getOrderStatus().getName())
-                .createdAt(restaurantOrder.getCreatedAt())
-                .businessName(restaurantOrder.getRestaurant().getBusinessName())
-                .address(restaurantOrder.getAddress())
-                .addressDetail(restaurantOrder.getAddressDetail())
-                .postcode(restaurantOrder.getPostcode())
-                .description(restaurantOrder.getDescription())
-                .orderDetails(restaurantOrderDetailResponses)
+    public static RestaurantOrderListResponse of(RestaurantOrder order, List<RestaurantOrderDetailResponse> detailResponses) {
+        return RestaurantOrderListResponse.builder()
+                .id(order.getId())
+                .orderStatus(order.getOrderStatus().getName())
+                .createdAt(order.getCreatedAt())
+                .businessName(order.getRestaurant().getBusinessName())
+                .address(order.getAddress())
+                .addressDetail(order.getAddressDetail())
+                .postcode(order.getPostcode())
+                .description(order.getDescription())
+                .details(detailResponses)
                 .build();
     }
 }
