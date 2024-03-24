@@ -1,6 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
+import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
@@ -47,6 +51,7 @@ import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,6 +73,12 @@ public class RestaurantControllerTest {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private ItemProductRepository itemProductRepository;
+
+    @Autowired
+    private ItemRepository itemRepository;
 
     @Autowired
     private RestaurantStockRepository restaurantStockRepository;
@@ -158,6 +169,19 @@ public class RestaurantControllerTest {
 
         restaurantStockRepository.save(stock1);
         restaurantStockRepository.save(stock2);
+
+        Item item = Item.builder()
+                .name("테스트")
+                .build();
+
+        itemRepository.save(item);
+
+        ItemProduct itemProduct = ItemProduct.builder()
+                .product(product1)
+                .item(item)
+                .build();
+
+        itemProductRepository.save(itemProduct);
     }
 
     @AfterEach
@@ -167,6 +191,8 @@ public class RestaurantControllerTest {
         restaurantRepository.deleteAll();
         restaurantStockRepository.deleteAll();
         productRepository.deleteAll();
+        itemProductRepository.deleteAll();
+        itemRepository.deleteAll();
     }
 
     private Map<String, Object> getMenuTest() {
@@ -213,62 +239,88 @@ public class RestaurantControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 위치로 부터 내의 모든 레스토랑 정보 조회")
-    public void nearby() throws Exception {
-        ResultActions nearby = mvc
+    @DisplayName("상품에 포함된 제품을 사용자 주변 5km 내 취급 매장 조회")
+    public void t1() throws Exception {
+        ResultActions actions = mvc
                 .perform(get("/v1/restaurants/nearby")
                         .param("userLocationLatitude", "37.552250")
                         .param("userLocationLongitude", "126.845024")
-                        .param("keyword", "동동주")
+                        .param("itemId", "1")
                         .param("page", "0")
                         .param("size", "5"))
                 .andDo(print());
-        nearby
+
+        actions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(RestaurantController.class))
                 .andExpect(handler().methodName("getRestaurantsWithinNearby"))
-                .andExpect(jsonPath("$.data[0].restaurantId", notNullValue()))
+                .andExpect(jsonPath("$.data[0].restaurantId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data[0].distanceKm", notNullValue()))
+                .andExpect(jsonPath("$.data[0].productName", notNullValue()))
                 .andExpect(jsonPath("$.data[0].restaurantName", notNullValue()))
                 .andExpect(jsonPath("$.data[0].address", notNullValue()))
-                .andExpect(jsonPath("$.data[0].productName", notNullValue()))
-                .andExpect(jsonPath("$.data[0].distance", notNullValue()))
-                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
-                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+        ;
     }
 
     @Test
-    @DisplayName("polygon 영역 내의 모든 레스토랑 정보 조회")
-    public void bounds() throws Exception {
-
-        ResultActions bounds = mvc.perform(get("/v1/restaurants")
+    @DisplayName("사용자 화면 내 매장 조회")
+    public void t2() throws Exception {
+        ResultActions actions = mvc.perform(get("/v1/restaurants")
                         .param("neLatitude", String.valueOf(neLatitude))
                         .param("neLongitude", String.valueOf(neLongitude))
                         .param("swLatitude", String.valueOf(swLatitude))
                         .param("swLongitude", String.valueOf(swLongitude)))
                 .andDo(print());
 
-        bounds
+        actions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(RestaurantController.class))
                 .andExpect(handler().methodName("getRestaurantsWithinBounds"))
-                .andExpect(jsonPath("$.[0].id", notNullValue()))
-                .andExpect(jsonPath("$.[0].memberId", notNullValue()))
-                .andExpect(jsonPath("$.[0].category", notNullValue()))
-                .andExpect(jsonPath("$.[0].name", notNullValue()))
-                .andExpect(jsonPath("$.[0].address", notNullValue()))
+                .andExpect(jsonPath("$.[0].restaurantId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.[0].latitude", notNullValue()))
                 .andExpect(jsonPath("$.[0].longitude", notNullValue()))
-                .andExpect(jsonPath("$.[0].contact", notNullValue()))
-                .andExpect(jsonPath("$.[0].menu", notNullValue()))
-                .andExpect(jsonPath("$.[0].time", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[0].name", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[1].name", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[0].price", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[1].price", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[0].alcohol", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[1].alcohol", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[0].quantity", notNullValue()))
-                .andExpect(jsonPath("$.[0].productResponses[1].quantity", notNullValue()));
+                .andExpect(jsonPath("$.[0].restaurantName", notNullValue()))
+                .andExpect(jsonPath("$.[0].restaurantCategory", notNullValue()))
+                .andExpect(jsonPath("$.[0].restaurantAddress", notNullValue()))
+                .andExpect(jsonPath("$.[0].businessStatus", notNullValue()))
+                .andExpect(jsonPath("$.[0].provision", notNullValue()))
+                .andExpect(jsonPath("$.[0].restaurantProducts", notNullValue()))
+        ;
+    }
+
+    @Test
+    @DisplayName("매장 상세 조회")
+    public void t3() throws Exception {
+        Restaurant restaurant = Restaurant.builder()
+                .category("학식")
+                .name("우정산 폴리텍대학")
+                .address("우정산 서울강서 캠퍼스")
+                .contact(1012345678L)
+                .menu(getMenuTest())
+                .time(getTimeTest())
+                .provision(getProvisionTest())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        restaurantRepository.save(restaurant);
+
+
+        ResultActions actions = mvc.perform(get("/v1/restaurants/" + restaurant.getId()))
+                .andDo(print());
+
+        actions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantController.class))
+                .andExpect(handler().methodName("getRestaurant"))
+                .andExpect(jsonPath("$.restaurantId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.restaurantName", notNullValue()))
+                .andExpect(jsonPath("$.restaurantMenu", notNullValue()))
+                .andExpect(jsonPath("$.restaurantAddress", notNullValue()))
+                .andExpect(jsonPath("$.businessStatus", notNullValue()))
+                .andExpect(jsonPath("$.restaurantContactNumber", notNullValue()))
+                .andExpect(jsonPath("$.provision", notNullValue()))
+                .andExpect(jsonPath("$.businessTime", notNullValue()))
+        ;
     }
 
 }
