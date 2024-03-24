@@ -1,13 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response;
 
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Builder

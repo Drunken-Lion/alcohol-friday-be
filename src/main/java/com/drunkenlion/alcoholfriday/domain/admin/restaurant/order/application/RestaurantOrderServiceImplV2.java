@@ -1,27 +1,30 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.RestaurantOrderSaveCodeRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.RestaurantOrderSaveRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.*;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderResultResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveCodeResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderOwnerValidator;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderValidator;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.cart.dao.RestaurantOrderCartRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCart;
-import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCartDetail;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderDetailRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.dao.RestaurantOrderRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrder;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.entity.RestaurantOrderDetail;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.enumerated.RestaurantOrderStatus;
-import com.drunkenlion.alcoholfriday.domain.restaurant.order.util.RestaurantOrderOwnerValidator;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
@@ -62,7 +65,7 @@ public class RestaurantOrderServiceImplV2 {
     @Transactional
     public RestaurantOrderSaveCodeResponse getSaveCode(RestaurantOrderSaveCodeRequest request,
                                                        Member member) {
-        RestaurantOrderOwnerValidator.isOwner(member);
+        RestaurantOrderOwnerValidator.validateOwner(member);
 
         Restaurant restaurant =
                 restaurantRepository.findById(request.getRestaurantId())
@@ -123,7 +126,7 @@ public class RestaurantOrderServiceImplV2 {
                                                              RestaurantOrderSaveRequest request,
                                                              Member member) {
         // Order 수정 로직
-        RestaurantOrderOwnerValidator.isOwner(member);
+        RestaurantOrderOwnerValidator.validateOwner(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderAddInfo(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_NUMBER));
@@ -145,10 +148,10 @@ public class RestaurantOrderServiceImplV2 {
 
         for (RestaurantOrderCartDetail rocd : restaurantOrderCart.getRestaurantDetailOrders()) {
             RestaurantOrderCartDetail orderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(
-                            restaurantOrderCart, rocd.getProduct()).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
+                    restaurantOrderCart, rocd.getProduct()).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
 
             RestaurantOrderDetail orderDetail = restaurantOrderDetailRepository.findRestaurantOrderAndProduct(
-                            restaurantOrder, orderCartDetail.getProduct()).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_DETAIL));
+                    restaurantOrder, orderCartDetail.getProduct()).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_DETAIL));
 
 
             Long minusQuantity = RestaurantOrderValidator.checkedQuantity(orderDetail, orderCartDetail);
@@ -164,7 +167,7 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse adminOrderApproval(Long id, Member member) {
-        RestaurantOrderOwnerValidator.isAdmin(member);
+        RestaurantOrderOwnerValidator.validateAdmin(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
@@ -183,7 +186,7 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse adminOrderRejectedApproval(Long id, Member member) {
-        RestaurantOrderOwnerValidator.isAdmin(member);
+        RestaurantOrderOwnerValidator.validateAdmin(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
@@ -209,7 +212,7 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse ownerOrderCancel(Long id, Member member) {
-        RestaurantOrderOwnerValidator.isOwner(member);
+        RestaurantOrderOwnerValidator.validateOwner(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
