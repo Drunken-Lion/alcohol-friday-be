@@ -4,6 +4,8 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.application.Re
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderCartSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartDeleteRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartUpdateRequest;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +41,16 @@ public class RestaurantOrderCartController {
             @RequestBody RestaurantOrderCartSaveRequest request,
             @AuthenticationPrincipal UserPrincipal user) {
         RestaurantOrderCartSaveResponse response = restaurantOrderCartService.saveRestaurantOrderCart(request, user.getMember());
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("{id}/owner")
+    @Operation(summary = "장바구니 수량 변경 (Owner)", description = "제품 발주 장바구니 수량 변경")
+    public ResponseEntity<RestaurantOrderCartSaveResponse> updateOwnerCart(
+            @PathVariable("id") Long restaurantOrderCartId,
+            @RequestBody RestaurantOrderCartUpdateRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        RestaurantOrderCartSaveResponse response = restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartId, request, user.getMember());
         return ResponseEntity.ok(response);
     }
 }

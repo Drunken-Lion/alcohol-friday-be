@@ -6,6 +6,9 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.Restaur
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderCartSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartDeleteRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartUpdateRequest;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
@@ -58,5 +61,27 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
                                 .restaurant(restaurant)
                                 .build());
         return null;
+    }
+    
+    /**
+     * 장바구니 제품 수량 변경
+     */
+    @Override
+    @Transactional
+    public RestaurantOrderCartSaveResponse updateRestaurantOrderCart(Long id,
+                                                                     RestaurantOrderCartUpdateRequest request,
+                                                                     Member member) {
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
+
+        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+
+        restaurantOrderCartDetail.updateQuantity(request.getQuantity());
+
+        return RestaurantOrderCartSaveResponse.of(restaurantOrderCartDetail);
     }
 }
