@@ -12,4 +12,5 @@ public interface RestaurantOrderCartService {
     Page<RestaurantOrderProductListResponse> getRestaurantOrderProducts(int page, int size, Member member);
     RestaurantOrderCartSaveResponse saveRestaurantOrderCart(RestaurantOrderCartSaveRequest request, Member member);
     RestaurantOrderCartSaveResponse updateRestaurantOrderCart(Long id, RestaurantOrderCartUpdateRequest request, Member member);
+    RestaurantOrderCartSaveResponse deleteRestaurantOrderCart(Long id, RestaurantOrderCartDeleteRequest request, Member member);
 }

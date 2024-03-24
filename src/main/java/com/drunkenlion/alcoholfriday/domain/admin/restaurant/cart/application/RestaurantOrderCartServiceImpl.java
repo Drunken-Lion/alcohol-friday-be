@@ -62,7 +62,7 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
                                 .build());
         return null;
     }
-    
+
     /**
      * 장바구니 제품 수량 변경
      */
@@ -84,4 +84,37 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
 
         return RestaurantOrderCartSaveResponse.of(restaurantOrderCartDetail);
     }
+
+    /**
+     * 장바구니 제품 삭제
+     */
+    @Override
+    @Transactional
+    public RestaurantOrderCartSaveResponse deleteRestaurantOrderCart(Long id,
+                                                                     RestaurantOrderCartDeleteRequest request,
+                                                                     Member member) {
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
+
+        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+
+        restaurantOrderCartDetail.deleteQuantity(product.getQuantity());
+
+        return RestaurantOrderCartSaveResponse.of(restaurantOrderCartDetail);
+    }
+
+//    private RestaurantOrderCartDetail findRestaurantOrderCartDetail(Long cartId, Long productId) {
+//        Product product = productRepository.findById(productId)
+//                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
+//
+//        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(cartId)
+//                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+//
+//        return restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
+//                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+//    }
 }

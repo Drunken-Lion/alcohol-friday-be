@@ -53,4 +53,14 @@ public class RestaurantOrderCartController {
         RestaurantOrderCartSaveResponse response = restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartId, request, user.getMember());
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("{id}/owner")
+    @Operation(summary = "장바구니 삭제 (Owner)", description = "발주 장바구니 제품 삭제")
+    public ResponseEntity<RestaurantOrderCartSaveResponse> deleteOwnerCart(
+            @PathVariable("id") Long restaurantOrderCartId,
+            @RequestBody RestaurantOrderCartDeleteRequest request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        RestaurantOrderCartSaveResponse response = restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartId, request, user.getMember());
+        return ResponseEntity.ok(response);
+    }
 }

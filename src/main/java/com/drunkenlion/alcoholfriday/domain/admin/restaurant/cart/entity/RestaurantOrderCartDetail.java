@@ -40,7 +40,7 @@ public class RestaurantOrderCartDetail extends BaseEntity {
         this.quantity = this.quantity - quantity;
     }
 
-    public void plusQuantity(Long quantity) { // 제품 목록에서 사용
+    public void plusQuantity(Long quantity) {
         this.quantity = this.quantity + quantity;
     }
 
