@@ -17,6 +17,7 @@ import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
@@ -42,6 +43,7 @@ import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,6 +54,9 @@ import static org.mockito.Mockito.when;
 public class RestaurantOrderServiceTest {
     @InjectMocks
     private RestaurantOrderServiceImpl restaurantOrderService;
+
+    @Mock
+    private RestaurantRepository restaurantRepository;
 
     @Mock
     private RestaurantOrderRepository restaurantOrderRepository;
@@ -112,6 +117,8 @@ public class RestaurantOrderServiceTest {
     @DisplayName("사장의 발주 내역 조회")
     public void getRestaurantOrderByOwnerTest() {
         // given
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(getRestaurant()));
+
         when(restaurantOrderRepository.findRestaurantOrdersByOwner(any(), any(), any(Pageable.class)))
                 .thenReturn(getRestaurantOrders());
 
