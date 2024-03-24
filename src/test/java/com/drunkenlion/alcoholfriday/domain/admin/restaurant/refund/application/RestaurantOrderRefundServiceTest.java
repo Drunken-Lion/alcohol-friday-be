@@ -9,7 +9,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.Restaura
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOwnerOrderRefundCancelResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResultResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
@@ -745,7 +745,7 @@ public class RestaurantOrderRefundServiceTest {
         ArgumentCaptor<List<RestaurantStock>> restaurantStocksCaptor = ArgumentCaptor.forClass(List.class);
 
         // When
-        RestaurantOwnerOrderRefundCancelResponse response = restaurantOrderRefundService.cancelRestaurantOrderRefund(restaurantOrderRefund.getId());
+        RestaurantOrderRefundResultResponse response = restaurantOrderRefundService.cancelRestaurantOrderRefund(restaurantOrderRefund.getId());
 
         // then
         verify(restaurantOrderRefundRepository, times(1)).save(any(RestaurantOrderRefund.class));

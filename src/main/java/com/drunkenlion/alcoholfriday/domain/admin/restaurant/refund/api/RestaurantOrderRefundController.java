@@ -2,7 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.application.RestaurantOrderRefundService;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOwnerOrderRefundCancelResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResultResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,10 +55,10 @@ public class RestaurantOrderRefundController {
 
     @Operation(summary = "매장 환불 취소(사장)", description = "사장 권한에 대한 매장 환불 취소")
     @PutMapping("/{id}/cancel/owner")
-    public ResponseEntity<RestaurantOwnerOrderRefundCancelResponse> cancelRestaurantOrderRefund(
+    public ResponseEntity<RestaurantOrderRefundResultResponse> cancelRestaurantOrderRefund(
             @PathVariable("id") Long id
     ) {
-        RestaurantOwnerOrderRefundCancelResponse response = restaurantOrderRefundService.cancelRestaurantOrderRefund(id);
+        RestaurantOrderRefundResultResponse response = restaurantOrderRefundService.cancelRestaurantOrderRefund(id);
         return ResponseEntity.ok(response);
     }
 
@@ -72,5 +72,14 @@ public class RestaurantOrderRefundController {
                 this.restaurantOrderRefundService.getAllRestaurantOrderRefunds(page, size)
         );
         return ResponseEntity.ok().body(pageResponse);
+    }
+
+    @Operation(summary = "매장 환불 승인(관리자)", description = "관리자 권한에 대한 매장 환불 승인")
+    @PutMapping("/{id}")
+    public ResponseEntity<RestaurantOrderRefundResultResponse> approvalRestaurantOrderRefund(
+            @PathVariable("id") Long id
+    ) {
+        RestaurantOrderRefundResultResponse response = restaurantOrderRefundService.approvalRestaurantOrderRefund(id);
+        return ResponseEntity.ok(response);
     }
 }

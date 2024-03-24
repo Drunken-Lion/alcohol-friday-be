@@ -1,9 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.util.RestaurantOrderRefundStatusConverter;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.util.RestaurantOrderRefundStatusConverter;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -51,4 +51,8 @@ public class RestaurantOrderRefund extends BaseEntity {
     @OneToMany(mappedBy = "restaurantOrderRefund")
     @Builder.Default
     private List<RestaurantOrderRefundDetail> restaurantOrderRefundDetails = new ArrayList<>();
+
+    public void updateStatus(RestaurantOrderRefundStatus status) {
+        this.status = status;
+    }
 }

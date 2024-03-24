@@ -9,7 +9,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOwnerOrderRefundCancelResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResultResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
@@ -111,7 +111,7 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
 
     @Override
     @Transactional
-    public RestaurantOwnerOrderRefundCancelResponse cancelRestaurantOrderRefund(Long id) {
+    public RestaurantOrderRefundResultResponse cancelRestaurantOrderRefund(Long id) {
         RestaurantOrderRefund refund = restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND)
@@ -154,7 +154,7 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
 
         restaurantOrderRefundRepository.save(refund);
 
-        return RestaurantOwnerOrderRefundCancelResponse.of(refund);
+        return RestaurantOrderRefundResultResponse.of(refund);
     }
 
     @Override
@@ -164,6 +164,37 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
         List<RestaurantOrderRefundResponse> refundResponses = this.getRefundResponses(refundPage);
 
         return new PageImpl<>(refundResponses, pageable, refundPage.getTotalElements());
+    }
+
+    @Override
+    @Transactional
+    public RestaurantOrderRefundResultResponse approvalRestaurantOrderRefund(Long id) {
+        RestaurantOrderRefund refund = restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND)
+                        .build());
+
+        // 환불 승인 대기 이외에는 환불 승인 불가
+        if (!refund.getStatus().equals(RestaurantOrderRefundStatus.WAITING_APPROVAL)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.RESTAURANT_REFUND_APPROVAL_FAIL)
+                    .build();
+        }
+
+        List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(refund);
+
+        if (refundDetails.isEmpty()) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND_DETAIL)
+                    .build();
+        }
+
+        refund.updateStatus(RestaurantOrderRefundStatus.COMPLETED_APPROVAL);
+        restaurantOrderRefundRepository.save(refund);
+
+        this.refundCompleted(refund, refundDetails);
+
+        return RestaurantOrderRefundResultResponse.of(refund);
     }
 
     private List<RestaurantOrderRefundResponse> getRefundResponses(Page<RestaurantOrderRefund> refundPage) {
@@ -235,5 +266,33 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
         }
 
         return true;
+    }
+
+    private void refundCompleted(RestaurantOrderRefund refund, List<RestaurantOrderRefundDetail> refundDetails) {
+        // 환불 승인 완료 이외에는 환불 완료 불가
+        if (!refund.getStatus().equals(RestaurantOrderRefundStatus.COMPLETED_APPROVAL)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.RESTAURANT_REFUND_COMPLETE_FAIL)
+                    .build();
+        }
+
+        List<Product> products = new ArrayList<>();
+        for (RestaurantOrderRefundDetail detail : refundDetails) {
+            Product product = detail.getProduct();
+            if (product.getDeletedAt() != null) {
+                throw BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
+                        .build();
+            }
+
+            // 환불 완료 시 제품 수량 원복
+            product.plusQuantity(detail.getQuantity());
+            products.add(product);
+        }
+        productRepository.saveAll(products);
+
+        // 환불 완료
+        refund.updateStatus(RestaurantOrderRefundStatus.COMPLETED);
+        restaurantOrderRefundRepository.save(refund);
     }
 }
