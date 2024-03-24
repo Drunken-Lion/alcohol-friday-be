@@ -41,9 +41,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         for (Restaurant restaurant : restaurants) {
             List<RestaurantSimpleProductResponse> productResponses = restaurant.getRestaurantStocks().stream()
-                    .map(restaurantStock -> RestaurantSimpleProductResponse.of(restaurantStock, fileService.findOne(restaurantStock.getProduct())))
-                    .toList();
-
+                    .map(restaurantStock -> RestaurantSimpleProductResponse.of(restaurantStock, fileService.findOne(restaurantStock.getProduct()))).toList();
             restaurantMapResponses.add(RestaurantMapResponse.of(restaurant, productResponses));
         }
 
@@ -69,10 +67,6 @@ public class RestaurantServiceImpl implements RestaurantService {
     public Page<RestaurantDetailProductResponse> findRestaurantStock(Long restaurantId, int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
         Page<RestaurantStock> restaurantStocks= restaurantStockRepository.findRestaurantStock(restaurantId, pageable);
-        System.out.println("============================5");
-
-
-
         return restaurantStocks.map(restaurantStock -> RestaurantDetailProductResponse.of(restaurantStock, fileService.findOne(restaurantStock.getProduct())));
     }
 }
