@@ -12,6 +12,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderItemRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderDetailResponse;
@@ -21,8 +22,8 @@ import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,8 +40,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -112,6 +115,13 @@ class OrderServiceTest {
     private final LocalDateTime deletedAt = null;
     private final int page = 0;
     private final int size = 20;
+
+    // Member2
+    private final Long id2 = 2L;
+    private final String email2 = "test2@example.com";
+    private final String name2 = "테스트2";
+    private final String nickname2 = "test2";
+    private final Long phone2 = 1012345679L;
 
     // Order
     private final Long orderId = 1L;
@@ -274,7 +284,7 @@ class OrderServiceTest {
                 .build();
 
         // when & then
-        Assertions.assertThrows(BusinessException.class, () -> {
+        assertThrows(BusinessException.class, () -> {
             orderService.receive(orderRequestList, getDataMember());
         });
     }
@@ -301,9 +311,87 @@ class OrderServiceTest {
                 .build();
 
         // when & then
-        Assertions.assertThrows(BusinessException.class, () -> {
+        assertThrows(BusinessException.class, () -> {
             orderService.receive(orderRequestList, getDataMember());
         });
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 배송지 업데이트")
+    void updateOrderAddress() {
+        // given
+        // orderRepository.findByIdAndDeletedAtIsNull(orderId)
+        when(orderRepository.findByIdAndDeletedAtIsNull(orderId)).thenReturn(getOneOrder());
+
+        OrderAddressRequest orderAddressRequest = OrderAddressRequest.builder()
+                .orderNo(orderNo)
+                .recipient(recipient)
+                .phone(phone)
+                .address(address)
+                .addressDetail(addressDetail)
+                .description(description)
+                .postcode(postcode)
+                .build();
+
+        // when
+        this.orderService.updateOrderAddress(orderAddressRequest, orderId, getDataMember());
+
+        //then
+        verify(orderRepository, times(1)).findByIdAndDeletedAtIsNull(orderId);
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 배송지 업데이트 - 주문 번호가 맞지 않는 경우")
+    void updateOrderAddress_invalidOrderNo() {
+        // given
+        // orderRepository.findByIdAndDeletedAtIsNull(orderId)
+        when(orderRepository.findByIdAndDeletedAtIsNull(orderId)).thenReturn(getOneOrder());
+
+        OrderAddressRequest orderAddressRequest = OrderAddressRequest.builder()
+                .orderNo("order_1")
+                .recipient(recipient)
+                .phone(phone)
+                .address(address)
+                .addressDetail(addressDetail)
+                .description(description)
+                .postcode(postcode)
+                .build();
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            this.orderService.updateOrderAddress(orderAddressRequest, orderId, getDataMember());
+        });
+
+        //then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_ORDER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_ORDER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 배송지 업데이트 - 주문한 회원이 아닐 경우")
+    void updateOrderAddress_invalidMember() {
+        // given
+        // orderRepository.findByIdAndDeletedAtIsNull(orderId)
+        when(orderRepository.findByIdAndDeletedAtIsNull(orderId)).thenReturn(getOneOrder());
+
+        OrderAddressRequest orderAddressRequest = OrderAddressRequest.builder()
+                .orderNo(orderNo)
+                .recipient(recipient)
+                .phone(phone)
+                .address(address)
+                .addressDetail(addressDetail)
+                .description(description)
+                .postcode(postcode)
+                .build();
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            this.orderService.updateOrderAddress(orderAddressRequest, orderId, getDataMember2());
+        });
+
+        //then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
     }
 
 
@@ -389,6 +477,29 @@ class OrderServiceTest {
                 .nickname(nickname)
                 .role(MemberRole.byRole(role))
                 .phone(phone)
+                .certifyAt(certifyAt)
+                .agreedToServiceUse(agreedToServiceUse)
+                .agreedToServicePolicy(agreedToServicePolicy)
+                .agreedToServicePolicyUse(agreedToServicePolicyUse)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
+
+    private Optional<Member> getOneMember2() {
+        return Optional.of(this.getDataMember2());
+    }
+
+    private Member getDataMember2() {
+        return Member.builder()
+                .id(id2)
+                .email(email2)
+                .provider(ProviderType.byProviderName(provider))
+                .name(name2)
+                .nickname(nickname2)
+                .role(MemberRole.byRole(role))
+                .phone(phone2)
                 .certifyAt(certifyAt)
                 .agreedToServiceUse(agreedToServiceUse)
                 .agreedToServicePolicy(agreedToServicePolicy)
