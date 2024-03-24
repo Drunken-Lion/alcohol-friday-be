@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.cart.dto.request;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
