@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -25,8 +26,9 @@ import org.hibernate.annotations.Comment;
 @Table(name = "restaurant_order_cart_detail")
 public class RestaurantOrderCartDetail extends BaseEntity {
     @Comment("매장 장바구니 제품 당 수량")
+    @Builder.Default
     @Column(name = "quantity", columnDefinition = "BIGINT")
-    private Long quantity;
+    private Long quantity = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_order_cart_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))

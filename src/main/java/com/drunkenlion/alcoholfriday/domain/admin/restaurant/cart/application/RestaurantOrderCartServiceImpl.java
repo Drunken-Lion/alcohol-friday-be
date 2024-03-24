@@ -2,16 +2,19 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.application;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartRepository;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderCartSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.util.RestaurantOrderCartValidator;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import lombok.RequiredArgsConstructor;
@@ -47,16 +50,33 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
      */
     @Override
     @Transactional
-    public RestaurantOrderCartSaveResponse saveRestaurantOrderCart(RestaurantOrderCartSaveRequest request,
-                                                                   Member member) {
+    public RestaurantOrderCartSaveResponse saveRestaurantOrderCart(RestaurantOrderCartSaveRequest request, Member member) {
+        RestaurantOrderCartValidator.checkedMemberRoleIsOwner(member);
+
         Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(request.getRestaurantId())
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
 
-        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findRestaurantAndMember(restaurant, member)
-                .orElseGet(() -> RestaurantOrderCart.builder()
+        RestaurantOrderCart cart = restaurantOrderCartRepository.findRestaurantAndMember(restaurant, member).orElseGet(() ->
+                restaurantOrderCartRepository.save(RestaurantOrderCart.builder()
                                 .member(member)
                                 .restaurant(restaurant)
-                                .build());
-        return null;
+                                .build()));
+
+        Product product = productRepository.findByIdAndDeletedAtIsNull(request.getProductId())
+                .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_PRODUCT));
+
+        RestaurantOrderCartValidator.checkedQuantity(product, request.getQuantity());
+
+        RestaurantOrderCartDetail cartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(cart, product).orElseGet(() ->
+                restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
+                        .product(product)
+                        .build())
+        );
+
+        cartDetail.plusQuantity(request.getQuantity());
+        cartDetail.addCart(cart);
+        restaurantOrderCartDetailRepository.save(cartDetail);
+
+        return RestaurantOrderCartSaveResponse.of(cartDetail);
     }
 }

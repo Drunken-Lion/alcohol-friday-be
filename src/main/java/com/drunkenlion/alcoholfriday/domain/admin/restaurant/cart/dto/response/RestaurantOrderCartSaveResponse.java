@@ -34,9 +34,6 @@ public class RestaurantOrderCartSaveResponse {
     @Schema(description = "주문 요청 수량")
     private Long quantity;
 
-    @Schema(description = "제품 사진")
-    private NcpFileResponse file;
-
     public static RestaurantOrderCartSaveResponse of(RestaurantOrderCartDetail restaurantOrderCartDetail) {
         return RestaurantOrderCartSaveResponse.builder()
                 .id(restaurantOrderCartDetail.getProduct().getId())
@@ -45,18 +42,6 @@ public class RestaurantOrderCartSaveResponse {
                 .price(restaurantOrderCartDetail.getProduct().getDistributionPrice())
                 .ableQuantity(restaurantOrderCartDetail.getProduct().getQuantity())
                 .quantity(restaurantOrderCartDetail.getQuantity())
-                .build();
-    }
-
-    public static RestaurantOrderCartSaveResponse of(RestaurantOrderCartDetail restaurantOrderCartDetail, NcpFileResponse file) {
-        return RestaurantOrderCartSaveResponse.builder()
-                .id(restaurantOrderCartDetail.getProduct().getId())
-                .name(restaurantOrderCartDetail.getProduct().getName())
-                .makerName(restaurantOrderCartDetail.getProduct().getMaker().getName())
-                .price(restaurantOrderCartDetail.getProduct().getDistributionPrice())
-                .ableQuantity(restaurantOrderCartDetail.getProduct().getQuantity())
-                .quantity(restaurantOrderCartDetail.getQuantity())
-                .file(file)
                 .build();
     }
 }
