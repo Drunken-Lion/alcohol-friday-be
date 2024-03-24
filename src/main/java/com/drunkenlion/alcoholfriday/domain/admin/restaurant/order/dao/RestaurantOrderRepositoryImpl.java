@@ -20,7 +20,7 @@ import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity
 import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.QRestaurantOrderDetail.restaurantOrderDetail;
 import static com.drunkenlion.alcoholfriday.domain.member.entity.QMember.member;
 import static com.drunkenlion.alcoholfriday.domain.product.entity.QProduct.product;
-import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurant.restaurant;
+import static com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.QRestaurant.restaurant;
 
 @RequiredArgsConstructor
 public class RestaurantOrderRepositoryImpl implements RestaurantOrderRepositoryCustom {

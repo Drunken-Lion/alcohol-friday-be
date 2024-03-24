@@ -1,4 +1,5 @@
 package com.drunkenlion.alcoholfriday.domain.product.application;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.annotation.Transactional;
+
 @ExtendWith(MockitoExtension.class)
 @Transactional
 @DisplayName("[ProductServiceTest] 제품 Service Test")
