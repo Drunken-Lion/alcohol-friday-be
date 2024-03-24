@@ -3,6 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -27,15 +28,15 @@ public class RestaurantOrderRepositoryImpl implements RestaurantOrderRepositoryC
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<RestaurantOrder> findRestaurantOrdersByOwner(Member ownerMember, Pageable pageable) {
+    public Page<RestaurantOrder> findRestaurantOrdersByOwner(Member ownerMember, Restaurant ownerRestaurant, Pageable pageable) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         booleanBuilder.and(restaurantOrder.member.eq(ownerMember))
+                .and(restaurantOrder.restaurant.eq(ownerRestaurant))
                 .and(restaurantOrder.deletedAt.isNull());
 
         List<RestaurantOrder> restaurantOrders = jpaQueryFactory
-                .select(restaurantOrder)
-                .from(restaurantOrder)
+                .selectFrom(restaurantOrder)
                 .leftJoin(restaurantOrder.member, member).fetchJoin()
                 .leftJoin(restaurantOrder.restaurant, restaurant).fetchJoin()
                 .leftJoin(restaurantOrder.details, restaurantOrderDetail).fetchJoin()

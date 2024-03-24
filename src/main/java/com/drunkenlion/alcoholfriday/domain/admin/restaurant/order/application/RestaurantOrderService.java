@@ -5,5 +5,5 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import org.springframework.data.domain.Page;
 
 public interface RestaurantOrderService {
-    Page<OwnerRestaurantOrderListResponse> getRestaurantOrdersByOwner(Member member, int page, int size);
+    Page<OwnerRestaurantOrderListResponse> getRestaurantOrdersByOwner(Member member, Long restaurantId, int page, int size);
 }

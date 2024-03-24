@@ -63,6 +63,7 @@ public class RestaurantOrderServiceTest {
     private FileService fileService;
 
     // Restaurant
+    private Long restaurantId = 1L;
     private String businessName = "레스쁘아";
 
     // Product
@@ -111,7 +112,7 @@ public class RestaurantOrderServiceTest {
     @DisplayName("사장의 발주 내역 조회")
     public void getRestaurantOrderByOwnerTest() {
         // given
-        when(restaurantOrderRepository.findRestaurantOrdersByOwner(any(), any(Pageable.class)))
+        when(restaurantOrderRepository.findRestaurantOrdersByOwner(any(), any(), any(Pageable.class)))
                 .thenReturn(getRestaurantOrders());
 
         when(restaurantOrderRefundRepository.findRefundByRestaurantOrderId(any()))
@@ -121,7 +122,7 @@ public class RestaurantOrderServiceTest {
 
         // when
         Page<OwnerRestaurantOrderListResponse> orders =
-                restaurantOrderService.getRestaurantOrdersByOwner(getOwner(), page, size);
+                restaurantOrderService.getRestaurantOrdersByOwner(getOwner(), restaurantId, page, size);
 
         // then
         List<OwnerRestaurantOrderListResponse> content = orders.getContent();
@@ -195,7 +196,7 @@ public class RestaurantOrderServiceTest {
     private Restaurant getRestaurant() {
         Member owner = getOwner();
         return Restaurant.builder()
-                .id(1L)
+                .id(restaurantId)
                 .member(owner)
                 .category("음식점")
                 .name("레스쁘아")

@@ -12,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,17 +22,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class RestaurantOrderController {
     private final RestaurantOrderService restaurantOrderService;
 
-    @Operation(summary = "발주 내역 조회 (사업자)", description = "해당 사업자의 모든 발주 내역조회")
-    @GetMapping("restaurant-orders/owner")
+    @Operation(summary = "발주 내역 조회 (사업자)", description = "해당 레스토랑의 발주 내역 조회")
+    @GetMapping("restaurant-orders/{id}/owner")
     public ResponseEntity<PageResponse<OwnerRestaurantOrderListResponse>> getRestaurantOrdersByOwner(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("id") Long restaurantId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
 
         RestaurantOrderOwnerValidator.validateOwner(userPrincipal.getMember());
 
         Page<OwnerRestaurantOrderListResponse> pages =
-                restaurantOrderService.getRestaurantOrdersByOwner(userPrincipal.getMember(), page, size);
+                restaurantOrderService.getRestaurantOrdersByOwner(userPrincipal.getMember(), restaurantId, page, size);
 
         PageResponse<OwnerRestaurantOrderListResponse> pageResponse = PageResponse.of(pages);
 

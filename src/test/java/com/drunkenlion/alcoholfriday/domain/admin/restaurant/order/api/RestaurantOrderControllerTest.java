@@ -328,9 +328,11 @@ public class RestaurantOrderControllerTest {
     @DisplayName("사장의 발주 내역 조회")
     @WithAccount(email = EMAIL, role = MemberRole.OWNER)
     void getRestaurantOrdersByOwnerTest() throws Exception {
+        Restaurant restaurant = restaurantRepository.findAll().get(0);
+
         // when
         ResultActions resultActions = mvc
-                .perform(get("/v1/admin/restaurant-orders/owner")
+                .perform(get("/v1/admin/restaurant-orders/" + restaurant.getId() + "/owner")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
 
