@@ -56,9 +56,9 @@ class ItemServiceTest {
     // test를 위한 임의 변수
     private final Long itemId1 = 1L;
     private final String firstName = "식품";
-    private final String lastName = "탁주";
-    private final String productName = "test data";
-    private final String itemName = "test ddaattaa";
+    private final String lastName = "탁주/막걸리";
+    private final String productName = "1000억 유산균막걸리";
+    private final String itemName = "1000억 유산균막걸리 3개입";
     private final BigDecimal price = new BigDecimal(50000);
     private final String info = "이 상품은 테스트 상품입니다.";
     private final Long quantity = 10L;
@@ -75,9 +75,9 @@ class ItemServiceTest {
     // Item2
     private final Long itemId2 = 2L;
     private final String firstName2 = "식품";
-    private final String lastName2 = "청주";
-    private final String productName2 = "test data2";
-    private final String itemName2 = "test ddaattaa";
+    private final String lastName2 = "약주/청주";
+    private final String productName2 = "감자술 13도";
+    private final String itemName2 = "감자술 13도 3개입";
     private final BigDecimal price2 = new BigDecimal(100_000);
     private final String info2 = "이 상품은 테스트 상품2 입니다.";
     private final Long quantity2 = 10L;
@@ -142,9 +142,8 @@ class ItemServiceTest {
         // given
         Mockito.when(this.itemRepository.search(any(), any(), any())).thenReturn(this.getSearch());
 
-        List<String> list = new ArrayList<>();
-        list.add("type");
-        list.add("name");
+        List<String> categories = new ArrayList<>();
+        categories.add("탁주/막걸리");
 
         List<Review> reviewList = new ArrayList<>();
         reviewList.add(getDataReview());
@@ -152,7 +151,7 @@ class ItemServiceTest {
         Mockito.when((this.reviewRepository.findAllByItemIdAndDeletedAtIsNull(itemId1))).thenReturn(reviewList);
 
         // when
-        Page<SearchItemResponse> search = this.itemService.search(10, "탁주", list);
+        Page<SearchItemResponse> search = this.itemService.search(0, 10, "1000억 유산균막걸리", categories);
         // then
         List<SearchItemResponse> content = search.getContent();
 

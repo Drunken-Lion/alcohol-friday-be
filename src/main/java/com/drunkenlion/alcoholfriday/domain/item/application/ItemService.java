@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface ItemService {
-    Page<SearchItemResponse> search(Integer size, String keyword, List<String> keywordType);
+    Page<SearchItemResponse> search(int page, Integer size, String keyword, List<String> keywordType);
     FindItemResponse get(Long id);
 
     Page<ItemReviewResponse> getReviews(Long id, int page, int size);

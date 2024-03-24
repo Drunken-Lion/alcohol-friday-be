@@ -67,6 +67,14 @@ public class SecurityConfig {
                                 MemberRole.ADMIN.getRole(),
                                 MemberRole.SUPER_VISOR.getRole())
 
+                        // 관리자 - 매장 발주 관리 (Admin & StoreManager)
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-orders")
+                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
+
+                        // 관리자 - 매장 발주 관리 (Owner)
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-orders/owner")
+                        .hasRole(MemberRole.OWNER.getRole())
+
                         // 관리자 - 매장 관리
                         .requestMatchers(HttpMethod.POST, "/v1/admin/restaurants")
                         .hasAnyRole(MemberRole.ADMIN.getRole())
