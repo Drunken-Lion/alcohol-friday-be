@@ -4,8 +4,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -14,7 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.application.RestaurantOrderCartServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartDeleteRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartSaveRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartUpdateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
@@ -220,6 +221,219 @@ class RestaurantOrderCartControllerTest {
                 .andExpect(status().is4xxClientError())
                 .andExpect(handler().handlerType(RestaurantOrderCartController.class))
                 .andExpect(handler().methodName("addOwnerCart"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.message", notNullValue()))
+        ;
+    }
+
+    @Test
+    @DisplayName("Owner는 장바구니 수정이 가능하다.")
+    @WithAccount(role = MemberRole.OWNER)
+    public void t5() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
+
+        Maker maker = makerRepository.save(Maker.builder()
+                .name("테스트")
+                .build());
+
+        Product product = productRepository.save(Product.builder()
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build());
+
+        Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
+                .member(member)
+                .build());
+
+        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.save(RestaurantOrderCart.builder()
+                .member(member)
+                .restaurant(restaurant)
+                .build());
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
+                .product(product)
+                .quantity(10L)
+                .restaurantOrderCart(restaurantOrderCart)
+                .build());
+
+        String request = JsonConvertor.build(RestaurantOrderCartUpdateRequest.builder()
+                .productId(product.getId())
+                .quantity(1L)
+                .build());
+
+        ResultActions actions = mvc.perform(put("/v1/admin/restaurant-orders-carts/"+ restaurantOrderCartDetail.getId()+"/owner")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+                .content(request)
+        ).andDo(print());
+
+        actions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantOrderCartController.class))
+                .andExpect(handler().methodName("updateOwnerCart"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.makerName", notNullValue()))
+                .andExpect(jsonPath("$.price", notNullValue()))
+                .andExpect(jsonPath("$.ableQuantity", notNullValue()))
+                .andExpect(jsonPath("$.quantity", notNullValue()))
+        ;
+    }
+
+    @Test
+    @DisplayName("Owner가 아니면 수량 수정이 불가하다.")
+    @WithAccount(role = MemberRole.MEMBER)
+    public void t6() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
+
+        Maker maker = makerRepository.save(Maker.builder()
+                .name("테스트")
+                .build());
+
+        Product product = productRepository.save(Product.builder()
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build());
+
+        Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
+                .member(member)
+                .build());
+
+        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.save(RestaurantOrderCart.builder()
+                .member(member)
+                .restaurant(restaurant)
+                .build());
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
+                .product(product)
+                .quantity(10L)
+                .restaurantOrderCart(restaurantOrderCart)
+                .build());
+
+        String request = JsonConvertor.build(RestaurantOrderCartUpdateRequest.builder()
+                .productId(product.getId())
+                .quantity(1L)
+                .build());
+
+        ResultActions actions = mvc.perform(put("/v1/admin/restaurant-orders-carts/"+ restaurantOrderCartDetail.getId()+"/owner")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+                .content(request)
+        ).andDo(print());
+
+        actions
+                .andExpect(status().isForbidden())
+                .andExpect(handler().handlerType(RestaurantOrderCartController.class))
+                .andExpect(handler().methodName("updateOwnerCart"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.message", notNullValue()))
+        ;
+    }
+
+    @Test
+    @DisplayName("입력한 수량이 0 이하면 수정이 불가하다.")
+    @WithAccount(role = MemberRole.OWNER)
+    public void t7() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
+
+        Maker maker = makerRepository.save(Maker.builder()
+                .name("테스트")
+                .build());
+
+        Product product = productRepository.save(Product.builder()
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build());
+
+        Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
+                .member(member)
+                .build());
+
+        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.save(RestaurantOrderCart.builder()
+                .member(member)
+                .restaurant(restaurant)
+                .build());
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
+                .product(product)
+                .quantity(10L)
+                .restaurantOrderCart(restaurantOrderCart)
+                .build());
+
+        String request = JsonConvertor.build(RestaurantOrderCartUpdateRequest.builder()
+                .productId(product.getId())
+                .quantity(-1L)
+                .build());
+
+        ResultActions actions = mvc.perform(put("/v1/admin/restaurant-orders-carts/"+ restaurantOrderCartDetail.getId()+"/owner")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+                .content(request)
+        ).andDo(print());
+
+        actions
+                .andExpect(status().isBadRequest())
+                .andExpect(handler().handlerType(RestaurantOrderCartController.class))
+                .andExpect(handler().methodName("updateOwnerCart"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.message", notNullValue()))
+        ;
+    }
+
+    @Test
+    @DisplayName("입력한 수량이 재고 수량 이상이면 수정이 불가하다.")
+    @WithAccount(role = MemberRole.OWNER)
+    public void t8() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
+
+        Maker maker = makerRepository.save(Maker.builder()
+                .name("테스트")
+                .build());
+
+        Product product = productRepository.save(Product.builder()
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build());
+
+        Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
+                .member(member)
+                .build());
+
+        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.save(RestaurantOrderCart.builder()
+                .member(member)
+                .restaurant(restaurant)
+                .build());
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
+                .product(product)
+                .quantity(10L)
+                .restaurantOrderCart(restaurantOrderCart)
+                .build());
+
+        String request = JsonConvertor.build(RestaurantOrderCartUpdateRequest.builder()
+                .productId(product.getId())
+                .quantity(1000L)
+                .build());
+
+        ResultActions actions = mvc.perform(put("/v1/admin/restaurant-orders-carts/"+ restaurantOrderCartDetail.getId()+"/owner")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+                .content(request)
+        ).andDo(print());
+
+        actions
+                .andExpect(status().isBadRequest())
+                .andExpect(handler().handlerType(RestaurantOrderCartController.class))
+                .andExpect(handler().methodName("updateOwnerCart"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.message", notNullValue()))
         ;

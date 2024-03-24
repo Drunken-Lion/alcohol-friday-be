@@ -1,12 +1,16 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.application;
 
+import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.QRestaurantOrderCartDetail.restaurantOrderCartDetail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartDeleteRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartSaveRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartUpdateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderCartSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
@@ -17,6 +21,7 @@ import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
@@ -28,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -203,6 +209,226 @@ class RestaurantOrderCartServiceTest {
 
         BusinessException businessException = assertThrows(BusinessException.class, () -> {
             restaurantOrderCartService.saveRestaurantOrderCart(request, member);
+        });
+
+        assertThat(businessException.getStatus()).isEqualTo(Fail.OUT_OF_PRODUCT_STOCK.getStatus());
+    }
+
+    @Test
+    @DisplayName("Owner는 장바구니 수정이 가능하다.")
+    public void t4() {
+        Maker maker = Maker.builder()
+                .id(1L)
+                .name("테스트")
+                .build();
+
+        Product product = Product.builder()
+                .id(1L)
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build();
+
+        Member member = Member.builder()
+                .id(1L)
+                .role(MemberRole.OWNER)
+                .build();
+
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
+                .member(member)
+                .build();
+
+        RestaurantOrderCart restaurantOrderCart = RestaurantOrderCart.builder()
+                .id(1L)
+                .member(member)
+                .restaurant(restaurant)
+                .build();
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = RestaurantOrderCartDetail.builder()
+                .id(1L)
+                .product(product)
+                .quantity(1L)
+                .restaurantOrderCart(restaurantOrderCart)
+                .build();
+
+        RestaurantOrderCartUpdateRequest request = RestaurantOrderCartUpdateRequest.builder()
+                .quantity(50L)
+                .productId(1L)
+                .build();
+
+        Mockito.when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        Mockito.when(restaurantOrderCartRepository.findById(restaurantOrderCart.getId())).thenReturn(Optional.of(restaurantOrderCart));
+        Mockito.when(restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)).thenReturn(Optional.ofNullable(restaurantOrderCartDetail));
+
+        RestaurantOrderCartSaveResponse response = restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
+
+        assertThat(response.getName()).isEqualTo(product.getName());
+        assertThat(response.getMakerName()).isEqualTo(maker.getName());
+        assertThat(response.getPrice()).isEqualTo(product.getDistributionPrice());
+        assertThat(response.getQuantity()).isEqualTo(restaurantOrderCartDetail.getQuantity());
+
+        assertThat(response.getId()).isEqualTo(product.getId());
+        assertThat(response.getQuantity()).isEqualTo(request.getQuantity());
+    }
+
+    @Test
+    @DisplayName("Owner가 아니면 수량 수정이 불가하다.")
+    public void t5() {
+        Maker maker = Maker.builder()
+                .id(1L)
+                .name("테스트")
+                .build();
+
+        Product product = Product.builder()
+                .id(1L)
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build();
+
+        Member member = Member.builder()
+                .id(1L)
+                .role(MemberRole.MEMBER)
+                .build();
+
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
+                .member(member)
+                .build();
+
+        RestaurantOrderCart restaurantOrderCart = RestaurantOrderCart.builder()
+                .id(1L)
+                .member(member)
+                .restaurant(restaurant)
+                .build();
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = RestaurantOrderCartDetail.builder()
+                .id(1L)
+                .product(product)
+                .quantity(1L)
+                .restaurantOrderCart(restaurantOrderCart)
+                .build();
+
+        RestaurantOrderCartUpdateRequest request = RestaurantOrderCartUpdateRequest.builder()
+                .quantity(50L)
+                .productId(1L)
+                .build();
+
+        BusinessException businessException = assertThrows(BusinessException.class, () -> {
+            restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
+        });
+
+        assertThat(businessException.getStatus()).isEqualTo(Fail.FORBIDDEN.getStatus());
+    }
+
+    @Test
+    @DisplayName("입력한 수량이 0 이하면 수정이 불가하다.")
+    public void t6() {
+        Maker maker = Maker.builder()
+                .id(1L)
+                .name("테스트")
+                .build();
+
+        Product product = Product.builder()
+                .id(1L)
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build();
+
+        Member member = Member.builder()
+                .id(1L)
+                .role(MemberRole.OWNER)
+                .build();
+
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
+                .member(member)
+                .build();
+
+        RestaurantOrderCart restaurantOrderCart = RestaurantOrderCart.builder()
+                .id(1L)
+                .member(member)
+                .restaurant(restaurant)
+                .build();
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = RestaurantOrderCartDetail.builder()
+                .id(1L)
+                .product(product)
+                .quantity(1L)
+                .restaurantOrderCart(restaurantOrderCart)
+                .build();
+
+        RestaurantOrderCartUpdateRequest request = RestaurantOrderCartUpdateRequest.builder()
+                .quantity(-2L)
+                .productId(1L)
+                .build();
+
+        Mockito.when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        Mockito.when(restaurantOrderCartRepository.findById(restaurantOrderCart.getId())).thenReturn(Optional.of(restaurantOrderCart));
+        Mockito.when(restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)).thenReturn(Optional.ofNullable(restaurantOrderCartDetail));
+
+        BusinessException businessException = assertThrows(BusinessException.class, () -> {
+            restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
+        });
+
+        assertThat(businessException.getStatus()).isEqualTo(Fail.INVALID_INPUT_PRODUCT_QUANTITY.getStatus());
+    }
+
+    @Test
+    @DisplayName("입력한 수량이 재고 수량 이상이면 수정이 불가하다.")
+    public void t7() {
+        Maker maker = Maker.builder()
+                .id(1L)
+                .name("테스트")
+                .build();
+
+        Product product = Product.builder()
+                .id(1L)
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build();
+
+        Member member = Member.builder()
+                .id(1L)
+                .role(MemberRole.OWNER)
+                .build();
+
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
+                .member(member)
+                .build();
+
+        RestaurantOrderCart restaurantOrderCart = RestaurantOrderCart.builder()
+                .id(1L)
+                .member(member)
+                .restaurant(restaurant)
+                .build();
+
+        RestaurantOrderCartDetail restaurantOrderCartDetail = RestaurantOrderCartDetail.builder()
+                .id(1L)
+                .product(product)
+                .quantity(1L)
+                .restaurantOrderCart(restaurantOrderCart)
+                .build();
+
+        RestaurantOrderCartUpdateRequest request = RestaurantOrderCartUpdateRequest.builder()
+                .quantity(1000L)
+                .productId(1L)
+                .build();
+
+        Mockito.when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        Mockito.when(restaurantOrderCartRepository.findById(restaurantOrderCart.getId())).thenReturn(Optional.of(restaurantOrderCart));
+        Mockito.when(restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)).thenReturn(Optional.ofNullable(restaurantOrderCartDetail));
+
+        BusinessException businessException = assertThrows(BusinessException.class, () -> {
+            restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
         });
 
         assertThat(businessException.getStatus()).isEqualTo(Fail.OUT_OF_PRODUCT_STOCK.getStatus());
