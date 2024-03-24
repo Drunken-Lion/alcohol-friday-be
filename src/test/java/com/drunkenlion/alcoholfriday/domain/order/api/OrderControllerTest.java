@@ -14,6 +14,10 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
+import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
@@ -50,7 +54,9 @@ class OrderControllerTest {
 
     private Long itemId; // 아이템의 ID를 저장할 변수
     private Long itemId2;
+    private Long orderId; // 주문의 ID를 저장할 변수
     public static final String EMAIL = "test@example.com";
+    public static final String EMAIL2 = "test2@example.com";
 
     @Autowired
     private ItemRepository itemRepository;
@@ -66,6 +72,10 @@ class OrderControllerTest {
     private MemberRepository memberRepository;
     @Autowired
     private AddressRepository addressRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
 
     @BeforeEach
     @Transactional
@@ -183,6 +193,45 @@ class OrderControllerTest {
                 .request("부재시 문앞에 놓아주세요.")
                 .build();
         addressRepository.save(address);
+
+        // 주문 등록
+        Order order =
+                orderRepository.save(Order.builder()
+                        .orderNo("240314-221628-987501-1")
+                        .orderStatus(OrderStatus.PAYMENT_COMPLETED)
+                        .price(BigDecimal.valueOf(220000L))
+                        .deliveryPrice(BigDecimal.valueOf(2500L))
+                        .totalPrice(BigDecimal.valueOf(225000L))
+                        .recipient("테스트1")
+                        .phone(1012345678L)
+                        .address("서울특별시 마포구 연남동")
+                        .addressDetail("123-12")
+                        .description("부재시 연락주세요.")
+                        .postcode("123123")
+                        .member(member)
+                        .build());
+        orderId = order.getId();
+
+        OrderDetail orderDetail =
+                orderDetailRepository.save(
+                        OrderDetail.builder()
+                                .itemPrice(item.getPrice())
+                                .quantity(2L)
+                                .totalPrice(BigDecimal.valueOf(100000))
+                                .build());
+        orderDetail.addItem(item);
+        orderDetail.addOrder(order);
+
+        OrderDetail orderDetail2 =
+                orderDetailRepository.save(
+                        OrderDetail.builder()
+                                .itemPrice(item2.getPrice())
+                                .quantity(1L)
+                                .totalPrice(BigDecimal.valueOf(20000))
+                                .build()
+                );
+        orderDetail2.addItem(item2);
+        orderDetail2.addOrder(order);
     }
 
     @AfterEach
@@ -195,6 +244,8 @@ class OrderControllerTest {
         categoryClassRepository.deleteAll();
         memberRepository.deleteAll();
         addressRepository.deleteAll();
+        orderRepository.deleteAll();
+        orderDetailRepository.deleteAll();
     }
 
 
@@ -378,5 +429,97 @@ class OrderControllerTest {
                 .andExpect(handler().handlerType(OrderController.class))
                 .andExpect(handler().methodName("receive"))
                 .andExpect(jsonPath("$.message").value("등록된 주소가 없습니다."));
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 배송지 업데이트")
+    @WithAccount
+    void saveOrderAddress() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/orders/" + orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "orderNo": "240314-221628-987501-1",
+                                  "recipient" : "홍길동",
+                                  "phone" : "1012345678",
+                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
+                                  "addressDetail" : "서울특별시청 103호",
+                                  "description" : "부재시 문앞에 놓아주세요.",
+                                  "postcode" : "04524"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("saveOrderAddress"));
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 배송지 업데이트 - 주문 번호가 맞지 않는 경우")
+    @WithAccount
+    void saveOrderAddress_invalidOrderNo() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/orders/" + orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "orderNo": "240314-1",
+                                  "recipient" : "홍길동",
+                                  "phone" : "1012345678",
+                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
+                                  "addressDetail" : "서울특별시청 103호",
+                                  "description" : "부재시 문앞에 놓아주세요.",
+                                  "postcode" : "04524"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("saveOrderAddress"))
+                .andExpect(jsonPath("$.message").value("존재하지 않는 주문입니다."));
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 배송지 업데이트 - 주문한 회원이 아닐 경우")
+    @WithAccount(email = EMAIL2)
+    void saveOrderAddress_invalidMember() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/orders/" + orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "orderNo": "240314-221628-987501-1",
+                                  "recipient" : "홍길동",
+                                  "phone" : "1012345678",
+                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
+                                  "addressDetail" : "서울특별시청 103호",
+                                  "description" : "부재시 문앞에 놓아주세요.",
+                                  "postcode" : "04524"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isForbidden())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("saveOrderAddress"))
+                .andExpect(jsonPath("$.message").value("권한이 없는 접근입니다."));
     }
 }
