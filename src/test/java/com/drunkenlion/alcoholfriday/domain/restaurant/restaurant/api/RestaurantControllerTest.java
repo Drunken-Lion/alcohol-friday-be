@@ -1,5 +1,13 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.api;
 
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
@@ -10,20 +18,20 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.api.RestaurantController;
-import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.application.RestaurantServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response.RestaurantNearbyResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
-import com.drunkenlion.alcoholfriday.global.file.application.FileService;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.ItemType;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,35 +39,12 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -172,16 +157,23 @@ public class RestaurantControllerTest {
 
         Item item = Item.builder()
                 .name("테스트")
+                .type(ItemType.REGULAR)
+                .price(BigDecimal.valueOf(100000))
+                .info("테스트 상품")
                 .build();
-
         itemRepository.save(item);
 
         ItemProduct itemProduct = ItemProduct.builder()
-                .product(product1)
                 .item(item)
+                .quantity(100L)
                 .build();
-
         itemProductRepository.save(itemProduct);
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product1);
+
+        itemRepository.save(item);
+        itemProductRepository.save(itemProduct);
+        productRepository.save(product1);
     }
 
     @AfterEach
@@ -241,11 +233,39 @@ public class RestaurantControllerTest {
     @Test
     @DisplayName("상품에 포함된 제품을 사용자 주변 5km 내 취급 매장 조회")
     public void t1() throws Exception {
+        Product product1 = Product.builder()
+                .name(dongdongju)
+                .price(BigDecimal.valueOf(0L))
+                .quantity(0L)
+                .alcohol(100D)
+                .build();
+        productRepository.save(product1);
+
+        Item item = Item.builder()
+                .name("테스트")
+                .type(ItemType.REGULAR)
+                .price(BigDecimal.valueOf(100000))
+                .info("테스트 상품")
+                .build();
+        itemRepository.save(item);
+
+        ItemProduct itemProduct = ItemProduct.builder()
+                .item(item)
+                .quantity(100L)
+                .build();
+        itemProductRepository.save(itemProduct);
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product1);
+
+        itemRepository.save(item);
+        itemProductRepository.save(itemProduct);
+        productRepository.save(product1);
+
         ResultActions actions = mvc
                 .perform(get("/v1/restaurants/nearby")
                         .param("userLocationLatitude", "37.552250")
                         .param("userLocationLongitude", "126.845024")
-                        .param("itemId", "1")
+                        .param("itemId", String.valueOf(item.getId()))
                         .param("page", "0")
                         .param("size", "5"))
                 .andDo(print());
