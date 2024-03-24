@@ -105,17 +105,9 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
                                                                      Member member) {
         RestaurantOrderCartValidator.checkedMemberRoleIsOwner(member);
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
+        RestaurantOrderCartDetail restaurantOrderCartDetail = findRestaurantOrderCartDetail(id, request.getProductId());
 
-        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
-
-        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(
-                        restaurantOrderCart, product)
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
-
-        RestaurantOrderCartValidator.checkedQuantity(product, request.getQuantity());
+        RestaurantOrderCartValidator.checkedQuantity(restaurantOrderCartDetail.getProduct(), request.getQuantity());
         RestaurantOrderCartValidator.minimumQuantity(request.getQuantity());
 
         restaurantOrderCartDetail.updateQuantity(request.getQuantity());
@@ -133,29 +125,21 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
                                                                      Member member) {
         RestaurantOrderCartValidator.checkedMemberRoleIsOwner(member);
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
+        RestaurantOrderCartDetail restaurantOrderCartDetail = findRestaurantOrderCartDetail(id, request.getProductId());
 
-        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
-
-        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(
-                        restaurantOrderCart, product)
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
-
-        restaurantOrderCartDetail.deleteQuantity(product.getQuantity());
+        restaurantOrderCartDetail.deleteQuantity(restaurantOrderCartDetail.getQuantity());
 
         return RestaurantOrderCartSaveResponse.of(restaurantOrderCartDetail);
     }
 
-//    private RestaurantOrderCartDetail findRestaurantOrderCartDetail(Long cartId, Long productId) {
-//        Product product = productRepository.findById(productId)
-//                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
-//
-//        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(cartId)
-//                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
-//
-//        return restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
-//                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
-//    }
+    private RestaurantOrderCartDetail findRestaurantOrderCartDetail(Long cartId, Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
+
+        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(cartId)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+
+        return restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+    }
 }
