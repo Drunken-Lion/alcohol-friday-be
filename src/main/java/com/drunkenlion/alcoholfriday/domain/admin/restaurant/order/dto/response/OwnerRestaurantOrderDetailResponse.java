@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "레스토랑 발주 제품 정보")
+@Schema(description = "레스토랑 발주 제품 정보 (Owner)")
 public class OwnerRestaurantOrderDetailResponse {
     @Schema(description = "발주 제품 고유아이디")
     private Long id;

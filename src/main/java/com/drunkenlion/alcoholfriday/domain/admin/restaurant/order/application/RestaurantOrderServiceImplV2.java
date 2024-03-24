@@ -12,7 +12,6 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderOwnerValidator;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderValidator;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
@@ -65,7 +64,7 @@ public class RestaurantOrderServiceImplV2 {
     @Transactional
     public RestaurantOrderSaveCodeResponse getSaveCode(RestaurantOrderSaveCodeRequest request,
                                                        Member member) {
-        RestaurantOrderOwnerValidator.validateOwner(member);
+        RestaurantOrderValidator.validateOwner(member);
 
         Restaurant restaurant =
                 restaurantRepository.findById(request.getRestaurantId())
@@ -126,12 +125,12 @@ public class RestaurantOrderServiceImplV2 {
                                                              RestaurantOrderSaveRequest request,
                                                              Member member) {
         // Order 수정 로직
-        RestaurantOrderOwnerValidator.validateOwner(member);
+        RestaurantOrderValidator.validateOwner(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderAddInfo(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_NUMBER));
 
-        RestaurantOrderOwnerValidator.compareEntityMemberToMember(restaurantOrder, member);
+        RestaurantOrderValidator.compareEntityMemberToMember(restaurantOrder, member);
 
         restaurantOrder.updateOrders(request.getDescription(), request.getRecipient(), request.getPhone());
 
@@ -167,12 +166,12 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse adminOrderApproval(Long id, Member member) {
-        RestaurantOrderOwnerValidator.validateAdmin(member);
+        RestaurantOrderValidator.validateAdmin(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
 
-        RestaurantOrderOwnerValidator.restaurantOrderStatusIsApproval(restaurantOrder);
+        RestaurantOrderValidator.restaurantOrderStatusIsApproval(restaurantOrder);
 
         restaurantOrder.updateStatus(RestaurantOrderStatus.COMPLETED_APPROVAL);
         restaurantOrderRepository.save(restaurantOrder);
@@ -186,12 +185,12 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse adminOrderRejectedApproval(Long id, Member member) {
-        RestaurantOrderOwnerValidator.validateAdmin(member);
+        RestaurantOrderValidator.validateAdmin(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
 
-        RestaurantOrderOwnerValidator.restaurantOrderStatusIsApproval(restaurantOrder);
+        RestaurantOrderValidator.restaurantOrderStatusIsApproval(restaurantOrder);
 
         restaurantOrder.updateStatus(RestaurantOrderStatus.REJECTED_APPROVAL);
         restaurantOrderRepository.save(restaurantOrder);
@@ -212,7 +211,7 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse ownerOrderCancel(Long id, Member member) {
-        RestaurantOrderOwnerValidator.validateOwner(member);
+        RestaurantOrderValidator.validateOwner(member);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
