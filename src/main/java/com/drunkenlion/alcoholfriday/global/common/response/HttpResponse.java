@@ -102,6 +102,7 @@ public class HttpResponse {
         OUT_OF_ITEM_STOCK(HttpStatus.CONFLICT, "현재 상품에 재고가 없습니다."),
         RESTAURANT_REFUND_FAIL(HttpStatus.CONFLICT, "매장 환불 조건에 부합하지 않습니다."),
         RESTAURANT_REFUND_CANCEL_FAIL(HttpStatus.CONFLICT, "매장 환불 취소 조건에 부합하지 않습니다."),
+        OUT_OF_PRODUCT_STOCK(HttpStatus.CONFLICT, "현재 제품에 재고보다 많은 양을 추가할 수 없습니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");
