@@ -42,7 +42,7 @@ public class OrderController {
 
     @Operation(summary = "주문 배송지 저장", description = "결제하기 눌렀을 때 주문에 해당 하는 주소 저장 (결제 페이지)")
     @PostMapping("{id}")
-    public ResponseEntity<Void> saveOrderAddress(
+    public ResponseEntity<Void> updateOrderAddress(
             @PathVariable("id") Long orderId,
             @RequestBody OrderAddressRequest orderAddressRequest,
             @AuthenticationPrincipal UserPrincipal userPrincipal
