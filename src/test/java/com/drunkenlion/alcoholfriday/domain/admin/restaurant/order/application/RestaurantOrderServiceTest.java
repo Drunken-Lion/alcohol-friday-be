@@ -3,6 +3,8 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
@@ -68,9 +70,9 @@ public class RestaurantOrderServiceTest {
     // Product
     private Long productId1 = 1L;
     private String productName1 = "1000억 막걸리 프리바이오";
-
     private Long productId2 = 2L;
     private String productName2 = "1000억 유산균막걸리";
+    private String makerName = "(주)국순당";
 
     // RestaurantOrder
     private Long orderId = 1L;
@@ -108,8 +110,54 @@ public class RestaurantOrderServiceTest {
     private final int size = 20;
 
     @Test
+    @DisplayName("모든 발주 내역 조회")
+    public void getRestaurantOrdersTest() {
+        // given
+        when(restaurantOrderRepository.findAllRestaurantOrders(any(Pageable.class)))
+                .thenReturn(getRestaurantOrders());
+
+        when(fileService.findOne(any())).thenReturn(null);
+
+        // when
+        Page<RestaurantOrderListResponse> orders =
+                restaurantOrderService.getRestaurantOrdersByAdminOrStoreManager(getAdmin(), page, size);
+
+        // then
+        List<RestaurantOrderListResponse> content = orders.getContent();
+
+        assertThat(content).isInstanceOf(List.class);
+        assertThat(content.size()).isEqualTo(1);
+        assertThat(content.get(0).getId()).isEqualTo(orderId);
+        assertThat(content.get(0).getOrderStatus()).isEqualTo(orderStatus.getName());
+        assertThat(content.get(0).getCreatedAt()).isEqualTo(createdAt);
+        assertThat(content.get(0).getBusinessName()).isEqualTo(businessName);
+        assertThat(content.get(0).getAddress()).isEqualTo(orderAddress);
+        assertThat(content.get(0).getAddressDetail()).isEqualTo(orderAddressDetail);
+        assertThat(content.get(0).getPostcode()).isEqualTo(orderPostcode);
+        assertThat(content.get(0).getDescription()).isEqualTo(orderDescription);
+
+        List<RestaurantOrderDetailResponse> details = content.get(0).getDetails();
+
+        assertThat(details).isInstanceOf(List.class);
+        assertThat(details.size()).isEqualTo(2);
+        assertThat(details.get(0).getId()).isEqualTo(productId1);
+        assertThat(details.get(0).getName()).isEqualTo(productName1);
+        assertThat(details.get(0).getMakerName()).isEqualTo(makerName);
+        assertThat(details.get(0).getPrice()).isEqualTo(orderDetailPrice1);
+        assertThat(details.get(0).getOrderQuantity()).isEqualTo(orderDetailQuantity1);
+        assertThat(details.get(0).getFile()).isEqualTo(null);
+
+        assertThat(details.get(1).getId()).isEqualTo(productId2);
+        assertThat(details.get(1).getName()).isEqualTo(productName2);
+        assertThat(details.get(1).getMakerName()).isEqualTo(makerName);
+        assertThat(details.get(1).getPrice()).isEqualTo(orderDetailPrice2);
+        assertThat(details.get(1).getOrderQuantity()).isEqualTo(orderDetailQuantity2);
+        assertThat(details.get(1).getFile()).isEqualTo(null);
+    }
+
+    @Test
     @DisplayName("사장의 발주 내역 조회")
-    public void getRestaurantOrderByOwnerTest() {
+    public void getRestaurantOrdersByOwnerTest() {
         // given
         when(restaurantOrderRepository.findRestaurantOrdersByOwner(any(), any(Pageable.class)))
                 .thenReturn(getRestaurantOrders());
@@ -175,10 +223,27 @@ public class RestaurantOrderServiceTest {
         return List.of(refund);
     }
 
+    private Member getAdmin() {
+        return Member.builder()
+                .id(1L)
+                .email("admin1@test.com")
+                .provider(ProviderType.KAKAO)
+                .name("admin1")
+                .nickname("admin1")
+                .role(MemberRole.ADMIN)
+                .phone(1012345687L)
+                .certifyAt(LocalDate.now())
+                .agreedToServiceUse(true)
+                .agreedToServicePolicy(true)
+                .agreedToServicePolicyUse(true)
+                .createdAt(createdAt)
+                .build();
+    }
+
     private Member getOwner() {
         return Member.builder()
                 .id(1L)
-                .email("owner1@af.shop")
+                .email("owner1@test.com")
                 .provider(ProviderType.KAKAO)
                 .name("owner1")
                 .nickname("owner1")
@@ -272,7 +337,10 @@ public class RestaurantOrderServiceTest {
     private Maker getMaker() {
         return Maker.builder()
                 .id(1L)
-                .name("(주)국순당").address("강원도 횡성군 둔내면 강변로 975").region("강원도 횡성군").detail("101")
+                .name(makerName)
+                .address("강원도 횡성군 둔내면 강변로 975")
+                .region("강원도 횡성군")
+                .detail("101")
                 .createdAt(createdAt)
                 .build();
     }
