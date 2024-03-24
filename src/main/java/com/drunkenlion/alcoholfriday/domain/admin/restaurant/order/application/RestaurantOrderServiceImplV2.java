@@ -5,8 +5,8 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.Restauran
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.RestaurantOrderSaveCodeRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.RestaurantOrderSaveRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantAdminOrderApprovalResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderResultResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveCodeResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
@@ -17,10 +17,10 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.Restaura
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.cart.dao.RestaurantOrderCartRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCart;
-import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCartDetail;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
@@ -128,7 +128,7 @@ public class RestaurantOrderServiceImplV2 {
         // Order 수정 로직
         RestaurantOrderOwnerValidator.validateOwner(member);
 
-        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderOwner(id)
+        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderAddInfo(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_NUMBER));
 
         RestaurantOrderOwnerValidator.compareEntityMemberToMember(restaurantOrder, member);
@@ -166,10 +166,10 @@ public class RestaurantOrderServiceImplV2 {
      * 발주 승인 (Admin)
      */
     @Transactional
-    public RestaurantAdminOrderApprovalResponse adminOrderApproval(Long id, Member member) {
+    public RestaurantOrderResultResponse adminOrderApproval(Long id, Member member) {
         RestaurantOrderOwnerValidator.validateAdmin(member);
 
-        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderAdmin(id)
+        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
 
         RestaurantOrderOwnerValidator.restaurantOrderStatusIsApproval(restaurantOrder);
@@ -178,24 +178,57 @@ public class RestaurantOrderServiceImplV2 {
         restaurantOrderRepository.save(restaurantOrder);
 
         orderCompleted(restaurantOrder);
-        return RestaurantAdminOrderApprovalResponse.of(restaurantOrder);
+        return RestaurantOrderResultResponse.of(restaurantOrder);
     }
 
     /**
      * 발주 승인 반려 (Admin)
      */
     @Transactional
-    public RestaurantAdminOrderApprovalResponse adminOrderRejectedApproval(Long id, Member member) {
+    public RestaurantOrderResultResponse adminOrderRejectedApproval(Long id, Member member) {
         RestaurantOrderOwnerValidator.validateAdmin(member);
 
-        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderAdmin(id)
+        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
 
         RestaurantOrderOwnerValidator.restaurantOrderStatusIsApproval(restaurantOrder);
 
         restaurantOrder.updateStatus(RestaurantOrderStatus.REJECTED_APPROVAL);
         restaurantOrderRepository.save(restaurantOrder);
-        return RestaurantAdminOrderApprovalResponse.of(restaurantOrder);
+
+        List<Product> products = new ArrayList<>();
+        for (RestaurantOrderDetail orderDetail : restaurantOrder.getDetails()) {
+            Product product = orderDetail.getProduct();
+            product.plusQuantity(orderDetail.getQuantity());
+            products.add(product);
+        }
+        productRepository.saveAll(products);
+
+        return RestaurantOrderResultResponse.of(restaurantOrder);
+    }
+
+    /**
+     * 발주 취소 (Owner)
+     */
+    @Transactional
+    public RestaurantOrderResultResponse ownerOrderCancel(Long id, Member member) {
+        RestaurantOrderOwnerValidator.validateOwner(member);
+
+        RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
+                .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
+
+        restaurantOrder.updateStatus(RestaurantOrderStatus.CANCELLED);
+        restaurantOrderRepository.save(restaurantOrder);
+
+        List<Product> products = new ArrayList<>();
+        for (RestaurantOrderDetail orderDetail : restaurantOrder.getDetails()) {
+            Product product = orderDetail.getProduct();
+            product.plusQuantity(orderDetail.getQuantity());
+            products.add(product);
+        }
+        productRepository.saveAll(products);
+
+        return RestaurantOrderResultResponse.of(restaurantOrder);
     }
 
     @Transactional

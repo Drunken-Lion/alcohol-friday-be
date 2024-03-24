@@ -11,9 +11,9 @@ import java.util.Optional;
 public interface RestaurantOrderRepositoryCustom {
     Page<RestaurantOrder> findRestaurantOrdersByOwner(Member member, Pageable pageable);
 
-    Optional<RestaurantOrder> findRestaurantOrderOwner(Long id);
-
-    Optional<RestaurantOrder> findRestaurantOrderAdmin(Long id);
+    Optional<RestaurantOrder> findRestaurantOrderAddInfo(Long id);
+    
+    Optional<RestaurantOrder> findRestaurantOrderWaitingApproval(Long id);
 
     List<RestaurantOrder> findOrderToDelete();
 }

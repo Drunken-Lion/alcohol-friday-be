@@ -59,7 +59,7 @@ public class RestaurantOrderRepositoryImpl implements RestaurantOrderRepositoryC
     }
 
     @Override
-    public Optional<RestaurantOrder> findRestaurantOrderOwner(Long id) {
+    public Optional<RestaurantOrder> findRestaurantOrderAddInfo(Long id) {
         BooleanExpression conditions =
                 restaurantOrder.id.eq(id)
                         .and(restaurantOrder.orderStatus.eq(RestaurantOrderStatus.ADD_INFO))
@@ -72,7 +72,7 @@ public class RestaurantOrderRepositoryImpl implements RestaurantOrderRepositoryC
     }
 
     @Override
-    public Optional<RestaurantOrder> findRestaurantOrderAdmin(Long id) {
+    public Optional<RestaurantOrder> findRestaurantOrderWaitingApproval(Long id) {
         BooleanExpression conditions =
                 restaurantOrder.id.eq(id)
                         .and(restaurantOrder.orderStatus.eq(RestaurantOrderStatus.WAITING_APPROVAL))

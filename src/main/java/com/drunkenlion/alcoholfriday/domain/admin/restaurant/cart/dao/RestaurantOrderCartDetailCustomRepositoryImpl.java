@@ -1,9 +1,9 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.cart.dao;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCart;
-import com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Optional;
 
-import static com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.QRestaurantOrderCart.restaurantOrderCart;
-import static com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity.QRestaurantOrderCartDetail.restaurantOrderCartDetail;
+import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.QRestaurantOrderCart.restaurantOrderCart;
+import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.QRestaurantOrderCartDetail.restaurantOrderCartDetail;
 import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurant.restaurant;
 
 @Slf4j

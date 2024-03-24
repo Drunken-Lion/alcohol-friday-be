@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.restaurant.cart.entity;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
