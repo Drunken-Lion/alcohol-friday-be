@@ -32,6 +32,7 @@ public class HttpResponse {
         INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "잘못된 입력값 입니다."),
         ADDRESS_LIMIT_OVER(HttpStatus.BAD_REQUEST, "주소는 3개까지 등록할 수 있습니다."),
         BAD_REQUEST_AMOUNT(HttpStatus.BAD_REQUEST, "잘못된 가격값 입니다."),
+        OUT_OF_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "현재 제품에 재고보다 많은 양을 추가할 수 없습니다."),
 
         // 401
         UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 접근입니다."),
@@ -102,7 +103,6 @@ public class HttpResponse {
         OUT_OF_ITEM_STOCK(HttpStatus.CONFLICT, "현재 상품에 재고가 없습니다."),
         RESTAURANT_REFUND_FAIL(HttpStatus.CONFLICT, "매장 환불 조건에 부합하지 않습니다."),
         RESTAURANT_REFUND_CANCEL_FAIL(HttpStatus.CONFLICT, "매장 환불 취소 조건에 부합하지 않습니다."),
-        OUT_OF_PRODUCT_STOCK(HttpStatus.CONFLICT, "현재 제품에 재고보다 많은 양을 추가할 수 없습니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");

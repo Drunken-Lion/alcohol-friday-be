@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderListResponse;
@@ -10,6 +11,8 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.Restau
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ import java.util.Map;
 public class RestaurantOrderServiceImpl implements RestaurantOrderService {
     private final RestaurantOrderRepository restaurantOrderRepository;
     private final RestaurantOrderRefundRepository restaurantOrderRefundRepository;
+    private final ProductRepository productRepository;
     private final FileService fileService;
 
     @Override
@@ -84,5 +88,16 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
 
             return OwnerRestaurantOrderListResponse.of(restaurantOrder, detailResponses);
         });
+    }
+
+    /**
+     * 발주를 위한 제품 목록
+     */
+    @Override
+    public Page<RestaurantOrderProductListResponse> getRestaurantOrderProducts(int page, int size, Member member) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> products = productRepository.findAll(pageable);
+
+        return products.map(product -> RestaurantOrderProductListResponse.of(product, fileService.findOne(product)));
     }
 }

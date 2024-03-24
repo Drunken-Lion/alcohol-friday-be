@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application.RestaurantOrderService;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderListResponse;
@@ -44,7 +45,7 @@ public class RestaurantOrderController {
     }
 
     @Operation(summary = "발주 내역 조회 (사업자)", description = "해당 사업자의 모든 발주 내역조회")
-    @GetMapping("owner")
+    @GetMapping("products")
     public ResponseEntity<PageResponse<OwnerRestaurantOrderListResponse>> getRestaurantOrdersByOwner(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -59,4 +60,15 @@ public class RestaurantOrderController {
 
         return ResponseEntity.ok().body(pageResponse);
     }
+
+    @GetMapping("owner")
+    @Operation(summary = "제품 목록 (사업자)", description = "발주를 위한 제품 목록")
+    public ResponseEntity<PageResponse<RestaurantOrderProductListResponse>> getRestaurantOrderProducts(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size,
+            @AuthenticationPrincipal UserPrincipal user) {
+        PageResponse<RestaurantOrderProductListResponse> response = PageResponse.of(restaurantOrderService.getRestaurantOrderProducts(page, size, user.getMember()));
+        return ResponseEntity.ok(response);
+    }
+
 }

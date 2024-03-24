@@ -5,8 +5,8 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.Restaurant
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartDeleteRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartUpdateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderCartListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderCartSaveResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.util.RestaurantOrderCartValidator;
@@ -31,20 +31,30 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartService {
     private final ProductRepository productRepository;
-    private final FileService fileService;
     private final RestaurantRepository restaurantRepository;
     private final RestaurantOrderCartRepository restaurantOrderCartRepository;
     private final RestaurantOrderCartDetailRepository restaurantOrderCartDetailRepository;
+    private final FileService fileService;
 
     /**
-     * 발주를 위한 제품 목록
+     * 장바구니 목록 조회
      */
     @Override
-    public Page<RestaurantOrderProductListResponse> getRestaurantOrderProducts(int page, int size, Member member) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Product> products = productRepository.findAll(pageable);
+    public Page<RestaurantOrderCartListResponse> findRestaurantCart(Long restaurantId, Member member, int page, int size) {
+        RestaurantOrderCartValidator.checkedMemberRoleIsOwner(member);
 
-        return products.map(product -> RestaurantOrderProductListResponse.of(product, fileService.findOne(product)));
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
+                .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT));
+
+        RestaurantOrderCartValidator.checkedMemberInRestaurant(restaurant, member);
+
+        restaurantOrderCartRepository.findRestaurantAndMember(restaurant, member)
+                .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RestaurantOrderCartDetail> findAll = restaurantOrderCartDetailRepository.findRestaurantAndMember(restaurant, member, pageable);
+
+        return findAll.map(cartDetail -> RestaurantOrderCartListResponse.of(cartDetail, fileService.findOne(cartDetail.getProduct())));
     }
 
     /**
@@ -52,14 +62,16 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
      */
     @Override
     @Transactional
-    public RestaurantOrderCartSaveResponse saveRestaurantOrderCart(RestaurantOrderCartSaveRequest request, Member member) {
+    public RestaurantOrderCartSaveResponse saveRestaurantOrderCart(RestaurantOrderCartSaveRequest request,
+                                                                   Member member) {
         RestaurantOrderCartValidator.checkedMemberRoleIsOwner(member);
 
         Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(request.getRestaurantId())
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
 
-        RestaurantOrderCart cart = restaurantOrderCartRepository.findRestaurantAndMember(restaurant, member).orElseGet(() ->
-                restaurantOrderCartRepository.save(RestaurantOrderCart.builder()
+        RestaurantOrderCart cart = restaurantOrderCartRepository.findRestaurantAndMember(restaurant, member)
+                .orElseGet(() ->
+                        restaurantOrderCartRepository.save(RestaurantOrderCart.builder()
                                 .member(member)
                                 .restaurant(restaurant)
                                 .build()));
@@ -69,11 +81,12 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
 
         RestaurantOrderCartValidator.checkedQuantity(product, request.getQuantity());
 
-        RestaurantOrderCartDetail cartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(cart, product).orElseGet(() ->
-                restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
-                        .product(product)
-                        .build())
-        );
+        RestaurantOrderCartDetail cartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(cart, product)
+                .orElseGet(() ->
+                        restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
+                                .product(product)
+                                .build())
+                );
 
         cartDetail.plusQuantity(request.getQuantity());
         cartDetail.addCart(cart);
@@ -96,7 +109,8 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
         RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
 
-        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(
+                        restaurantOrderCart, product)
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
 
         restaurantOrderCartDetail.updateQuantity(request.getQuantity());
@@ -118,7 +132,8 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
         RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
 
-        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(
+                        restaurantOrderCart, product)
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
 
         restaurantOrderCartDetail.deleteQuantity(product.getQuantity());
