@@ -40,9 +40,8 @@ public class RestaurantOrderCartController {
 
     @PostMapping("owner")
     @Operation(summary = "장바구니 추가 (Owner)", description = "제품 발주 장바구니 추가")
-    public ResponseEntity<RestaurantOrderCartSaveResponse> addOwnerCart(
-            @RequestBody RestaurantOrderCartSaveRequest request,
-            @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<RestaurantOrderCartSaveResponse> addOwnerCart(@RequestBody RestaurantOrderCartSaveRequest request,
+                                                                        @AuthenticationPrincipal UserPrincipal user) {
         RestaurantOrderCartSaveResponse response = restaurantOrderCartService.saveRestaurantOrderCart(request,
                 user.getMember());
         URI location = ServletUriComponentsBuilder
@@ -55,10 +54,9 @@ public class RestaurantOrderCartController {
 
     @PutMapping("{id}/owner")
     @Operation(summary = "장바구니 수량 변경 (Owner)", description = "제품 발주 장바구니 수량 변경")
-    public ResponseEntity<RestaurantOrderCartSaveResponse> updateOwnerCart(
-            @PathVariable("id") Long restaurantOrderCartId,
-            @RequestBody RestaurantOrderCartUpdateRequest request,
-            @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<RestaurantOrderCartSaveResponse> updateOwnerCart(@PathVariable("id") Long restaurantOrderCartId,
+                                                                           @RequestBody RestaurantOrderCartUpdateRequest request,
+                                                                           @AuthenticationPrincipal UserPrincipal user) {
         RestaurantOrderCartSaveResponse response = restaurantOrderCartService.updateRestaurantOrderCart(
                 restaurantOrderCartId, request, user.getMember());
         return ResponseEntity.ok(response);
@@ -66,12 +64,11 @@ public class RestaurantOrderCartController {
 
     @DeleteMapping("{id}/owner")
     @Operation(summary = "장바구니 삭제 (Owner)", description = "발주 장바구니 제품 삭제")
-    public ResponseEntity<RestaurantOrderCartSaveResponse> deleteOwnerCart(
-            @PathVariable("id") Long restaurantOrderCartId,
-            @RequestBody RestaurantOrderCartDeleteRequest request,
-            @AuthenticationPrincipal UserPrincipal user) {
-        RestaurantOrderCartSaveResponse response = restaurantOrderCartService.deleteRestaurantOrderCart(
+    public ResponseEntity<Void> deleteOwnerCart(@PathVariable("id") Long restaurantOrderCartId,
+                                                @RequestBody RestaurantOrderCartDeleteRequest request,
+                                                @AuthenticationPrincipal UserPrincipal user) {
+        restaurantOrderCartService.deleteRestaurantOrderCart(
                 restaurantOrderCartId, request, user.getMember());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 }
