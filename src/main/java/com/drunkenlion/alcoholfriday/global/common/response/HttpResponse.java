@@ -32,6 +32,7 @@ public class HttpResponse {
         INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "잘못된 입력값 입니다."),
         ADDRESS_LIMIT_OVER(HttpStatus.BAD_REQUEST, "주소는 3개까지 등록할 수 있습니다."),
         BAD_REQUEST_AMOUNT(HttpStatus.BAD_REQUEST, "잘못된 가격값 입니다."),
+        MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "필수 파라미터가 누락되었습니다."),
 
         // 401
         UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 접근입니다."),
@@ -63,6 +64,7 @@ public class HttpResponse {
         NOT_FOUND_PROVIDER(HttpStatus.NOT_FOUND, "지원하지 않는 로그인입니다."),
         NOT_FOUND_PROVIDER_NUMBER(HttpStatus.NOT_FOUND, "존재하지 않는 Provider Number"),
         NOT_FOUND_ADDRESSES(HttpStatus.NOT_FOUND, "등록된 주소가 없습니다."),
+        NOT_FOUND_PRIMARY_ADDRESSES(HttpStatus.NOT_FOUND, "등록된 대표 주소가 없습니다."),
         NOT_FOUND_ADDRESS(HttpStatus.NOT_FOUND, "존재하지 않는 주소입니다."),
         NOT_FOUND_NOTICE(HttpStatus.NOT_FOUND, "존재하지 않는 공지사항입니다."),
         NOT_FOUND_QUESTION(HttpStatus.NOT_FOUND, "존재하지 않는 문의입니다."),

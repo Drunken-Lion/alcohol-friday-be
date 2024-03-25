@@ -7,9 +7,14 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantValidator;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +33,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RestaurantOrderServiceImpl implements RestaurantOrderService {
+    private final RestaurantRepository restaurantRepository;
     private final RestaurantOrderRepository restaurantOrderRepository;
     private final RestaurantOrderRefundRepository restaurantOrderRefundRepository;
     private final FileService fileService;
@@ -48,11 +54,16 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
     }
 
     @Override
-    public Page<OwnerRestaurantOrderListResponse> getRestaurantOrdersByOwner(Member member, int page, int size) {
+    public Page<OwnerRestaurantOrderListResponse> getRestaurantOrdersByOwner(Member member, Long restaurantId, int page, int size) {
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
+
+        RestaurantValidator.validateOwnership(member, restaurant);
+
         Pageable pageable = PageRequest.of(page, size);
 
         Page<RestaurantOrder> restaurantOrders =
-                restaurantOrderRepository.findRestaurantOrdersByOwner(member, pageable);
+                restaurantOrderRepository.findRestaurantOrdersByOwner(member, restaurant, pageable);
 
         return restaurantOrders.map(restaurantOrder -> {
             List<OwnerRestaurantOrderDetailResponse> detailResponses = new ArrayList<>();

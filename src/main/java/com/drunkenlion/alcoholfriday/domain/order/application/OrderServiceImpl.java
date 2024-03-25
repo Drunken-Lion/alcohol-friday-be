@@ -1,17 +1,23 @@
 package com.drunkenlion.alcoholfriday.domain.order.application;
 
+import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
+import com.drunkenlion.alcoholfriday.domain.address.dto.AddressResponse;
+import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
+import com.drunkenlion.alcoholfriday.domain.member.dto.MemberResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderItemRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
+import com.drunkenlion.alcoholfriday.domain.order.util.OrderValidator;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
@@ -29,6 +35,7 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final AddressRepository addressRepository;
     private final ItemRepository itemRepository;
 
     @Override
@@ -39,12 +46,6 @@ public class OrderServiceImpl implements OrderService {
                 .price(BigDecimal.valueOf(0))
                 .deliveryPrice(OrderUtil.price.getDeliveryPrice())
                 .totalPrice(BigDecimal.valueOf(0))
-                .recipient(orderRequestList.getRecipient())
-                .phone(orderRequestList.getPhone())
-                .address(orderRequestList.getAddress())
-                .addressDetail(orderRequestList.getAddressDetail())
-                .description(orderRequestList.getDescription())
-                .postcode(orderRequestList.getPostcode())
                 .member(member)
                 .build();
 
@@ -61,7 +62,18 @@ public class OrderServiceImpl implements OrderService {
         // 주문 총 금액 + 배송비
         savedOrder.addTotalPrice();
 
-        return OrderResponseList.of(savedOrder, orderDetailList);
+        // 기본 배송지
+        Address address = addressRepository.findByMemberAndIsPrimaryIsTrue(member)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_ADDRESSES)
+                        .build());
+
+        return OrderResponseList.of(
+                savedOrder,
+                orderDetailList,
+                AddressResponse.of(address),
+                MemberResponse.of(member)
+        );
     }
 
     @Override
@@ -112,5 +124,19 @@ public class OrderServiceImpl implements OrderService {
         }
 
         product.updateQuantity(productQuantity - minusProductQuantity);
+    }
+
+    @Override
+    @Transactional
+    public void updateOrderAddress(OrderAddressRequest orderAddressRequest, Long orderId, Member member) {
+        Order order = orderRepository.findByIdAndDeletedAtIsNull(orderId)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_ORDER)
+                        .build());
+
+        OrderValidator.compareEntityIdToMemberId(order, member);
+        OrderValidator.checkOrderNo(order, orderAddressRequest.getOrderNo());
+
+        order.updateOrderAddress(orderAddressRequest);
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -54,6 +55,7 @@ public class GlobalExceptionHandler {
             HttpRequestMethodNotSupportedException.class,
             HttpMediaTypeNotSupportedException.class,
             HttpMessageNotReadableException.class,
+            MissingServletRequestParameterException.class,
             AccessDeniedException.class
     })
     public ResponseEntity<ErrorResponse> handleHttpException(Exception e, HttpServletRequest request) {
@@ -63,6 +65,7 @@ public class GlobalExceptionHandler {
         switch (exceptionName) {
             case "HttpRequestMethodNotSupportedException" -> response = HttpResponse.Fail.METHOD_NOT_ALLOWED;
             case "AccessDeniedException" -> response = HttpResponse.Fail.DEACTIVATE_USER;
+            case "MissingServletRequestParameterException" -> response = HttpResponse.Fail.MISSING_PARAMETER;
             default -> response = HttpResponse.Fail.BAD_REQUEST;
         }
 
@@ -92,9 +95,11 @@ public class GlobalExceptionHandler {
 
         String exceptionName = e.getClass().getSimpleName();
         switch (exceptionName) {
-            case "AuthenticationCredentialsNotFoundException", "BadCredentialsException" -> response = HttpResponse.Fail.INVALID_TOKEN;
+            case "AuthenticationCredentialsNotFoundException", "BadCredentialsException" ->
+                    response = HttpResponse.Fail.INVALID_TOKEN;
             case "AccountExpiredException", "CredentialsExpiredException" -> response = HttpResponse.Fail.EXPIRED_TOKEN;
-            case "AccountStatusException", "OAuth2AuthenticationException", "UsernameNotFoundException" -> response = HttpResponse.Fail.INVALID_ACCOUNT;
+            case "AccountStatusException", "OAuth2AuthenticationException", "UsernameNotFoundException" ->
+                    response = HttpResponse.Fail.INVALID_ACCOUNT;
             default -> response = HttpResponse.Fail.UNAUTHORIZED;
         }
 
