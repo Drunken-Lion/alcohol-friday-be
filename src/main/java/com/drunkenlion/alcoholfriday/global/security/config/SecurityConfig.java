@@ -75,6 +75,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-orders/{id:\\d+}/owner")
                         .hasRole(MemberRole.OWNER.getRole())
 
+                        // 관리자 - 매장 재고 관리
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurants/{id:\\d+}/stocks")
+                        .hasAnyRole(
+                                MemberRole.ADMIN.getRole(),
+                                MemberRole.STORE_MANAGER.getRole(),
+                                MemberRole.OWNER.getRole())
+
                         // 관리자 - 매장 관리
                         .requestMatchers(HttpMethod.POST, "/v1/admin/restaurants")
                         .hasAnyRole(MemberRole.ADMIN.getRole())

@@ -1,10 +1,12 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantStockProductResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockProductResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util.RestaurantDataValidator;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantValidator;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
@@ -72,7 +74,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
-        if(!RestaurantDataValidator.isValid(restaurantRequest)) {
+        if (!RestaurantDataValidator.isValid(restaurantRequest)) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.INVALID_INPUT_VALUE)
                     .build();
@@ -164,12 +166,27 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
         restaurantRepository.save(restaurant);
     }
 
+    @Override
+    public Page<RestaurantStockListResponse> getRestaurantStocks(Member member, Long restaurantId, int page, int size) {
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
+
+        if (member.getRole().equals(MemberRole.OWNER)) {
+            RestaurantValidator.validateOwnership(member, restaurant);
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RestaurantStock> stockPages = restaurantStockRepository.findRestaurantStocks(member, restaurant, pageable);
+
+        return stockPages.map(stock -> RestaurantStockListResponse.of(stock, fileService.findOne(stock.getProduct())));
+    }
+
     private List<RestaurantStockProductResponse> getRestaurantStockItemResponseList(Restaurant restaurant) {
         List<RestaurantStock> restaurantStocks = restaurantStockRepository.findByRestaurantAndDeletedAtIsNull(restaurant);
         List<RestaurantStockProductResponse> stockProductInfos = new ArrayList<>();
 
         if (!restaurantStocks.isEmpty()) {
-            for (RestaurantStock restaurantStock: restaurantStocks) {
+            for (RestaurantStock restaurantStock : restaurantStocks) {
                 Product product = restaurantStock.getProduct();
                 NcpFileResponse ncpResponse = fileService.findOne(product);
 

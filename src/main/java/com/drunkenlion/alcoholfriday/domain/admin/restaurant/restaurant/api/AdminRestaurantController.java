@@ -1,16 +1,19 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application.AdminRestaurantService;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockListResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
+import com.drunkenlion.alcoholfriday.global.common.util.RoleValidator;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -83,5 +86,22 @@ public class AdminRestaurantController {
     ) {
         adminRestaurantService.deleteRestaurant(userPrincipal.getMember(), id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("{id}/stocks")
+    public ResponseEntity<PageResponse<RestaurantStockListResponse>> getRestaurantStocks(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("id") Long restaurantId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "12") int size) {
+
+        RoleValidator.validateAdminOrStoreManagerOrOwner(userPrincipal.getMember());
+
+        Page<RestaurantStockListResponse> pages =
+                adminRestaurantService.getRestaurantStocks(userPrincipal.getMember(), restaurantId, page, size);
+
+        PageResponse<RestaurantStockListResponse> pageResponse = PageResponse.of(pages);
+
+        return ResponseEntity.ok().body(pageResponse);
     }
 }
