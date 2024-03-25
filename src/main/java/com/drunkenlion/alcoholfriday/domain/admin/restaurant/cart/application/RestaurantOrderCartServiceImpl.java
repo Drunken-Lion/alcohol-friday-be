@@ -100,17 +100,20 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
      */
     @Override
     @Transactional
-    public RestaurantOrderCartSaveResponse updateRestaurantOrderCart(Long id,
+    public RestaurantOrderCartSaveResponse updateRestaurantOrderCart(Long restaurantOrderCartDetailId,
                                                                      RestaurantOrderCartUpdateRequest request,
                                                                      Member member) {
         RestaurantOrderCartValidator.checkedMemberRoleIsOwner(member);
 
-        RestaurantOrderCartDetail restaurantOrderCartDetail = findRestaurantOrderCartDetail(id, request.getProductId());
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findByIdAndDeletedAtIsNull(restaurantOrderCartDetailId)
+                .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
 
-        RestaurantOrderCartValidator.checkedQuantity(restaurantOrderCartDetail.getProduct(), request.getQuantity());
+        RestaurantOrderCartValidator.checkedMemberInRestaurant(restaurantOrderCartDetail.getRestaurantOrderCart().getRestaurant(), member);
         RestaurantOrderCartValidator.minimumQuantity(request.getQuantity());
+        RestaurantOrderCartValidator.checkedQuantity(restaurantOrderCartDetail.getProduct(), request.getQuantity());
 
         restaurantOrderCartDetail.updateQuantity(request.getQuantity());
+        restaurantOrderCartDetailRepository.save(restaurantOrderCartDetail);
 
         return RestaurantOrderCartSaveResponse.of(restaurantOrderCartDetail);
     }
@@ -120,26 +123,14 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
      */
     @Override
     @Transactional
-    public RestaurantOrderCartSaveResponse deleteRestaurantOrderCart(Long id,
-                                                                     RestaurantOrderCartDeleteRequest request,
-                                                                     Member member) {
+    public void deleteRestaurantOrderCart(Long restaurantOrderCartDetailId, Member member) {
         RestaurantOrderCartValidator.checkedMemberRoleIsOwner(member);
 
-        RestaurantOrderCartDetail restaurantOrderCartDetail = findRestaurantOrderCartDetail(id, request.getProductId());
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findByIdAndDeletedAtIsNull(restaurantOrderCartDetailId)
+                .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
 
-        restaurantOrderCartDetail.deleteQuantity(restaurantOrderCartDetail.getQuantity());
-
-        return RestaurantOrderCartSaveResponse.of(restaurantOrderCartDetail);
-    }
-
-    private RestaurantOrderCartDetail findRestaurantOrderCartDetail(Long cartId, Long productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_PRODUCT));
-
-        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.findById(cartId)
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
-
-        return restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
+        RestaurantOrderCartValidator.checkedMemberInRestaurant(restaurantOrderCartDetail.getRestaurantOrderCart().getRestaurant(), member);
+        restaurantOrderCartDetail.deleteQuantity();
+        restaurantOrderCartDetailRepository.save(restaurantOrderCartDetail);
     }
 }

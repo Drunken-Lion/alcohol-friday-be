@@ -255,12 +255,9 @@ class RestaurantOrderCartServiceTest {
 
         RestaurantOrderCartUpdateRequest request = RestaurantOrderCartUpdateRequest.builder()
                 .quantity(50L)
-                .productId(1L)
                 .build();
 
-        Mockito.when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
-        Mockito.when(restaurantOrderCartRepository.findById(restaurantOrderCart.getId())).thenReturn(Optional.of(restaurantOrderCart));
-        Mockito.when(restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)).thenReturn(Optional.ofNullable(restaurantOrderCartDetail));
+        Mockito.when(restaurantOrderCartDetailRepository.findByIdAndDeletedAtIsNull(restaurantOrderCartDetail.getId())).thenReturn(Optional.of(restaurantOrderCartDetail));
 
         RestaurantOrderCartSaveResponse response = restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
 
@@ -314,7 +311,6 @@ class RestaurantOrderCartServiceTest {
 
         RestaurantOrderCartUpdateRequest request = RestaurantOrderCartUpdateRequest.builder()
                 .quantity(50L)
-                .productId(1L)
                 .build();
 
         BusinessException businessException = assertThrows(BusinessException.class, () -> {
@@ -365,18 +361,13 @@ class RestaurantOrderCartServiceTest {
 
         RestaurantOrderCartUpdateRequest request = RestaurantOrderCartUpdateRequest.builder()
                 .quantity(-2L)
-                .productId(1L)
                 .build();
-
-        Mockito.when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
-        Mockito.when(restaurantOrderCartRepository.findById(restaurantOrderCart.getId())).thenReturn(Optional.of(restaurantOrderCart));
-        Mockito.when(restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)).thenReturn(Optional.ofNullable(restaurantOrderCartDetail));
 
         BusinessException businessException = assertThrows(BusinessException.class, () -> {
             restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
         });
 
-        assertThat(businessException.getStatus()).isEqualTo(Fail.INVALID_INPUT_PRODUCT_QUANTITY.getStatus());
+        assertThat(businessException.getStatus()).isEqualTo(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL.getStatus());
     }
 
     @Test
@@ -420,18 +411,13 @@ class RestaurantOrderCartServiceTest {
 
         RestaurantOrderCartUpdateRequest request = RestaurantOrderCartUpdateRequest.builder()
                 .quantity(1000L)
-                .productId(1L)
                 .build();
-
-        Mockito.when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
-        Mockito.when(restaurantOrderCartRepository.findById(restaurantOrderCart.getId())).thenReturn(Optional.of(restaurantOrderCart));
-        Mockito.when(restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)).thenReturn(Optional.ofNullable(restaurantOrderCartDetail));
 
         BusinessException businessException = assertThrows(BusinessException.class, () -> {
             restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
         });
 
-        assertThat(businessException.getStatus()).isEqualTo(Fail.OUT_OF_PRODUCT_STOCK.getStatus());
+        assertThat(businessException.getStatus()).isEqualTo(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL.getStatus());
     }
 
     @Test
@@ -473,23 +459,8 @@ class RestaurantOrderCartServiceTest {
                 .restaurantOrderCart(restaurantOrderCart)
                 .build();
 
-        RestaurantOrderCartDeleteRequest request = RestaurantOrderCartDeleteRequest.builder()
-                .productId(1L)
-                .build();
-
-        Mockito.when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
-        Mockito.when(restaurantOrderCartRepository.findById(restaurantOrderCart.getId())).thenReturn(Optional.of(restaurantOrderCart));
-        Mockito.when(restaurantOrderCartDetailRepository.findCartAndProduct(restaurantOrderCart, product)).thenReturn(Optional.ofNullable(restaurantOrderCartDetail));
-
-        RestaurantOrderCartSaveResponse response = restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
-
-        assertThat(response.getName()).isEqualTo(product.getName());
-        assertThat(response.getMakerName()).isEqualTo(maker.getName());
-        assertThat(response.getPrice()).isEqualTo(product.getDistributionPrice());
-        assertThat(response.getQuantity()).isEqualTo(restaurantOrderCartDetail.getQuantity());
-
-        assertThat(response.getId()).isEqualTo(product.getId());
-        assertThat(response.getQuantity()).isEqualTo(0L);
+        Mockito.when(restaurantOrderCartDetailRepository.findByIdAndDeletedAtIsNull(restaurantOrderCartDetail.getId())).thenReturn(Optional.of(restaurantOrderCartDetail));
+        restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartDetail.getId(), member);
     }
 
     @Test
@@ -536,7 +507,7 @@ class RestaurantOrderCartServiceTest {
                 .build();
 
         BusinessException businessException = assertThrows(BusinessException.class, () -> {
-            restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartDetail.getId(), request, member);
+            restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartDetail.getId(), member);
         });
 
         assertThat(businessException.getStatus()).isEqualTo(Fail.FORBIDDEN.getStatus());

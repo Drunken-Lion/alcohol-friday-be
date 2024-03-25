@@ -13,6 +13,6 @@ import org.springframework.data.domain.Page;
 public interface RestaurantOrderCartService {
     Page<RestaurantOrderCartListResponse> findRestaurantCart(Long restaurantId, Member member, int page, int size);
     RestaurantOrderCartSaveResponse saveRestaurantOrderCart(RestaurantOrderCartSaveRequest request, Member member);
-    RestaurantOrderCartSaveResponse updateRestaurantOrderCart(Long id, RestaurantOrderCartUpdateRequest request, Member member);
-    RestaurantOrderCartSaveResponse deleteRestaurantOrderCart(Long id, RestaurantOrderCartDeleteRequest request, Member member);
+    RestaurantOrderCartSaveResponse updateRestaurantOrderCart(Long restaurantOrderCartDetailId, RestaurantOrderCartUpdateRequest request, Member member);
+    void deleteRestaurantOrderCart(Long id, Member member);
 }

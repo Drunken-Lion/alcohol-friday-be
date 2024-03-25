@@ -11,7 +11,4 @@ import lombok.*;
 public class RestaurantOrderCartUpdateRequest {
     @Schema(description = "수정 수량")
     private Long quantity;
-
-    @Schema(description = "제품 고유 ID")
-    private Long productId;
 }

@@ -252,21 +252,22 @@ class RestaurantOrderCartControllerTest {
                 .restaurant(restaurant)
                 .build());
 
-        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
-                .product(product)
-                .quantity(10L)
-                .restaurantOrderCart(restaurantOrderCart)
-                .build());
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(
+                RestaurantOrderCartDetail.builder()
+                        .product(product)
+                        .quantity(10L)
+                        .restaurantOrderCart(restaurantOrderCart)
+                        .build());
 
         String request = JsonConvertor.build(RestaurantOrderCartUpdateRequest.builder()
-                .productId(product.getId())
                 .quantity(1L)
                 .build());
 
-        ResultActions actions = mvc.perform(put("/v1/admin/restaurant-orders-carts/"+ restaurantOrderCartDetail.getId()+"/owner")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content(request)
+        ResultActions actions = mvc.perform(
+                put("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(request)
         ).andDo(print());
 
         actions
@@ -309,21 +310,22 @@ class RestaurantOrderCartControllerTest {
                 .restaurant(restaurant)
                 .build());
 
-        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
-                .product(product)
-                .quantity(10L)
-                .restaurantOrderCart(restaurantOrderCart)
-                .build());
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(
+                RestaurantOrderCartDetail.builder()
+                        .product(product)
+                        .quantity(10L)
+                        .restaurantOrderCart(restaurantOrderCart)
+                        .build());
 
         String request = JsonConvertor.build(RestaurantOrderCartUpdateRequest.builder()
-                .productId(product.getId())
                 .quantity(1L)
                 .build());
 
-        ResultActions actions = mvc.perform(put("/v1/admin/restaurant-orders-carts/"+ restaurantOrderCartDetail.getId()+"/owner")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content(request)
+        ResultActions actions = mvc.perform(
+                put("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(request)
         ).andDo(print());
 
         actions
@@ -361,21 +363,22 @@ class RestaurantOrderCartControllerTest {
                 .restaurant(restaurant)
                 .build());
 
-        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
-                .product(product)
-                .quantity(10L)
-                .restaurantOrderCart(restaurantOrderCart)
-                .build());
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(
+                RestaurantOrderCartDetail.builder()
+                        .product(product)
+                        .quantity(10L)
+                        .restaurantOrderCart(restaurantOrderCart)
+                        .build());
 
         String request = JsonConvertor.build(RestaurantOrderCartUpdateRequest.builder()
-                .productId(product.getId())
                 .quantity(-1L)
                 .build());
 
-        ResultActions actions = mvc.perform(put("/v1/admin/restaurant-orders-carts/"+ restaurantOrderCartDetail.getId()+"/owner")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content(request)
+        ResultActions actions = mvc.perform(
+                put("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(request)
         ).andDo(print());
 
         actions
@@ -413,21 +416,22 @@ class RestaurantOrderCartControllerTest {
                 .restaurant(restaurant)
                 .build());
 
-        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
-                .product(product)
-                .quantity(10L)
-                .restaurantOrderCart(restaurantOrderCart)
-                .build());
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(
+                RestaurantOrderCartDetail.builder()
+                        .product(product)
+                        .quantity(10L)
+                        .restaurantOrderCart(restaurantOrderCart)
+                        .build());
 
         String request = JsonConvertor.build(RestaurantOrderCartUpdateRequest.builder()
-                .productId(product.getId())
                 .quantity(1000L)
                 .build());
 
-        ResultActions actions = mvc.perform(put("/v1/admin/restaurant-orders-carts/"+ restaurantOrderCartDetail.getId()+"/owner")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content(request)
+        ResultActions actions = mvc.perform(
+                put("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(request)
         ).andDo(print());
 
         actions
@@ -465,33 +469,23 @@ class RestaurantOrderCartControllerTest {
                 .restaurant(restaurant)
                 .build());
 
-        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
-                .product(product)
-                .quantity(10L)
-                .restaurantOrderCart(restaurantOrderCart)
-                .build());
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(
+                RestaurantOrderCartDetail.builder()
+                        .product(product)
+                        .quantity(10L)
+                        .restaurantOrderCart(restaurantOrderCart)
+                        .build());
 
-        String request = JsonConvertor.build(RestaurantOrderCartDeleteRequest.builder()
-                .productId(product.getId())
-                .build());
-
-        ResultActions actions = mvc.perform(delete("/v1/admin/restaurant-orders-carts/"+ restaurantOrderCartDetail.getId()+"/owner")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content(request)
+        ResultActions actions = mvc.perform(
+                delete("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
         ).andDo(print());
 
         actions
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andExpect(handler().handlerType(RestaurantOrderCartController.class))
                 .andExpect(handler().methodName("deleteOwnerCart"))
-                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
-                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
-                .andExpect(jsonPath("$.name", notNullValue()))
-                .andExpect(jsonPath("$.makerName", notNullValue()))
-                .andExpect(jsonPath("$.price", notNullValue()))
-                .andExpect(jsonPath("$.ableQuantity", notNullValue()))
-                .andExpect(jsonPath("$.quantity", notNullValue()))
         ;
     }
 
@@ -521,20 +515,22 @@ class RestaurantOrderCartControllerTest {
                 .restaurant(restaurant)
                 .build());
 
-        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
-                .product(product)
-                .quantity(10L)
-                .restaurantOrderCart(restaurantOrderCart)
-                .build());
+        RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.save(
+                RestaurantOrderCartDetail.builder()
+                        .product(product)
+                        .quantity(10L)
+                        .restaurantOrderCart(restaurantOrderCart)
+                        .build());
 
         String request = JsonConvertor.build(RestaurantOrderCartDeleteRequest.builder()
                 .productId(product.getId())
                 .build());
 
-        ResultActions actions = mvc.perform(delete("/v1/admin/restaurant-orders-carts/"+ restaurantOrderCartDetail.getId()+"/owner")
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content(request)
+        ResultActions actions = mvc.perform(
+                delete("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(request)
         ).andDo(print());
 
         actions
@@ -543,6 +539,57 @@ class RestaurantOrderCartControllerTest {
                 .andExpect(handler().methodName("deleteOwnerCart"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.message", notNullValue()))
+        ;
+    }
+
+    @Test
+    @DisplayName("장바구니 조회")
+    @WithAccount(role = MemberRole.OWNER)
+    public void t11() throws Exception {
+        Member member = memberRepository.findByEmail("test@example.com").get();
+
+        Maker maker = makerRepository.save(Maker.builder()
+                .name("테스트")
+                .build());
+
+        Product product = productRepository.save(Product.builder()
+                .name("테스트 제품")
+                .quantity(100L)
+                .distributionPrice(BigDecimal.valueOf(10000L))
+                .maker(maker)
+                .build());
+
+        Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
+                .member(member)
+                .build());
+
+        RestaurantOrderCart restaurantOrderCart = restaurantOrderCartRepository.save(RestaurantOrderCart.builder()
+                .restaurant(restaurant)
+                .member(member)
+                .build());
+
+        restaurantOrderCartDetailRepository.save(RestaurantOrderCartDetail.builder()
+                .product(product)
+                .restaurantOrderCart(restaurantOrderCart)
+                .quantity(100L)
+                .build());
+
+        ResultActions actions = mvc.perform(get("/v1/admin/restaurant-orders-carts/" + restaurant.getId())
+        ).andDo(print());
+
+        actions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantOrderCartController.class))
+                .andExpect(handler().methodName("getCarts"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.data.[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data.[0].productId", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data.[0].productName", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].makerName", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].price", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].quantity", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].totalPrice", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].ableQuantity", notNullValue()))
         ;
     }
 }

@@ -50,7 +50,7 @@ public class RestaurantOrderCartDetail extends BaseEntity {
         this.quantity = quantity;
     }
 
-    public void deleteQuantity(Long quantity) {
+    public void deleteQuantity() {
         this.quantity = 0L;
     }
 

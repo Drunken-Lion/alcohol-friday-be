@@ -54,21 +54,18 @@ public class RestaurantOrderCartController {
 
     @PutMapping("{id}/owner")
     @Operation(summary = "장바구니 수량 변경 (Owner)", description = "제품 발주 장바구니 수량 변경")
-    public ResponseEntity<RestaurantOrderCartSaveResponse> updateOwnerCart(@PathVariable("id") Long restaurantOrderCartId,
+    public ResponseEntity<RestaurantOrderCartSaveResponse> updateOwnerCart(@PathVariable("id") Long restaurantOrderCartDetailId,
                                                                            @RequestBody RestaurantOrderCartUpdateRequest request,
                                                                            @AuthenticationPrincipal UserPrincipal user) {
-        RestaurantOrderCartSaveResponse response = restaurantOrderCartService.updateRestaurantOrderCart(
-                restaurantOrderCartId, request, user.getMember());
+        RestaurantOrderCartSaveResponse response = restaurantOrderCartService.updateRestaurantOrderCart(restaurantOrderCartDetailId, request, user.getMember());
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("{id}/owner")
     @Operation(summary = "장바구니 삭제 (Owner)", description = "발주 장바구니 제품 삭제")
     public ResponseEntity<Void> deleteOwnerCart(@PathVariable("id") Long restaurantOrderCartId,
-                                                @RequestBody RestaurantOrderCartDeleteRequest request,
                                                 @AuthenticationPrincipal UserPrincipal user) {
-        restaurantOrderCartService.deleteRestaurantOrderCart(
-                restaurantOrderCartId, request, user.getMember());
+        restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartId, user.getMember());
         return ResponseEntity.noContent().build();
     }
 }
