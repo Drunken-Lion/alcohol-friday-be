@@ -1,6 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
+import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
+import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
+import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
@@ -9,6 +13,7 @@ import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.application.RestaurantService;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response.RestaurantMapResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response.RestaurantNearbyResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
@@ -53,6 +58,11 @@ public class RestaurantRepositoryTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ItemRepository itemRepository;
+
+    @Autowired
+    private ItemProductRepository itemProductRepository;
     private final GeometryFactory geometryFactory = new GeometryFactory();
     private final double neLatitude = 37.5567635;
     private final double neLongitude = 126.8529193;
@@ -67,6 +77,8 @@ public class RestaurantRepositoryTest {
     private final Double distance = 372.4291590383813;
     private final String restaurantName = "학식";
     private final String dongdongju = "동동주";
+
+    private final Long itemId = 1L;
     private final String takju = "탁주";
     private final Long restaurantId = 1L;
     private final String restaurantCategory = "우정산 폴리텍대학";
@@ -149,6 +161,7 @@ public class RestaurantRepositoryTest {
         restaurantStockRepository.save(stock2);
     }
 
+
     private Map<String, Object> getMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
         frame.put("비빔밥", 8000);
@@ -195,32 +208,60 @@ public class RestaurantRepositoryTest {
     @Test
     @DisplayName("범위 내의 모든 레스토랑 정보 찾기")
     public void bounds() {
-//        //when
-//        List<RestaurantLocationResponse> restaurants = restaurantService.getRestaurants(neLatitude, neLongitude, swLatitude, swLongitude);
-//
-//        //then
-//        assertThat(restaurants.get(0).getCategory()).isEqualTo(restaurantCategory);
-//        assertThat(restaurants.get(0).getName()).isEqualTo(restaurantName);
-//        assertThat(restaurants.get(0).getAddress()).isEqualTo(restaurantAddress);;
-//        assertThat(restaurants.get(0).getLatitude()).isEqualTo(restaurantLatitude);
-//        assertThat(restaurants.get(0).getLongitude()).isEqualTo(restaurantLongitude);
-//        assertThat(restaurants.get(0).getProductResponses().get(0).getPrice()).isEqualByComparingTo(productPrice2);
-//        assertThat(restaurants.get(0).getProductResponses().get(1).getPrice()).isEqualByComparingTo(productPrice1);
+        //when
+        List<RestaurantMapResponse> restaurants = restaurantService.findRestaurantInMap(neLatitude, neLongitude, swLatitude, swLongitude);
+
+        //then
+        assertThat(restaurants.get(0).getRestaurantCategory()).isEqualTo(restaurantCategory);
+        assertThat(restaurants.get(0).getRestaurantName()).isEqualTo(restaurantName);
+        assertThat(restaurants.get(0).getRestaurantAddress()).isEqualTo(restaurantAddress);;
+        assertThat(restaurants.get(0).getLatitude()).isEqualTo(restaurantLatitude);
+        assertThat(restaurants.get(0).getLongitude()).isEqualTo(restaurantLongitude);
     }
 
     @Test
+    @Transactional
     @DisplayName("사용자의 위치로 부터 5km 이내의 가게 정보 조회")
     public void nearby() {
-//        //when
-//        Page<RestaurantNearbyResponse> restaurantNearbyResponses = restaurantService.findRestaurantWithItem(userLocationLatitude, userLocationLongitude, dongdongju, page, size);
-//
-//        List<RestaurantNearbyResponse> content = restaurantNearbyResponses.getContent();
-//
-//        //then
-//        assertThat(content.get(0).getAddress()).isEqualTo(restaurantAddress);
-//        assertThat(content.get(0).getRestaurantName()).isEqualTo(restaurantName);
-//        assertThat(content.get(0).getProductName()).isEqualTo(dongdongju);
-//        assertThat(content.get(0).getDistance()).isEqualTo(distance);
+        //when
+        Product product1 = Product.builder()
+                .name(dongdongju)
+                .price(productPrice1)
+                .quantity(0L)
+                .alcohol(100D)
+                .build();
+
+        Product product2 = Product.builder()
+                .name(takju)
+                .price(productPrice2)
+                .quantity(0L)
+                .alcohol(100D)
+                .build();
+
+        productRepository.save(product1);
+        productRepository.save(product2);
+
+        Item item = itemRepository.save(Item.builder()
+                .name("테스트")
+                .info("테스트상품")
+                .build());
+
+        ItemProduct itemProduct = itemProductRepository.save(ItemProduct.builder()
+                .product(product1)
+                .build());
+
+        itemProduct.addItem(item);
+        itemProductRepository.save(itemProduct);
+        itemRepository.save(item);
+
+        Page<RestaurantNearbyResponse> restaurantNearbyResponses = restaurantService.findRestaurantWithItem(userLocationLatitude, userLocationLongitude, item.getId(), page, size);
+
+        List<RestaurantNearbyResponse> content = restaurantNearbyResponses.getContent();
+
+        //then
+        assertThat(content.get(0).getAddress()).isEqualTo(restaurantAddress);
+        assertThat(content.get(0).getRestaurantName()).isEqualTo(restaurantName);
+        assertThat(content.get(0).getProductName()).isEqualTo(dongdongju);;
     }
 
     @AfterEach
@@ -230,5 +271,7 @@ public class RestaurantRepositoryTest {
         restaurantRepository.deleteAll();
         restaurantStockRepository.deleteAll();
         productRepository.deleteAll();
+        itemRepository.deleteAll();
+        itemProductRepository.deleteAll();
     }
 }

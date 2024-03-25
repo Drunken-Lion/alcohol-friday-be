@@ -63,14 +63,13 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                 swLongitude, neLatitude);
 
         BooleanExpression inPolygon = Expressions.booleanTemplate("ST_Contains(ST_PolygonFromText({0}), {1})", polygon, restaurant.location);
-        BooleanExpression isNotDeleted = restaurant.deletedAt.isNull();
 
         return jpaQueryFactory
                 .select(restaurant)
                 .from(restaurant)
                 .leftJoin(restaurant.restaurantStocks, restaurantStock).fetchJoin()
                 .leftJoin(restaurantStock.product, product).fetchJoin()
-                .where(inPolygon.and(isNotDeleted))
+                .where(inPolygon.and(restaurant.deletedAt.isNull()))
                 .fetch();
     }
 
@@ -101,19 +100,21 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                 .leftJoin(restaurantStock.product, product)
                 .where(isMeasurement
                         .and(itemConditions)
-                        .and(isNullDeleted())
+                        .and(restaurant.deletedAt.isNull())
                         .and(restaurantStock.quantity.isNotNull())
                         .or(restaurantStock.quantity.loe(0))
                 ).orderBy(closestStoreDistanceFromUser)
                 .fetch();
 
-        for (RestaurantNearbyResponse restaurantNearbyResponse : restaurants) {
-            System.out.println("restaurantNearbyResponse = " + restaurantNearbyResponse);
-        }
-
         JPAQuery<Long> total = jpaQueryFactory
                 .select(restaurant.count())
-                .from(restaurant);
+                .from(restaurant)
+                .where(isMeasurement
+                        .and(itemConditions)
+                        .and(restaurant.deletedAt.isNull())
+                        .and(restaurantStock.quantity.isNotNull())
+                        .or(restaurantStock.quantity.loe(0))
+                );
 
         return PageableExecutionUtils.getPage(restaurants, pageable, total::fetchOne);
     }
@@ -128,9 +129,5 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
         return Expressions.booleanTemplate(
                 "ST_Distance_Sphere(point({0}, {1}), restaurant.location) <= {2}",
                 userLocationLongitude, userLocationLatitude, radius);
-    }
-
-    public BooleanExpression isNullDeleted() {
-        return restaurant.deletedAt.isNull();
     }
 }
