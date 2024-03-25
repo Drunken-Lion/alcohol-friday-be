@@ -33,6 +33,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -147,10 +148,13 @@ public class RestaurantOrderRefundControllerTest {
         return frame;
     }
 
+    private static final String OWNER = "owner1@af.com";
+
     @BeforeEach
     @Transactional
     void beforeEach() throws IOException {
-        Member owner = memberRepository.save(Member.builder().email("owner1@af.shop").provider(ProviderType.KAKAO).name("owner1").nickname("owner1").role(MemberRole.OWNER).phone(1012345687L).certifyAt(LocalDate.now()).agreedToServiceUse(true).agreedToServicePolicy(true).agreedToServicePolicyUse(true).build());
+        Member owner = memberRepository.findByEmail(OWNER)
+                .orElseGet(() -> memberRepository.save(Member.builder().email(OWNER).provider(ProviderType.KAKAO).name("owner1").nickname("owner1").role(MemberRole.OWNER).phone(1012345687L).certifyAt(LocalDate.now()).agreedToServiceUse(true).agreedToServicePolicy(true).agreedToServicePolicyUse(true).build()));
         Restaurant restaurant = restaurantRepository.save(Restaurant.builder().member(owner).category("음식점").name("레스쁘아").address("서울특별시 종로구 종로8길 16").location(geometryFactory.createPoint(new Coordinate(37.569343, 126.983857))).contact(212345678L).menu(getMenuTest()).time(getTimeTest()).provision(getProvisionTest()).businessName("레스쁘아").businessNumber("101-10-10001").addressDetail("101").postcode("00001").build());
 
         CategoryClass categoryClass = categoryClassRepository.save(CategoryClass.builder().firstName("전통주").build());
@@ -197,6 +201,7 @@ public class RestaurantOrderRefundControllerTest {
 
     @Test
     @DisplayName("매장 발주 환불 목록 조회 (사장)")
+    @WithAccount(email = OWNER, role = MemberRole.OWNER)
     void t1() throws Exception {
         // given
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
@@ -204,8 +209,8 @@ public class RestaurantOrderRefundControllerTest {
         // when
         ResultActions resultActions = mvc
                 .perform(get("/v1/admin/restaurant-order-refunds/owner")
-                        .param("restaurantId", restaurant.getId().toString())
                         .contentType(MediaType.APPLICATION_JSON)
+                        .param("restaurantId", restaurant.getId().toString())
                 )
                 .andDo(print());
 
@@ -239,6 +244,7 @@ public class RestaurantOrderRefundControllerTest {
 
     @Test
     @DisplayName("매장 발주 환불 추가 (사장)")
+    @WithAccount(email = OWNER, role = MemberRole.OWNER)
     void t2() throws Exception {
         // given
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
@@ -292,6 +298,7 @@ public class RestaurantOrderRefundControllerTest {
 
     @Test
     @DisplayName("매장 발주 환불 취소 (사장)")
+    @WithAccount(email = OWNER, role = MemberRole.OWNER)
     void t3() throws Exception {
         // given
         RestaurantOrderRefund refund = this.restaurantOrderRefundRepository.findAll().get(0);

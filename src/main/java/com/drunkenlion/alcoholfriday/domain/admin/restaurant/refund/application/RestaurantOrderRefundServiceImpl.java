@@ -14,9 +14,13 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantValidator;
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -45,10 +49,15 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
     private final ProductRepository productRepository;
     private final RestaurantOrderRepository restaurantOrderRepository;
     private final RestaurantStockRepository restaurantStockRepository;
+    private final RestaurantRepository restaurantRepository;
     private final FileService fileService;
 
     @Override
-    public Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(Long restaurantId, int page, int size) {
+    public Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(Member member, Long restaurantId, int page, int size) {
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
+        RestaurantValidator.validateOwnership(member, restaurant);
+
         Pageable pageable = PageRequest.of(page, size);
         Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByRestaurantIdAndDeletedAtIsNull(restaurantId, pageable);
         List<RestaurantOrderRefundResponse> refundResponses = this.getRefundResponses(refundPage);
@@ -58,7 +67,11 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
 
     @Override
     @Transactional
-    public RestaurantOrderRefundResponse createRestaurantOrderRefund(RestaurantOrderRefundCreateRequest request) {
+    public RestaurantOrderRefundResponse createRestaurantOrderRefund(Member member, RestaurantOrderRefundCreateRequest request) {
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(request.getRestaurantId())
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
+        RestaurantValidator.validateOwnership(member, restaurant);
+
         if (!checkRefundEligibility(request)) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.RESTAURANT_REFUND_FAIL)
@@ -112,11 +125,18 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
 
     @Override
     @Transactional
-    public RestaurantOrderRefundResultResponse cancelRestaurantOrderRefund(Long id) {
+    public RestaurantOrderRefundResultResponse cancelRestaurantOrderRefund(Member member, Long id) {
         RestaurantOrderRefund refund = restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND)
                         .build());
+
+        Restaurant restaurant = refund.getRestaurant();
+        if (restaurant.getDeletedAt() != null) {
+            throw new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT);
+        }
+
+        RestaurantValidator.validateOwnership(member, restaurant);
 
         // 환불 승인 대기 이외에는 환불 취소 불가
         if (!refund.getStatus().equals(RestaurantOrderRefundStatus.WAITING_APPROVAL)) {

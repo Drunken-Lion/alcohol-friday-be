@@ -21,6 +21,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
@@ -71,6 +72,8 @@ public class RestaurantOrderRefundServiceTest {
     private RestaurantOrderRepository restaurantOrderRepository;
     @Mock
     private ProductRepository productRepository;
+    @Mock
+    private RestaurantRepository restaurantRepository;
     @Mock
     private FileService fileService;
 
@@ -162,11 +165,12 @@ public class RestaurantOrderRefundServiceTest {
     @DisplayName("매장 발주 환불 목록 조회 (사장)")
     public void t1() {
         // given
+        when(this.restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(this.getRestaurant()));
         when(this.restaurantOrderRefundRepository.findByRestaurantIdAndDeletedAtIsNull(any(), any(Pageable.class))).thenReturn(this.getRestaurantOrderRefunds());
         when(this.restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(any())).thenReturn(this.getRestaurantOrderRefundDetails());
 
         // when
-        Page<RestaurantOrderRefundResponse> refunds = this.restaurantOrderRefundService.getRestaurantOrderRefunds(getRestaurant().getId(), page, size);
+        Page<RestaurantOrderRefundResponse> refunds = this.restaurantOrderRefundService.getRestaurantOrderRefunds(getOwner(), getRestaurant().getId(), page, size);
 
         // then
         List<RestaurantOrderRefundResponse> content = refunds.getContent();
@@ -189,6 +193,38 @@ public class RestaurantOrderRefundServiceTest {
         assertThat(content.get(0).getRefundDetails().get(1).getPrice()).isEqualTo(refundDetailPrice2);
         assertThat(content.get(0).getRefundDetails().get(1).getQuantity()).isEqualTo(refundDetailQuantity2);
         assertThat(content.get(0).getRefundDetails().get(1).getFile()).isEqualTo(null);
+    }
+
+    @Test
+    @DisplayName("매장 발주 환불 목록 조회 (사장) - 해당 매장이 존재하지 않으면 환불 목록 조회 불가")
+    public void t1_1() {
+        // given
+        when(this.restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.getRestaurantOrderRefunds(getOwner(), getRestaurant().getId(), page, size);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 발주 환불 목록 조회 (사장) - 해당 매장의 사장이 본인이 아니면 환불 목록 조회 불가")
+    public void t1_2() {
+        // given
+        when(this.restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(this.getRestaurant()));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.getRestaurantOrderRefunds(getOtherOwner(), getRestaurant().getId(), page, size);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -223,6 +259,7 @@ public class RestaurantOrderRefundServiceTest {
                 .refundDetails(List.of(detailRequest1, detailRequest2))
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
         when(restaurantOrderRefundRepository.existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(any(), any())).thenReturn(false);
         when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product1.getId())).thenReturn(Optional.of(this.getRestaurantStocks1()));
         when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product2.getId())).thenReturn(Optional.of(this.getRestaurantStocks2()));
@@ -248,7 +285,7 @@ public class RestaurantOrderRefundServiceTest {
         ArgumentCaptor<List<RestaurantStock>> restaurantStocksCaptor = ArgumentCaptor.forClass(List.class);
 
         // When
-        RestaurantOrderRefundResponse response = restaurantOrderRefundService.createRestaurantOrderRefund(request);
+        RestaurantOrderRefundResponse response = restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
 
         // then
         verify(restaurantStockRepository).saveAll(restaurantStocksCaptor.capture());
@@ -278,6 +315,94 @@ public class RestaurantOrderRefundServiceTest {
         assertThat(response.getRefundDetails().get(1).getPrice()).isEqualTo(refundDetailPrice2);
         assertThat(response.getRefundDetails().get(1).getQuantity()).isEqualTo(refundDetailQuantity2);
         assertThat(response.getRefundDetails().get(1).getFile()).isEqualTo(null);
+    }
+
+    @Test
+    @DisplayName("매장 발주 환불 추가 (사장) - 해당 매장이 존재하지 않으면 환불 불가")
+    public void t2_0_1() {
+        // given
+        Product product1 = getProduct1();
+        Product product2 = getProduct2();
+        Restaurant restaurant = getRestaurant();
+        RestaurantOrder restaurantOrder = getRestaurantOrder();
+
+        RestaurantOrderRefundDetailCreateRequest detailRequest1 = RestaurantOrderRefundDetailCreateRequest.builder()
+                .productId(product1.getId())
+                .price(refundDetailPrice1)
+                .possibleQuantity(10L)
+                .quantity(refundDetailQuantity1)
+                .build();
+
+        RestaurantOrderRefundDetailCreateRequest detailRequest2 = RestaurantOrderRefundDetailCreateRequest.builder()
+                .productId(product2.getId())
+                .price(refundDetailPrice2)
+                .possibleQuantity(10L)
+                .quantity(refundDetailQuantity2)
+                .build();
+
+        RestaurantOrderRefundCreateRequest request = RestaurantOrderRefundCreateRequest.builder()
+                .restaurantId(restaurant.getId())
+                .orderId(restaurantOrder.getId())
+                .orderDate(restaurantOrder.getCreatedAt())
+                .status(RestaurantOrderStatus.CANCELLED) // 발주완료 이외의 상태로 변경
+                .ownerReason(refundOwnerReason)
+                .refundDetails(List.of(detailRequest1, detailRequest2))
+                .build();
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 발주 환불 추가 (사장) - 해당 매장의 사장이 본인이 아니면 환불 불가")
+    public void t2_0_2() {
+        // given
+        Product product1 = getProduct1();
+        Product product2 = getProduct2();
+        Restaurant restaurant = getRestaurant();
+        RestaurantOrder restaurantOrder = getRestaurantOrder();
+
+        RestaurantOrderRefundDetailCreateRequest detailRequest1 = RestaurantOrderRefundDetailCreateRequest.builder()
+                .productId(product1.getId())
+                .price(refundDetailPrice1)
+                .possibleQuantity(10L)
+                .quantity(refundDetailQuantity1)
+                .build();
+
+        RestaurantOrderRefundDetailCreateRequest detailRequest2 = RestaurantOrderRefundDetailCreateRequest.builder()
+                .productId(product2.getId())
+                .price(refundDetailPrice2)
+                .possibleQuantity(10L)
+                .quantity(refundDetailQuantity2)
+                .build();
+
+        RestaurantOrderRefundCreateRequest request = RestaurantOrderRefundCreateRequest.builder()
+                .restaurantId(restaurant.getId())
+                .orderId(restaurantOrder.getId())
+                .orderDate(restaurantOrder.getCreatedAt())
+                .status(RestaurantOrderStatus.CANCELLED) // 발주완료 이외의 상태로 변경
+                .ownerReason(refundOwnerReason)
+                .refundDetails(List.of(detailRequest1, detailRequest2))
+                .build();
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOtherOwner(), request);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -312,9 +437,11 @@ public class RestaurantOrderRefundServiceTest {
                 .refundDetails(List.of(detailRequest1, detailRequest2))
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
+
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.createRestaurantOrderRefund(request);
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
         });
 
         // then
@@ -354,9 +481,11 @@ public class RestaurantOrderRefundServiceTest {
                 .refundDetails(List.of(detailRequest1, detailRequest2))
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
+
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.createRestaurantOrderRefund(request);
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
         });
 
         // then
@@ -379,9 +508,11 @@ public class RestaurantOrderRefundServiceTest {
                 .ownerReason(refundOwnerReason)
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
+
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.createRestaurantOrderRefund(request);
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
         });
 
         // then
@@ -421,12 +552,13 @@ public class RestaurantOrderRefundServiceTest {
                 .refundDetails(List.of(detailRequest1, detailRequest2))
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
         // 진행중인 환불 있도록 설정
         when(restaurantOrderRefundRepository.existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(any(), any())).thenReturn(true);
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.createRestaurantOrderRefund(request);
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
         });
 
         // then
@@ -466,11 +598,12 @@ public class RestaurantOrderRefundServiceTest {
                 .refundDetails(List.of(detailRequest1, detailRequest2))
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
         when(restaurantOrderRefundRepository.existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(any(), any())).thenReturn(false);
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.createRestaurantOrderRefund(request);
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
         });
 
         // then
@@ -510,11 +643,12 @@ public class RestaurantOrderRefundServiceTest {
                 .refundDetails(List.of(detailRequest1, detailRequest2))
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
         when(restaurantOrderRefundRepository.existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(any(), any())).thenReturn(false);
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.createRestaurantOrderRefund(request);
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
         });
 
         // then
@@ -560,12 +694,13 @@ public class RestaurantOrderRefundServiceTest {
                 .refundDetails(List.of(detailRequest1, detailRequest2))
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
         when(restaurantOrderRefundRepository.existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(any(), any())).thenReturn(false);
         when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product1.getId())).thenReturn(Optional.of(restaurantStock1));
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.createRestaurantOrderRefund(request);
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
         });
 
         // then
@@ -605,6 +740,7 @@ public class RestaurantOrderRefundServiceTest {
                 .refundDetails(List.of(detailRequest1, detailRequest2))
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
         when(restaurantOrderRefundRepository.existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(any(), any())).thenReturn(false);
         when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product1.getId())).thenReturn(Optional.of(this.getRestaurantStocks1()));
         when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product2.getId())).thenReturn(Optional.of(this.getRestaurantStocks2()));
@@ -612,7 +748,7 @@ public class RestaurantOrderRefundServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.createRestaurantOrderRefund(request);
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
         });
 
         // then
@@ -652,6 +788,7 @@ public class RestaurantOrderRefundServiceTest {
                 .refundDetails(List.of(detailRequest1, detailRequest2))
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
         when(restaurantOrderRefundRepository.existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(any(), any())).thenReturn(false);
         when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product1.getId())).thenReturn(Optional.of(this.getRestaurantStocks1()));
         when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product2.getId())).thenReturn(Optional.of(this.getRestaurantStocks2()));
@@ -661,7 +798,7 @@ public class RestaurantOrderRefundServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.createRestaurantOrderRefund(request);
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
         });
 
         // then
@@ -701,13 +838,14 @@ public class RestaurantOrderRefundServiceTest {
                 .refundDetails(List.of(detailRequest1, detailRequest2))
                 .build();
 
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
         when(restaurantOrderRefundRepository.existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(any(), any())).thenReturn(false);
         when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product1.getId())).thenReturn(Optional.of(this.getRestaurantStocks1()));
         when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product2.getId())).thenReturn(Optional.empty());
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.createRestaurantOrderRefund(request);
+            restaurantOrderRefundService.createRestaurantOrderRefund(getOwner(), request);
         });
 
         // then
@@ -745,7 +883,7 @@ public class RestaurantOrderRefundServiceTest {
         ArgumentCaptor<List<RestaurantStock>> restaurantStocksCaptor = ArgumentCaptor.forClass(List.class);
 
         // When
-        RestaurantOrderRefundResultResponse response = restaurantOrderRefundService.cancelRestaurantOrderRefund(restaurantOrderRefund.getId());
+        RestaurantOrderRefundResultResponse response = restaurantOrderRefundService.cancelRestaurantOrderRefund(getOwner(), restaurantOrderRefund.getId());
 
         // then
         verify(restaurantOrderRefundRepository, times(1)).save(any(RestaurantOrderRefund.class));
@@ -768,7 +906,7 @@ public class RestaurantOrderRefundServiceTest {
 
     @Test
     @DisplayName("매장 발주 환불 취소 (사장) - 해당 매장 발주 환불이 존재하지 않음")
-    public void t3_1() {
+    public void t3_0() {
         // given
         RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
 
@@ -776,12 +914,30 @@ public class RestaurantOrderRefundServiceTest {
 
         // when
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.cancelRestaurantOrderRefund(restaurantOrderRefund.getId());
+            restaurantOrderRefundService.cancelRestaurantOrderRefund(getOwner(), restaurantOrderRefund.getId());
         });
 
         // then
         assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND.getStatus(), exception.getStatus());
         assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 발주 환불 취소 (사장) - 해당 매장의 사장이 본인이 아니면 환불 취소 불가")
+    public void t3_1() {
+        // given
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.of(restaurantOrderRefund));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.cancelRestaurantOrderRefund(getOtherOwner(), restaurantOrderRefund.getId());
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -798,7 +954,7 @@ public class RestaurantOrderRefundServiceTest {
         // when
         RestaurantOrderRefund finalRestaurantOrderRefund = restaurantOrderRefund;
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.cancelRestaurantOrderRefund(finalRestaurantOrderRefund.getId());
+            restaurantOrderRefundService.cancelRestaurantOrderRefund(getOwner(), finalRestaurantOrderRefund.getId());
         });
 
         // then
@@ -821,7 +977,7 @@ public class RestaurantOrderRefundServiceTest {
         // when
         RestaurantOrderRefund finalRestaurantOrderRefund = restaurantOrderRefund;
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.cancelRestaurantOrderRefund(finalRestaurantOrderRefund.getId());
+            restaurantOrderRefundService.cancelRestaurantOrderRefund(getOwner(), finalRestaurantOrderRefund.getId());
         });
 
         // then
@@ -849,7 +1005,7 @@ public class RestaurantOrderRefundServiceTest {
         // when
         RestaurantOrderRefund finalRestaurantOrderRefund = restaurantOrderRefund;
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            restaurantOrderRefundService.cancelRestaurantOrderRefund(finalRestaurantOrderRefund.getId());
+            restaurantOrderRefundService.cancelRestaurantOrderRefund(getOwner(), finalRestaurantOrderRefund.getId());
         });
 
         // then
@@ -872,6 +1028,14 @@ public class RestaurantOrderRefundServiceTest {
         return Member.builder()
                 .id(1L)
                 .email("owner1@af.shop").provider(ProviderType.KAKAO).name("owner1").nickname("owner1").role(MemberRole.OWNER).phone(1012345687L).certifyAt(LocalDate.now()).agreedToServiceUse(true).agreedToServicePolicy(true).agreedToServicePolicyUse(true)
+                .createdAt(createdAt)
+                .build();
+    }
+
+    private Member getOtherOwner() {
+        return Member.builder()
+                .id(2L)
+                .email("owner2@af.shop").provider(ProviderType.KAKAO).name("owner2").nickname("owner2").role(MemberRole.OWNER).phone(1012345687L).certifyAt(LocalDate.now()).agreedToServiceUse(true).agreedToServicePolicy(true).agreedToServicePolicyUse(true)
                 .createdAt(createdAt)
                 .build();
     }
