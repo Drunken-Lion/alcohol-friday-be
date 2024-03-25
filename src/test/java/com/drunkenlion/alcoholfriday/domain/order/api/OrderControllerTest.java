@@ -1,5 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.order.api;
 
+import com.drunkenlion.alcoholfriday.domain.address.dao.AddressRepository;
+import com.drunkenlion.alcoholfriday.domain.address.entity.Address;
+import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
@@ -8,6 +11,13 @@ import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemRepository;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
+import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
+import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
@@ -26,6 +36,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 
 import static org.hamcrest.Matchers.instanceOf;
@@ -43,6 +54,9 @@ class OrderControllerTest {
 
     private Long itemId; // 아이템의 ID를 저장할 변수
     private Long itemId2;
+    private Long orderId; // 주문의 ID를 저장할 변수
+    public static final String EMAIL = "test@example.com";
+    public static final String EMAIL2 = "test2@example.com";
 
     @Autowired
     private ItemRepository itemRepository;
@@ -54,6 +68,14 @@ class OrderControllerTest {
     private CategoryRepository categoryRepository;
     @Autowired
     private CategoryClassRepository categoryClassRepository;
+    @Autowired
+    private MemberRepository memberRepository;
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
 
     @BeforeEach
     @Transactional
@@ -140,6 +162,76 @@ class OrderControllerTest {
         Item savedItem2 = itemRepository.save(item2);
         itemId2 = savedItem2.getId();
         itemProductRepository.save(itemProduct2);
+
+        // Member 등록
+        Member member = memberRepository.findByEmail(EMAIL)
+                .orElseGet(() -> memberRepository.save(Member.builder()
+                        .email(EMAIL)
+                        .provider(ProviderType.KAKAO)
+                        .name("홍길동")
+                        .nickname("hong")
+                        .role(MemberRole.MEMBER)
+                        .phone(1012345678L)
+                        .certifyAt(null)
+                        .agreedToServiceUse(true)
+                        .agreedToServicePolicy(true)
+                        .agreedToServicePolicyUse(true)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(null)
+                        .deletedAt(null)
+                        .build()));
+
+        // 주소 등록
+        Address address = Address.builder()
+                .member(member)
+                .isPrimary(true)
+                .address("서울특별시 중구 세종대로 110(태평로1가)")
+                .addressDetail("서울특별시청 103호")
+                .postcode("04524")
+                .recipient("홍길동")
+                .phone(1012345678L)
+                .request("부재시 문앞에 놓아주세요.")
+                .build();
+        addressRepository.save(address);
+
+        // 주문 등록
+        Order order =
+                orderRepository.save(Order.builder()
+                        .orderNo("240314-221628-987501-1")
+                        .orderStatus(OrderStatus.PAYMENT_COMPLETED)
+                        .price(BigDecimal.valueOf(220000L))
+                        .deliveryPrice(BigDecimal.valueOf(2500L))
+                        .totalPrice(BigDecimal.valueOf(225000L))
+                        .recipient("테스트1")
+                        .phone(1012345678L)
+                        .address("서울특별시 마포구 연남동")
+                        .addressDetail("123-12")
+                        .description("부재시 연락주세요.")
+                        .postcode("123123")
+                        .member(member)
+                        .build());
+        orderId = order.getId();
+
+        OrderDetail orderDetail =
+                orderDetailRepository.save(
+                        OrderDetail.builder()
+                                .itemPrice(item.getPrice())
+                                .quantity(2L)
+                                .totalPrice(BigDecimal.valueOf(100000))
+                                .build());
+        orderDetail.addItem(item);
+        orderDetail.addOrder(order);
+
+        OrderDetail orderDetail2 =
+                orderDetailRepository.save(
+                        OrderDetail.builder()
+                                .itemPrice(item2.getPrice())
+                                .quantity(1L)
+                                .totalPrice(BigDecimal.valueOf(20000))
+                                .build()
+                );
+        orderDetail2.addItem(item2);
+        orderDetail2.addOrder(order);
     }
 
     @AfterEach
@@ -150,11 +242,15 @@ class OrderControllerTest {
         productRepository.deleteAll();
         categoryRepository.deleteAll();
         categoryClassRepository.deleteAll();
+        memberRepository.deleteAll();
+        addressRepository.deleteAll();
+        orderRepository.deleteAll();
+        orderDetailRepository.deleteAll();
     }
 
 
     @Test
-    @DisplayName("한 개 상품 주문 접수")
+    @DisplayName("[즉시 주문] 한 개 상품 주문 접수")
     @WithAccount
     void orderReceive_oneItem() throws Exception {
         // when
@@ -169,13 +265,7 @@ class OrderControllerTest {
                                       "itemId": "%d",
                                       "quantity": "2"
                                     }
-                                  ],
-                                  "recipient" : "홍길동",
-                                  "phone" : "1012345678",
-                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
-                                  "addressDetail" : "서울특별시청 103호",
-                                  "description" : "부재시 문앞에 놓아주세요.",
-                                  "postcode" : "04524"
+                                  ]
                                 }
                                 """.formatted(itemId))
                 )
@@ -199,7 +289,7 @@ class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("한 개 이상 상품 주문 접수")
+    @DisplayName("[장바구니 주문] 한 개 이상 상품 주문 접수")
     @WithAccount
     void orderReceive_itemList() throws Exception {
         // when
@@ -218,13 +308,7 @@ class OrderControllerTest {
                                       "itemId": "%d",
                                       "quantity": "1"
                                     }
-                                  ],
-                                  "recipient" : "홍길동",
-                                  "phone" : "1012345678",
-                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
-                                  "addressDetail" : "서울특별시청 103호",
-                                  "description" : "부재시 문앞에 놓아주세요.",
-                                  "postcode" : "04524"
+                                  ]
                                 }
                                 """.formatted(itemId, itemId2))
                 )
@@ -265,13 +349,7 @@ class OrderControllerTest {
                                       "itemId": "100",
                                       "quantity": "2"
                                     }
-                                  ],
-                                  "recipient" : "홍길동",
-                                  "phone" : "1012345678",
-                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
-                                  "addressDetail" : "서울특별시청 103호",
-                                  "description" : "부재시 문앞에 놓아주세요.",
-                                  "postcode" : "04524"
+                                  ]
                                 }
                                 """)
                 )
@@ -306,13 +384,7 @@ class OrderControllerTest {
                                       "itemId": "%d",
                                       "quantity": "2"
                                     }
-                                  ],
-                                  "recipient" : "홍길동",
-                                  "phone" : "1012345678",
-                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
-                                  "addressDetail" : "서울특별시청 103호",
-                                  "description" : "부재시 문앞에 놓아주세요.",
-                                  "postcode" : "04524"
+                                  ]
                                 }
                                 """.formatted(itemId))
                 )
@@ -324,5 +396,130 @@ class OrderControllerTest {
                 .andExpect(handler().handlerType(OrderController.class))
                 .andExpect(handler().methodName("receive"))
                 .andExpect(jsonPath("$.message").value("현재 상품에 재고가 없습니다."));
+    }
+
+    @Test
+    @DisplayName("구매하기(주문 접수)할 때 등록된 주소가 없는 경우")
+    @WithAccount
+    void orderReceive_noAddress() throws Exception {
+        // given
+        addressRepository.deleteAll();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "orderItemList": [
+                                    {
+                                      "itemId": "%d",
+                                      "quantity": "2"
+                                    }
+                                  ]
+                                }
+                                """.formatted(itemId))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().is4xxClientError())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("receive"))
+                .andExpect(jsonPath("$.message").value("등록된 주소가 없습니다."));
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 배송지 업데이트")
+    @WithAccount
+    void updateOrderAddress() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/orders/" + orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "orderNo": "240314-221628-987501-1",
+                                  "recipient" : "홍길동",
+                                  "phone" : "1012345678",
+                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
+                                  "addressDetail" : "서울특별시청 103호",
+                                  "description" : "부재시 문앞에 놓아주세요.",
+                                  "postcode" : "04524"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("updateOrderAddress"));
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 배송지 업데이트 - 주문 번호가 맞지 않는 경우")
+    @WithAccount
+    void updateOrderAddress_invalidOrderNo() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/orders/" + orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "orderNo": "240314-1",
+                                  "recipient" : "홍길동",
+                                  "phone" : "1012345678",
+                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
+                                  "addressDetail" : "서울특별시청 103호",
+                                  "description" : "부재시 문앞에 놓아주세요.",
+                                  "postcode" : "04524"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("updateOrderAddress"))
+                .andExpect(jsonPath("$.message").value("존재하지 않는 주문입니다."));
+    }
+
+    @Test
+    @DisplayName("주문 생성 후 배송지 업데이트 - 주문한 회원이 아닐 경우")
+    @WithAccount(email = EMAIL2)
+    void updateOrderAddress_invalidMember() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(post("/v1/orders/" + orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content("""
+                                {
+                                  "orderNo": "240314-221628-987501-1",
+                                  "recipient" : "홍길동",
+                                  "phone" : "1012345678",
+                                  "address" : "서울특별시 중구 세종대로 110(태평로1가)",
+                                  "addressDetail" : "서울특별시청 103호",
+                                  "description" : "부재시 문앞에 놓아주세요.",
+                                  "postcode" : "04524"
+                                }
+                                """)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isForbidden())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("updateOrderAddress"))
+                .andExpect(jsonPath("$.message").value("권한이 없는 접근입니다."));
     }
 }
