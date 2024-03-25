@@ -158,7 +158,7 @@ class AdminQuestionControllerTest {
                         .status(QuestionStatus.INCOMPLETE)
                         .build()
         );
-
+        System.out.println("aaaaaaaaaaaaaaa "+question.getId());
         Answer answer = answerRepository.save(
                 Answer.builder()
                         .question(question)
