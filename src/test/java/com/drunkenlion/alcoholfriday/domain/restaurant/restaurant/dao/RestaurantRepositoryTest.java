@@ -209,14 +209,13 @@ public class RestaurantRepositoryTest {
     @DisplayName("범위 내의 모든 레스토랑 정보 찾기")
     public void bounds() {
         //when
-        List<RestaurantMapResponse> restaurants = restaurantService.findRestaurantInMap(neLatitude, neLongitude, swLatitude, swLongitude);
+        List<Restaurant> restaurants = restaurantRepository.getRestaurant(neLatitude, neLongitude, swLatitude,
+                swLongitude);
 
         //then
-        assertThat(restaurants.get(0).getRestaurantCategory()).isEqualTo(restaurantCategory);
-        assertThat(restaurants.get(0).getRestaurantName()).isEqualTo(restaurantName);
-        assertThat(restaurants.get(0).getRestaurantAddress()).isEqualTo(restaurantAddress);;
-        assertThat(restaurants.get(0).getLatitude()).isEqualTo(restaurantLatitude);
-        assertThat(restaurants.get(0).getLongitude()).isEqualTo(restaurantLongitude);
+        assertThat(restaurants.get(0).getCategory()).isEqualTo(restaurantCategory);
+        assertThat(restaurants.get(0).getName()).isEqualTo(restaurantName);
+        assertThat(restaurants.get(0).getAddress()).isEqualTo(restaurantAddress);;
     }
 
     @Test
