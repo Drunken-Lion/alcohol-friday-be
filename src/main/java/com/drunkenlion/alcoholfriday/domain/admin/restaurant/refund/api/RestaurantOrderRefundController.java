@@ -2,8 +2,9 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.application.RestaurantOrderRefundService;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResultResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundRejectRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResultResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -80,6 +81,16 @@ public class RestaurantOrderRefundController {
             @PathVariable("id") Long id
     ) {
         RestaurantOrderRefundResultResponse response = restaurantOrderRefundService.approvalRestaurantOrderRefund(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "매장 환불 반려(관리자)", description = "관리자 권한에 대한 매장 환불 반려")
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<RestaurantOrderRefundResultResponse> rejectRestaurantOrderRefund(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody RestaurantOrderRefundRejectRequest request
+    ) {
+        RestaurantOrderRefundResultResponse response = restaurantOrderRefundService.rejectRestaurantOrderRefund(id, request);
         return ResponseEntity.ok(response);
     }
 }

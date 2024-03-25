@@ -55,4 +55,8 @@ public class RestaurantOrderRefund extends BaseEntity {
     public void updateStatus(RestaurantOrderRefundStatus status) {
         this.status = status;
     }
+
+    public void updateAdminReason(String adminReason) {
+        this.adminReason = adminReason;
+    }
 }

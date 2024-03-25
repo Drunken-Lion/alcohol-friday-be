@@ -7,6 +7,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.Restaura
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundRejectRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResultResponse;
@@ -148,10 +149,7 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
         restaurantStockRepository.saveAll(stocks);
 
         // 환불 상태 취소로 변경
-        refund = refund.toBuilder()
-                .status(RestaurantOrderRefundStatus.CANCELLED)
-                .build();
-
+        refund.updateStatus(RestaurantOrderRefundStatus.CANCELLED);
         restaurantOrderRefundRepository.save(refund);
 
         return RestaurantOrderRefundResultResponse.of(refund);
@@ -193,6 +191,52 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
         restaurantOrderRefundRepository.save(refund);
 
         this.refundCompleted(refund, refundDetails);
+
+        return RestaurantOrderRefundResultResponse.of(refund);
+    }
+
+    @Override
+    @Transactional
+    public RestaurantOrderRefundResultResponse rejectRestaurantOrderRefund(Long id, RestaurantOrderRefundRejectRequest request) {
+        RestaurantOrderRefund refund = restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND)
+                        .build());
+
+        // 환불 승인 대기 이외에는 환불 반려 불가
+        if (!refund.getStatus().equals(RestaurantOrderRefundStatus.WAITING_APPROVAL)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.RESTAURANT_REFUND_REJECT_FAIL)
+                    .build();
+        }
+
+        List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(refund);
+
+        if (refundDetails.isEmpty()) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND_DETAIL)
+                    .build();
+        }
+
+        List<RestaurantStock> stocks = new ArrayList<>();
+        for (RestaurantOrderRefundDetail refundDetail : refundDetails) {
+            RestaurantStock restaurantStock = restaurantStockRepository
+                    .findByRestaurantIdAndProductIdAndDeletedAtIsNull(refund.getRestaurant().getId(), refundDetail.getProduct().getId())
+                    .orElseThrow(() -> BusinessException.builder()
+                            .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_STOCK)
+                            .build());
+
+            // 환불 반려 시 매장 재고가 다시 플러스 된다.
+            restaurantStock.plusQuantity(refundDetail.getQuantity());
+            stocks.add(restaurantStock);
+        }
+
+        restaurantStockRepository.saveAll(stocks);
+
+        // 환불 상태 반려로 변경 및 반려 사유 등록
+        refund.updateStatus(RestaurantOrderRefundStatus.REJECTED_APPROVAL);
+        refund.updateAdminReason(request.getAdminReason());
+        restaurantOrderRefundRepository.save(refund);
 
         return RestaurantOrderRefundResultResponse.of(refund);
     }
