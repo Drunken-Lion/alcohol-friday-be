@@ -21,6 +21,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Day
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
+import java.time.LocalDate;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Coordinate;
@@ -29,6 +30,8 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,7 +93,7 @@ public class RestaurantRepositoryTest {
     @Transactional
     void beforeEach() {
         Member member = Member.builder()
-                .email("toss1@example.com")
+                .email("owner1@example.com")
                 .provider(ProviderType.KAKAO)
                 .name("toss_1")
                 .nickname("toss_1")
@@ -159,8 +162,62 @@ public class RestaurantRepositoryTest {
 
         restaurantStockRepository.save(stock1);
         restaurantStockRepository.save(stock2);
+
+        Restaurant restaurant2 = Restaurant.builder()
+                .member(member)
+                .category("학식")
+                .name("우정산 폴리텍대학")
+                .address("우정산 서울강서 캠퍼스")
+                .location(restaurant_location)
+                .contact(1012345678L)
+                .menu(getMenuTest())
+                .time(getTimeTest())
+                .provision(getProvisionTest())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        restaurantRepository.save(restaurant2);
+
+        Member 회원_관리자 = memberRepository.save(Member.builder()
+                .email("admin1@example.com")
+                .provider(ProviderType.KAKAO)
+                .name("관리자")
+                .nickname("admin")
+                .role(MemberRole.ADMIN)
+                .phone(1041932693L)
+                .certifyAt(LocalDate.now())
+                .agreedToServiceUse(true)
+                .agreedToServicePolicy(true)
+                .agreedToServicePolicyUse(true)
+                .build());
+
+        final Coordinate 가게1_좌표 = new Coordinate(0, 0);
+        final Point 가게1_위치 = geometryFactory.createPoint(가게1_좌표);
+
+        Restaurant 가게1 = restaurantRepository.save(Restaurant.builder()// 1
+                .member(회원_관리자)
+                .category("퓨전 음식점")
+                .name("원주")
+                .address("서울특별시 종로구 종로8길 16")
+                .location(가게1_위치) // 위도, 경도
+                .contact(027331371L)
+                .menu(Map.of("김치찌개", 8000, "순두부", 8000, "제육볶음", 8000, "황태국", 8000))
+                .time(getTimeTest())
+                .createdAt(LocalDateTime.now())
+                .provision(getProvisionTest())
+                .build());
     }
 
+    @AfterEach
+    @Transactional
+    void afterEach() {
+        memberRepository.deleteAll();
+        restaurantRepository.deleteAll();
+        restaurantStockRepository.deleteAll();
+        productRepository.deleteAll();
+        itemRepository.deleteAll();
+        itemProductRepository.deleteAll();
+    }
 
     private Map<String, Object> getMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
@@ -207,7 +264,7 @@ public class RestaurantRepositoryTest {
 
     @Test
     @DisplayName("범위 내의 모든 레스토랑 정보 찾기")
-    public void bounds() {
+    public void t1() {
         //when
         List<Restaurant> restaurants = restaurantRepository.getRestaurant(neLatitude, neLongitude, swLatitude,
                 swLongitude);
@@ -215,13 +272,15 @@ public class RestaurantRepositoryTest {
         //then
         assertThat(restaurants.get(0).getCategory()).isEqualTo(restaurantCategory);
         assertThat(restaurants.get(0).getName()).isEqualTo(restaurantName);
-        assertThat(restaurants.get(0).getAddress()).isEqualTo(restaurantAddress);;
+        assertThat(restaurants.get(0).getAddress()).isEqualTo(restaurantAddress);
+        assertThat(restaurants.get(0).getLocation().getX()).isEqualTo(restaurantLongitude);
+        assertThat(restaurants.get(0).getLocation().getY()).isEqualTo(restaurantLatitude);
     }
 
     @Test
     @Transactional
     @DisplayName("사용자의 위치로 부터 5km 이내의 가게 정보 조회")
-    public void nearby() {
+    public void t2() {
         //when
         Product product1 = Product.builder()
                 .name(dongdongju)
@@ -253,24 +312,46 @@ public class RestaurantRepositoryTest {
         itemProductRepository.save(itemProduct);
         itemRepository.save(item);
 
-        Page<RestaurantNearbyResponse> restaurantNearbyResponses = restaurantService.findRestaurantWithItem(userLocationLatitude, userLocationLongitude, item.getId(), page, size);
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<RestaurantNearbyResponse> restaurantNearbyResponses =
+                restaurantRepository.getRestaurantSellingProducts(userLocationLatitude, userLocationLongitude, item, pageable);
 
         List<RestaurantNearbyResponse> content = restaurantNearbyResponses.getContent();
 
         //then
         assertThat(content.get(0).getAddress()).isEqualTo(restaurantAddress);
         assertThat(content.get(0).getRestaurantName()).isEqualTo(restaurantName);
-        assertThat(content.get(0).getProductName()).isEqualTo(dongdongju);;
+        assertThat(content.get(0).getProductName()).isEqualTo(dongdongju);
+        assertThat(content.get(0).getDistanceKm()).isNotNull();
     }
 
-    @AfterEach
-    @Transactional
-    void afterEach() {
-        memberRepository.deleteAll();
-        restaurantRepository.deleteAll();
-        restaurantStockRepository.deleteAll();
-        productRepository.deleteAll();
-        itemRepository.deleteAll();
-        itemProductRepository.deleteAll();
+    @Test
+    @DisplayName("전체 매장 조회 - ADMIN")
+    void findAllBasedAuthAdminTest() {
+        // given
+        Member 회원_관리자 = memberRepository.findByEmail("admin1@example.com").get();
+        Pageable pageable = PageRequest.of(0, 20);
+
+        // when
+        Page<Restaurant> search = restaurantRepository.findAllBasedAuth(회원_관리자, pageable);
+
+        // then
+        assertThat(search.getContent()).isInstanceOf(List.class);
+        assertThat(search.getContent().size()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("전체 매장 조회 - OWNER")
+    void findAllBasedAuthOwnerTest() {
+        // given
+        Member 회원_사장1 = memberRepository.findByEmail("owner1@example.com").get();
+        Pageable pageable = PageRequest.of(0, 20);
+
+        // when
+        Page<Restaurant> search = restaurantRepository.findAllBasedAuth(회원_사장1, pageable);
+
+        // then
+        assertThat(search.getContent()).isInstanceOf(List.class);
+        assertThat(search.getContent().size()).isEqualTo(2);
     }
 }
