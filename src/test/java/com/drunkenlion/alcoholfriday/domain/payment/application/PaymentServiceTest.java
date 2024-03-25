@@ -230,7 +230,7 @@ class PaymentServiceTest {
     }
 
     @Test
-    @DisplayName("결제 후 토스페이먼츠에서 응답 받은 값으로 Payment 저장")
+    @DisplayName("결제 성공 후 토스페이먼츠에서 응답 받은 값으로 Payment 저장")
     void saveSuccessPayment() {
         // given
         when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
@@ -263,7 +263,7 @@ class PaymentServiceTest {
     }
 
     @Test
-    @DisplayName("결제 후 PaymentProvider 등 enum 클래스에 없는 값일 경우")
+    @DisplayName("결제 성공 후 PaymentProvider 등 enum 클래스에 없는 값일 경우")
     void saveSuccessPayment_notFound_paymentProvider() {
         // given
         when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
@@ -294,7 +294,7 @@ class PaymentServiceTest {
     }
 
     @Test
-    @DisplayName("결제 후 없는 주문 번호 일 경우")
+    @DisplayName("결제 성공 후 없는 주문 번호 일 경우")
     void saveSuccessPayment_notFound_orderNo() {
         // given
         TossPaymentsReq tossPaymentsReq = TossPaymentsReq.builder()
@@ -323,24 +323,21 @@ class PaymentServiceTest {
     @DisplayName("결제 성공 후 장바구니에서 주문 아이템 삭제")
     void paymentSuccess_deleteCartItems() {
         // given
-        // orderRepository.findByOrderNo(orderNo)
-//        when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
-
         List<DeleteCartRequest> deleteCartRequests = new ArrayList<>();
         deleteCartRequests.add(DeleteCartRequest.of(1L));
         deleteCartRequests.add(DeleteCartRequest.of(2L));
 
-        doNothing().when(cartService).deleteCartList(deleteCartRequests, member);
+        doNothing().when(cartService).deleteCartList(deleteCartRequests, getDataOrder().getMember());
 
-        // cartService.deleteCartList(deleteCartRequests, order.getMember())
+        // when
         cartService.deleteCartList(deleteCartRequests, member);
 
-//        verify(orderRepository, times(1)).findByOrderNo(orderNo);
-//        verify(cartService, times(1));
+        // then
+        verify(cartService, times(1)).deleteCartList(deleteCartRequests, getDataOrder().getMember());
     }
 
     @Test
-    @DisplayName("결제 성공 후 주문번호가 없는 경우")
+    @DisplayName("결제 성공 후 주문번호에 해당하는 주문이 없는 경우")
     void paymentSuccess_deleteCartItems_fail() {
         // given
         when(orderRepository.findByOrderNo(orderNo)).thenReturn(Optional.empty());
