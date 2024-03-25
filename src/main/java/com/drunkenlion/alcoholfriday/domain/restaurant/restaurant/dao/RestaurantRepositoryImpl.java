@@ -119,13 +119,13 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
         return PageableExecutionUtils.getPage(restaurants, pageable, total::fetchOne);
     }
 
-    public OrderSpecifier<Double> getClosestStoreDistanceFromUser(double userLocationLatitude, double userLocationLongitude) {
+    private OrderSpecifier<Double> getClosestStoreDistanceFromUser(double userLocationLatitude, double userLocationLongitude) {
         return Expressions.numberTemplate(Double.class,
                 "ST_Distance_Sphere(point({0}, {1}), restaurant.location)",
                 userLocationLongitude, userLocationLatitude).asc();
     }
 
-    public BooleanExpression isRestaurantWithinRadius(double userLocationLongitude, double userLocationLatitude, double radius) {
+    private BooleanExpression isRestaurantWithinRadius(double userLocationLongitude, double userLocationLatitude, double radius) {
         return Expressions.booleanTemplate(
                 "ST_Distance_Sphere(point({0}, {1}), restaurant.location) <= {2}",
                 userLocationLongitude, userLocationLatitude, radius);
