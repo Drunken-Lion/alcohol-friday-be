@@ -59,7 +59,7 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
         RestaurantValidator.validateOwnership(member, restaurant);
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByRestaurantIdAndDeletedAtIsNull(restaurantId, pageable);
+        Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByRestaurantIdAndDeletedAtIsNullOrderByIdDesc(restaurantId, pageable);
         List<RestaurantOrderRefundResponse> refundResponses = this.getRefundResponses(refundPage);
 
         return new PageImpl<>(refundResponses, pageable, refundPage.getTotalElements());
