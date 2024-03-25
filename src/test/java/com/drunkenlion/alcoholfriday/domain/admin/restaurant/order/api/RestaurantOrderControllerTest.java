@@ -420,8 +420,9 @@ public class RestaurantOrderControllerTest {
 
         // when
         ResultActions resultActions = mvc
-                .perform(get("/v1/admin/restaurant-orders/" + restaurant.getId() + "/owner")
-                        .contentType(MediaType.APPLICATION_JSON))
+                .perform(get("/v1/admin/restaurant-orders/owner")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("restaurantId", restaurant.getId().toString()))
                 .andDo(print());
 
         // then

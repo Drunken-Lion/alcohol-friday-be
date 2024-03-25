@@ -41,10 +41,10 @@ public class RestaurantOrderController {
     }
 
     @Operation(summary = "발주 내역 조회 (사업자)", description = "해당 레스토랑의 발주 내역 조회")
-    @GetMapping("{id}/owner")
+    @GetMapping("owner")
     public ResponseEntity<PageResponse<OwnerRestaurantOrderListResponse>> getRestaurantOrdersByOwner(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable("id") Long restaurantId,
+            @RequestParam(name = "restaurantId") Long restaurantId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
 
