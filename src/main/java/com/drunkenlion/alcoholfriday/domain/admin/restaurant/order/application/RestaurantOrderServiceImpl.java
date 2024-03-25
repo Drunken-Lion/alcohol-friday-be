@@ -7,7 +7,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderValidator;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantValidator;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -58,7 +58,7 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
         Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
 
-        RestaurantOrderValidator.validateOwnership(member, restaurant);
+        RestaurantValidator.validateOwnership(member, restaurant);
 
         Pageable pageable = PageRequest.of(page, size);
 

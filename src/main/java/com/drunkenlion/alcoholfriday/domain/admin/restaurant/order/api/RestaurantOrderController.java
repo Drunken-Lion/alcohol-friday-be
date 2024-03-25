@@ -3,8 +3,9 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.api;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application.RestaurantOrderService;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderValidator;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
+import com.drunkenlion.alcoholfriday.global.common.util.RoleValidator;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -13,7 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,7 +34,7 @@ public class RestaurantOrderController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        RestaurantOrderValidator.validateAdminOrStoreManager(userPrincipal.getMember());
+        RoleValidator.validateAdminOrStoreManager(userPrincipal.getMember());
 
         Page<RestaurantOrderListResponse> pages =
                 restaurantOrderService.getRestaurantOrdersByAdminOrStoreManager(userPrincipal.getMember(), page, size);
@@ -48,7 +52,7 @@ public class RestaurantOrderController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        RestaurantOrderValidator.validateOwner(userPrincipal.getMember());
+        RoleValidator.validateRole(userPrincipal.getMember(), MemberRole.OWNER);
 
         Page<OwnerRestaurantOrderListResponse> pages =
                 restaurantOrderService.getRestaurantOrdersByOwner(userPrincipal.getMember(), restaurantId, page, size);
