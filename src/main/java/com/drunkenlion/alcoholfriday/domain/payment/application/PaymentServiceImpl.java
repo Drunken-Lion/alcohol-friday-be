@@ -57,6 +57,10 @@ public class PaymentServiceImpl implements PaymentService {
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
+        // Order 상태 정보 업데이트
+        // TODO 테스트 코드 작성하기
+        order.updateOrderStatus(OrderStatus.PAYMENT_COMPLETED);
+
         Payment payment = TossPaymentsReq.toEntity(tossPaymentsReq, member, order);
         paymentRepository.save(payment);
     }

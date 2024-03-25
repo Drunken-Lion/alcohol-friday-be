@@ -126,4 +126,8 @@ public class Order extends BaseEntity {
         this.description = orderAddressRequest.getDescription();
         this.postcode = orderAddressRequest.getPostcode();
     }
+
+    public void updateOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
 }
