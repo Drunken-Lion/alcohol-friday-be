@@ -7,6 +7,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 
@@ -54,6 +55,12 @@ public class RestaurantOrderValidator {
         }
 
         return orderDetail.getQuantity();
+    }
+
+    public static void validateOwnership(Member member, Restaurant restaurant) {
+        if (!restaurant.getMember().getId().equals(member.getId())) {
+            throw new BusinessException(Fail.FORBIDDEN);
+        }
     }
 
     private static boolean isAdminOrStoreManager(Member member) {

@@ -19,6 +19,7 @@ import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
 import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
@@ -44,6 +45,7 @@ import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,6 +58,9 @@ public class RestaurantOrderServiceTest {
     private RestaurantOrderServiceImpl restaurantOrderService;
 
     @Mock
+    private RestaurantRepository restaurantRepository;
+
+    @Mock
     private RestaurantOrderRepository restaurantOrderRepository;
 
     @Mock
@@ -65,6 +70,7 @@ public class RestaurantOrderServiceTest {
     private FileService fileService;
 
     // Restaurant
+    private Long restaurantId = 1L;
     private String businessName = "레스쁘아";
 
     // Product
@@ -159,7 +165,9 @@ public class RestaurantOrderServiceTest {
     @DisplayName("사장의 발주 내역 조회")
     public void getRestaurantOrdersByOwnerTest() {
         // given
-        when(restaurantOrderRepository.findRestaurantOrdersByOwner(any(), any(Pageable.class)))
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(getRestaurant()));
+
+        when(restaurantOrderRepository.findRestaurantOrdersByOwner(any(), any(), any(Pageable.class)))
                 .thenReturn(getRestaurantOrders());
 
         when(restaurantOrderRefundRepository.findRefundByRestaurantOrderId(any()))
@@ -169,7 +177,7 @@ public class RestaurantOrderServiceTest {
 
         // when
         Page<OwnerRestaurantOrderListResponse> orders =
-                restaurantOrderService.getRestaurantOrdersByOwner(getOwner(), page, size);
+                restaurantOrderService.getRestaurantOrdersByOwner(getOwner(), restaurantId, page, size);
 
         // then
         List<OwnerRestaurantOrderListResponse> content = orders.getContent();
@@ -260,7 +268,7 @@ public class RestaurantOrderServiceTest {
     private Restaurant getRestaurant() {
         Member owner = getOwner();
         return Restaurant.builder()
-                .id(1L)
+                .id(restaurantId)
                 .member(owner)
                 .category("음식점")
                 .name("레스쁘아")

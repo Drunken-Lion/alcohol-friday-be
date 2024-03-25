@@ -8,6 +8,5 @@ import org.springframework.data.domain.Page;
 public interface RestaurantOrderService {
     Page<RestaurantOrderListResponse> getRestaurantOrdersByAdminOrStoreManager(Member member, int page, int size);
 
-    Page<OwnerRestaurantOrderListResponse> getRestaurantOrdersByOwner(Member member, int page, int size);
-
+    Page<OwnerRestaurantOrderListResponse> getRestaurantOrdersByOwner(Member member, Long restaurantId, int page, int size);
 }
