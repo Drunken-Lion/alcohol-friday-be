@@ -23,6 +23,7 @@ import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
+import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -59,12 +60,16 @@ class QuestionControllerTest {
     @Autowired
     private AnswerRepository answerRepository;
 
+    @Autowired
+    private FileRepository fileRepository;
+
     @AfterEach
     @Transactional
     public void after() {
         questionRepository.deleteAll();
         memberRepository.deleteAll();
         answerRepository.deleteAll();
+        fileRepository.deleteAll();
     }
 
     @Test
