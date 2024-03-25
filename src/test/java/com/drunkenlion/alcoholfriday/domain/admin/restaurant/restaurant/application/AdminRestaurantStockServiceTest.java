@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 @Transactional
 public class AdminRestaurantStockServiceTest {
     @InjectMocks
-    private AdminRestaurantServiceImpl adminRestaurantService;
+    private AdminRestaurantStockServiceImpl adminRestaurantStockService;
 
     @Mock
     private RestaurantRepository restaurantRepository;
@@ -84,7 +84,7 @@ public class AdminRestaurantStockServiceTest {
 
         // when
         Page<RestaurantStockListResponse> stocks =
-                adminRestaurantService.getRestaurantStocks(getAdmin(), getRestaurant().getId(), page, size);
+                adminRestaurantStockService.getRestaurantStocks(getAdmin(), getRestaurant().getId(), page, size);
 
         // then
         List<RestaurantStockListResponse> content = stocks.getContent();

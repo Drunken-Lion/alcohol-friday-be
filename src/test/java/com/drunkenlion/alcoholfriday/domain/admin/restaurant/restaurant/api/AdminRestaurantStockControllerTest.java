@@ -201,7 +201,7 @@ public class AdminRestaurantStockControllerTest {
         // then
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(handler().handlerType(AdminRestaurantController.class))
+                .andExpect(handler().handlerType(AdminRestaurantStockController.class))
                 .andExpect(handler().methodName("getRestaurantStocks"))
                 .andExpect(jsonPath("$.data", instanceOf(List.class)))
                 .andExpect(jsonPath("$.data.length()", is(2)))
