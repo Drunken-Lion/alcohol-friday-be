@@ -8,6 +8,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.Restaura
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundRejectRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResultResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
@@ -83,6 +84,8 @@ public class RestaurantOrderRefundServiceTest {
     // RestaurantStock
     private Long stockQuantity1 = 100L;
     private Long stockQuantity2 = 50L;
+    private Long productQuantity1 = 100L;
+    private Long productQuantity2 = 50L;
 
     // Product
     private String productName1 = "1000억 막걸리 프리바이오";
@@ -166,7 +169,7 @@ public class RestaurantOrderRefundServiceTest {
     public void t1() {
         // given
         when(this.restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(this.getRestaurant()));
-        when(this.restaurantOrderRefundRepository.findByRestaurantIdAndDeletedAtIsNull(any(), any(Pageable.class))).thenReturn(this.getRestaurantOrderRefunds());
+        when(this.restaurantOrderRefundRepository.findByRestaurantIdAndDeletedAtIsNullOrderByIdDesc(any(), any(Pageable.class))).thenReturn(this.getRestaurantOrderRefunds());
         when(this.restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(any())).thenReturn(this.getRestaurantOrderRefundDetails());
 
         // when
@@ -1013,6 +1016,349 @@ public class RestaurantOrderRefundServiceTest {
         assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_STOCK.getMessage(), exception.getMessage());
     }
 
+    @Test
+    @DisplayName("매장 발주 환불 목록 조회 (관리자)")
+    public void t4() {
+        // given
+        when(this.restaurantOrderRefundRepository.findByDeletedAtIsNullOrderByIdDesc(any(Pageable.class))).thenReturn(this.getRestaurantOrderRefunds());
+        when(this.restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(any())).thenReturn(this.getRestaurantOrderRefundDetails());
+
+        // when
+        Page<RestaurantOrderRefundResponse> refunds = this.restaurantOrderRefundService.getAllRestaurantOrderRefunds(page, size);
+
+        // then
+        List<RestaurantOrderRefundResponse> content = refunds.getContent();
+
+        assertThat(content).isInstanceOf(List.class);
+        assertThat(content.size()).isEqualTo(1);
+        assertThat(content.get(0).getRefundId()).isEqualTo(refundId);
+        assertThat(content.get(0).getOrderId()).isEqualTo(orderId);
+        assertThat(content.get(0).getBusinessName()).isEqualTo(businessName);
+        assertThat(content.get(0).getFullAddress()).isEqualTo(fullAddress);
+        assertThat(content.get(0).getOwnerReason()).isEqualTo(refundOwnerReason);
+        assertThat(content.get(0).getRefundCreatedAt()).isEqualTo(createdAt);
+        assertThat(content.get(0).getStatus()).isEqualTo(refundStatus);
+        assertThat(content.get(0).getTotalPrice()).isEqualTo(refundTotalPrice);
+        assertThat(content.get(0).getRefundDetails().get(0).getProductName()).isEqualTo(productName1);
+        assertThat(content.get(0).getRefundDetails().get(0).getPrice()).isEqualTo(refundDetailPrice1);
+        assertThat(content.get(0).getRefundDetails().get(0).getQuantity()).isEqualTo(refundDetailQuantity1);
+        assertThat(content.get(0).getRefundDetails().get(0).getFile()).isEqualTo(null);
+        assertThat(content.get(0).getRefundDetails().get(1).getProductName()).isEqualTo(productName2);
+        assertThat(content.get(0).getRefundDetails().get(1).getPrice()).isEqualTo(refundDetailPrice2);
+        assertThat(content.get(0).getRefundDetails().get(1).getQuantity()).isEqualTo(refundDetailQuantity2);
+        assertThat(content.get(0).getRefundDetails().get(1).getFile()).isEqualTo(null);
+    }
+
+    @Test
+    @DisplayName("매장 환불 승인 (관리자)")
+    public void t5() {
+        // given
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+        restaurantOrderRefund = restaurantOrderRefund.toBuilder()
+                .status(RestaurantOrderRefundStatus.WAITING_APPROVAL)
+                .restaurantOrderRefundDetails(getRestaurantOrderRefundDetails())
+                .build();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.of(restaurantOrderRefund));
+        when(restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(restaurantOrderRefund)).thenReturn(getRestaurantOrderRefundDetails());
+
+        when(restaurantOrderRefundRepository.save(any(RestaurantOrderRefund.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<Product> savedProducts1 = new ArrayList<>();
+        when(productRepository.saveAll(anyList()))
+                .thenAnswer(invocation -> {
+                    savedProducts1.addAll(invocation.getArgument(0));
+                    return invocation.getArgument(0);
+                });
+
+        ArgumentCaptor<RestaurantOrderRefund> restaurantOrderRefundCaptor = ArgumentCaptor.forClass(RestaurantOrderRefund.class);
+        ArgumentCaptor<List<Product>> productsCaptor = ArgumentCaptor.forClass(List.class);
+
+        // When
+        RestaurantOrderRefundResultResponse response = restaurantOrderRefundService.approvalRestaurantOrderRefund(restaurantOrderRefund.getId());
+
+        // then
+        verify(restaurantOrderRefundRepository, times(2)).save(any(RestaurantOrderRefund.class));
+        assertEquals(2, savedProducts1.size());
+
+        verify(productRepository).saveAll(productsCaptor.capture());
+
+        List<Product> savedProducts = productsCaptor.getValue();
+
+        assertThat(savedProducts.get(0).getQuantity()).isEqualTo(productQuantity1 + refundDetailQuantity1);
+        assertThat(savedProducts.get(1).getQuantity()).isEqualTo(productQuantity2 + refundDetailQuantity2);
+
+        assertThat(response.getId()).isEqualTo(refundId);
+        assertThat(response.getTotalPrice()).isEqualTo(refundTotalPrice);
+        assertThat(response.getOwnerReason()).isEqualTo(refundOwnerReason);
+        assertThat(response.getAdminReason()).isEqualTo(null);
+        assertThat(response.getStatus()).isEqualTo(RestaurantOrderRefundStatus.COMPLETED);
+    }
+
+    @Test
+    @DisplayName("매장 환불 승인 (관리자) - 해당 매장 발주 환불이 존재하지 않음")
+    public void t5_1() {
+        // given
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+        restaurantOrderRefund = restaurantOrderRefund.toBuilder()
+                .status(RestaurantOrderRefundStatus.WAITING_APPROVAL)
+                .restaurantOrderRefundDetails(getRestaurantOrderRefundDetails())
+                .build();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.empty());
+
+        // when
+        RestaurantOrderRefund finalRestaurantOrderRefund = restaurantOrderRefund;
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.approvalRestaurantOrderRefund(finalRestaurantOrderRefund.getId());
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 환불 승인 (관리자) - 환불 승인 대기 이외에는 환불 승인 불가")
+    public void t5_2() {
+        // given
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+        restaurantOrderRefund = restaurantOrderRefund.toBuilder()
+                .restaurantOrderRefundDetails(getRestaurantOrderRefundDetails())
+                .build();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.of(restaurantOrderRefund));
+
+        // when
+        RestaurantOrderRefund finalRestaurantOrderRefund = restaurantOrderRefund;
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.approvalRestaurantOrderRefund(finalRestaurantOrderRefund.getId());
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.RESTAURANT_REFUND_APPROVAL_FAIL.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.RESTAURANT_REFUND_APPROVAL_FAIL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 환불 승인 (관리자) - 환불 상세 내역이 없다면 환불 승인 불가")
+    public void t5_3() {
+        // given
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+        restaurantOrderRefund = restaurantOrderRefund.toBuilder()
+                .status(RestaurantOrderRefundStatus.WAITING_APPROVAL)
+                .build();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.of(restaurantOrderRefund));
+
+        // when
+        RestaurantOrderRefund finalRestaurantOrderRefund = restaurantOrderRefund;
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.approvalRestaurantOrderRefund(finalRestaurantOrderRefund.getId());
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND_DETAIL.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND_DETAIL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 환불 승인 (관리자) - 매장 상세 내역의 제품이 삭제 상태이면 환불 완료 불가")
+    public void t5_4() {
+        // given
+        Product product1 = getProduct1();
+        product1 = product1.toBuilder()
+                .deletedAt(LocalDateTime.now())
+                .build();
+        RestaurantOrderRefundDetail detail1 = getRestaurantOrderRefundDetail1();
+        detail1 = detail1.toBuilder()
+                .product(product1)
+                .build();
+        List<RestaurantOrderRefundDetail> details = List.of(detail1, getRestaurantOrderRefundDetail2());
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+        restaurantOrderRefund = restaurantOrderRefund.toBuilder()
+                .status(RestaurantOrderRefundStatus.WAITING_APPROVAL)
+                .restaurantOrderRefundDetails(details)
+                .build();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.of(restaurantOrderRefund));
+        when(restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(restaurantOrderRefund)).thenReturn(details);
+
+        // when
+        RestaurantOrderRefund finalRestaurantOrderRefund = restaurantOrderRefund;
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.approvalRestaurantOrderRefund(finalRestaurantOrderRefund.getId());
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 환불 반려 (관리자)")
+    public void t6() {
+        // given
+        Product product1 = getProduct1();
+        Product product2 = getProduct2();
+        Restaurant restaurant = getRestaurant();
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+        restaurantOrderRefund = restaurantOrderRefund.toBuilder()
+                .status(RestaurantOrderRefundStatus.WAITING_APPROVAL)
+                .build();
+
+        RestaurantOrderRefundRejectRequest request = RestaurantOrderRefundRejectRequest.builder()
+                .adminReason("관리자의 권한으로 환불 반려")
+                .build();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.of(restaurantOrderRefund));
+        when(restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(restaurantOrderRefund)).thenReturn(getRestaurantOrderRefundDetails());
+        when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product1.getId())).thenReturn(Optional.of(this.getRestaurantStocks1()));
+        when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product2.getId())).thenReturn(Optional.of(this.getRestaurantStocks2()));
+
+        when(restaurantOrderRefundRepository.save(any(RestaurantOrderRefund.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<RestaurantStock> savedStocks = new ArrayList<>();
+        when(restaurantStockRepository.saveAll(anyList()))
+                .thenAnswer(invocation -> {
+                    savedStocks.addAll(invocation.getArgument(0));
+                    return invocation.getArgument(0);
+                });
+
+        ArgumentCaptor<RestaurantOrderRefund> restaurantOrderRefundCaptor = ArgumentCaptor.forClass(RestaurantOrderRefund.class);
+        ArgumentCaptor<List<RestaurantStock>> restaurantStocksCaptor = ArgumentCaptor.forClass(List.class);
+
+        // When
+        RestaurantOrderRefundResultResponse response = restaurantOrderRefundService.rejectRestaurantOrderRefund(restaurantOrderRefund.getId(), request);
+
+        // then
+        verify(restaurantOrderRefundRepository, times(1)).save(any(RestaurantOrderRefund.class));
+        assertEquals(2, savedStocks.size());
+
+        verify(restaurantOrderRefundRepository).save(restaurantOrderRefundCaptor.capture());
+        verify(restaurantStockRepository).saveAll(restaurantStocksCaptor.capture());
+
+        RestaurantOrderRefund savedRestaurantOrderRefund = restaurantOrderRefundCaptor.getValue();
+        List<RestaurantStock> savedRestaurantStocks = restaurantStocksCaptor.getValue();
+
+        assertThat(savedRestaurantOrderRefund.getStatus()).isEqualTo(RestaurantOrderRefundStatus.REJECTED_APPROVAL);
+        assertThat(savedRestaurantStocks.get(0).getQuantity()).isEqualTo(stockQuantity1 + refundDetailQuantity1);
+        assertThat(savedRestaurantStocks.get(1).getQuantity()).isEqualTo(stockQuantity2 + refundDetailQuantity2);
+
+        assertThat(response.getId()).isEqualTo(refundId);
+        assertThat(response.getTotalPrice()).isEqualTo(refundTotalPrice);
+        assertThat(response.getOwnerReason()).isEqualTo(refundOwnerReason);
+        assertThat(response.getAdminReason()).isEqualTo("관리자의 권한으로 환불 반려");
+        assertThat(response.getStatus()).isEqualTo(RestaurantOrderRefundStatus.REJECTED_APPROVAL);
+    }
+
+    @Test
+    @DisplayName("매장 환불 반려 (관리자) - 해당 매장 발주 환불이 존재하지 않음")
+    public void t6_1() {
+        // given
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+        restaurantOrderRefund = restaurantOrderRefund.toBuilder()
+                .status(RestaurantOrderRefundStatus.WAITING_APPROVAL)
+                .build();
+
+        RestaurantOrderRefundRejectRequest request = RestaurantOrderRefundRejectRequest.builder()
+                .adminReason("관리자의 권한으로 환불 반려")
+                .build();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.empty());
+
+        // when
+        RestaurantOrderRefund finalRestaurantOrderRefund = restaurantOrderRefund;
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.rejectRestaurantOrderRefund(finalRestaurantOrderRefund.getId(), request);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 환불 반려 (관리자) - 환불 승인 대기 이외에는 환불 승인 불가")
+    public void t6_2() {
+        // given
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+
+        RestaurantOrderRefundRejectRequest request = RestaurantOrderRefundRejectRequest.builder()
+                .adminReason("관리자의 권한으로 환불 반려")
+                .build();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.of(restaurantOrderRefund));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.rejectRestaurantOrderRefund(restaurantOrderRefund.getId(), request);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.RESTAURANT_REFUND_REJECT_FAIL.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.RESTAURANT_REFUND_REJECT_FAIL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 환불 반려 (관리자) - 환불 상세 내역이 없다면 환불 승인 불가")
+    public void t6_3() {
+        // given
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+        restaurantOrderRefund = restaurantOrderRefund.toBuilder()
+                .status(RestaurantOrderRefundStatus.WAITING_APPROVAL)
+                .build();
+
+        RestaurantOrderRefundRejectRequest request = RestaurantOrderRefundRejectRequest.builder()
+                .adminReason("관리자의 권한으로 환불 반려")
+                .build();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.of(restaurantOrderRefund));
+        when(restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(restaurantOrderRefund)).thenReturn(List.of());
+
+        // when
+        RestaurantOrderRefund finalRestaurantOrderRefund = restaurantOrderRefund;
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.rejectRestaurantOrderRefund(finalRestaurantOrderRefund.getId(), request);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND_DETAIL.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND_DETAIL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 환불 반려 (관리자) - 환불 상세 내역이 없다면 환불 승인 불가")
+    public void t6_4() {
+        // given
+        Product product1 = getProduct1();
+        Product product2 = getProduct2();
+        Restaurant restaurant = getRestaurant();
+        RestaurantOrderRefund restaurantOrderRefund = getRestaurantOrderRefund();
+        restaurantOrderRefund = restaurantOrderRefund.toBuilder()
+                .status(RestaurantOrderRefundStatus.WAITING_APPROVAL)
+                .build();
+
+        RestaurantOrderRefundRejectRequest request = RestaurantOrderRefundRejectRequest.builder()
+                .adminReason("관리자의 권한으로 환불 반려")
+                .build();
+
+        when(restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(restaurantOrderRefund.getId())).thenReturn(Optional.of(restaurantOrderRefund));
+        when(restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(restaurantOrderRefund)).thenReturn(getRestaurantOrderRefundDetails());
+        when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product1.getId())).thenReturn(Optional.of(this.getRestaurantStocks1()));
+        when(restaurantStockRepository.findByRestaurantIdAndProductIdAndDeletedAtIsNull(restaurant.getId(), product2.getId())).thenReturn(Optional.empty());
+
+        // when
+        RestaurantOrderRefund finalRestaurantOrderRefund = restaurantOrderRefund;
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            restaurantOrderRefundService.rejectRestaurantOrderRefund(finalRestaurantOrderRefund.getId(), request);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_STOCK.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_STOCK.getMessage(), exception.getMessage());
+    }
+
     private Page<RestaurantOrderRefund> getRestaurantOrderRefunds() {
         List<RestaurantOrderRefund> list = List.of(this.getRestaurantOrderRefund());
         Pageable pageable = PageRequest.of(page, size);
@@ -1084,7 +1430,9 @@ public class RestaurantOrderRefundServiceTest {
         return Product.builder()
                 .id(1L)
                 .name(productName1)
-                .price(BigDecimal.valueOf(3500)).quantity(100L).alcohol(5D).ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수").sweet(3L).sour(4L).cool(3L).body(3L).balance(0L).incense(0L).throat(0L).maker(maker).distributionPrice(BigDecimal.valueOf(3850.0)).category(category)
+                .price(BigDecimal.valueOf(3500))
+                .quantity(productQuantity1)
+                .alcohol(5D).ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수").sweet(3L).sour(4L).cool(3L).body(3L).balance(0L).incense(0L).throat(0L).maker(maker).distributionPrice(BigDecimal.valueOf(3850.0)).category(category)
                 .createdAt(createdAt)
                 .build();
     }
@@ -1096,7 +1444,9 @@ public class RestaurantOrderRefundServiceTest {
         return Product.builder()
                 .id(2L)
                 .name(productName2)
-                .price(BigDecimal.valueOf(3200)).quantity(100L).alcohol(5D).ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수").sweet(3L).sour(5L).cool(5L).body(3L).balance(0L).incense(0L).throat(0L).maker(maker).distributionPrice(BigDecimal.valueOf(3520.0)).category(category)
+                .price(BigDecimal.valueOf(3200))
+                .quantity(productQuantity2)
+                .alcohol(5D).ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수").sweet(3L).sour(5L).cool(5L).body(3L).balance(0L).incense(0L).throat(0L).maker(maker).distributionPrice(BigDecimal.valueOf(3520.0)).category(category)
                 .createdAt(createdAt)
                 .build();
     }
