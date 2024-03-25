@@ -3,19 +3,12 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.util;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 
 public class RestaurantOrderCartValidator {
     public static void checkedMemberRoleIsOwner(Member member) {
         if (!member.getRole().equals(MemberRole.OWNER)) {
-            throw new BusinessException(Fail.FORBIDDEN);
-        }
-    }
-
-    public static void checkedMemberInRestaurant(Restaurant restaurant, Member member) {
-        if (!restaurant.getMember().getId().equals(member.getId())) {
             throw new BusinessException(Fail.FORBIDDEN);
         }
     }

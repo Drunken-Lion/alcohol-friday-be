@@ -9,6 +9,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.R
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.util.RestaurantOrderCartValidator;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantValidator;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
@@ -45,7 +46,7 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
         Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT));
 
-        RestaurantOrderCartValidator.checkedMemberInRestaurant(restaurant, member);
+        RestaurantValidator.validateOwnership(member, restaurant);
 
         restaurantOrderCartRepository.findRestaurantAndMember(restaurant, member)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
@@ -107,7 +108,7 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
         RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findByIdAndDeletedAtIsNull(restaurantOrderCartDetailId)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
 
-        RestaurantOrderCartValidator.checkedMemberInRestaurant(restaurantOrderCartDetail.getRestaurantOrderCart().getRestaurant(), member);
+        RestaurantValidator.validateOwnership(member, restaurantOrderCartDetail.getRestaurantOrderCart().getRestaurant());
         RestaurantOrderCartValidator.minimumQuantity(request.getQuantity());
         RestaurantOrderCartValidator.checkedQuantity(restaurantOrderCartDetail.getProduct(), request.getQuantity());
 
@@ -128,7 +129,7 @@ public class RestaurantOrderCartServiceImpl implements RestaurantOrderCartServic
         RestaurantOrderCartDetail restaurantOrderCartDetail = restaurantOrderCartDetailRepository.findByIdAndDeletedAtIsNull(restaurantOrderCartDetailId)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
 
-        RestaurantOrderCartValidator.checkedMemberInRestaurant(restaurantOrderCartDetail.getRestaurantOrderCart().getRestaurant(), member);
+        RestaurantValidator.validateOwnership(member, restaurantOrderCartDetail.getRestaurantOrderCart().getRestaurant());
         restaurantOrderCartDetail.deleteQuantity();
         restaurantOrderCartDetailRepository.save(restaurantOrderCartDetail);
     }
