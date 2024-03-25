@@ -12,8 +12,9 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util.RestaurantOrderValidator;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantValidator;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
@@ -25,6 +26,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockReposi
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
+import com.drunkenlion.alcoholfriday.global.common.util.RoleValidator;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
@@ -64,7 +66,7 @@ public class RestaurantOrderServiceImplV2 {
     @Transactional
     public RestaurantOrderSaveCodeResponse getSaveCode(RestaurantOrderSaveCodeRequest request,
                                                        Member member) {
-        RestaurantOrderValidator.validateOwner(member);
+        RoleValidator.validateRole(member, MemberRole.OWNER);
 
         Restaurant restaurant =
                 restaurantRepository.findById(request.getRestaurantId())
@@ -94,7 +96,7 @@ public class RestaurantOrderServiceImplV2 {
             Product product = cart.getProduct();
 
             // 상품 수량 체크 및 감소
-            RestaurantOrderValidator.checkedQuantity(product, cart.getQuantity());
+            RestaurantValidator.checkedQuantity(product, cart.getQuantity());
             product.minusQuantity(cart.getQuantity());
             productRepository.save(product);
 
@@ -125,12 +127,12 @@ public class RestaurantOrderServiceImplV2 {
                                                              RestaurantOrderSaveRequest request,
                                                              Member member) {
         // Order 수정 로직
-        RestaurantOrderValidator.validateOwner(member);
+        RoleValidator.validateRole(member, MemberRole.OWNER);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderAddInfo(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_NUMBER));
 
-        RestaurantOrderValidator.compareEntityMemberToMember(restaurantOrder, member);
+        RestaurantValidator.compareEntityMemberToMember(restaurantOrder, member);
 
         restaurantOrder.updateOrders(request.getDescription(), request.getRecipient(), request.getPhone());
 
@@ -153,7 +155,7 @@ public class RestaurantOrderServiceImplV2 {
                     restaurantOrder, orderCartDetail.getProduct()).orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_DETAIL));
 
 
-            Long minusQuantity = RestaurantOrderValidator.checkedQuantity(orderDetail, orderCartDetail);
+            Long minusQuantity = RestaurantValidator.checkedQuantity(orderDetail, orderCartDetail);
             orderCartDetail.minusQuantity(minusQuantity);
             restaurantOrderCartDetailRepository.save(orderCartDetail);
         }
@@ -166,12 +168,12 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse adminOrderApproval(Long id, Member member) {
-        RestaurantOrderValidator.validateAdmin(member);
+        RoleValidator.validateRole(member, MemberRole.ADMIN);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
 
-        RestaurantOrderValidator.restaurantOrderStatusIsApproval(restaurantOrder);
+        RestaurantValidator.restaurantOrderStatusIsApproval(restaurantOrder);
 
         restaurantOrder.updateStatus(RestaurantOrderStatus.COMPLETED_APPROVAL);
         restaurantOrderRepository.save(restaurantOrder);
@@ -185,12 +187,12 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse adminOrderRejectedApproval(Long id, Member member) {
-        RestaurantOrderValidator.validateAdmin(member);
+        RoleValidator.validateRole(member, MemberRole.ADMIN);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
 
-        RestaurantOrderValidator.restaurantOrderStatusIsApproval(restaurantOrder);
+        RestaurantValidator.restaurantOrderStatusIsApproval(restaurantOrder);
 
         restaurantOrder.updateStatus(RestaurantOrderStatus.REJECTED_APPROVAL);
         restaurantOrderRepository.save(restaurantOrder);
@@ -211,7 +213,7 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse ownerOrderCancel(Long id, Member member) {
-        RestaurantOrderValidator.validateOwner(member);
+        RoleValidator.validateRole(member, MemberRole.OWNER);
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));

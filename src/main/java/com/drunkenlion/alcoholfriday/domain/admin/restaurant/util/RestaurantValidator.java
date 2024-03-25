@@ -1,38 +1,19 @@
-package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.util;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.util;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrderDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.enumerated.RestaurantOrderStatus;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 
-public class RestaurantOrderValidator {
+public class RestaurantValidator {
 
     public static void compareEntityMemberToMember(RestaurantOrder order, Member member) {
         if (!order.getMember().getId().equals(member.getId())) {
-            throw new BusinessException(Fail.FORBIDDEN);
-        }
-    }
-
-    public static void validateOwner(Member member) {
-        if (!member.getRole().equals(MemberRole.OWNER)) {
-            throw new BusinessException(Fail.FORBIDDEN);
-        }
-    }
-
-    public static void validateAdmin(Member member) {
-        if (!member.getRole().equals(MemberRole.ADMIN)) {
-            throw new BusinessException(Fail.FORBIDDEN);
-        }
-    }
-
-    public static void validateAdminOrStoreManager(Member member) {
-        if (!isAdminOrStoreManager(member)) {
             throw new BusinessException(Fail.FORBIDDEN);
         }
     }
@@ -61,9 +42,5 @@ public class RestaurantOrderValidator {
         if (!restaurant.getMember().getId().equals(member.getId())) {
             throw new BusinessException(Fail.FORBIDDEN);
         }
-    }
-
-    private static boolean isAdminOrStoreManager(Member member) {
-        return member.getRole().equals(MemberRole.ADMIN) || member.getRole().equals(MemberRole.STORE_MANAGER);
     }
 }
