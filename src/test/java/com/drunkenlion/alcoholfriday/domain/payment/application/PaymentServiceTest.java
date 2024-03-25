@@ -118,7 +118,7 @@ class PaymentServiceTest {
     private final int page = 0;
     private final int size = 20;
 
-    // Order
+    // Order (주문 접수)
     private final Long orderId = 1L;
     private String orderNo = OrderUtil.date.getDate(getDataOrder().getCreatedAt()) + "-"
             + OrderUtil.date.getTime() + "-"
@@ -131,7 +131,7 @@ class PaymentServiceTest {
     private String description = "부재시 문앞에 놓아주세요.";
     private String postcode = "04524";
 
-    // Order2
+    // Order2 (결제 완료)
     private final Long orderId2 = 2L;
     private String orderNo2 = OrderUtil.date.getDate(getDataOrder().getCreatedAt()) + "-"
             + OrderUtil.date.getTime() + "-"
@@ -276,7 +276,7 @@ class PaymentServiceTest {
                 .method(method)
                 .cardType(cardType)
                 .ownerType(ownerType)
-                .provider(paymentProvider)
+                .provider(null)
                 .issuerCode(issuerCode)
                 .acquirerCode(acquirerCode)
                 .totalAmount(totalAmount)
@@ -435,7 +435,7 @@ class PaymentServiceTest {
         Order order = Order.builder()
                 .id(orderId)
                 .orderNo(orderNo)
-                .orderStatus(orderStatus)
+                .orderStatus(orderStatus) // 주문 접수
                 .price(price)
                 .deliveryPrice(deliveryPrice)
                 .totalPrice(totalPrice)
@@ -461,7 +461,7 @@ class PaymentServiceTest {
         Order order = Order.builder()
                 .id(orderId2)
                 .orderNo(orderNo2)
-                .orderStatus(orderStatus2)
+                .orderStatus(orderStatus2) // 결제 완료
                 .price(price2)
                 .deliveryPrice(deliveryPrice)
                 .totalPrice(totalPrice2)
