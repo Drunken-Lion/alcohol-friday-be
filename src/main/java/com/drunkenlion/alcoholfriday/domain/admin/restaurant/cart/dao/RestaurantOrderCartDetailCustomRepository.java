@@ -14,6 +14,5 @@ import org.springframework.data.domain.Pageable;
 public interface RestaurantOrderCartDetailCustomRepository {
     List<RestaurantOrderCartDetail> findRestaurantAndMember(Restaurant restaurant, Member member);
     Page<RestaurantOrderCartDetail> findRestaurantAndMember(Restaurant restaurant, Member member, Pageable pageable);
-
     Optional<RestaurantOrderCartDetail> findCartAndProduct(RestaurantOrderCart cart, Product product);
 }
