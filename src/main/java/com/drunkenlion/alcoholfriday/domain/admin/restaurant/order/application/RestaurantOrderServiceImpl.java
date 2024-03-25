@@ -60,7 +60,7 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
     @Override
     public Page<OwnerRestaurantOrderListResponse> getRestaurantOrdersByOwner(Member member, Long restaurantId, int page, int size) {
         Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
-                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
 
         RestaurantValidator.validateOwnership(member, restaurant);
 
