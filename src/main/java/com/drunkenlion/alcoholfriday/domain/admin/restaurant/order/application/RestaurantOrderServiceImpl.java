@@ -96,7 +96,7 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
     @Override
     public Page<RestaurantOrderProductListResponse> getRestaurantOrderProducts(int page, int size, Member member) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Product> products = productRepository.findAll(pageable);
+        Page<Product> products = productRepository.findAllByDeletedAtIsNull(pageable);
 
         return products.map(product -> RestaurantOrderProductListResponse.of(product, fileService.findOne(product)));
     }

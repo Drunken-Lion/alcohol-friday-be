@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -54,6 +53,7 @@ public class RestaurantOrderCartListResponse {
                 .ableQuantity(detail.getProduct().getQuantity())
                 .quantity(detail.getQuantity())
                 .totalPrice(detail.getProduct().getDistributionPrice().multiply(BigDecimal.valueOf(detail.getQuantity())))
+                .files(files)
                 .build();
     }
 }

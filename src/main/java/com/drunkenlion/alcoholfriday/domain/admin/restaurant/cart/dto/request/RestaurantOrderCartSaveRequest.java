@@ -1,10 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-
-import java.util.List;
 
 @Getter
 @Builder

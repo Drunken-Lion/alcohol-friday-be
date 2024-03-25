@@ -2,25 +2,20 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.api;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.application.RestaurantOrderCartServiceImpl;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartRepository;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartDeleteRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartUpdateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.maker.dao.MakerRepository;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
-import com.drunkenlion.alcoholfriday.domain.member.api.MemberController;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
@@ -29,9 +24,13 @@ import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
+
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -69,6 +69,9 @@ class RestaurantOrderCartControllerTest {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private FileService fileService;
 
     @AfterEach
     @Transactional
@@ -108,7 +111,7 @@ class RestaurantOrderCartControllerTest {
                 .quantity(1L)
                 .build());
 
-        ResultActions actions = mvc.perform(post("/v1/admin/restaurant-orders-carts/owner")
+        ResultActions actions = mvc.perform(post("/v1/admin/restaurant-order-carts/owner")
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
                 .content(request)
@@ -138,7 +141,7 @@ class RestaurantOrderCartControllerTest {
                 .quantity(1L)
                 .build());
 
-        ResultActions actions = mvc.perform(post("/v1/admin/restaurant-orders-carts/owner")
+        ResultActions actions = mvc.perform(post("/v1/admin/restaurant-order-carts/owner")
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
                 .content(request)
@@ -180,7 +183,7 @@ class RestaurantOrderCartControllerTest {
                 .quantity(1000L)
                 .build());
 
-        ResultActions actions = mvc.perform(post("/v1/admin/restaurant-orders-carts/owner")
+        ResultActions actions = mvc.perform(post("/v1/admin/restaurant-order-carts/owner")
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
                 .content(request)
@@ -211,7 +214,7 @@ class RestaurantOrderCartControllerTest {
                 .quantity(1L)
                 .build());
 
-        ResultActions actions = mvc.perform(post("/v1/admin/restaurant-orders-carts/owner")
+        ResultActions actions = mvc.perform(post("/v1/admin/restaurant-order-carts/owner")
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
                 .content(request)
@@ -264,7 +267,7 @@ class RestaurantOrderCartControllerTest {
                 .build());
 
         ResultActions actions = mvc.perform(
-                put("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                put("/v1/admin/restaurant-order-cart-details/" + restaurantOrderCartDetail.getId() + "/owner")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content(request)
@@ -322,7 +325,7 @@ class RestaurantOrderCartControllerTest {
                 .build());
 
         ResultActions actions = mvc.perform(
-                put("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                put("/v1/admin/restaurant-order-cart-details/" + restaurantOrderCartDetail.getId() + "/owner")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content(request)
@@ -375,7 +378,7 @@ class RestaurantOrderCartControllerTest {
                 .build());
 
         ResultActions actions = mvc.perform(
-                put("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                put("/v1/admin/restaurant-order-cart-details/" + restaurantOrderCartDetail.getId() + "/owner")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content(request)
@@ -428,7 +431,7 @@ class RestaurantOrderCartControllerTest {
                 .build());
 
         ResultActions actions = mvc.perform(
-                put("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                put("/v1/admin/restaurant-order-cart-details/" + restaurantOrderCartDetail.getId() + "/owner")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content(request)
@@ -477,7 +480,7 @@ class RestaurantOrderCartControllerTest {
                         .build());
 
         ResultActions actions = mvc.perform(
-                delete("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                delete("/v1/admin/restaurant-order-cart-details/" + restaurantOrderCartDetail.getId() + "/owner")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
         ).andDo(print());
@@ -522,15 +525,10 @@ class RestaurantOrderCartControllerTest {
                         .restaurantOrderCart(restaurantOrderCart)
                         .build());
 
-        String request = JsonConvertor.build(RestaurantOrderCartDeleteRequest.builder()
-                .productId(product.getId())
-                .build());
-
         ResultActions actions = mvc.perform(
-                delete("/v1/admin/restaurant-orders-carts/" + restaurantOrderCartDetail.getId() + "/owner")
+                delete("/v1/admin/restaurant-order-cart-details/" + restaurantOrderCartDetail.getId() + "/owner")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
-                        .content(request)
         ).andDo(print());
 
         actions
@@ -574,14 +572,21 @@ class RestaurantOrderCartControllerTest {
                 .quantity(100L)
                 .build());
 
-        ResultActions actions = mvc.perform(get("/v1/admin/restaurant-orders-carts/" + restaurant.getId())
-        ).andDo(print());
+        MockMultipartFile multipartFile1 = JsonConvertor.getMockImg("files", "test1.txt", "test1 file");
+        fileService.saveFiles(product, List.of(multipartFile1));
+
+        ResultActions actions = mvc
+                .perform(get("/v1/admin/restaurant-order-carts/owner")
+                        .param("restaurantId", restaurant.getId().toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
 
         actions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(RestaurantOrderCartController.class))
                 .andExpect(handler().methodName("getCarts"))
-                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
                 .andExpect(jsonPath("$.data.[0].id", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.data.[0].productId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.data.[0].productName", notNullValue()))
@@ -590,6 +595,7 @@ class RestaurantOrderCartControllerTest {
                 .andExpect(jsonPath("$.data.[0].quantity", notNullValue()))
                 .andExpect(jsonPath("$.data.[0].totalPrice", notNullValue()))
                 .andExpect(jsonPath("$.data.[0].ableQuantity", notNullValue()))
+                .andExpect(jsonPath("$.data[0].files.file[0]", notNullValue()))
         ;
     }
 }

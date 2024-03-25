@@ -4,10 +4,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.application.Re
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderCartListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderCartSaveResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartDeleteRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.request.RestaurantOrderCartUpdateRequest;
-import com.drunkenlion.alcoholfriday.domain.review.dto.response.ReviewOrderDetailResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,14 +20,14 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "v1-admin-restaurant-orders-carts", description = "레스토랑 발주 장바구니 관리 API")
-@RequestMapping("/v1/admin/restaurant-orders-carts")
+@RequestMapping("/v1/admin")
 @RestController
 public class RestaurantOrderCartController {
     private final RestaurantOrderCartService restaurantOrderCartService;
 
-    @GetMapping("{id}")
+    @GetMapping("restaurant-order-carts/owner")
     @Operation(summary = "장바구니 목록 조회 (Owner)")
-    public ResponseEntity<PageResponse<RestaurantOrderCartListResponse>> getCarts(@PathVariable("id") Long restaurantId,
+    public ResponseEntity<PageResponse<RestaurantOrderCartListResponse>> getCarts(@RequestParam(name = "restaurantId") Long restaurantId,
                                                                                   @AuthenticationPrincipal UserPrincipal user,
                                                                                   @RequestParam(name = "page", defaultValue = "0") int page,
                                                                                   @RequestParam(name = "size", defaultValue = "20") int size) {
@@ -38,7 +35,7 @@ public class RestaurantOrderCartController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("owner")
+    @PostMapping("restaurant-order-carts/owner")
     @Operation(summary = "장바구니 추가 (Owner)", description = "제품 발주 장바구니 추가")
     public ResponseEntity<RestaurantOrderCartSaveResponse> addOwnerCart(@RequestBody RestaurantOrderCartSaveRequest request,
                                                                         @AuthenticationPrincipal UserPrincipal user) {
@@ -52,7 +49,7 @@ public class RestaurantOrderCartController {
         return ResponseEntity.created(location).body(response);
     }
 
-    @PutMapping("{id}/owner")
+    @PutMapping("restaurant-order-cart-details/{id}/owner")
     @Operation(summary = "장바구니 수량 변경 (Owner)", description = "제품 발주 장바구니 수량 변경")
     public ResponseEntity<RestaurantOrderCartSaveResponse> updateOwnerCart(@PathVariable("id") Long restaurantOrderCartDetailId,
                                                                            @RequestBody RestaurantOrderCartUpdateRequest request,
@@ -61,11 +58,11 @@ public class RestaurantOrderCartController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("{id}/owner")
+    @DeleteMapping("restaurant-order-cart-details/{id}/owner")
     @Operation(summary = "장바구니 삭제 (Owner)", description = "발주 장바구니 제품 삭제")
-    public ResponseEntity<Void> deleteOwnerCart(@PathVariable("id") Long restaurantOrderCartId,
+    public ResponseEntity<Void> deleteOwnerCart(@PathVariable("id") Long restaurantOrderCartDetailId,
                                                 @AuthenticationPrincipal UserPrincipal user) {
-        restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartId, user.getMember());
+        restaurantOrderCartService.deleteRestaurantOrderCart(restaurantOrderCartDetailId, user.getMember());
         return ResponseEntity.noContent().build();
     }
 }

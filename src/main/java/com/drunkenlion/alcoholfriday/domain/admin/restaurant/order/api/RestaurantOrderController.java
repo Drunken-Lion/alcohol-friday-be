@@ -45,7 +45,7 @@ public class RestaurantOrderController {
     }
 
     @Operation(summary = "발주 내역 조회 (사업자)", description = "해당 사업자의 모든 발주 내역조회")
-    @GetMapping("products")
+    @GetMapping("owner")
     public ResponseEntity<PageResponse<OwnerRestaurantOrderListResponse>> getRestaurantOrdersByOwner(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -61,8 +61,8 @@ public class RestaurantOrderController {
         return ResponseEntity.ok().body(pageResponse);
     }
 
-    @GetMapping("owner")
     @Operation(summary = "제품 목록 (사업자)", description = "발주를 위한 제품 목록")
+    @GetMapping("products")
     public ResponseEntity<PageResponse<RestaurantOrderProductListResponse>> getRestaurantOrderProducts(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,

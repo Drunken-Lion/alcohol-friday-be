@@ -1,7 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,6 +1,5 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao;
 
-
 import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.QRestaurantOrderCart.restaurantOrderCart;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;

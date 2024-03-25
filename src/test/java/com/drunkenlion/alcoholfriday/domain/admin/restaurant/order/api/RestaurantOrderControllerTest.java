@@ -418,7 +418,7 @@ public class RestaurantOrderControllerTest {
     void getRestaurantOrdersByOwnerTest() throws Exception {
         // when
         ResultActions resultActions = mvc
-                .perform(get("/v1/admin/restaurant-orders/products")
+                .perform(get("/v1/admin/restaurant-orders/owner")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
 
@@ -451,6 +451,39 @@ public class RestaurantOrderControllerTest {
                 .andExpect(jsonPath("$.data[0].orderDetails[1].quantity", notNullValue()))
                 .andExpect(jsonPath("$.data[0].orderDetails[1].refundQuantity", notNullValue()))
                 .andExpect(jsonPath("$.data[0].orderDetails[1].file", nullValue()))
+                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("발주를 위한 제품 목록 조회")
+    @WithAccount(email = OWNER, role = MemberRole.OWNER)
+    void getRestaurantOrderProductsTest() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/admin/restaurant-orders/products")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantOrderController.class))
+                .andExpect(handler().methodName("getRestaurantOrderProducts"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.[0].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data.[0].name", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].makerName", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].price", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].quantity", notNullValue()))
+                .andExpect(jsonPath("$.data.[0].file", nullValue()))
+                .andExpect(jsonPath("$.data.[1].id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.data.[1].name", notNullValue()))
+                .andExpect(jsonPath("$.data.[1].makerName", notNullValue()))
+                .andExpect(jsonPath("$.data.[1].price", notNullValue()))
+                .andExpect(jsonPath("$.data.[1].quantity", notNullValue()))
+                .andExpect(jsonPath("$.data.[1].file", nullValue()))
                 .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
                 .andExpect(jsonPath("$.pageInfo.count", notNullValue()));

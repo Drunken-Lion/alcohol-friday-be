@@ -19,7 +19,6 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.QRestaurantOrderCart.restaurantOrderCart;
 import static com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.QRestaurantOrderCartDetail.restaurantOrderCartDetail;
-import static com.drunkenlion.alcoholfriday.domain.order.entity.QOrderDetail.orderDetail;
 import static com.drunkenlion.alcoholfriday.domain.restaurant.entity.QRestaurant.restaurant;
 
 @Slf4j
@@ -66,8 +65,7 @@ public class RestaurantOrderCartDetailCustomRepositoryImpl implements Restaurant
                 .from(restaurantOrderCartDetail)
                 .leftJoin(restaurantOrderCartDetail.restaurantOrderCart, restaurantOrderCart)
                 .leftJoin(restaurantOrderCart.restaurant, restaurant)
-                .where(conditions)
-                .offset(pageable.getOffset());
+                .where(conditions);
 
         return PageableExecutionUtils.getPage(cartDetails, pageable, total::fetchOne);
     }
