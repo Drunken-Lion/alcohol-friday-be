@@ -62,8 +62,7 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                 swLongitude, swLatitude,
                 swLongitude, neLatitude);
 
-        BooleanExpression inPolygon = Expressions.booleanTemplate(
-                "ST_Contains(ST_PolygonFromText({0}), {1})", polygon, restaurant.location);
+        BooleanExpression inPolygon = Expressions.booleanTemplate("ST_Contains(ST_PolygonFromText({0}), {1})", polygon, restaurant.location);
         BooleanExpression isNotDeleted = restaurant.deletedAt.isNull();
 
         return jpaQueryFactory
@@ -95,9 +94,7 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                         restaurant.name,
                         restaurant.address,
                         product.name,
-                        Expressions.numberTemplate(Double.class,
-                                "ST_Distance_Sphere(point({0}, {1}), restaurant.location)", userLocationLongitude,
-                                userLocationLatitude).as("distance")
+                        Expressions.numberTemplate(Double.class, "ST_Distance_Sphere(point({0}, {1}), restaurant.location)", userLocationLongitude, userLocationLatitude)
                 ))
                 .from(restaurant)
                 .leftJoin(restaurant.restaurantStocks, restaurantStock)
@@ -105,8 +102,14 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                 .where(isMeasurement
                         .and(itemConditions)
                         .and(isNullDeleted())
+                        .and(restaurantStock.quantity.isNotNull())
+                        .or(restaurantStock.quantity.loe(0))
                 ).orderBy(closestStoreDistanceFromUser)
                 .fetch();
+
+        for (RestaurantNearbyResponse restaurantNearbyResponse : restaurants) {
+            System.out.println("restaurantNearbyResponse = " + restaurantNearbyResponse);
+        }
 
         JPAQuery<Long> total = jpaQueryFactory
                 .select(restaurant.count())
