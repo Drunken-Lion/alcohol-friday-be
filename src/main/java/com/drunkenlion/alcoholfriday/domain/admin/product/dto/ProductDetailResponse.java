@@ -38,6 +38,9 @@ public class ProductDetailResponse {
     @Schema(description = "제품 원가")
     private BigDecimal price;
 
+    @Schema(description = "유통 가격")
+    private BigDecimal distributionPrice;
+
     @Schema(description = "재고 수량")
     private Long quantity;
 
@@ -90,6 +93,7 @@ public class ProductDetailResponse {
                 .makerId(product.getMaker().getId())
                 .makerName(product.getMaker().getName())
                 .price(product.getPrice())
+                .distributionPrice(product.getDistributionPrice())
                 .quantity(product.getQuantity())
                 .alcohol(product.getAlcohol())
                 .ingredient(product.getIngredient())
