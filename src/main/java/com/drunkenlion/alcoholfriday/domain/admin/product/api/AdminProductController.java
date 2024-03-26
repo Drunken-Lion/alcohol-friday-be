@@ -85,7 +85,7 @@ public class AdminProductController {
 
     @Operation(summary = "재고 수량 조회", description = "관리자 권한에 대한 제품의 재고 수량 조회")
     @GetMapping("{id}/stocks")
-    public ResponseEntity<ProductQuantityResponse> modifyQuantity(
+    public ResponseEntity<ProductQuantityResponse> getQuantity(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id
     ) {

@@ -382,7 +382,7 @@ public class AdminProductControllerTest {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(AdminProductController.class))
-                .andExpect(handler().methodName("modifyQuantity"))
+                .andExpect(handler().methodName("getQuantity"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.name", notNullValue()))
                 .andExpect(jsonPath("$.quantity", instanceOf(Number.class)));
