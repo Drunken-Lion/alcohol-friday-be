@@ -13,6 +13,7 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
@@ -49,6 +50,8 @@ class PaymentServiceTest {
     private CartService cartService;
     @InjectMocks
     private PaymentServiceImpl paymentService;
+    @Mock
+    private OrderService orderService;
     @Mock
     private OrderRepository orderRepository;
     @Mock
@@ -179,61 +182,49 @@ class PaymentServiceTest {
     @DisplayName("결제 전 클라이언트에서 오는 가격이랑 서버에 저장된 가격이 동일한 경우")
     void checkAmountValidity() {
         // given
-        when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
+        when(orderService.getOrder(orderNo)).thenReturn(getDataOrder());
         BigDecimal amount = new BigDecimal(totalAmount);
 
         // when
         paymentService.validatePaymentAmount(orderNo, amount);
 
         // then
-        verify(orderRepository, times(1)).findByOrderNo(orderNo);
+        verify(orderService, times(1)).getOrder(orderNo);
     }
 
     @Test
     @DisplayName("결제 전 클라이언트에서 오는 가격이랑 서버에 저장된 가격이 다를 경우")
     void checkAmountValidity_Exception() {
         // given
-        when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
+        when(orderService.getOrder(orderNo)).thenReturn(getDataOrder());
         BigDecimal amount = new BigDecimal("5000");
 
         // when & then
         Assertions.assertThrows(BusinessException.class, () -> {
             paymentService.validatePaymentAmount(orderNo, amount);
         });
-        verify(orderRepository, times(1)).findByOrderNo(orderNo);
+        verify(orderService, times(1)).getOrder(orderNo);
     }
 
     @Test
     @DisplayName("결제 전 OrderStatus에 ORDER_RECEIVED가 아닌 경우")
     void checkAmountValidity_NOT_ORDER_RECEIVED() {
         // given
-        when(orderRepository.findByOrderNo(orderNo2)).thenReturn(getOneOrder2());
+        when(orderService.getOrder(orderNo2)).thenReturn(getDataOrder2());
         BigDecimal amount = new BigDecimal(totalAmount);
 
         // when & then
         Assertions.assertThrows(BusinessException.class, () -> {
             paymentService.validatePaymentAmount(orderNo2, amount);
         });
-        verify(orderRepository, times(1)).findByOrderNo(orderNo2);
-    }
-
-    @Test
-    @DisplayName("결제 전 존재하지 않는 orderNo일 경우")
-    void checkAmountValidity_notExistOrderNo() {
-        // given
-        BigDecimal amount = new BigDecimal(totalAmount);
-
-        // when & then
-        Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.validatePaymentAmount(notExistOrderNo, amount);
-        });
+        verify(orderService, times(1)).getOrder(orderNo2);
     }
 
     @Test
     @DisplayName("결제 성공 후 토스페이먼츠에서 응답 받은 값으로 Payment 저장")
     void saveSuccessPayment() {
         // given
-        when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
+        when(orderService.getOrder(orderNo)).thenReturn(getDataOrder());
         when(memberRepository.findByEmail(email)).thenReturn(getOneMember());
 
         TossPaymentsReq tossPaymentsReq = TossPaymentsReq.builder()
@@ -258,7 +249,7 @@ class PaymentServiceTest {
         paymentService.saveSuccessPayment(tossPaymentsReq);
 
         // then
-        verify(orderRepository, times(1)).findByOrderNo(orderNo);
+        verify(orderService, times(1)).getOrder(orderNo);
         verify(memberRepository, times(1)).findByEmail(email);
     }
 
@@ -266,7 +257,7 @@ class PaymentServiceTest {
     @DisplayName("결제 성공 후 PaymentProvider 등 enum 필드에 null 값이 들어오는 경우")
     void saveSuccessPayment_nullTest() {
         // given
-        when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
+        when(orderService.getOrder(orderNo)).thenReturn(getDataOrder());
         when(memberRepository.findByEmail(email)).thenReturn(getOneMember());
 
         TossPaymentsReq tossPaymentsReq = TossPaymentsReq.builder()
@@ -291,34 +282,8 @@ class PaymentServiceTest {
         paymentService.saveSuccessPayment(tossPaymentsReq);
 
         // then
-        verify(orderRepository, times(1)).findByOrderNo(orderNo);
+        verify(orderService, times(1)).getOrder(orderNo);
         verify(memberRepository, times(1)).findByEmail(email);
-    }
-
-    @Test
-    @DisplayName("결제 성공 후 없는 주문 번호 일 경우")
-    void saveSuccessPayment_notFound_orderNo() {
-        // given
-        TossPaymentsReq tossPaymentsReq = TossPaymentsReq.builder()
-                .orderNo(orderNo)
-                .paymentNo(paymentKey)
-                .status(status)
-                .method(method)
-                .cardType(cardType)
-                .ownerType(ownerType)
-                .provider(paymentProvider)
-                .issuerCode(issuerCode)
-                .acquirerCode(acquirerCode)
-                .totalAmount(totalAmount)
-                .requestedAt(requestedAt)
-                .approvedAt(approvedAt)
-                .currency(currency)
-                .build();
-
-        // when & then
-        Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.saveSuccessPayment(tossPaymentsReq);
-        } );
     }
 
     @Test
@@ -336,18 +301,6 @@ class PaymentServiceTest {
 
         // then
         verify(cartService, times(1)).deleteCartList(deleteCartRequests, getDataOrder().getMember());
-    }
-
-    @Test
-    @DisplayName("결제 성공 후 주문번호에 해당하는 주문이 없는 경우")
-    void paymentSuccess_deleteCartItems_fail() {
-        // given
-        when(orderRepository.findByOrderNo(orderNo)).thenReturn(Optional.empty());
-
-        // when & then
-        Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.deletedCartItems(orderNo);
-        } );
     }
 
 
