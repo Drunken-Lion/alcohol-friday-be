@@ -1,7 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantStockModifyRequest;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 
