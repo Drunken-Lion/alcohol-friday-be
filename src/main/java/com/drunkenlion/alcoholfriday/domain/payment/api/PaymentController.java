@@ -2,7 +2,9 @@ package com.drunkenlion.alcoholfriday.domain.payment.api;
 
 import com.drunkenlion.alcoholfriday.domain.payment.application.PaymentService;
 import com.drunkenlion.alcoholfriday.domain.payment.dto.request.TossPaymentsReq;
+import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
@@ -10,6 +12,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +32,7 @@ import java.util.Base64;
 @RequiredArgsConstructor
 @RequestMapping("/v1/payments")
 @Tag(name = "v1-payment", description = "결제 관련 API")
+@SecurityRequirement(name = "bearerAuth")
 public class PaymentController {
     private final PaymentService paymentService;
 
@@ -39,7 +43,8 @@ public class PaymentController {
             description = "클라이언트에서 결제 정보를 전달 받고 서버에서 한 번 더 검사 후 토스페이먼츠로 최종 결제 승인 요청" +
                     " / jsonBody의 경우 orderNo, amount(배송비 포함 주문 총 금액), paymentKey를 주시면 됩니다.")
     @PostMapping("confirm")
-    public ResponseEntity<JSONObject> confirmPayment(@RequestBody String jsonBody) throws Exception {
+    public ResponseEntity<JSONObject> confirmPayment(@RequestBody String jsonBody,
+                                                     @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
 
         JSONParser parser = new JSONParser();
         String orderNo;
