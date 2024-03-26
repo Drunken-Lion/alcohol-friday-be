@@ -49,6 +49,9 @@ public class OrderResponse {
     @Schema(description = "배송 시 주의사항")
     private String description;
 
+    @Schema(description = "주문 취소 사유")
+    private String cancelReason;
+
     @Schema(description = "주문 일자")
     private LocalDateTime createdAt;
 
@@ -69,8 +72,28 @@ public class OrderResponse {
                 .address(order.getAddress())
                 .addressDetail(order.getAddressDetail())
                 .description(order.getDescription())
+                .cancelReason(order.getCancelReason())
                 .createdAt(order.getCreatedAt())
                 .orderDetails(orderDetailResponses)
+                .build();
+    }
+
+    public static OrderResponse of(Order order) {
+        return OrderResponse.builder()
+                .id(order.getId())
+                .orderNo(order.getOrderNo())
+                .orderStatus(order.getOrderStatus().name())
+                .price(order.getPrice())
+                .deliveryPrice(order.getDeliveryPrice())
+                .totalPrice(order.getTotalPrice())
+                .recipient(order.getRecipient())
+                .phone(order.getPhone())
+                .postcode(order.getPostcode())
+                .address(order.getAddress())
+                .addressDetail(order.getAddressDetail())
+                .description(order.getDescription())
+                .cancelReason(order.getCancelReason())
+                .createdAt(order.getCreatedAt())
                 .build();
     }
 }

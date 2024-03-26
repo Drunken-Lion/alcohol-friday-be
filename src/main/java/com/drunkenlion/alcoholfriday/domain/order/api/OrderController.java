@@ -1,7 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.order.api;
 
 import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
+import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
@@ -49,5 +51,16 @@ public class OrderController {
     ) {
         orderService.updateOrderAddress(orderAddressRequest, orderId, userPrincipal.getMember());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "주문 취소", description = "OrderStatus에서 결제 완료, 배송 준비 중일 경우 주문 취소 가능")
+    @PutMapping("{id}")
+    public ResponseEntity<OrderResponse> orderCancel(
+            @PathVariable("id") Long orderId,
+            @RequestBody OrderCancelRequest orderCancelRequest,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        OrderResponse orderResponse = orderService.cancelOrder(orderId, orderCancelRequest, userPrincipal.getMember());
+        return ResponseEntity.ok().body(orderResponse);
     }
 }
