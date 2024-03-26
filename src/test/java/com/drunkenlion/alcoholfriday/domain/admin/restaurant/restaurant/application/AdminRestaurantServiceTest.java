@@ -1,23 +1,39 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantListResponse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantAdminDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
-import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.TimeOption;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,23 +46,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -207,7 +206,7 @@ public class AdminRestaurantServiceTest {
         when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
 
         // when
-        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getAdminData(), id);
+        RestaurantAdminDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getAdminData(), id);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
@@ -232,22 +231,22 @@ public class AdminRestaurantServiceTest {
         when(this.restaurantRepository.findById(any())).thenReturn(this.getOne());
 
         // when
-        RestaurantDetailResponse restaurantDetailResponse = this.adminRestaurantService.getRestaurant(getOwnerData(), id);
+        RestaurantAdminDetailResponse restaurant = this.adminRestaurantService.getRestaurant(getOwnerData(), id);
 
         // then
-        assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
-        assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
-        assertThat(restaurantDetailResponse.getMemberNickname()).isEqualTo(nickname);
-        assertThat(restaurantDetailResponse.getName()).isEqualTo(name);
-        assertThat(restaurantDetailResponse.getCategory()).isEqualTo(category);
-        assertThat(restaurantDetailResponse.getAddress()).isEqualTo(address);
-        assertThat(restaurantDetailResponse.getLongitude()).isEqualTo(longitude);
-        assertThat(restaurantDetailResponse.getLatitude()).isEqualTo(latitude);
-        assertThat(restaurantDetailResponse.getContact()).isEqualTo(contact);
-        assertThat(restaurantDetailResponse.getMenu()).isEqualTo(menu);
-        assertThat(restaurantDetailResponse.getTime()).isEqualTo(time);
-        assertThat(restaurantDetailResponse.getProvision()).isEqualTo(provision);
-        assertThat(restaurantDetailResponse.getCreatedAt()).isEqualTo(createdAt);
+        assertThat(restaurant.getId()).isEqualTo(id);
+        assertThat(restaurant.getMemberId()).isEqualTo(memberId);
+        assertThat(restaurant.getMemberNickname()).isEqualTo(nickname);
+        assertThat(restaurant.getName()).isEqualTo(name);
+        assertThat(restaurant.getCategory()).isEqualTo(category);
+        assertThat(restaurant.getAddress()).isEqualTo(address);
+        assertThat(restaurant.getLongitude()).isEqualTo(longitude);
+        assertThat(restaurant.getLatitude()).isEqualTo(latitude);
+        assertThat(restaurant.getContact()).isEqualTo(contact);
+        assertThat(restaurant.getMenu()).isEqualTo(menu);
+        assertThat(restaurant.getTime()).isEqualTo(time);
+        assertThat(restaurant.getProvision()).isEqualTo(provision);
+        assertThat(restaurant.getCreatedAt()).isEqualTo(createdAt);
     }
 
     @Test
@@ -303,7 +302,7 @@ public class AdminRestaurantServiceTest {
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(getAdminData(), restaurantRequest);
 
         // then
         assertThat(restaurantDetailResponse.getMemberId()).isEqualTo(memberId);
@@ -498,7 +497,7 @@ public class AdminRestaurantServiceTest {
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(getAdminData(), id, restaurantRequest);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(getAdminData(), id, restaurantRequest);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);
@@ -537,7 +536,7 @@ public class AdminRestaurantServiceTest {
         when(restaurantRepository.save(any(Restaurant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(getModifyMemberData(), id, restaurantRequest);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(getModifyMemberData(), id, restaurantRequest);
 
         // then
         assertThat(restaurantDetailResponse.getId()).isEqualTo(id);

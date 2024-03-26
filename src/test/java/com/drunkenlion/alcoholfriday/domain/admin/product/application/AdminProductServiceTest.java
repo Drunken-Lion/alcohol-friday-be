@@ -1,9 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.*;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
@@ -84,6 +81,7 @@ public class AdminProductServiceTest {
     private final Long id = 1L;
     private final String name = "1000억 막걸리 프리바이오";
     private final BigDecimal price = BigDecimal.valueOf(10000);
+    private final BigDecimal distributionPrice = BigDecimal.valueOf(15000);
     private final Long quantity = 1000L;
     private final Double alcohol = 10.0D;
     private final String ingredient = "쌀(국내산), 밀(국내산), 누룩, 정제수";
@@ -97,6 +95,7 @@ public class AdminProductServiceTest {
 
     private final String modifyName = "1000억 막걸리 프리바이오 수정";
     private final BigDecimal modifyPrice = BigDecimal.valueOf(1000);
+    private final BigDecimal modifyDistributionPrice = BigDecimal.valueOf(1500);
     private final Long modifyQuantity = 100L;
     private final Double modifyAlcohol = 1.0D;
     private final String modifyIngredient = "쌀(국내산), 밀(국내산), 누룩, 정제수 수정";
@@ -155,6 +154,7 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getMakerId()).isEqualTo(makerId);
         assertThat(productDetailResponse.getMakerName()).isEqualTo(makerName);
         assertThat(productDetailResponse.getPrice()).isEqualTo(price);
+        assertThat(productDetailResponse.getDistributionPrice()).isEqualTo(distributionPrice);
         assertThat(productDetailResponse.getQuantity()).isEqualTo(quantity);
         assertThat(productDetailResponse.getAlcohol()).isEqualTo(alcohol);
         assertThat(productDetailResponse.getIngredient()).isEqualTo(ingredient);
@@ -194,7 +194,7 @@ public class AdminProductServiceTest {
                 .name(name)
                 .makerId(makerId)
                 .price(price)
-                .quantity(quantity)
+                .distributionPrice(distributionPrice)
                 .alcohol(alcohol)
                 .ingredient(ingredient)
                 .sweet(sweet)
@@ -223,7 +223,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getMakerId()).isEqualTo(makerId);
         assertThat(productDetailResponse.getMakerName()).isEqualTo(makerName);
         assertThat(productDetailResponse.getPrice()).isEqualTo(price);
-        assertThat(productDetailResponse.getQuantity()).isEqualTo(quantity);
+        assertThat(productDetailResponse.getDistributionPrice()).isEqualTo(distributionPrice);
+        assertThat(productDetailResponse.getQuantity()).isEqualTo(0L);
         assertThat(productDetailResponse.getAlcohol()).isEqualTo(alcohol);
         assertThat(productDetailResponse.getIngredient()).isEqualTo(ingredient);
         assertThat(productDetailResponse.getSweet()).isEqualTo(sweet);
@@ -287,7 +288,7 @@ public class AdminProductServiceTest {
                 .name(modifyName)
                 .makerId(modifyMakerId)
                 .price(modifyPrice)
-                .quantity(modifyQuantity)
+                .distributionPrice(modifyDistributionPrice)
                 .alcohol(modifyAlcohol)
                 .ingredient(modifyIngredient)
                 .sweet(modifySweet)
@@ -319,7 +320,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getMakerId()).isEqualTo(modifyMakerId);
         assertThat(productDetailResponse.getMakerName()).isEqualTo(modifyMakerName);
         assertThat(productDetailResponse.getPrice()).isEqualTo(modifyPrice);
-        assertThat(productDetailResponse.getQuantity()).isEqualTo(modifyQuantity);
+        assertThat(productDetailResponse.getDistributionPrice()).isEqualTo(modifyDistributionPrice);
+        assertThat(productDetailResponse.getQuantity()).isEqualTo(quantity);
         assertThat(productDetailResponse.getAlcohol()).isEqualTo(modifyAlcohol);
         assertThat(productDetailResponse.getIngredient()).isEqualTo(modifyIngredient);
         assertThat(productDetailResponse.getSweet()).isEqualTo(modifySweet);
@@ -441,6 +443,71 @@ public class AdminProductServiceTest {
         assertEquals(HttpResponse.Fail.PRODUCT_IN_USE.getMessage(), exception.getMessage());
     }
 
+    @Test
+    @DisplayName("재고 수량 조회 성공")
+    public void t6() {
+        // given
+        when(productRepository.findById(id)).thenReturn(this.getProductOne());
+
+        // When
+        ProductQuantityResponse productQuantityResponse = adminProductService.getQuantity(id);
+
+        // then
+        assertThat(productQuantityResponse.getName()).isEqualTo(name);
+        assertThat(productQuantityResponse.getQuantity()).isEqualTo(quantity);
+    }
+
+    @Test
+    @DisplayName("재고 수량 조회 실패 - 찾을 수 없는 제품")
+    public void t6_1() {
+        // given
+        Mockito.when(this.productRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminProductService.getQuantity(id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("재고 수량 수정 성공")
+    public void t7() {
+        // given
+        ProductQuantityRequest request = ProductQuantityRequest.builder()
+                .quantity(modifyQuantity)
+                .build();
+
+        when(productRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(this.getProductOne());
+        Mockito.when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        ProductQuantityResponse productQuantityResponse = adminProductService.modifyQuantity(id, request);
+
+        // then
+        assertThat(productQuantityResponse.getName()).isEqualTo(name);
+        assertThat(productQuantityResponse.getQuantity()).isEqualTo(modifyQuantity);
+    }
+
+    @Test
+    @DisplayName("재고 수량 수정 실패 - 찾을 수 없는 제품")
+    public void t7_1() {
+        // given
+        Mockito.when(this.productRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminProductService.modifyQuantity(id, any());
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getMessage(), exception.getMessage());
+    }
+
     private Page<Product> getProducts() {
         List<Product> list = List.of(this.getProductData());
         Pageable pageable = PageRequest.of(page, size);
@@ -541,6 +608,7 @@ public class AdminProductServiceTest {
                 .id(id)
                 .name(name)
                 .price(price)
+                .distributionPrice(distributionPrice)
                 .quantity(quantity)
                 .alcohol(alcohol)
                 .ingredient(ingredient)

@@ -25,13 +25,13 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
-import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
-import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
@@ -170,7 +170,8 @@ public class RestaurantOrderRefundControllerTest {
         fileService.saveFiles(product1, List.of(multipartFile1));
         fileService.saveFiles(product2, List.of(multipartFile2));
 
-        restaurantStockRepository.save(RestaurantStock.builder().product(product1).quantity(100L).restaurant(restaurant).build());
+        restaurantStockRepository.save(
+                RestaurantStock.builder().product(product1).quantity(100L).restaurant(restaurant).build());
         restaurantStockRepository.save(RestaurantStock.builder().product(product2).quantity(100L).restaurant(restaurant).build());
 
         RestaurantOrder restaurantOrder = restaurantOrderRepository.save(RestaurantOrder.builder().orderStatus(RestaurantOrderStatus.COMPLETED).totalPrice(BigDecimal.valueOf(58300)).address(restaurant.getAddress()).addressDetail(restaurant.getAddressDetail()).description("조심히 배송 부탁드립니다.").postcode(restaurant.getPostcode()).recipient(memberRepository.findById(restaurant.getMember().getId()).get().getName()).phone(memberRepository.findById(restaurant.getMember().getId()).get().getPhone()).restaurant(restaurant).member(restaurant.getMember()).build());

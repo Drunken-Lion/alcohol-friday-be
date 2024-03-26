@@ -1,10 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util.RestaurantDataValidator;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.DayInfo;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
-import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.TimeOption;
-import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.DayInfo;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.TimeOption;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

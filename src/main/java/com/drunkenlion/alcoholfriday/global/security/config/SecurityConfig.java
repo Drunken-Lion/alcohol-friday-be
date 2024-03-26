@@ -128,6 +128,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/v1/admin/restaurants/**")
                         .hasAnyRole(MemberRole.ADMIN.getRole())
 
+                        // 관리자 - 제품 재고 관리
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/products/{id:\\d+}/stocks")
+                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/products/{id:\\d+}/stocks")
+                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
+
                         // 관리자 - 제품, 상품, 제조사, 카테고리 관리
                         .requestMatchers(
                                 "/v1/admin/items/**",
@@ -154,7 +160,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/v1/members/me/**", "/v1/addresses/**", "/v1/orders/**", "/v1/carts/**").authenticated()
 
-                        .requestMatchers(HttpMethod.GET, "/v1/restaurants/**", "/v1/items/**", "/v1/notices/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/restaurants/**", "/v1/items/**", "/v1/notices/**", "/v1/products/**").permitAll()
                         .requestMatchers("/v1/auth/**", "/error", "/docs").permitAll()
 
                         .anyRequest().authenticated()

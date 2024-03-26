@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.product.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductQuantityRequest;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
@@ -91,6 +92,7 @@ public class AdminProductControllerTest {
         Product 제품_국순당_프리바이오 = productRepository.save(Product.builder()
                 .name("1000억 막걸리 프리바이오")
                 .price(BigDecimal.valueOf(10000))
+                .distributionPrice(BigDecimal.valueOf(15000))
                 .quantity(100L)
                 .alcohol(5.0D)
                 .ingredient("쌀(국내산), 밀(국내산), 누룩, 정제수")
@@ -177,6 +179,7 @@ public class AdminProductControllerTest {
                 .andExpect(jsonPath("$.makerId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.makerName", notNullValue()))
                 .andExpect(jsonPath("$.price", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.distributionPrice", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.quantity", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.alcohol", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.ingredient", notNullValue()))
@@ -208,7 +211,7 @@ public class AdminProductControllerTest {
                 .name("test 제품명")
                 .makerId(makerId)
                 .price(BigDecimal.valueOf(10000))
-                .quantity(1000L)
+                .distributionPrice(BigDecimal.valueOf(15000))
                 .alcohol(0.0D)
                 .ingredient("test 쌀(국내산), 밀(국내산), 누룩, 정제수")
                 .sweet(0L)
@@ -244,6 +247,7 @@ public class AdminProductControllerTest {
                 .andExpect(jsonPath("$.makerId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.makerName", notNullValue()))
                 .andExpect(jsonPath("$.price", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.distributionPrice", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.quantity", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.alcohol", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.ingredient", notNullValue()))
@@ -276,7 +280,7 @@ public class AdminProductControllerTest {
                 .name("test 제품명")
                 .makerId(makerId)
                 .price(BigDecimal.valueOf(10000))
-                .quantity(1000L)
+                .distributionPrice(BigDecimal.valueOf(15000))
                 .alcohol(0.0D)
                 .ingredient("test 쌀(국내산), 밀(국내산), 누룩, 정제수")
                 .sweet(0L)
@@ -322,6 +326,7 @@ public class AdminProductControllerTest {
                 .andExpect(jsonPath("$.makerId", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.makerName", notNullValue()))
                 .andExpect(jsonPath("$.price", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.distributionPrice", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.quantity", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.alcohol", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.ingredient", notNullValue()))
@@ -357,5 +362,58 @@ public class AdminProductControllerTest {
                 .andExpect(status().isNoContent())
                 .andExpect(handler().handlerType(AdminProductController.class))
                 .andExpect(handler().methodName("deleteProduct"));
+    }
+
+    @Test
+    @DisplayName("재고 수량 조회 성공")
+    @WithAccount(role = MemberRole.ADMIN)
+    void t6() throws Exception {
+        // given
+        Product product = this.productRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/admin/products/" + product.getId() + "/stocks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminProductController.class))
+                .andExpect(handler().methodName("getQuantity"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.quantity", instanceOf(Number.class)));
+    }
+
+    @Test
+    @DisplayName("재고 수량 수정 성공")
+    @WithAccount(role = MemberRole.ADMIN)
+    void t7() throws Exception {
+        // given
+        Product product = this.productRepository.findAll().get(0);
+
+        ProductQuantityRequest request = ProductQuantityRequest.builder()
+                .quantity(10L)
+                .build();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/products/" + product.getId() + "/stocks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonConvertor.build(request))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminProductController.class))
+                .andExpect(handler().methodName("modifyQuantity"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.quantity", instanceOf(Number.class)));
     }
 }
