@@ -5,6 +5,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.resp
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.common.util.RoleValidator;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminRestaurantStockController {
     private final AdminRestaurantStockService adminRestaurantStockService;
 
+    @Operation(summary = "매장 재고 조회", description = "해당 매장의 재고를 조회")
     @GetMapping
     public ResponseEntity<PageResponse<RestaurantStockListResponse>> getRestaurantStocks(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
