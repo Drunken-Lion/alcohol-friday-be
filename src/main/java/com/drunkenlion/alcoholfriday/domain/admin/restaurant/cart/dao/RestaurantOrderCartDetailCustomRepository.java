@@ -8,9 +8,11 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaur
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface RestaurantOrderCartDetailCustomRepository {
     List<RestaurantOrderCartDetail> findRestaurantAndMember(Restaurant restaurant, Member member);
-
+    Page<RestaurantOrderCartDetail> findRestaurantAndMember(Restaurant restaurant, Member member, Pageable pageable);
     Optional<RestaurantOrderCartDetail> findCartAndProduct(RestaurantOrderCart cart, Product product);
 }

@@ -1,18 +1,30 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.entity.RestaurantOrder;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.util.RestaurantOrderRefundStatusConverter;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.util.RestaurantOrderRefundStatusConverter;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.global.common.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Comment;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Comment;
 
 @Getter
 @SuperBuilder(toBuilder = true)
@@ -51,4 +63,12 @@ public class RestaurantOrderRefund extends BaseEntity {
     @OneToMany(mappedBy = "restaurantOrderRefund")
     @Builder.Default
     private List<RestaurantOrderRefundDetail> restaurantOrderRefundDetails = new ArrayList<>();
+
+    public void updateStatus(RestaurantOrderRefundStatus status) {
+        this.status = status;
+    }
+
+    public void updateAdminReason(String adminReason) {
+        this.adminReason = adminReason;
+    }
 }

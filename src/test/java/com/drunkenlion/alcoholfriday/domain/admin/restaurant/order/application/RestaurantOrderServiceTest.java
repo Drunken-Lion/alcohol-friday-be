@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderListResponse;
@@ -15,9 +16,11 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.R
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
+import com.drunkenlion.alcoholfriday.domain.customerservice.notice.entity.Notice;
 import com.drunkenlion.alcoholfriday.domain.maker.entity.Maker;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantRepository;
@@ -66,6 +69,8 @@ public class RestaurantOrderServiceTest {
 
     @Mock
     private RestaurantOrderRefundRepository restaurantOrderRefundRepository;
+    @Mock
+    private ProductRepository productRepository;
 
     @Mock
     private FileService fileService;
@@ -211,6 +216,37 @@ public class RestaurantOrderServiceTest {
         assertThat(details.get(1).getQuantity()).isEqualTo(orderDetailQuantity2);
         assertThat(details.get(1).getRefundQuantity()).isEqualTo(orderDetailQuantity2 - refundDetailQuantity2);
         assertThat(details.get(1).getFile()).isEqualTo(null);
+    }
+
+    @Test
+    @DisplayName("발주를 위한 제품 목록")
+    public void getRestaurantOrderProductsTest() {
+
+        when(productRepository.findAllByDeletedAtIsNull(any())).thenReturn(getProducts());
+        when(fileService.findOne(any())).thenReturn(null);
+
+        // when
+        Page<RestaurantOrderProductListResponse> products =
+                restaurantOrderService.getRestaurantOrderProducts(page, size, getOwner());
+
+        // then
+        List<RestaurantOrderProductListResponse> content = products.getContent();
+
+        assertThat(content).isInstanceOf(List.class);
+        assertThat(content.size()).isEqualTo(2);
+        assertThat(content.get(0).getId()).isEqualTo(productId1);
+        assertThat(content.get(0).getName()).isEqualTo(productName1);
+        assertThat(content.get(0).getMakerName()).isEqualTo(makerName);
+        assertThat(content.get(0).getPrice()).isEqualTo(getProduct1().getDistributionPrice());
+        assertThat(content.get(0).getQuantity()).isEqualTo(getProduct1().getQuantity());
+        assertThat(content.get(0).getFile()).isEqualTo(null);
+
+        assertThat(content.get(1).getId()).isEqualTo(productId2);
+        assertThat(content.get(1).getName()).isEqualTo(productName2);
+        assertThat(content.get(1).getMakerName()).isEqualTo(makerName);
+        assertThat(content.get(1).getPrice()).isEqualTo(getProduct2().getDistributionPrice());
+        assertThat(content.get(1).getQuantity()).isEqualTo(getProduct2().getQuantity());
+        assertThat(content.get(1).getFile()).isEqualTo(null);
     }
 
     private Page<RestaurantOrder> getRestaurantOrders() {
@@ -402,6 +438,12 @@ public class RestaurantOrderServiceTest {
                 .category(category)
                 .createdAt(createdAt)
                 .build();
+    }
+
+    private Page<Product> getProducts() {
+        List<Product> list = List.of(this.getProduct1(), this.getProduct2());
+        Pageable pageable = PageRequest.of(page, size);
+        return new PageImpl<Product>(list, pageable, list.size());
     }
 
     private RestaurantOrder getRestaurantOrder() {

@@ -1,7 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.api;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.api.AdminRestaurantController;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantRequest;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -153,7 +152,7 @@ public class AdminRestaurantControllerTest {
         restaurantRepository.save(restaurant);
 
         List<Product> products = LongStream.rangeClosed(1, 2).mapToObj(i -> {
-            Product product =  Product.builder()
+            Product product = Product.builder()
                     .name("productName" + i)
                     .build();
 

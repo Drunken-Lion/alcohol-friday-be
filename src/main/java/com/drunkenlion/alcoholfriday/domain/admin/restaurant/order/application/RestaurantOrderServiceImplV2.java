@@ -1,6 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartRepository;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.RestaurantOrderSaveCodeRequest;
@@ -21,30 +25,23 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.Restaurant
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
-
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartDetailRepository;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dao.RestaurantOrderCartRepository;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCart;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.entity.RestaurantOrderCartDetail;
-
-
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.common.util.RoleValidator;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -217,10 +214,15 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse ownerOrderCancel(Long id, Member member) {
-        RoleValidator.validateRole(member, MemberRole.OWNER);
-
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
+
+        Restaurant restaurant = restaurantOrder.getRestaurant();
+        if (restaurant.getDeletedAt() != null) {
+            throw new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT);
+        }
+
+        RestaurantValidator.validateOwnership(member, restaurant);
 
         restaurantOrder.updateStatus(RestaurantOrderStatus.CANCELLED);
         restaurantOrderRepository.save(restaurantOrder);

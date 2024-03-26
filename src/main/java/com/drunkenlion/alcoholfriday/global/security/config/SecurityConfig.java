@@ -67,13 +67,56 @@ public class SecurityConfig {
                                 MemberRole.ADMIN.getRole(),
                                 MemberRole.SUPER_VISOR.getRole())
 
-                        // 관리자 - 매장 발주 관리 (Admin & StoreManager)
-                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-orders")
-                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
-
                         // 관리자 - 매장 발주 관리 (Owner)
                         .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-orders/{id:\\d+}/owner")
                         .hasRole(MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.POST, "/v1/admin/restaurant-orders/owner")
+                        .hasRole(MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurant-orders/{id:\\d+}/cancel/owner")
+                        .hasRole(MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-orders/products")
+                        .hasRole(MemberRole.OWNER.getRole())
+
+                        //관리자 - 매장 발주 환불 관리 (Owner)
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-order-refunds/owner")
+                        .hasRole(MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.POST, "/v1/admin/restaurant-order-refunds/owner")
+                        .hasRole(MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurant-order-refunds/{id:\\d+}/cancel/owner")
+                        .hasRole(MemberRole.OWNER.getRole())
+
+                        // 관리자 - 매장 발주 장바구니 관리 (Owner)
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-order-carts/owner")
+                        .hasRole(MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.POST, "/v1/admin/restaurant-order-carts/owner")
+                        .hasRole(MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurant-order-cart-details/{id:\\d+}/owner")
+                        .hasRole(MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.DELETE, "/v1/admin/restaurant-order-cart-details/{id:\\d+}/owner")
+                        .hasRole(MemberRole.OWNER.getRole())
+
+                        // 관리자 - 매장 발주 관리 (Admin & StoreManager)
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-orders")
+                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurant-orders/{id:\\d+}")
+                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurant-orders/{id:\\d+}/reject")
+                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
+
+                        //관리자 - 매장 발주 환불 관리 (Admin & StoreManager)
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-order-refunds")
+                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurant-order-refunds/{id:\\d+}")
+                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurant-order-refunds/{id:\\d+}/reject")
+                        .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
+
+                        // 관리자 - 매장 재고 관리
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurants/{id:\\d+}/stocks")
+                        .hasAnyRole(
+                                MemberRole.ADMIN.getRole(),
+                                MemberRole.STORE_MANAGER.getRole(),
+                                MemberRole.OWNER.getRole())
 
                         // 관리자 - 매장 관리
                         .requestMatchers(HttpMethod.POST, "/v1/admin/restaurants")
@@ -94,12 +137,6 @@ public class SecurityConfig {
                                 "/v1/admin/categories/**",
                                 "/v1/admin/orders/**")
                         .hasAnyRole(MemberRole.ADMIN.getRole(), MemberRole.STORE_MANAGER.getRole())
-
-                        //관리자 - 매장 재고 관리 (사장)
-                        .requestMatchers(
-                                "/v1/admin/restaurant-order-refunds/owner",
-                                "/v1/admin/restaurant-order-refunds/*/cancel/owner")
-                        .hasRole(MemberRole.OWNER.getRole())
 
                         // 관리자
                         .requestMatchers("/v1/admin/**")

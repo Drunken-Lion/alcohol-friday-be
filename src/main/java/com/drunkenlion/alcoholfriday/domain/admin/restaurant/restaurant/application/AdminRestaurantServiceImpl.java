@@ -1,9 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantAdminDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantStockProductResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockProductResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util.RestaurantDataValidator;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -17,17 +16,16 @@ import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -72,7 +70,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
-        if(!RestaurantDataValidator.isValid(restaurantRequest)) {
+        if (!RestaurantDataValidator.isValid(restaurantRequest)) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.INVALID_INPUT_VALUE)
                     .build();
@@ -169,7 +167,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
         List<RestaurantStockProductResponse> stockProductInfos = new ArrayList<>();
 
         if (!restaurantStocks.isEmpty()) {
-            for (RestaurantStock restaurantStock: restaurantStocks) {
+            for (RestaurantStock restaurantStock : restaurantStocks) {
                 Product product = restaurantStock.getProduct();
                 NcpFileResponse ncpResponse = fileService.findOne(product);
 

@@ -1,19 +1,10 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.question.api;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.customerservice.answer.dao.AnswerRepository;
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.request.QuestionModifyRequest;
-import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
@@ -21,9 +12,6 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +27,17 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")

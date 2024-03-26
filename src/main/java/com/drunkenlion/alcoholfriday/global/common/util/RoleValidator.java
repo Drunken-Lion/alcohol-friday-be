@@ -5,40 +5,41 @@ import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 public class RoleValidator {
+    private static boolean hasAnyRole(Member member, Set<MemberRole> roles) {
+        return roles.contains(member.getRole());
+    }
+
     public static void validateRole(Member member, MemberRole role) {
-        if (!member.getRole().equals(role)) {
+        if (!hasAnyRole(member, EnumSet.of(role))) {
             throw new BusinessException(HttpResponse.Fail.FORBIDDEN);
         }
     }
 
     public static void validateAdminOrSuperVisor(Member member) {
-        if (!isAdminOrSuperVisor(member)) {
+        if (!hasAnyRole(member, EnumSet.of(MemberRole.ADMIN, MemberRole.SUPER_VISOR))) {
             throw new BusinessException(HttpResponse.Fail.FORBIDDEN);
         }
     }
 
     public static void validateAdminOrStoreManager(Member member) {
-        if (!isAdminOrStoreManager(member)) {
+        if (!hasAnyRole(member, EnumSet.of(MemberRole.ADMIN, MemberRole.STORE_MANAGER))) {
             throw new BusinessException(HttpResponse.Fail.FORBIDDEN);
         }
     }
 
     public static void validateAdminOrOwner(Member member) {
-        if (!isAdminOrOwner(member)) {
+        if (!hasAnyRole(member, EnumSet.of(MemberRole.ADMIN, MemberRole.OWNER))) {
             throw new BusinessException(HttpResponse.Fail.FORBIDDEN);
         }
     }
 
-    private static boolean isAdminOrSuperVisor(Member member) {
-        return member.getRole().equals(MemberRole.ADMIN) || member.getRole().equals(MemberRole.SUPER_VISOR);
-    }
-
-    private static boolean isAdminOrStoreManager(Member member) {
-        return member.getRole().equals(MemberRole.ADMIN) || member.getRole().equals(MemberRole.STORE_MANAGER);
-    }
-
-    private static boolean isAdminOrOwner(Member member) {
-        return member.getRole().equals(MemberRole.ADMIN) || member.getRole().equals(MemberRole.OWNER);
+    public static void validateAdminOrStoreManagerOrOwner(Member member) {
+        if (!hasAnyRole(member, EnumSet.of(MemberRole.ADMIN, MemberRole.STORE_MANAGER, MemberRole.OWNER))) {
+            throw new BusinessException(HttpResponse.Fail.FORBIDDEN);
+        }
     }
 }

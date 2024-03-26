@@ -375,34 +375,8 @@ class RestaurantOrderServiceImplV2Test {
     }
 
     @Test
-    @DisplayName("매장 발주 취소 실패 (사장) - 사장 이외의 권한이 접근")
-    public void t6_1() {
-        // given
-        Member member = Member.builder().id(1L).role(MemberRole.ADMIN).build();
-        Restaurant restaurant = Restaurant.builder()
-                .id(1L)
-                .businessName("섭컴퍼니")
-                .member(member)
-                .build();
-
-        RestaurantOrder restaurantOrder = RestaurantOrder.builder().id(1L)
-                .orderStatus(RestaurantOrderStatus.WAITING_APPROVAL)
-                .restaurant(restaurant)
-                .build();
-
-        // when
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            orderService.ownerOrderCancel(restaurantOrder.getId(), member);
-        });
-
-        // then
-        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
-        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
-    }
-
-    @Test
     @DisplayName("매장 발주 취소 실패 (사장) - 해당 매장 발주 건이 없음")
-    public void t6_2() {
+    public void t6_1() {
         // given
         Member member = Member.builder().id(1L).role(MemberRole.OWNER).build();
 
@@ -416,5 +390,34 @@ class RestaurantOrderServiceImplV2Test {
         // then
         assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER.getStatus(), exception.getStatus());
         assertEquals(HttpResponse.Fail.NOT_FOUND_RESTAURANT_ORDER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("매장 발주 취소 실패 (사장) - 해당 매장의 사장이 본인이 아니면 발주 취소 불가")
+    public void t6_2() {
+        // given
+        Member member = Member.builder().id(1L).role(MemberRole.ADMIN).build();
+        Member otherMember = Member.builder().id(2L).role(MemberRole.OWNER).build();
+        Restaurant restaurant = Restaurant.builder()
+                .id(1L)
+                .businessName("섭컴퍼니")
+                .member(member)
+                .build();
+
+        RestaurantOrder restaurantOrder = RestaurantOrder.builder().id(1L)
+                .orderStatus(RestaurantOrderStatus.WAITING_APPROVAL)
+                .restaurant(restaurant)
+                .build();
+
+        when(restaurantOrderRepository.findRestaurantOrderWaitingApproval(restaurantOrder.getId())).thenReturn(Optional.of(restaurantOrder));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            orderService.ownerOrderCancel(restaurantOrder.getId(), otherMember);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
     }
 }

@@ -1,8 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantAdminDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
+
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import org.springframework.data.domain.Page;
 
