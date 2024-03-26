@@ -139,4 +139,15 @@ public class OrderServiceImpl implements OrderService {
 
         order.updateOrderAddress(orderAddressRequest);
     }
+
+    /**
+     * orderNo(주문 고유번호)로 Order 조회
+     */
+    @Override
+    public Order getOrder(String orderNo) {
+        return orderRepository.findByOrderNo(orderNo)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_ORDER)
+                        .build());
+    }
 }
