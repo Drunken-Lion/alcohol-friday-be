@@ -2,7 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application.AdminRestaurantService;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantAdminDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantListResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
@@ -10,13 +10,20 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,21 +46,21 @@ public class AdminRestaurantController {
 
     @Operation(summary = "매장 상세 조회", description = "관리자 권한에 대한 매장 상세 조회")
     @GetMapping("{id}")
-    public ResponseEntity<RestaurantDetailResponse> getRestaurant(
+    public ResponseEntity<RestaurantAdminDetailResponse> getRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id
     ) {
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.getRestaurant(userPrincipal.getMember(), id);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.getRestaurant(userPrincipal.getMember(), id);
         return ResponseEntity.ok().body(restaurantDetailResponse);
     }
 
     @Operation(summary = "매장 등록", description = "관리자 권한에 대한 매장 등록")
     @PostMapping
-    public ResponseEntity<RestaurantDetailResponse> createRestaurant(
+    public ResponseEntity<RestaurantAdminDetailResponse> createRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody RestaurantRequest restaurantRequest
     ) {
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(userPrincipal.getMember(), restaurantRequest);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.createRestaurant(userPrincipal.getMember(), restaurantRequest);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -66,12 +73,12 @@ public class AdminRestaurantController {
 
     @Operation(summary = "매장 수정", description = "관리자 권한에 대한 매장 수정")
     @PutMapping("{id}")
-    public ResponseEntity<RestaurantDetailResponse> modifyRestaurant(
+    public ResponseEntity<RestaurantAdminDetailResponse> modifyRestaurant(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable("id") Long id,
             @Valid @RequestBody RestaurantRequest restaurantRequest
     ) {
-        RestaurantDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(userPrincipal.getMember(), id, restaurantRequest);
+        RestaurantAdminDetailResponse restaurantDetailResponse = adminRestaurantService.modifyRestaurant(userPrincipal.getMember(), id, restaurantRequest);
         return ResponseEntity.ok().body(restaurantDetailResponse);
     }
 

@@ -1,17 +1,17 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.product.application.AdminProductService;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.*;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
+import com.drunkenlion.alcoholfriday.global.common.util.RoleValidator;
+import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -81,5 +81,28 @@ public class AdminProductController {
     ) {
         adminProductService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "재고 수량 조회", description = "관리자 권한에 대한 제품의 재고 수량 조회")
+    @GetMapping("{id}/stocks")
+    public ResponseEntity<ProductQuantityResponse> getQuantity(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("id") Long id
+    ) {
+        RoleValidator.validateAdminOrStoreManager(userPrincipal.getMember());
+        ProductQuantityResponse productQuantityResponse = adminProductService.getQuantity(id);
+        return ResponseEntity.ok().body(productQuantityResponse);
+    }
+
+    @Operation(summary = "재고 수량 수정", description = "관리자 권한에 대한 제품의 재고 수량 수정")
+    @PutMapping("{id}/stocks")
+    public ResponseEntity<ProductQuantityResponse> modifyQuantity(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ProductQuantityRequest productQuantityRequest
+    ) {
+        RoleValidator.validateAdminOrStoreManager(userPrincipal.getMember());
+        ProductQuantityResponse productQuantityResponse = adminProductService.modifyQuantity(id, productQuantityRequest);
+        return ResponseEntity.ok().body(productQuantityResponse);
     }
 }

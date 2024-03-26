@@ -9,9 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface RestaurantOrderRefundRepository extends JpaRepository<RestaurantOrderRefund, Long>, RestaurantOrderRefundRepositoryCustom {
-    Page<RestaurantOrderRefund> findByRestaurantIdAndDeletedAtIsNull(Long restaurantId, Pageable pageable);
-
+    Page<RestaurantOrderRefund> findByRestaurantIdAndDeletedAtIsNullOrderByIdDesc(Long restaurantId, Pageable pageable);
     boolean existsByRestaurantOrderIdAndStatusAndDeletedAtIsNull(Long orderId, RestaurantOrderRefundStatus restaurantOrderRefundStatus);
-
     Optional<RestaurantOrderRefund> findByIdAndDeletedAtIsNull(Long id);
+    Page<RestaurantOrderRefund> findByDeletedAtIsNullOrderByIdDesc(Pageable pageable);
 }

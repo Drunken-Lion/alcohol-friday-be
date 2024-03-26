@@ -26,8 +26,8 @@ public class ProductCreateRequest {
     @Schema(description = "제품 원가")
     private BigDecimal price;
 
-    @Schema(description = "재고 수량")
-    private Long quantity;
+    @Schema(description = "유통 가격")
+    private BigDecimal distributionPrice;
 
     @Schema(description = "술 도수")
     private Double alcohol;
@@ -60,7 +60,8 @@ public class ProductCreateRequest {
         return Product.builder()
                 .name(request.getName())
                 .price(request.getPrice())
-                .quantity(request.getQuantity())
+                .distributionPrice(request.getDistributionPrice())
+                .quantity(0L)
                 .alcohol(request.getAlcohol())
                 .ingredient(request.getIngredient())
                 .sweet(request.getSweet())
