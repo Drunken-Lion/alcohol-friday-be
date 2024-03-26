@@ -51,6 +51,10 @@ public enum PaymentMethod {
     }
 
     public static PaymentMethod ofMethod(String method) {
+        if (method == null) {
+            return null;
+        }
+
         return Arrays.stream(PaymentMethod.values())
                 .filter(value -> value.method.equals(method))
                 .findFirst()

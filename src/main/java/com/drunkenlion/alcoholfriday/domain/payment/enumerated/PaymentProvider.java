@@ -55,6 +55,10 @@ public enum PaymentProvider {
     }
 
     public static PaymentProvider ofPaymentProvider(String paymentProvider) {
+        if (paymentProvider == null) {
+            return null;
+        }
+
         return Arrays.stream(PaymentProvider.values())
                 .filter(value -> value.paymentProvider.equals(paymentProvider))
                 .findFirst()

@@ -35,6 +35,10 @@ public enum PaymentCardType {
     }
 
     public static PaymentCardType ofCardType(String cardType) {
+        if (cardType == null) {
+            return null;
+        }
+
         return Arrays.stream(PaymentCardType.values())
                 .filter(value -> value.cardType.equals(cardType))
                 .findFirst()
