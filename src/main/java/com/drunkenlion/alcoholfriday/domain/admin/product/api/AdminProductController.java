@@ -83,6 +83,17 @@ public class AdminProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "재고 수량 조회", description = "관리자 권한에 대한 제품의 재고 수량 조회")
+    @GetMapping("{id}/stocks")
+    public ResponseEntity<ProductQuantityResponse> modifyQuantity(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable("id") Long id
+    ) {
+        RoleValidator.validateAdminOrStoreManager(userPrincipal.getMember());
+        ProductQuantityResponse productQuantityResponse = adminProductService.getQuantity(id);
+        return ResponseEntity.ok().body(productQuantityResponse);
+    }
+
     @Operation(summary = "재고 수량 수정", description = "관리자 권한에 대한 제품의 재고 수량 수정")
     @PutMapping("{id}/stocks")
     public ResponseEntity<ProductQuantityResponse> modifyQuantity(

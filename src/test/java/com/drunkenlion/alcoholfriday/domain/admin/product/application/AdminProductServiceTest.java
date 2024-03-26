@@ -444,8 +444,38 @@ public class AdminProductServiceTest {
     }
 
     @Test
-    @DisplayName("재고 입고 성공")
+    @DisplayName("재고 수량 조회 성공")
     public void t6() {
+        // given
+        when(productRepository.findById(id)).thenReturn(this.getProductOne());
+
+        // When
+        ProductQuantityResponse productQuantityResponse = adminProductService.getQuantity(id);
+
+        // then
+        assertThat(productQuantityResponse.getName()).isEqualTo(name);
+        assertThat(productQuantityResponse.getQuantity()).isEqualTo(quantity);
+    }
+
+    @Test
+    @DisplayName("재고 수량 조회 실패 - 찾을 수 없는 제품")
+    public void t6_1() {
+        // given
+        Mockito.when(this.productRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminProductService.getQuantity(id);
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("재고 수량 수정 성공")
+    public void t7() {
         // given
         ProductQuantityRequest request = ProductQuantityRequest.builder()
                 .quantity(modifyQuantity)
@@ -463,8 +493,8 @@ public class AdminProductServiceTest {
     }
 
     @Test
-    @DisplayName("재고 입고 실패 - 찾을 수 없는 제품")
-    public void t6_1() {
+    @DisplayName("재고 수량 수정 실패 - 찾을 수 없는 제품")
+    public void t7_1() {
         // given
         Mockito.when(this.productRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 

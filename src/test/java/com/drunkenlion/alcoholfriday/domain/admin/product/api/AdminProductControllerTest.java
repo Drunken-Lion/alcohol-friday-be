@@ -365,9 +365,33 @@ public class AdminProductControllerTest {
     }
 
     @Test
-    @DisplayName("재고 입고 성공")
+    @DisplayName("재고 수량 조회 성공")
     @WithAccount(role = MemberRole.ADMIN)
     void t6() throws Exception {
+        // given
+        Product product = this.productRepository.findAll().get(0);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/admin/products/" + product.getId() + "/stocks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminProductController.class))
+                .andExpect(handler().methodName("modifyQuantity"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.quantity", instanceOf(Number.class)));
+    }
+
+    @Test
+    @DisplayName("재고 수량 수정 성공")
+    @WithAccount(role = MemberRole.ADMIN)
+    void t7() throws Exception {
         // given
         Product product = this.productRepository.findAll().get(0);
 

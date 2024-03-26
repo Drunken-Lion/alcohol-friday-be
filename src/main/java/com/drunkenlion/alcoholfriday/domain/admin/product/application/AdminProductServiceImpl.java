@@ -139,6 +139,16 @@ public class AdminProductServiceImpl implements AdminProductService {
     }
 
     @Override
+    public ProductQuantityResponse getQuantity(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
+                        .build());
+
+        return ProductQuantityResponse.of(product);
+    }
+
+    @Override
     @Transactional
     public ProductQuantityResponse modifyQuantity(Long id, ProductQuantityRequest productQuantityRequest) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(id)
