@@ -41,7 +41,8 @@ public class PaymentController {
 
     @Operation(summary = "결제",
             description = "클라이언트에서 결제 정보를 전달 받고 서버에서 한 번 더 검사 후 토스페이먼츠로 최종 결제 승인 요청" +
-                    " / jsonBody의 경우 orderNo, amount(배송비 포함 주문 총 금액), paymentKey를 주시면 됩니다.")
+                    " / jsonBody의 경우 orderNo, amount(배송비 포함 주문 총 금액), paymentKey, direct를 주시면 됩니다. " +
+                    "- 즉시 주문일 경우 direct : true, 장바구니 주문일 경우 direct : false 로 보내주시길 바랍니다.")
     @PostMapping("confirm")
     public ResponseEntity<JSONObject> confirmPayment(@RequestBody String jsonBody,
                                                      @AuthenticationPrincipal UserPrincipal userPrincipal) throws Exception {
@@ -50,11 +51,14 @@ public class PaymentController {
         String orderNo;
         String amount;
         String paymentKey;
+        boolean direct;
         try {
             JSONObject requestData = (JSONObject) parser.parse(jsonBody);
             paymentKey = (String) requestData.get("paymentKey");
             orderNo = (String) requestData.get("orderNo");
             amount = (String) requestData.get("amount");
+            String directString = (String) requestData.get("direct");
+            direct = Boolean.parseBoolean(directString); // true: 즉시 구매, false: 장바구니 구매
         } catch (ParseException e) {
             throw new RuntimeException(e);
         };
@@ -94,7 +98,7 @@ public class PaymentController {
         // 결제 성공 시
         if (isSuccess) {
             paymentService.saveSuccessPayment(TossPaymentsReq.of(orderNo, paymentKey, jsonObject));
-            paymentService.deletedCartItems(orderNo);
+            if (!direct) paymentService.deletedCartItems(orderNo); // 장바구니 구매 시
         }
 
         return ResponseEntity.status(code).body(jsonObject);
