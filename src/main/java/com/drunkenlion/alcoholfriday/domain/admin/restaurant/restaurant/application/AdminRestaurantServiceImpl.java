@@ -1,9 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.RestaurantStockProductResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockProductResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util.RestaurantDataValidator;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -72,7 +72,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
                         .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
                         .build());
 
-        if(!RestaurantDataValidator.isValid(restaurantRequest)) {
+        if (!RestaurantDataValidator.isValid(restaurantRequest)) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.INVALID_INPUT_VALUE)
                     .build();
@@ -169,7 +169,7 @@ public class AdminRestaurantServiceImpl implements AdminRestaurantService {
         List<RestaurantStockProductResponse> stockProductInfos = new ArrayList<>();
 
         if (!restaurantStocks.isEmpty()) {
-            for (RestaurantStock restaurantStock: restaurantStocks) {
+            for (RestaurantStock restaurantStock : restaurantStocks) {
                 Product product = restaurantStock.getProduct();
                 NcpFileResponse ncpResponse = fileService.findOne(product);
 
