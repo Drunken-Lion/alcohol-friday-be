@@ -1,8 +1,8 @@
 package com.drunkenlion.alcoholfriday.global.security.config;
 
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.global.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +18,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import com.drunkenlion.alcoholfriday.global.security.jwt.JwtAuthenticationFilter;
 
 @Slf4j
 @Configuration
@@ -152,7 +150,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/v1/questions/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/v1/questions/**").authenticated()
 
-                        .requestMatchers("/v1/members/me/**", "/v1/addresses/**", "/v1/orders/**", "/v1/carts/**").authenticated()
+                        .requestMatchers("/v1/members/me/**", "/v1/addresses/**", "/v1/orders/**",
+                                "/v1/carts/**", "/v1/payments/**").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/v1/restaurants/**", "/v1/items/**", "/v1/notices/**").permitAll()
                         .requestMatchers("/v1/auth/**", "/error", "/docs").permitAll()
