@@ -44,7 +44,7 @@ public class TossPaymentsReq {
     @Schema(description = "결제 통화")
     private String currency;
 
-    public static TossPaymentsReq of(String orderId, String paymentKey, JSONObject jsonObject) {
+    public static TossPaymentsReq of(String orderNo, String paymentKey, JSONObject jsonObject) {
         String status = (String) jsonObject.get("status");
         String method = (String) jsonObject.get("method");
         String totalAmount = (String) jsonObject.get("totalAmount");
@@ -62,7 +62,7 @@ public class TossPaymentsReq {
         String provider = easyPayObject == null ? null : (String) easyPayObject.get("provider");
 
         return TossPaymentsReq.builder()
-                .orderNo(orderId)
+                .orderNo(orderNo)
                 .paymentNo(paymentKey)
                 .status(status)
                 .method(method)

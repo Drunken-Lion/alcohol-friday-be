@@ -36,27 +36,29 @@ public class PaymentController {
     private String tossPaymentsWidgetSecretKey;
 
     @Operation(summary = "결제",
-            description = "클라이언트에서 결제 정보를 전달 받고 서버에서 한 번 더 검사 후 토스페이먼츠로 최종 결제 승인 요청")
+            description = "클라이언트에서 결제 정보를 전달 받고 서버에서 한 번 더 검사 후 토스페이먼츠로 최종 결제 승인 요청" +
+                    " / jsonBody의 경우 orderNo, amount(배송비 포함 주문 총 금액), paymentKey를 주시면 됩니다.")
     @PostMapping("confirm")
     public ResponseEntity<JSONObject> confirmPayment(@RequestBody String jsonBody) throws Exception {
 
         JSONParser parser = new JSONParser();
-        String orderId;
+        String orderNo;
         String amount;
         String paymentKey;
         try {
             JSONObject requestData = (JSONObject) parser.parse(jsonBody);
             paymentKey = (String) requestData.get("paymentKey");
-            orderId = (String) requestData.get("orderId");
+            orderNo = (String) requestData.get("orderNo");
             amount = (String) requestData.get("amount");
         } catch (ParseException e) {
             throw new RuntimeException(e);
         };
 
-        paymentService.checkAmountValidity(orderId, new BigDecimal(amount));
+        // 결제 금액 유효성 확인
+        paymentService.validatePaymentAmount(orderNo, new BigDecimal(amount));
 
         JSONObject obj = new JSONObject();
-        obj.put("orderId", orderId);
+        obj.put("orderId", orderNo);
         obj.put("amount", amount);
         obj.put("paymentKey", paymentKey);
 
@@ -84,9 +86,10 @@ public class PaymentController {
         JSONObject jsonObject = (JSONObject) parser.parse(reader);
         responseStream.close();
 
+        // 결제 성공 시
         if (isSuccess) {
-            paymentService.saveSuccessPayment(TossPaymentsReq.of(orderId, paymentKey, jsonObject));
-            paymentService.deletedCartItems(orderId);
+            paymentService.saveSuccessPayment(TossPaymentsReq.of(orderNo, paymentKey, jsonObject));
+            paymentService.deletedCartItems(orderNo);
         }
 
         return ResponseEntity.status(code).body(jsonObject);
