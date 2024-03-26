@@ -19,9 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
-import java.util.Optional;
 
-import static com.drunkenlion.alcoholfriday.domain.member.entity.QMember.member;
 import static com.drunkenlion.alcoholfriday.domain.product.entity.QProduct.product;
 import static com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.QRestaurant.restaurant;
 import static com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.QRestaurantStock.restaurantStock;
@@ -120,23 +118,6 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(restaurants, pageable, total::fetchOne);
-    }
-
-    @Override
-    public Optional<Restaurant> findRestaurantById(Long restaurantId) {
-        BooleanBuilder booleanBuilder = new BooleanBuilder();
-
-        booleanBuilder.and(restaurant.id.eq(restaurantId))
-                .and(restaurant.deletedAt.isNull());
-
-        Restaurant result = jpaQueryFactory
-                .selectFrom(restaurant)
-                .leftJoin(restaurant.member, member).fetchJoin()
-                .leftJoin(restaurant.restaurantStocks, restaurantStock).fetchJoin()
-                .where(booleanBuilder)
-                .fetchFirst();
-
-        return Optional.ofNullable(result);
     }
 
     private OrderSpecifier<Double> getClosestStoreDistanceFromUser(double userLocationLatitude, double userLocationLongitude) {

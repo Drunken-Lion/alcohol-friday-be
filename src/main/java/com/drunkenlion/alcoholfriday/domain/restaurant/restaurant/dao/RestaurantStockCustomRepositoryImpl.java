@@ -1,10 +1,5 @@
 package com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dao;
 
-import static com.drunkenlion.alcoholfriday.domain.member.entity.QMember.member;
-import static com.drunkenlion.alcoholfriday.domain.product.entity.QProduct.product;
-import static com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.QRestaurant.restaurant;
-import static com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.QRestaurantStock.restaurantStock;
-
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
@@ -14,12 +9,18 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+
+import java.util.List;
+import java.util.Optional;
+
+import static com.drunkenlion.alcoholfriday.domain.member.entity.QMember.member;
+import static com.drunkenlion.alcoholfriday.domain.product.entity.QProduct.product;
+import static com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.QRestaurant.restaurant;
+import static com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.QRestaurantStock.restaurantStock;
 
 @RequiredArgsConstructor
 public class RestaurantStockCustomRepositoryImpl implements RestaurantStockCustomRepository {
@@ -38,7 +39,6 @@ public class RestaurantStockCustomRepositoryImpl implements RestaurantStockCusto
                 .fetchFirst()
         );
     }
-
 
     @Override
     public Page<RestaurantStock> findRestaurantStock(Long id, Pageable pageable) {

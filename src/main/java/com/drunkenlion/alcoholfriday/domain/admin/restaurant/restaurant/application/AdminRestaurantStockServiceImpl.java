@@ -54,7 +54,7 @@ public class AdminRestaurantStockServiceImpl implements AdminRestaurantStockServ
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
 
         RestaurantStock restaurantStock =
-                restaurantStockRepository.findById(modifyRequest.getId())
+                restaurantStockRepository.findByIdAndDeletedAtIsNull(modifyRequest.getId())
                         .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_STOCK));
 
         RestaurantStockValidator.validateStockInRestaurant(restaurantStock, restaurant);
