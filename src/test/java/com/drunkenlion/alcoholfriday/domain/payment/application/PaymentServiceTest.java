@@ -183,7 +183,7 @@ class PaymentServiceTest {
         BigDecimal amount = new BigDecimal(totalAmount);
 
         // when
-        paymentService.checkAmountValidity(orderNo, amount);
+        paymentService.validatePaymentAmount(orderNo, amount);
 
         // then
         verify(orderRepository, times(1)).findByOrderNo(orderNo);
@@ -198,7 +198,7 @@ class PaymentServiceTest {
 
         // when & then
         Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.checkAmountValidity(orderNo, amount);
+            paymentService.validatePaymentAmount(orderNo, amount);
         });
         verify(orderRepository, times(1)).findByOrderNo(orderNo);
     }
@@ -212,7 +212,7 @@ class PaymentServiceTest {
 
         // when & then
         Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.checkAmountValidity(orderNo2, amount);
+            paymentService.validatePaymentAmount(orderNo2, amount);
         });
         verify(orderRepository, times(1)).findByOrderNo(orderNo2);
     }
@@ -225,7 +225,7 @@ class PaymentServiceTest {
 
         // when & then
         Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.checkAmountValidity(notExistOrderNo, amount);
+            paymentService.validatePaymentAmount(notExistOrderNo, amount);
         });
     }
 

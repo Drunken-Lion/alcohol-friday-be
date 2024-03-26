@@ -9,6 +9,7 @@ import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.payment.dao.PaymentRepository;
 import com.drunkenlion.alcoholfriday.domain.payment.dto.request.TossPaymentsReq;
 import com.drunkenlion.alcoholfriday.domain.payment.entity.Payment;
+import com.drunkenlion.alcoholfriday.domain.payment.util.PaymentValidator;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -28,19 +29,15 @@ public class PaymentServiceImpl implements PaymentService {
     private final MemberRepository memberRepository;
     private final PaymentRepository paymentRepository;
 
-    // TODO 이름 바꾸기 - Check, Validity  따로 쓰기
-    // 결제 금액 유효성 검증
+    // 결제 금액 유효성 확인
     @Override
-    public void checkAmountValidity(String orderNo, BigDecimal amount) {
+    public void validatePaymentAmount(String orderNo, BigDecimal amount) {
         Order order = orderRepository.findByOrderNo(orderNo).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND_ORDER)
                 .build());
 
-        if (!order.getOrderStatus().equals(OrderStatus.ORDER_RECEIVED))
-            throw new BusinessException(HttpResponse.Fail.ORDER_ISSUE);
-
-        if (!amount.equals(order.getTotalPrice()))
-            throw new BusinessException(HttpResponse.Fail.BAD_REQUEST_AMOUNT);
+        PaymentValidator.orderStatusIsOrderReceived(order);
+        PaymentValidator.checkTotalPrice(order, amount);
     }
 
     // 결제 성공 시 Payment 저장
@@ -58,7 +55,6 @@ public class PaymentServiceImpl implements PaymentService {
                         .build());
 
         // Order 상태 정보 업데이트
-        // TODO 테스트 코드 작성하기
         order.updateOrderStatus(OrderStatus.PAYMENT_COMPLETED);
 
         Payment payment = TossPaymentsReq.toEntity(tossPaymentsReq, member, order);
