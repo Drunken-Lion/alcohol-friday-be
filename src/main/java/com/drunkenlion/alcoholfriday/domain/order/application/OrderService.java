@@ -22,4 +22,6 @@ public interface OrderService {
     void updateProductQuantity(Long orderItemRequestQuantity, ItemProduct itemProduct);
 
     void updateOrderAddress(OrderAddressRequest orderAddressRequest, Long orderId, Member member);
+
+    Order getOrder(String orderNo);
 }

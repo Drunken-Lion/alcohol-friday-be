@@ -431,7 +431,7 @@ class PaymentServiceTest {
 
     // 주문 접수
     private Order getDataOrder() {
-        Order order = Order.builder()
+        return Order.builder()
                 .id(orderId)
                 .orderNo(orderNo)
                 .orderStatus(orderStatus) // 주문 접수
@@ -447,8 +447,6 @@ class PaymentServiceTest {
                 .createdAt(LocalDateTime.now())
                 .member(this.getDataMember())
                 .build();
-
-        return order;
     }
 
     private Optional<Order> getOneOrder2() {
@@ -457,7 +455,7 @@ class PaymentServiceTest {
 
     // 결제 완료
     private Order getDataOrder2() {
-        Order order = Order.builder()
+        return Order.builder()
                 .id(orderId2)
                 .orderNo(orderNo2)
                 .orderStatus(orderStatus2) // 결제 완료
@@ -473,8 +471,6 @@ class PaymentServiceTest {
                 .createdAt(LocalDateTime.now())
                 .member(this.getDataMember())
                 .build();
-
-        return order;
     }
 
     private Optional<Member> getOneMember() {
