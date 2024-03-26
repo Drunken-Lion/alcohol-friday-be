@@ -51,17 +51,15 @@ public class TossPaymentsReq {
         String requestedAt = (String) jsonObject.get("requestedAt");
         String approvedAt = (String) jsonObject.get("approvedAt");
         String currency = (String) jsonObject.get("currency");
-        System.out.println("currency = " + currency);
 
-        JSONObject cardObject = jsonObject.get("card") == null ? null : (JSONObject) jsonObject.get("card"); // null
-        System.out.println("cardObject = " + cardObject);
-        String cardType = cardObject.get("cardType") == null ? null : (String) cardObject.get("cardType");
-        String ownerType = cardObject.get("ownerType") == null ? null : (String) cardObject.get("ownerType");
-        String issuerCode = cardObject.get("issuerCode") == null ? null : (String) cardObject.get("issuerCode");
-        String acquirerCode = cardObject.get("acquirerCode") == null ? null : (String) cardObject.get("acquirerCode");
+        JSONObject cardObject = jsonObject.get("card") == null ? null : (JSONObject) jsonObject.get("card");
+        String cardType = cardObject == null ? null : (String) cardObject.get("cardType");
+        String ownerType = cardObject == null ? null : (String) cardObject.get("ownerType");
+        String issuerCode = cardObject == null ? null : (String) cardObject.get("issuerCode");
+        String acquirerCode = cardObject == null ? null : (String) cardObject.get("acquirerCode");
 
-        JSONObject easyPayObject = jsonObject.get("easyPay") == null ? null : (JSONObject) jsonObject.get("easyPay"); // null
-        String provider = easyPayObject.get("provider") == null ? null : (String) easyPayObject.get("provider");
+        JSONObject easyPayObject = jsonObject.get("easyPay") == null ? null : (JSONObject) jsonObject.get("easyPay");
+        String provider = easyPayObject == null ? null : (String) easyPayObject.get("provider");
 
         return TossPaymentsReq.builder()
                 .orderNo(orderId)
@@ -89,7 +87,7 @@ public class TossPaymentsReq {
 
         return Payment.builder()
                 .paymentNo(tossPaymentsReq.getPaymentNo())
-                .paymentStatus(PaymentStatus.valueOf(tossPaymentsReq.getStatus()))
+                .paymentStatus(PaymentStatus.ofStatus(tossPaymentsReq.getStatus()))
                 .paymentMethod(PaymentMethod.ofMethod(tossPaymentsReq.getMethod()))
                 .paymentProvider(PaymentProvider.ofPaymentProvider(tossPaymentsReq.getProvider()))
                 .paymentCardType(PaymentCardType.ofCardType(tossPaymentsReq.getCardType()))

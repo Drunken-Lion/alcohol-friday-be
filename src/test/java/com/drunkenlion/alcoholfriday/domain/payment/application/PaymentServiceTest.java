@@ -263,8 +263,8 @@ class PaymentServiceTest {
     }
 
     @Test
-    @DisplayName("결제 성공 후 PaymentProvider 등 enum 클래스에 없는 값일 경우")
-    void saveSuccessPayment_notFound_paymentProvider() {
+    @DisplayName("결제 성공 후 PaymentProvider 등 enum 필드에 null 값이 들어오는 경우")
+    void saveSuccessPayment_nullTest() {
         // given
         when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
         when(memberRepository.findByEmail(email)).thenReturn(getOneMember());
@@ -274,7 +274,7 @@ class PaymentServiceTest {
                 .paymentNo(paymentKey)
                 .status(status)
                 .method(method)
-                .cardType(cardType)
+                .cardType(null)
                 .ownerType(ownerType)
                 .provider(null)
                 .issuerCode(issuerCode)
@@ -285,10 +285,12 @@ class PaymentServiceTest {
                 .currency(currency)
                 .build();
 
-        // when & then
-        Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.saveSuccessPayment(tossPaymentsReq);
-        } );
+        when(paymentRepository.save(getDataPayment())).thenReturn(getDataPayment());
+
+        // when
+        paymentService.saveSuccessPayment(tossPaymentsReq);
+
+        // then
         verify(orderRepository, times(1)).findByOrderNo(orderNo);
         verify(memberRepository, times(1)).findByEmail(email);
     }
