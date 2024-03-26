@@ -1,9 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.*;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
@@ -444,6 +441,41 @@ public class AdminProductServiceTest {
         // then
         assertEquals(HttpResponse.Fail.PRODUCT_IN_USE.getStatus(), exception.getStatus());
         assertEquals(HttpResponse.Fail.PRODUCT_IN_USE.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("재고 입고 성공")
+    public void t6() {
+        // given
+        ProductQuantityRequest request = ProductQuantityRequest.builder()
+                .quantity(modifyQuantity)
+                .build();
+
+        when(productRepository.findByIdAndDeletedAtIsNull(id)).thenReturn(this.getProductOne());
+        Mockito.when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        ProductQuantityResponse productQuantityResponse = adminProductService.modifyQuantity(id, request);
+
+        // then
+        assertThat(productQuantityResponse.getName()).isEqualTo(name);
+        assertThat(productQuantityResponse.getQuantity()).isEqualTo(modifyQuantity);
+    }
+
+    @Test
+    @DisplayName("재고 입고 실패 - 찾을 수 없는 제품")
+    public void t6_1() {
+        // given
+        Mockito.when(this.productRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            adminProductService.modifyQuantity(id, any());
+        });
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_PRODUCT.getMessage(), exception.getMessage());
     }
 
     private Page<Product> getProducts() {

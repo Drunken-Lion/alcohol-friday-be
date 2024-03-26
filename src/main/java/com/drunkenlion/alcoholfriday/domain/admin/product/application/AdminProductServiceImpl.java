@@ -1,9 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.product.application;
 
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductDetailResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductListResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.*;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.item.dao.ItemProductRepository;
@@ -139,5 +136,19 @@ public class AdminProductServiceImpl implements AdminProductService {
                 .build();
 
         productRepository.save(product);
+    }
+
+    @Override
+    @Transactional
+    public ProductQuantityResponse modifyQuantity(Long id, ProductQuantityRequest productQuantityRequest) {
+        Product product = productRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
+                        .build());
+
+        product.updateQuantity(productQuantityRequest.getQuantity());
+        productRepository.save(product);
+
+        return ProductQuantityResponse.of(product);
     }
 }

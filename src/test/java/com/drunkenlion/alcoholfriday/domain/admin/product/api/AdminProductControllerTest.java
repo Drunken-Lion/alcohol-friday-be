@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.admin.product.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.product.dto.ProductQuantityRequest;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryClassRepository;
 import com.drunkenlion.alcoholfriday.domain.category.dao.CategoryRepository;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
@@ -361,5 +362,34 @@ public class AdminProductControllerTest {
                 .andExpect(status().isNoContent())
                 .andExpect(handler().handlerType(AdminProductController.class))
                 .andExpect(handler().methodName("deleteProduct"));
+    }
+
+    @Test
+    @DisplayName("재고 입고 성공")
+    @WithAccount(role = MemberRole.ADMIN)
+    void t6() throws Exception {
+        // given
+        Product product = this.productRepository.findAll().get(0);
+
+        ProductQuantityRequest request = ProductQuantityRequest.builder()
+                .quantity(10L)
+                .build();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/products/" + product.getId() + "/stocks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonConvertor.build(request))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminProductController.class))
+                .andExpect(handler().methodName("modifyQuantity"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.quantity", instanceOf(Number.class)));
     }
 }
