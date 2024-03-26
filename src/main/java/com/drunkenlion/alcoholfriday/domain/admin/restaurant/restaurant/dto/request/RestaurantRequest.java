@@ -1,4 +1,4 @@
-package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto;
+package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request;
 
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
