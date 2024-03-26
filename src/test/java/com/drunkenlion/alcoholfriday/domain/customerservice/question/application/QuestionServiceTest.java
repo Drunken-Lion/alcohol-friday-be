@@ -1,27 +1,17 @@
 package com.drunkenlion.alcoholfriday.domain.customerservice.question.application;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.dao.QuestionRepository;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.request.QuestionModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.request.QuestionSaveRequest;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.response.QuestionResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.response.QuestionSaveResponse;
-import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.entity.Question;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.enumerated.QuestionStatus;
 import com.drunkenlion.alcoholfriday.domain.customerservice.question.util.validate.QuestionValidator;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
-import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +27,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 @Transactional
 @DisplayName("[QuestionServiceTest] 문의사항 Service Test")
@@ -48,7 +45,7 @@ class QuestionServiceTest {
     private QuestionRepository questionRepository;
 
     @Mock
-    private FileService fileService;
+    private FileRepository fileService;
 
     @Mock
     private FileRepository fileRepository;
