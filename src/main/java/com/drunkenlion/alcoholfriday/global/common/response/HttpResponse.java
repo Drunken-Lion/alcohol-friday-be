@@ -35,6 +35,7 @@ public class HttpResponse {
         OUT_OF_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "현재 제품에 재고보다 많은 양을 추가할 수 없습니다."),
         INVALID_INPUT_PRODUCT_QUANTITY(HttpStatus.BAD_REQUEST, "제품 수량은 0 이상이어야 입니다."),
         MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "필수 파라미터가 누락되었습니다."),
+        STOCK_NOT_NEGATIVE(HttpStatus.BAD_REQUEST, "재고 수량은 0보다 적을 수 없습니다."),
 
         // 401
         UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 접근입니다."),
@@ -47,6 +48,7 @@ public class HttpResponse {
         // 403
         FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없는 접근입니다."),
         DEACTIVATE_USER(HttpStatus.FORBIDDEN, "비활성화 상태 계정입니다."),
+        STOCK_ADDITION_FORBIDDEN(HttpStatus.FORBIDDEN, "재고에 대한 수량 추가 권한이 없습니다."),
 
         // 404
         NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 리소스입니다."),

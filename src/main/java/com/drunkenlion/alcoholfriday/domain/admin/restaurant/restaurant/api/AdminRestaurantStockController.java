@@ -1,7 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.api;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application.AdminRestaurantStockService;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantStockModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockModifyResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.PageResponse;
 import com.drunkenlion.alcoholfriday.global.common.util.RoleValidator;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
@@ -38,5 +40,20 @@ public class AdminRestaurantStockController {
         PageResponse<RestaurantStockListResponse> pageResponse = PageResponse.of(pages);
 
         return ResponseEntity.ok().body(pageResponse);
+    }
+
+    @Operation(summary = "매장 재고 수정", description = "해당 매장의 재고를 수정")
+    @PutMapping
+    public ResponseEntity<RestaurantStockModifyResponse> modifyRestaurantStock(
+            @PathVariable("restaurantId") Long restaurantId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody RestaurantStockModifyRequest modifyRequest) {
+
+        RoleValidator.validateAdminOrStoreManagerOrOwner(userPrincipal.getMember());
+
+        RestaurantStockModifyResponse modifyResponse =
+                adminRestaurantStockService.modifyRestaurantStock(userPrincipal.getMember(), modifyRequest);
+
+        return ResponseEntity.ok().body(modifyResponse);
     }
 }

@@ -6,7 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
+
 public interface RestaurantRepositoryCustom {
     Page<Restaurant> findAllBasedAuth(Member member, Pageable pageable);
+
     List<Restaurant> getRestaurant(double neLatitude, double neLongitude, double swLatitude, double swLongitude);
+
+    Optional<Restaurant> findRestaurantById(Long restaurantId);
 }
