@@ -74,6 +74,8 @@ public class SecurityConfig {
                         .hasRole(MemberRole.OWNER.getRole())
                         .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurant-orders/{id:\\d+}/cancel/owner")
                         .hasRole(MemberRole.OWNER.getRole())
+                        .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-orders/products")
+                        .hasRole(MemberRole.OWNER.getRole())
 
                         //관리자 - 매장 발주 환불 관리 (Owner)
                         .requestMatchers(HttpMethod.GET, "/v1/admin/restaurant-order-refunds/owner")
@@ -88,9 +90,9 @@ public class SecurityConfig {
                         .hasRole(MemberRole.OWNER.getRole())
                         .requestMatchers(HttpMethod.POST, "/v1/admin/restaurant-order-carts/owner")
                         .hasRole(MemberRole.OWNER.getRole())
-                        .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurant-order-carts/{id:\\d+}/owner")
+                        .requestMatchers(HttpMethod.PUT, "/v1/admin/restaurant-order-cart-details/{id:\\d+}/owner")
                         .hasRole(MemberRole.OWNER.getRole())
-                        .requestMatchers(HttpMethod.DELETE, "/v1/admin/restaurant-order-carts/{id:\\d+}/owner")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/admin/restaurant-order-cart-details/{id:\\d+}/owner")
                         .hasRole(MemberRole.OWNER.getRole())
 
                         // 관리자 - 매장 발주 관리 (Admin & StoreManager)
