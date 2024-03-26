@@ -98,7 +98,7 @@ public class AdminProductServiceImpl implements AdminProductService {
         product = product.toBuilder()
                 .name(productModifyRequest.getName())
                 .price(productModifyRequest.getPrice())
-                .quantity(productModifyRequest.getQuantity())
+                .distributionPrice(productModifyRequest.getDistributionPrice())
                 .alcohol(productModifyRequest.getAlcohol())
                 .ingredient(productModifyRequest.getIngredient())
                 .sweet(productModifyRequest.getSweet())

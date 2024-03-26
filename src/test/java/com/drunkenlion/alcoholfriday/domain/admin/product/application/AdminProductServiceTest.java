@@ -84,6 +84,7 @@ public class AdminProductServiceTest {
     private final Long id = 1L;
     private final String name = "1000억 막걸리 프리바이오";
     private final BigDecimal price = BigDecimal.valueOf(10000);
+    private final BigDecimal distributionPrice = BigDecimal.valueOf(15000);
     private final Long quantity = 1000L;
     private final Double alcohol = 10.0D;
     private final String ingredient = "쌀(국내산), 밀(국내산), 누룩, 정제수";
@@ -97,6 +98,7 @@ public class AdminProductServiceTest {
 
     private final String modifyName = "1000억 막걸리 프리바이오 수정";
     private final BigDecimal modifyPrice = BigDecimal.valueOf(1000);
+    private final BigDecimal modifyDistributionPrice = BigDecimal.valueOf(1500);
     private final Long modifyQuantity = 100L;
     private final Double modifyAlcohol = 1.0D;
     private final String modifyIngredient = "쌀(국내산), 밀(국내산), 누룩, 정제수 수정";
@@ -155,6 +157,7 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getMakerId()).isEqualTo(makerId);
         assertThat(productDetailResponse.getMakerName()).isEqualTo(makerName);
         assertThat(productDetailResponse.getPrice()).isEqualTo(price);
+        assertThat(productDetailResponse.getDistributionPrice()).isEqualTo(distributionPrice);
         assertThat(productDetailResponse.getQuantity()).isEqualTo(quantity);
         assertThat(productDetailResponse.getAlcohol()).isEqualTo(alcohol);
         assertThat(productDetailResponse.getIngredient()).isEqualTo(ingredient);
@@ -194,7 +197,7 @@ public class AdminProductServiceTest {
                 .name(name)
                 .makerId(makerId)
                 .price(price)
-                .quantity(quantity)
+                .distributionPrice(distributionPrice)
                 .alcohol(alcohol)
                 .ingredient(ingredient)
                 .sweet(sweet)
@@ -223,7 +226,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getMakerId()).isEqualTo(makerId);
         assertThat(productDetailResponse.getMakerName()).isEqualTo(makerName);
         assertThat(productDetailResponse.getPrice()).isEqualTo(price);
-        assertThat(productDetailResponse.getQuantity()).isEqualTo(quantity);
+        assertThat(productDetailResponse.getDistributionPrice()).isEqualTo(distributionPrice);
+        assertThat(productDetailResponse.getQuantity()).isEqualTo(0L);
         assertThat(productDetailResponse.getAlcohol()).isEqualTo(alcohol);
         assertThat(productDetailResponse.getIngredient()).isEqualTo(ingredient);
         assertThat(productDetailResponse.getSweet()).isEqualTo(sweet);
@@ -287,7 +291,7 @@ public class AdminProductServiceTest {
                 .name(modifyName)
                 .makerId(modifyMakerId)
                 .price(modifyPrice)
-                .quantity(modifyQuantity)
+                .distributionPrice(modifyDistributionPrice)
                 .alcohol(modifyAlcohol)
                 .ingredient(modifyIngredient)
                 .sweet(modifySweet)
@@ -319,7 +323,8 @@ public class AdminProductServiceTest {
         assertThat(productDetailResponse.getMakerId()).isEqualTo(modifyMakerId);
         assertThat(productDetailResponse.getMakerName()).isEqualTo(modifyMakerName);
         assertThat(productDetailResponse.getPrice()).isEqualTo(modifyPrice);
-        assertThat(productDetailResponse.getQuantity()).isEqualTo(modifyQuantity);
+        assertThat(productDetailResponse.getDistributionPrice()).isEqualTo(modifyDistributionPrice);
+        assertThat(productDetailResponse.getQuantity()).isEqualTo(quantity);
         assertThat(productDetailResponse.getAlcohol()).isEqualTo(modifyAlcohol);
         assertThat(productDetailResponse.getIngredient()).isEqualTo(modifyIngredient);
         assertThat(productDetailResponse.getSweet()).isEqualTo(modifySweet);
@@ -541,6 +546,7 @@ public class AdminProductServiceTest {
                 .id(id)
                 .name(name)
                 .price(price)
+                .distributionPrice(distributionPrice)
                 .quantity(quantity)
                 .alcohol(alcohol)
                 .ingredient(ingredient)
