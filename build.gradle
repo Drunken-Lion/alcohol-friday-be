@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.1'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'jacoco'
 }
 
 group = 'com.drunkenlion'
@@ -67,4 +68,55 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport // 테스트 종료 후 jacocoTestReport 생성
+}
+
+// jacoco Test Coverage
+jacoco {
+    toolVersion = "0.8.8"
+    reportsDir = file("$buildDir/Jacoco")
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled true
+    }
+
+    def Qdomains = []
+    for (qPattern in '**/QA'..'**/QZ') {
+         Qdomains.add(qPattern + '*')
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, excludes: [] + Qdomains)
+                })
+        )
+    }
+
+    dependsOn test // test 성공해야 jacocoTestReport 실행
+    finalizedBy 'jacocoTestCoverageVerification' // jacocoTestReport 실행 후 CoverageVerification 실행
+}
+
+jacocoTestCoverageVerification {
+    def Qdomains = []
+    for (qPattern in '*.QA'..'*.QZ') {
+        Qdomains.add(qPattern + '*')
+    }
+
+    violationRules {
+        rule {
+            enabled = true
+            element = 'CLASS' // 커버리지 체크 기준 (BUNDLE(default), PACKAGE, CLASS, SOURCEFILE, METHOD)
+            excludes = ['*.jwt.*', '*.global.*'] + Qdomains
+            limit {
+                counter = 'BRANCH' // 커버리지 측정 기준 (line, branch, method, class, instruction(default), complexity)
+                value = 'COVEREDRATIO'
+//                minimum = 0.50
+            }
+        }
+    }
 }
