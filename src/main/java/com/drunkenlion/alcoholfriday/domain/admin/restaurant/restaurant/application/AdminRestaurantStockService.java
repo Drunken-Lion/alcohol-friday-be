@@ -9,5 +9,5 @@ import org.springframework.data.domain.Page;
 public interface AdminRestaurantStockService {
     Page<RestaurantStockListResponse> getRestaurantStocks(Member member, Long restaurantId, int page, int size);
 
-    RestaurantStockModifyResponse modifyRestaurantStock(Member member, RestaurantStockModifyRequest modifyRequest);
+    RestaurantStockModifyResponse modifyRestaurantStock(Long restaurantId, Member member, RestaurantStockModifyRequest modifyRequest);
 }

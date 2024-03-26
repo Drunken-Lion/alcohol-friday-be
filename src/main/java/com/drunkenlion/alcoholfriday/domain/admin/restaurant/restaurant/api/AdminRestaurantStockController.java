@@ -52,7 +52,7 @@ public class AdminRestaurantStockController {
         RoleValidator.validateAdminOrStoreManagerOrOwner(userPrincipal.getMember());
 
         RestaurantStockModifyResponse modifyResponse =
-                adminRestaurantStockService.modifyRestaurantStock(userPrincipal.getMember(), modifyRequest);
+                adminRestaurantStockService.modifyRestaurantStock(restaurantId, userPrincipal.getMember(), modifyRequest);
 
         return ResponseEntity.ok().body(modifyResponse);
     }

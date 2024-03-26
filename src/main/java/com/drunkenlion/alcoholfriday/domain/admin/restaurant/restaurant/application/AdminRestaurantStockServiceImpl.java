@@ -46,14 +46,21 @@ public class AdminRestaurantStockServiceImpl implements AdminRestaurantStockServ
 
     @Transactional
     @Override
-    public RestaurantStockModifyResponse modifyRestaurantStock(Member member,
+    public RestaurantStockModifyResponse modifyRestaurantStock(Long restaurantId,
+                                                               Member member,
                                                                RestaurantStockModifyRequest modifyRequest) {
+
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
+
         RestaurantStock restaurantStock =
                 restaurantStockRepository.findById(modifyRequest.getId())
                         .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_STOCK));
 
+        RestaurantStockValidator.validateStockInRestaurant(restaurantStock, restaurant);
+
         if (member.getRole().equals(MemberRole.OWNER)) {
-            RestaurantValidator.validateOwnership(member, restaurantStock.getRestaurant());
+            RestaurantValidator.validateOwnership(member, restaurant);
             RestaurantStockValidator.validateOwnerModifyQuantity(restaurantStock, modifyRequest);
         }
 

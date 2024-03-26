@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util;
 
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantStockModifyRequest;
+import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -15,6 +16,12 @@ public class RestaurantStockValidator {
     public static void validateNegativeQuantity(RestaurantStockModifyRequest modifyRequest) {
         if (modifyRequest.getQuantity() < 0) {
             throw new BusinessException(HttpResponse.Fail.STOCK_NOT_NEGATIVE);
+        }
+    }
+
+    public static void validateStockInRestaurant(RestaurantStock stock, Restaurant restaurant) {
+        if (!stock.getRestaurant().equals(restaurant)) {
+            throw new BusinessException(HttpResponse.Fail.NOT_FOUND_STOCK_IN_RESTAURANT);
         }
     }
 }

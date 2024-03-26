@@ -89,6 +89,7 @@ public class HttpResponse {
         NOT_FOUND_RESTAURANT_ORDER_DETAIL(HttpStatus.NOT_FOUND, "발주 상세 내역이 존재하지 않습니다. 확인 후 다시 시도해 주세요."),
         NOT_FOUND_RESTAURANT_STOCK(HttpStatus.NOT_FOUND, "레스토랑 재고가 존재하지 않습니다."),
         NOT_FOUND_RESTAURANT_ORDER(HttpStatus.NOT_FOUND, "상태 변경 가능한 발주 건이 없습니다."),
+        NOT_FOUND_STOCK_IN_RESTAURANT(HttpStatus.NOT_FOUND, "재고 항목이 해당 매장에 속하지 않습니다."),
 
         // 405
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP METHOD 입니다."),
