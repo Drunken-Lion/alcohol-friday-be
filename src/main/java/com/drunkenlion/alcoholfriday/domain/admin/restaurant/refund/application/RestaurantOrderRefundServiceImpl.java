@@ -7,15 +7,20 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.Restaura
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundRejectRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResponse;
-import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOwnerOrderRefundCancelResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.response.RestaurantOrderRefundResultResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantValidator;
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
+import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -44,34 +49,29 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
     private final ProductRepository productRepository;
     private final RestaurantOrderRepository restaurantOrderRepository;
     private final RestaurantStockRepository restaurantStockRepository;
+    private final RestaurantRepository restaurantRepository;
     private final FileService fileService;
 
     @Override
-    public Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(Long restaurantId, int page, int size) {
+    public Page<RestaurantOrderRefundResponse> getRestaurantOrderRefunds(Member member, Long restaurantId, int page, int size) {
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
+        RestaurantValidator.validateOwnership(member, restaurant);
+
         Pageable pageable = PageRequest.of(page, size);
-        Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByRestaurantIdAndDeletedAtIsNull(restaurantId, pageable);
-
-        List<RestaurantOrderRefundResponse> refundResponses = refundPage.getContent().stream()
-                .map(refund -> {
-                    List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository
-                            .findByRestaurantOrderRefundAndDeletedAtIsNull(refund);
-                    List<RestaurantOrderRefundDetailResponse> refundDetailResponses = refundDetails.stream()
-                            .map(refundDetail -> {
-                                NcpFileResponse file = fileService.findOne(refundDetail.getProduct());
-                                return RestaurantOrderRefundDetailResponse.of(refundDetail, file);
-                            })
-                            .collect(Collectors.toList());
-
-                    return RestaurantOrderRefundResponse.of(refund, refundDetailResponses);
-                })
-                .collect(Collectors.toList());
+        Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByRestaurantIdAndDeletedAtIsNullOrderByIdDesc(restaurantId, pageable);
+        List<RestaurantOrderRefundResponse> refundResponses = this.getRefundResponses(refundPage);
 
         return new PageImpl<>(refundResponses, pageable, refundPage.getTotalElements());
     }
 
     @Override
     @Transactional
-    public RestaurantOrderRefundResponse createRestaurantOrderRefund(RestaurantOrderRefundCreateRequest request) {
+    public RestaurantOrderRefundResponse createRestaurantOrderRefund(Member member, RestaurantOrderRefundCreateRequest request) {
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(request.getRestaurantId())
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
+        RestaurantValidator.validateOwnership(member, restaurant);
+
         if (!checkRefundEligibility(request)) {
             throw BusinessException.builder()
                     .response(HttpResponse.Fail.RESTAURANT_REFUND_FAIL)
@@ -125,11 +125,18 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
 
     @Override
     @Transactional
-    public RestaurantOwnerOrderRefundCancelResponse cancelRestaurantOrderRefund(Long id) {
+    public RestaurantOrderRefundResultResponse cancelRestaurantOrderRefund(Member member, Long id) {
         RestaurantOrderRefund refund = restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND)
                         .build());
+
+        Restaurant restaurant = refund.getRestaurant();
+        if (restaurant.getDeletedAt() != null) {
+            throw new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT);
+        }
+
+        RestaurantValidator.validateOwnership(member, restaurant);
 
         // 환불 승인 대기 이외에는 환불 취소 불가
         if (!refund.getStatus().equals(RestaurantOrderRefundStatus.WAITING_APPROVAL)) {
@@ -162,13 +169,113 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
         restaurantStockRepository.saveAll(stocks);
 
         // 환불 상태 취소로 변경
-        refund = refund.toBuilder()
-                .status(RestaurantOrderRefundStatus.CANCELLED)
-                .build();
-
+        refund.updateStatus(RestaurantOrderRefundStatus.CANCELLED);
         restaurantOrderRefundRepository.save(refund);
 
-        return RestaurantOwnerOrderRefundCancelResponse.of(refund);
+        return RestaurantOrderRefundResultResponse.of(refund);
+    }
+
+    @Override
+    public Page<RestaurantOrderRefundResponse> getAllRestaurantOrderRefunds(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<RestaurantOrderRefund> refundPage = restaurantOrderRefundRepository.findByDeletedAtIsNullOrderByIdDesc(pageable);
+        List<RestaurantOrderRefundResponse> refundResponses = this.getRefundResponses(refundPage);
+
+        return new PageImpl<>(refundResponses, pageable, refundPage.getTotalElements());
+    }
+
+    @Override
+    @Transactional
+    public RestaurantOrderRefundResultResponse approvalRestaurantOrderRefund(Long id) {
+        RestaurantOrderRefund refund = restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND)
+                        .build());
+
+        // 환불 승인 대기 이외에는 환불 승인 불가
+        if (!refund.getStatus().equals(RestaurantOrderRefundStatus.WAITING_APPROVAL)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.RESTAURANT_REFUND_APPROVAL_FAIL)
+                    .build();
+        }
+
+        List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(refund);
+
+        if (refundDetails.isEmpty()) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND_DETAIL)
+                    .build();
+        }
+
+        refund.updateStatus(RestaurantOrderRefundStatus.COMPLETED_APPROVAL);
+        restaurantOrderRefundRepository.save(refund);
+
+        this.refundCompleted(refund, refundDetails);
+
+        return RestaurantOrderRefundResultResponse.of(refund);
+    }
+
+    @Override
+    @Transactional
+    public RestaurantOrderRefundResultResponse rejectRestaurantOrderRefund(Long id, RestaurantOrderRefundRejectRequest request) {
+        RestaurantOrderRefund refund = restaurantOrderRefundRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND)
+                        .build());
+
+        // 환불 승인 대기 이외에는 환불 반려 불가
+        if (!refund.getStatus().equals(RestaurantOrderRefundStatus.WAITING_APPROVAL)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.RESTAURANT_REFUND_REJECT_FAIL)
+                    .build();
+        }
+
+        List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository.findByRestaurantOrderRefundAndDeletedAtIsNull(refund);
+
+        if (refundDetails.isEmpty()) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_REFUND_DETAIL)
+                    .build();
+        }
+
+        List<RestaurantStock> stocks = new ArrayList<>();
+        for (RestaurantOrderRefundDetail refundDetail : refundDetails) {
+            RestaurantStock restaurantStock = restaurantStockRepository
+                    .findByRestaurantIdAndProductIdAndDeletedAtIsNull(refund.getRestaurant().getId(), refundDetail.getProduct().getId())
+                    .orElseThrow(() -> BusinessException.builder()
+                            .response(HttpResponse.Fail.NOT_FOUND_RESTAURANT_STOCK)
+                            .build());
+
+            // 환불 반려 시 매장 재고가 다시 플러스 된다.
+            restaurantStock.plusQuantity(refundDetail.getQuantity());
+            stocks.add(restaurantStock);
+        }
+
+        restaurantStockRepository.saveAll(stocks);
+
+        // 환불 상태 반려로 변경 및 반려 사유 등록
+        refund.updateStatus(RestaurantOrderRefundStatus.REJECTED_APPROVAL);
+        refund.updateAdminReason(request.getAdminReason());
+        restaurantOrderRefundRepository.save(refund);
+
+        return RestaurantOrderRefundResultResponse.of(refund);
+    }
+
+    private List<RestaurantOrderRefundResponse> getRefundResponses(Page<RestaurantOrderRefund> refundPage) {
+        return refundPage.getContent().stream()
+                .map(refund -> {
+                    List<RestaurantOrderRefundDetail> refundDetails = restaurantOrderRefundDetailRepository
+                            .findByRestaurantOrderRefundAndDeletedAtIsNull(refund);
+                    List<RestaurantOrderRefundDetailResponse> refundDetailResponses = refundDetails.stream()
+                            .map(refundDetail -> {
+                                NcpFileResponse file = fileService.findOne(refundDetail.getProduct());
+                                return RestaurantOrderRefundDetailResponse.of(refundDetail, file);
+                            })
+                            .collect(Collectors.toList());
+
+                    return RestaurantOrderRefundResponse.of(refund, refundDetailResponses);
+                })
+                .collect(Collectors.toList());
     }
 
     private boolean checkRefundEligibility(RestaurantOrderRefundCreateRequest request) {
@@ -223,5 +330,33 @@ public class RestaurantOrderRefundServiceImpl implements RestaurantOrderRefundSe
         }
 
         return true;
+    }
+
+    private void refundCompleted(RestaurantOrderRefund refund, List<RestaurantOrderRefundDetail> refundDetails) {
+        // 환불 승인 완료 이외에는 환불 완료 불가
+        if (!refund.getStatus().equals(RestaurantOrderRefundStatus.COMPLETED_APPROVAL)) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.RESTAURANT_REFUND_COMPLETE_FAIL)
+                    .build();
+        }
+
+        List<Product> products = new ArrayList<>();
+        for (RestaurantOrderRefundDetail detail : refundDetails) {
+            Product product = detail.getProduct();
+            if (product.getDeletedAt() != null) {
+                throw BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_PRODUCT)
+                        .build();
+            }
+
+            // 환불 완료 시 제품 수량 원복
+            product.plusQuantity(detail.getQuantity());
+            products.add(product);
+        }
+        productRepository.saveAll(products);
+
+        // 환불 완료
+        refund.updateStatus(RestaurantOrderRefundStatus.COMPLETED);
+        restaurantOrderRefundRepository.save(refund);
     }
 }

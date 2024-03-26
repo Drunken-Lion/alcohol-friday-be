@@ -25,6 +25,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantStockRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.RestaurantStock;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse.Fail;
 import com.drunkenlion.alcoholfriday.global.common.util.RoleValidator;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
@@ -213,10 +214,15 @@ public class RestaurantOrderServiceImplV2 {
      */
     @Transactional
     public RestaurantOrderResultResponse ownerOrderCancel(Long id, Member member) {
-        RoleValidator.validateRole(member, MemberRole.OWNER);
-
         RestaurantOrder restaurantOrder = restaurantOrderRepository.findRestaurantOrderWaitingApproval(id)
                 .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER));
+
+        Restaurant restaurant = restaurantOrder.getRestaurant();
+        if (restaurant.getDeletedAt() != null) {
+            throw new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT);
+        }
+
+        RestaurantValidator.validateOwnership(member, restaurant);
 
         restaurantOrder.updateStatus(RestaurantOrderStatus.CANCELLED);
         restaurantOrderRepository.save(restaurantOrder);

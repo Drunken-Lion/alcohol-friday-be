@@ -9,6 +9,7 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.Restaura
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundCreateRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundDetailCreateRequest;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dto.request.RestaurantOrderRefundRejectRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefundDetail;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.enumerated.RestaurantOrderRefundStatus;
@@ -33,6 +34,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
+import com.drunkenlion.alcoholfriday.global.user.WithAccount;
 import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -147,10 +149,13 @@ public class RestaurantOrderRefundControllerTest {
         return frame;
     }
 
+    private static final String OWNER = "owner1@af.com";
+
     @BeforeEach
     @Transactional
     void beforeEach() throws IOException {
-        Member owner = memberRepository.save(Member.builder().email("owner1@af.shop").provider(ProviderType.KAKAO).name("owner1").nickname("owner1").role(MemberRole.OWNER).phone(1012345687L).certifyAt(LocalDate.now()).agreedToServiceUse(true).agreedToServicePolicy(true).agreedToServicePolicyUse(true).build());
+        Member owner = memberRepository.findByEmail(OWNER)
+                .orElseGet(() -> memberRepository.save(Member.builder().email(OWNER).provider(ProviderType.KAKAO).name("owner1").nickname("owner1").role(MemberRole.OWNER).phone(1012345687L).certifyAt(LocalDate.now()).agreedToServiceUse(true).agreedToServicePolicy(true).agreedToServicePolicyUse(true).build()));
         Restaurant restaurant = restaurantRepository.save(Restaurant.builder().member(owner).category("음식점").name("레스쁘아").address("서울특별시 종로구 종로8길 16").location(geometryFactory.createPoint(new Coordinate(37.569343, 126.983857))).contact(212345678L).menu(getMenuTest()).time(getTimeTest()).provision(getProvisionTest()).businessName("레스쁘아").businessNumber("101-10-10001").addressDetail("101").postcode("00001").build());
 
         CategoryClass categoryClass = categoryClassRepository.save(CategoryClass.builder().firstName("전통주").build());
@@ -197,6 +202,7 @@ public class RestaurantOrderRefundControllerTest {
 
     @Test
     @DisplayName("매장 발주 환불 목록 조회 (사장)")
+    @WithAccount(email = OWNER, role = MemberRole.OWNER)
     void t1() throws Exception {
         // given
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
@@ -204,8 +210,8 @@ public class RestaurantOrderRefundControllerTest {
         // when
         ResultActions resultActions = mvc
                 .perform(get("/v1/admin/restaurant-order-refunds/owner")
-                        .param("restaurantId", restaurant.getId().toString())
                         .contentType(MediaType.APPLICATION_JSON)
+                        .param("restaurantId", restaurant.getId().toString())
                 )
                 .andDo(print());
 
@@ -239,6 +245,7 @@ public class RestaurantOrderRefundControllerTest {
 
     @Test
     @DisplayName("매장 발주 환불 추가 (사장)")
+    @WithAccount(email = OWNER, role = MemberRole.OWNER)
     void t2() throws Exception {
         // given
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
@@ -292,6 +299,7 @@ public class RestaurantOrderRefundControllerTest {
 
     @Test
     @DisplayName("매장 발주 환불 취소 (사장)")
+    @WithAccount(email = OWNER, role = MemberRole.OWNER)
     void t3() throws Exception {
         // given
         RestaurantOrderRefund refund = this.restaurantOrderRefundRepository.findAll().get(0);
@@ -314,7 +322,115 @@ public class RestaurantOrderRefundControllerTest {
                 .andExpect(handler().methodName("cancelRestaurantOrderRefund"))
                 .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
                 .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.totalPrice", notNullValue()))
                 .andExpect(jsonPath("$.ownerReason", notNullValue()))
+                .andExpect(jsonPath("$.adminReason", nullValue()))
+                .andExpect(jsonPath("$.status", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("매장 발주 환불 목록 조회 (관리자)")
+    @WithAccount(role = MemberRole.STORE_MANAGER)
+    void t4() throws Exception {
+        // when
+        ResultActions resultActions = mvc
+                .perform(get("/v1/admin/restaurant-order-refunds")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantOrderRefundController.class))
+                .andExpect(handler().methodName("getAdminRestaurantOrderRefunds"))
+                .andExpect(jsonPath("$.data", instanceOf(List.class)))
+                .andExpect(jsonPath("$.data.length()", is(1)))
+                .andExpect(jsonPath("$.data[0].refundId", notNullValue()))
+                .andExpect(jsonPath("$.data[0].orderId", notNullValue()))
+                .andExpect(jsonPath("$.data[0].orderCreatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].businessName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].fullAddress", notNullValue()))
+                .andExpect(jsonPath("$.data[0].ownerReason", notNullValue()))
+                .andExpect(jsonPath("$.data[0].refundCreatedAt", matchesPattern(TestUtil.DATETIME_PATTERN)))
+                .andExpect(jsonPath("$.data[0].status", notNullValue()))
+                .andExpect(jsonPath("$.data[0].refundDetails[0].productName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].refundDetails[0].price", notNullValue()))
+                .andExpect(jsonPath("$.data[0].refundDetails[0].quantity", notNullValue()))
+                .andExpect(jsonPath("$.data[0].refundDetails[0].file", notNullValue()))
+                .andExpect(jsonPath("$.data[0].refundDetails[1].productName", notNullValue()))
+                .andExpect(jsonPath("$.data[0].refundDetails[1].price", notNullValue()))
+                .andExpect(jsonPath("$.data[0].refundDetails[1].quantity", notNullValue()))
+                .andExpect(jsonPath("$.data[0].refundDetails[1].file", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.pageInfo.size", notNullValue()))
+                .andExpect(jsonPath("$.pageInfo.count", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("매장 환불 승인 (관리자)")
+    @WithAccount(role = MemberRole.STORE_MANAGER)
+    void t5() throws Exception {
+        // given
+        RestaurantOrderRefund refund = this.restaurantOrderRefundRepository.findAll().get(0);
+        refund = refund.toBuilder()
+                .status(RestaurantOrderRefundStatus.WAITING_APPROVAL)
+                .build();
+        restaurantOrderRefundRepository.save(refund);
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/restaurant-order-refunds/" + refund.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantOrderRefundController.class))
+                .andExpect(handler().methodName("approvalRestaurantOrderRefund"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.totalPrice", notNullValue()))
+                .andExpect(jsonPath("$.ownerReason", notNullValue()))
+                .andExpect(jsonPath("$.adminReason", nullValue()))
+                .andExpect(jsonPath("$.status", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("매장 환불 반려 (관리자)")
+    @WithAccount(role = MemberRole.STORE_MANAGER)
+    void t6() throws Exception {
+        // given
+        RestaurantOrderRefund refund = this.restaurantOrderRefundRepository.findAll().get(0);
+        refund = refund.toBuilder()
+                .status(RestaurantOrderRefundStatus.WAITING_APPROVAL)
+                .build();
+        restaurantOrderRefundRepository.save(refund);
+
+        RestaurantOrderRefundRejectRequest request = RestaurantOrderRefundRejectRequest.builder()
+                .adminReason("관리자의 권한으로 반려")
+                .build();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/restaurant-order-refunds/" + refund.getId() + "/reject")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonConvertor.build(request))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(RestaurantOrderRefundController.class))
+                .andExpect(handler().methodName("rejectRestaurantOrderRefund"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.totalPrice", notNullValue()))
+                .andExpect(jsonPath("$.ownerReason", notNullValue()))
+                .andExpect(jsonPath("$.adminReason", notNullValue()))
                 .andExpect(jsonPath("$.status", notNullValue()));
     }
 }

@@ -6,6 +6,8 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.request.R
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderResultResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveCodeResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.RestaurantOrderSaveResponse;
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
+import com.drunkenlion.alcoholfriday.global.common.util.RoleValidator;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -72,7 +74,9 @@ public class RestaurantOrderControllerV2 {
     @PutMapping("restaurant-orders/{id}/cancel/owner")
     @Operation(summary = "사장 발주 취소 처리 (Owner)")
     public ResponseEntity<RestaurantOrderResultResponse> ownerOrderCancel(@PathVariable("id") Long restaurantOrderId,
-                                                                                 @AuthenticationPrincipal UserPrincipal user) {
+                                                                          @AuthenticationPrincipal UserPrincipal user) {
+        RoleValidator.validateRole(user.getMember(), MemberRole.OWNER);
+
         RestaurantOrderResultResponse response = restaurantOrderService.ownerOrderCancel(restaurantOrderId, user.getMember());
         return ResponseEntity.ok(response);
     }
