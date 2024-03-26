@@ -32,6 +32,8 @@ public class HttpResponse {
         INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "잘못된 입력값 입니다."),
         ADDRESS_LIMIT_OVER(HttpStatus.BAD_REQUEST, "주소는 3개까지 등록할 수 있습니다."),
         BAD_REQUEST_AMOUNT(HttpStatus.BAD_REQUEST, "잘못된 가격값 입니다."),
+        OUT_OF_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "현재 제품에 재고보다 많은 양을 추가할 수 없습니다."),
+        INVALID_INPUT_PRODUCT_QUANTITY(HttpStatus.BAD_REQUEST, "제품 수량은 0 이상이어야 입니다."),
         MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "필수 파라미터가 누락되었습니다."),
 
         // 401

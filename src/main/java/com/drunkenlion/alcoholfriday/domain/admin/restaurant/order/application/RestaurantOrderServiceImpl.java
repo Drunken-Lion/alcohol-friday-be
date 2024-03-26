@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.cart.dto.response.RestaurantOrderProductListResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dao.RestaurantOrderRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.order.dto.response.OwnerRestaurantOrderListResponse;
@@ -11,6 +12,8 @@ import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantVali
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.dao.RestaurantOrderRefundRepository;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.refund.entity.RestaurantOrderRefund;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
+import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.domain.restaurant.dao.RestaurantRepository;
 import com.drunkenlion.alcoholfriday.domain.restaurant.entity.Restaurant;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
@@ -36,6 +39,7 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
     private final RestaurantRepository restaurantRepository;
     private final RestaurantOrderRepository restaurantOrderRepository;
     private final RestaurantOrderRefundRepository restaurantOrderRefundRepository;
+    private final ProductRepository productRepository;
     private final FileService fileService;
 
     @Override
@@ -95,5 +99,16 @@ public class RestaurantOrderServiceImpl implements RestaurantOrderService {
 
             return OwnerRestaurantOrderListResponse.of(restaurantOrder, detailResponses);
         });
+    }
+
+    /**
+     * 발주를 위한 제품 목록
+     */
+    @Override
+    public Page<RestaurantOrderProductListResponse> getRestaurantOrderProducts(int page, int size, Member member) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> products = productRepository.findAllByDeletedAtIsNull(pageable);
+
+        return products.map(product -> RestaurantOrderProductListResponse.of(product, fileService.findOne(product)));
     }
 }

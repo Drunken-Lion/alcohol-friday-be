@@ -25,6 +25,8 @@ import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,11 +50,14 @@ class QuestionServiceTest {
     @Mock
     private FileService fileService;
 
+    @Mock
+    private FileRepository fileRepository;
 
     @AfterEach
     @Transactional
     public void after() {
         questionRepository.deleteAll();
+        fileRepository.deleteAll();
     }
     @Test
     @DisplayName("1번 회원은 3번 회원이 작성한 게시글에 접근하면 에러가 발생한다.")
