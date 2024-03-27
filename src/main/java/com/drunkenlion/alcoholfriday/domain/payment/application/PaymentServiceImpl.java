@@ -3,12 +3,9 @@ package com.drunkenlion.alcoholfriday.domain.payment.application;
 import com.drunkenlion.alcoholfriday.domain.cart.application.CartService;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.request.DeleteCartRequest;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
-import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
-import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
-import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelCompleteRequest;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderValidator;
@@ -38,7 +35,9 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,10 +45,8 @@ import java.util.*;
 public class PaymentServiceImpl implements PaymentService {
     private final CartService cartService;
     private final OrderService orderService;
-    private final MemberRepository memberRepository;
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
-    private final OrderDetailRepository orderDetailRepository;
     private final ProductRepository productRepository;
 
     @Value("${custom.tossPayments.widget.secretKey}")
@@ -71,16 +68,10 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     @Transactional
-    public void saveSuccessPayment(TossPaymentsReq tossPaymentsReq) {
-        Order order = orderService.getOrder(tossPaymentsReq.getOrderNo());
-
-        Member member = memberRepository.findByEmail(order.getMember().getEmail())
-                .orElseThrow(() -> BusinessException.builder()
-                        .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
-                        .build());
-
+    public void saveSuccessPayment(TossPaymentsReq tossPaymentsReq, Order order, Member member) {
         // Order 상태 정보 업데이트
         order.updateOrderStatus(OrderStatus.PAYMENT_COMPLETED);
+        orderRepository.save(order);
 
         Payment payment = TossPaymentsReq.toEntity(tossPaymentsReq, member, order);
         paymentRepository.save(payment);
@@ -91,25 +82,20 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     @Transactional
-    public void deletedCartItems(String orderNo) {
-        Order order = orderService.getOrder(orderNo);
-
-        List<DeleteCartRequest> deleteCartRequests = order.getOrderDetails().stream()
+    public void deletedCartItems(List<OrderDetail> orderDetails, Member member) {
+        List<DeleteCartRequest> deleteCartRequests = orderDetails.stream()
                 .map(orderDetail -> DeleteCartRequest.of(orderDetail.getItem().getId()))
                 .toList();
 
-        cartService.deleteCartList(deleteCartRequests, order.getMember());
+        cartService.deleteCartList(deleteCartRequests, member);
     }
 
     /**
-     * 결제 취소 가능 여부 체크
+     * 결제 관련 동작 중 필요한 item, item_product, product의 삭제 확인
      */
     @Override
-    public void checkCancelPayment(OrderCancelCompleteRequest request, Order order, List<OrderDetail> orderDetails, Member member) {
-        RoleValidator.validateAdminOrStoreManager(member);
-        OrderValidator.checkOrderStatusAbleCancelComplete(order);
-
-        // 주문 상세의 item, item_product, product 데이터 중 하나라도 삭제된 데이터가 있다면 결제 취소 불가
+    public void checkDeletedData(List<OrderDetail> orderDetails) {
+        // 주문 상세의 item, item_product, product 데이터 중 하나라도 삭제된 데이터가 있다면 결제 승인, 취소, 환불 불가
         for (OrderDetail detail : orderDetails) {
             if (detail.getItem().getDeletedAt() != null) {
                 throw BusinessException.builder()
@@ -124,6 +110,16 @@ public class PaymentServiceImpl implements PaymentService {
                 }
             }
         }
+    }
+
+    /**
+     * 결제 취소 가능 여부 체크
+     */
+    @Override
+    public void checkCancelPayment(Order order, List<OrderDetail> orderDetails, Member member) {
+        RoleValidator.validateAdminOrStoreManager(member);
+        OrderValidator.checkOrderStatusAbleCancelComplete(order);
+        checkDeletedData(orderDetails);
     }
 
     /**
@@ -160,9 +156,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public TossApiResponse getTossPaymentsResult(URL url, JSONObject obj) throws Exception {
-
-        JSONParser parser = new JSONParser();
+    public TossApiResponse getTossPaymentsResult(URL url, JSONObject obj, JSONParser parser) throws Exception {
         String widgetSecretKey = tossPaymentsWidgetSecretKey;
         Base64.Encoder encoder = Base64.getEncoder();
         byte[] encodedBytes = encoder.encode((widgetSecretKey + ":").getBytes("UTF-8"));

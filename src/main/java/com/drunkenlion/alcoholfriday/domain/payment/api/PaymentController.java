@@ -1,9 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.payment.api;
 
+import com.drunkenlion.alcoholfriday.domain.cart.application.CartService;
 import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelCompleteRequest;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
+import com.drunkenlion.alcoholfriday.domain.order.util.OrderValidator;
 import com.drunkenlion.alcoholfriday.domain.payment.application.PaymentService;
 import com.drunkenlion.alcoholfriday.domain.payment.dto.request.TossPaymentsReq;
 import com.drunkenlion.alcoholfriday.domain.payment.dto.response.TossApiResponse;
@@ -15,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,15 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -42,9 +36,7 @@ import java.util.List;
 public class PaymentController {
     private final PaymentService paymentService;
     private final OrderService orderService;
-
-    @Value("${custom.tossPayments.widget.secretKey}")
-    private String tossPaymentsWidgetSecretKey;
+    private final CartService cartService;
 
     @Operation(summary = "결제",
             description = "클라이언트에서 결제 정보를 전달 받고 서버에서 한 번 더 검사 후 토스페이먼츠로 최종 결제 승인 요청" +
@@ -70,6 +62,14 @@ public class PaymentController {
             throw new RuntimeException(e);
         };
 
+        // 실패할 수 있는 케이스 전처리 작업
+        Order order = orderService.getOrder(orderNo);
+        OrderValidator.compareEntityIdToMemberId(order, userPrincipal.getMember());
+        orderService.checkOrderDetails(order);
+        List<OrderDetail> orderDetails = orderService.getOrderDetails(order);
+        paymentService.checkDeletedData(orderDetails);
+        cartService.getCart(userPrincipal.getMember());
+
         // 결제 금액 유효성 확인
         paymentService.validatePaymentAmount(orderNo, new BigDecimal(amount));
 
@@ -77,38 +77,19 @@ public class PaymentController {
         obj.put("orderId", orderNo);
         obj.put("amount", amount);
         obj.put("paymentKey", paymentKey);
-
-        String widgetSecretKey = tossPaymentsWidgetSecretKey;
-        Base64.Encoder encoder = Base64.getEncoder();
-        byte[] encodedBytes = encoder.encode((widgetSecretKey + ":").getBytes("UTF-8"));
-        String authorizations = "Basic " + new String(encodedBytes, 0, encodedBytes.length);
-
         URL url = new URL("https://api.tosspayments.com/v1/payments/confirm");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestProperty("Authorization", authorizations);
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
 
-        OutputStream outputStream = connection.getOutputStream();
-        outputStream.write(obj.toString().getBytes("UTF-8"));
-
-        int code = connection.getResponseCode();
-        boolean isSuccess = code == 200 ? true : false;
-
-        InputStream responseStream = isSuccess ? connection.getInputStream() : connection.getErrorStream();
-
-        Reader reader = new InputStreamReader(responseStream, StandardCharsets.UTF_8);
-        JSONObject jsonObject = (JSONObject) parser.parse(reader);
-        responseStream.close();
+        TossApiResponse response = paymentService.getTossPaymentsResult(url, obj, parser);
 
         // 결제 성공 시
-        if (isSuccess) {
-            paymentService.saveSuccessPayment(TossPaymentsReq.of(orderNo, paymentKey, jsonObject));
-            if (!direct) paymentService.deletedCartItems(orderNo); // 장바구니 구매 시
+        if (response.isSuccess()) {
+            paymentService.saveSuccessPayment(TossPaymentsReq.of(orderNo, paymentKey, response.getJsonObject()),
+                    order,
+                    userPrincipal.getMember());
+            if (!direct) paymentService.deletedCartItems(orderDetails, userPrincipal.getMember()); // 장바구니 구매 시
         }
 
-        return ResponseEntity.status(code).body(jsonObject);
+        return ResponseEntity.status(response.getCode()).body(response.getJsonObject());
     }
 
     @Operation(summary = "결제 취소 (관리자)",
@@ -119,17 +100,18 @@ public class PaymentController {
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) throws Exception {
 
+        // 실패할 수 있는 케이스 전처리 작업
         Order order = orderService.getOrder(orderCancelCompleteRequest.getOrderNo());
         orderService.checkOrderDetails(order);
         List<OrderDetail> orderDetails = orderService.getOrderDetails(order);
 
-        paymentService.checkCancelPayment(orderCancelCompleteRequest, order, orderDetails, userPrincipal.getMember());
+        paymentService.checkCancelPayment(order, orderDetails, userPrincipal.getMember());
 
         JSONObject obj = new JSONObject();
         obj.put("cancelReason", orderCancelCompleteRequest.getCancelReason());
         URL url = new URL("https://api.tosspayments.com/v1/payments/" + orderCancelCompleteRequest.getPaymentKey() + "/cancel");
 
-        TossApiResponse response = paymentService.getTossPaymentsResult(url, obj);
+        TossApiResponse response = paymentService.getTossPaymentsResult(url, obj, new JSONParser());
 
         // 결제 취소 성공 시
         if (response.isSuccess()) {

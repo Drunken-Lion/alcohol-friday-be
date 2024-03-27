@@ -2,8 +2,9 @@ package com.drunkenlion.alcoholfriday.domain.cart.application;
 
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
-import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.request.CartRequest;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.request.DeleteCartRequest;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
@@ -13,7 +14,6 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
-import com.drunkenlion.alcoholfriday.domain.cart.dto.request.DeleteCartRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -123,8 +123,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public void deleteCartList(List<DeleteCartRequest> deleteCartRequests, Member member) {
-        Cart cart = addFirstCart(member).orElseThrow(() -> BusinessException.builder()
-                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
+        Cart cart = getCart(member);
 
         deleteCartRequests.forEach(deleteCartRequest -> deleteCart(deleteCartRequest, cart));
     }
@@ -135,10 +134,12 @@ public class CartServiceImpl implements CartService {
         Item item = itemRepository.findById(deleteCartItem.getItemId()).orElseThrow(() -> BusinessException.builder()
                 .response(HttpResponse.Fail.NOT_FOUND_ITEM).build());
 
-        // 장바구니에 item이 없는 경우
-        cartDetailRepository.findByItemAndCart(item, cart).orElseThrow(() -> BusinessException.builder()
-                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
-
         cartDetailRepository.deleteByItemAndCart(item, cart);
+    }
+
+    @Override
+    public Cart getCart(Member member) {
+        return addFirstCart(member).orElseThrow(() -> BusinessException.builder()
+                .response(HttpResponse.Fail.NOT_FOUND_CART).build());
     }
 }

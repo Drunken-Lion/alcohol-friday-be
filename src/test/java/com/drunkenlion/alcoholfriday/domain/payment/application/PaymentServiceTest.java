@@ -2,7 +2,6 @@ package com.drunkenlion.alcoholfriday.domain.payment.application;
 
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.cart.application.CartService;
-import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.request.DeleteCartRequest;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
@@ -10,7 +9,6 @@ import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
 import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
-import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
@@ -61,11 +59,7 @@ class PaymentServiceTest {
     @Mock
     private OrderRepository orderRepository;
     @Mock
-    private MemberRepository memberRepository;
-    @Mock
     private PaymentRepository paymentRepository;
-    @Mock
-    private CartRepository cartRepository;
     @Mock
     private ProductRepository productRepository;
 
@@ -240,9 +234,6 @@ class PaymentServiceTest {
     @DisplayName("결제 성공 후 토스페이먼츠에서 응답 받은 값으로 Payment 저장")
     void saveSuccessPayment() {
         // given
-        when(orderService.getOrder(orderNo)).thenReturn(getDataOrder());
-        when(memberRepository.findByEmail(email)).thenReturn(getOneMember());
-
         TossPaymentsReq tossPaymentsReq = TossPaymentsReq.builder()
                 .orderNo(orderNo)
                 .paymentNo(paymentKey)
@@ -259,23 +250,46 @@ class PaymentServiceTest {
                 .currency(currency)
                 .build();
 
-        when(paymentRepository.save(getDataPayment())).thenReturn(getDataPayment());
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
 
         // when
-        paymentService.saveSuccessPayment(tossPaymentsReq);
+        paymentService.saveSuccessPayment(tossPaymentsReq, getDataOrder(), getDataMember());
 
         // then
-        verify(orderService, times(1)).getOrder(orderNo);
-        verify(memberRepository, times(1)).findByEmail(email);
+        verify(orderRepository, times(1)).save(any(Order.class));
+        verify(paymentRepository, times(1)).save(any(Payment.class));
+
+        verify(orderRepository).save(orderCaptor.capture());
+        verify(paymentRepository).save(paymentCaptor.capture());
+
+        Order savedOrder = orderCaptor.getValue();
+        Payment savedPayment = paymentCaptor.getValue();
+
+        assertThat(savedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
+        assertThat(savedPayment.getPaymentNo()).isEqualTo(paymentKey);
+        assertThat(savedPayment.getPaymentStatus()).isEqualTo(PaymentStatus.DONE);
+        assertThat(savedPayment.getPaymentMethod()).isEqualTo(PaymentMethod.ofMethod(method));
+        assertThat(savedPayment.getPaymentProvider()).isEqualTo(PaymentProvider.ofPaymentProvider(paymentProvider));
+        assertThat(savedPayment.getPaymentCardType()).isEqualTo(PaymentCardType.ofCardType(cardType));
+        assertThat(savedPayment.getPaymentOwnerType()).isEqualTo(PaymentOwnerType.ofOwnerType(ownerType));
+        assertThat(savedPayment.getIssuerCode()).isEqualTo(PaymentCardCode.ofCardCode(issuerCode));
+        assertThat(savedPayment.getAcquirerCode()).isEqualTo(PaymentCardCode.ofCardCode(acquirerCode));
+        assertThat(savedPayment.getTotalPrice()).isEqualTo(totalAmount);
+        assertThat(savedPayment.getRequestedAt()).isEqualTo(LocalDateTime.parse(requestedAt.substring(0, 19)));
+        assertThat(savedPayment.getApprovedAt()).isEqualTo(LocalDateTime.parse(approvedAt.substring(0, 19)));
+        assertThat(savedPayment.getCurrency()).isEqualTo(currency);
+        assertThat(savedPayment.getOrder()).isEqualTo(getDataOrder());
+        assertThat(savedPayment.getMember()).isEqualTo(getDataMember());
     }
 
     @Test
     @DisplayName("결제 성공 후 PaymentProvider 등 enum 필드에 null 값이 들어오는 경우")
     void saveSuccessPayment_nullTest() {
         // given
-        when(orderService.getOrder(orderNo)).thenReturn(getDataOrder());
-        when(memberRepository.findByEmail(email)).thenReturn(getOneMember());
-
         TossPaymentsReq tossPaymentsReq = TossPaymentsReq.builder()
                 .orderNo(orderNo)
                 .paymentNo(paymentKey)
@@ -292,14 +306,40 @@ class PaymentServiceTest {
                 .currency(currency)
                 .build();
 
-        when(paymentRepository.save(getDataPayment())).thenReturn(getDataPayment());
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
 
         // when
-        paymentService.saveSuccessPayment(tossPaymentsReq);
+        paymentService.saveSuccessPayment(tossPaymentsReq, getDataOrder(), getDataMember());
 
         // then
-        verify(orderService, times(1)).getOrder(orderNo);
-        verify(memberRepository, times(1)).findByEmail(email);
+        verify(orderRepository, times(1)).save(any(Order.class));
+        verify(paymentRepository, times(1)).save(any(Payment.class));
+
+        verify(orderRepository).save(orderCaptor.capture());
+        verify(paymentRepository).save(paymentCaptor.capture());
+
+        Order savedOrder = orderCaptor.getValue();
+        Payment savedPayment = paymentCaptor.getValue();
+
+        assertThat(savedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
+        assertThat(savedPayment.getPaymentNo()).isEqualTo(paymentKey);
+        assertThat(savedPayment.getPaymentStatus()).isEqualTo(PaymentStatus.DONE);
+        assertThat(savedPayment.getPaymentMethod()).isEqualTo(PaymentMethod.ofMethod(method));
+        assertThat(savedPayment.getPaymentProvider()).isEqualTo(null);
+        assertThat(savedPayment.getPaymentCardType()).isEqualTo(null);
+        assertThat(savedPayment.getPaymentOwnerType()).isEqualTo(PaymentOwnerType.ofOwnerType(ownerType));
+        assertThat(savedPayment.getIssuerCode()).isEqualTo(PaymentCardCode.ofCardCode(issuerCode));
+        assertThat(savedPayment.getAcquirerCode()).isEqualTo(PaymentCardCode.ofCardCode(acquirerCode));
+        assertThat(savedPayment.getTotalPrice()).isEqualTo(totalAmount);
+        assertThat(savedPayment.getRequestedAt()).isEqualTo(LocalDateTime.parse(requestedAt.substring(0, 19)));
+        assertThat(savedPayment.getApprovedAt()).isEqualTo(LocalDateTime.parse(approvedAt.substring(0, 19)));
+        assertThat(savedPayment.getCurrency()).isEqualTo(currency);
+        assertThat(savedPayment.getOrder()).isEqualTo(getDataOrder());
+        assertThat(savedPayment.getMember()).isEqualTo(getDataMember());
     }
 
     @Test
@@ -403,7 +443,7 @@ class PaymentServiceTest {
 
         // when
         BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.checkCancelPayment(orderCancelCompleteRequest, getDataOrder(), List.of(getDataOrderDetail()), getDataMember());
+            paymentService.checkCancelPayment(getDataOrder(), List.of(getDataOrderDetail()), getDataMember());
         });
 
         // then
@@ -426,7 +466,7 @@ class PaymentServiceTest {
 
         // when
         BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.checkCancelPayment(orderCancelCompleteRequest, getDataCanceledOrder(), orderDetails, adminMember);
+            paymentService.checkCancelPayment(getDataCanceledOrder(), orderDetails, adminMember);
         });
 
         // then
@@ -449,7 +489,7 @@ class PaymentServiceTest {
 
         // when
         BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.checkCancelPayment(orderCancelCompleteRequest, getDataCanceledOrder(), orderDetails, adminMember);
+            paymentService.checkCancelPayment(getDataCanceledOrder(), orderDetails, adminMember);
         });
 
         // then
@@ -472,7 +512,7 @@ class PaymentServiceTest {
 
         // when
         BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
-            paymentService.checkCancelPayment(orderCancelCompleteRequest, getDataCanceledOrder(), orderDetails, adminMember);
+            paymentService.checkCancelPayment(getDataCanceledOrder(), orderDetails, adminMember);
         });
 
         // then
