@@ -36,6 +36,8 @@ public class HttpResponse {
         INVALID_INPUT_PRODUCT_QUANTITY(HttpStatus.BAD_REQUEST, "제품 수량은 0 이상이어야 입니다."),
         MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "필수 파라미터가 누락되었습니다."),
         STOCK_NOT_NEGATIVE(HttpStatus.BAD_REQUEST, "재고 수량은 0보다 적을 수 없습니다."),
+        PRICE_NOT_NEGATIVE(HttpStatus.BAD_REQUEST, "가격은 0보다 적을 수 없습니다."),
+        PRICE_AND_STOCK_NOT_NEGATIVE(HttpStatus.BAD_REQUEST, "가격과 수량은 0보다 적을 수 없습니다."),
 
         // 401
         UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 접근입니다."),

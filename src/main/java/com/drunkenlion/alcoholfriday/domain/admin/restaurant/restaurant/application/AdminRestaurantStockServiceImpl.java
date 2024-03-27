@@ -53,18 +53,17 @@ public class AdminRestaurantStockServiceImpl implements AdminRestaurantStockServ
         Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
                 .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
 
+        RestaurantStockValidator.validateOwnership(member, restaurant);
+
         RestaurantStock restaurantStock =
                 restaurantStockRepository.findByIdAndDeletedAtIsNull(modifyRequest.getId())
                         .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_STOCK));
 
         RestaurantStockValidator.validateStockInRestaurant(restaurantStock, restaurant);
 
-        if (member.getRole().equals(MemberRole.OWNER)) {
-            RestaurantValidator.validateOwnership(member, restaurant);
-            RestaurantStockValidator.validateOwnerModifyQuantity(restaurantStock, modifyRequest);
-        }
+        RestaurantStockValidator.validateOwnerModifyQuantity(member, restaurantStock, modifyRequest);
 
-        RestaurantStockValidator.validateNegativeQuantity(modifyRequest);
+        RestaurantStockValidator.validateNegative(modifyRequest);
 
         restaurantStock = restaurantStockRepository.save(restaurantStock.toBuilder()
                 .price(modifyRequest.getPrice())
