@@ -78,6 +78,7 @@ public class AddressControllerTest {
     @AfterEach
     @Transactional
     void afterEach() {
+        memberRepository.deleteAll();
         addressRepository.deleteAll();
     }
 
