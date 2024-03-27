@@ -11,7 +11,10 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
-import com.drunkenlion.alcoholfriday.domain.order.dto.request.*;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelRequest;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderItemRequest;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
@@ -144,7 +147,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public Order getOrder(String orderNo) {
-        return orderRepository.findByOrderNo(orderNo)
+        return orderRepository.findByOrderNoAndDeletedAtIsNull(orderNo)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_ORDER)
                         .build());
@@ -163,5 +166,28 @@ public class OrderServiceImpl implements OrderService {
         order.updateCancel(orderCancelRequest.getCancelReason());
 
         return OrderResponse.of(order);
+    }
+
+    @Override
+    public List<OrderDetail> getOrderDetails(Order order) {
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderAndDeletedAtIsNull(order);
+        if (orderDetails.isEmpty()) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.NOT_FOUND_ORDER_DETAIL)
+                    .build();
+        }
+
+        return orderDetails;
+    }
+
+    @Override
+    public void checkOrderDetails(Order order) {
+        boolean exist = orderDetailRepository.existsByOrderAndDeletedAtIsNotNull(order);
+
+        if (exist) {
+            throw BusinessException.builder()
+                    .response(HttpResponse.Fail.EXIST_DELETED_DATA)
+                    .build();
+        }
     }
 }

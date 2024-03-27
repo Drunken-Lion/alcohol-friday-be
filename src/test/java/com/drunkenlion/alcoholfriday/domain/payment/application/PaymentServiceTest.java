@@ -15,6 +15,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelCompleteRequest;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
@@ -22,13 +23,16 @@ import com.drunkenlion.alcoholfriday.domain.payment.dao.PaymentRepository;
 import com.drunkenlion.alcoholfriday.domain.payment.dto.request.TossPaymentsReq;
 import com.drunkenlion.alcoholfriday.domain.payment.entity.Payment;
 import com.drunkenlion.alcoholfriday.domain.payment.enumerated.*;
+import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,6 +66,8 @@ class PaymentServiceTest {
     private PaymentRepository paymentRepository;
     @Mock
     private CartRepository cartRepository;
+    @Mock
+    private ProductRepository productRepository;
 
     // test를 위한 임의 변수
     private BigDecimal deliveryPrice = BigDecimal.valueOf(2500);
@@ -82,6 +90,7 @@ class PaymentServiceTest {
     private final Long balance = 10L;
     private final Long incense = 10L;
     private final Long throat = 10L;
+    private final Long itemProductQuantity = 5L;
 
     // Item2
     private final Long itemId2 = 2L;
@@ -102,6 +111,7 @@ class PaymentServiceTest {
     private final Long balance2 = 10L;
     private final Long incense2 = 10L;
     private final Long throat2 = 10L;
+    private final Long itemProductQuantity2 = 10L;
 
     // Member
     private final Long id = 1L;
@@ -162,9 +172,15 @@ class PaymentServiceTest {
     private String approvedAt = "2024-02-26T11:15:14+09:00";
     private String currency = "KRW";
 
+    // Payment 결제 취소 성공, TossPaymentReq
+    private String statusCancel = "CANCELED";
+    private String requestedAtCancel = "2024-02-27T11:14:52+09:00";
+    private String approvedAtCancel = "2024-02-27T11:15:14+09:00";
+
     // OrderDetail
     private final Long orderDetailId = 1L;
     private final Long orderDetailId2 = 2L;
+    private final LocalDateTime deletedAtCancel = LocalDateTime.now().plusMinutes(10);
 
     // Cart
     private final Long cartId = 1L;
@@ -303,6 +319,167 @@ class PaymentServiceTest {
         verify(cartService, times(1)).deleteCartList(deleteCartRequests, getDataOrder().getMember());
     }
 
+    @Test
+    @DisplayName("결제 취소 성공 후 토스페이먼츠에서 응답 받은 값으로 Payment 저장 및 제품 수량 원복")
+    void saveCancelSuccessPayment() {
+        // given
+        Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
+        Order order = getDataCanceledOrder();
+
+        TossPaymentsReq tossPaymentsReq = TossPaymentsReq.builder()
+                .orderNo(orderNo)
+                .paymentNo(paymentKey)
+                .status(statusCancel)
+                .method(method)
+                .cardType(cardType)
+                .ownerType(ownerType)
+                .provider(paymentProvider)
+                .issuerCode(issuerCode)
+                .acquirerCode(acquirerCode)
+                .totalAmount(totalAmount)
+                .requestedAt(requestedAtCancel)
+                .approvedAt(approvedAtCancel)
+                .currency(currency)
+                .build();
+
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        List<Product> savedProducts1 = new ArrayList<>();
+        when(productRepository.saveAll(anyList()))
+                .thenAnswer(invocation -> {
+                    savedProducts1.addAll(invocation.getArgument(0));
+                    return invocation.getArgument(0);
+                });
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        ArgumentCaptor<List<Product>> productsCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
+
+        // when
+        paymentService.saveCancelSuccessPayment(tossPaymentsReq, order, order.getOrderDetails(), adminMember);
+
+        // then
+        verify(orderRepository, times(1)).save(any(Order.class));
+        assertEquals(2, savedProducts1.size());
+        verify(paymentRepository, times(1)).save(any(Payment.class));
+
+        verify(orderRepository).save(orderCaptor.capture());
+        verify(productRepository).saveAll(productsCaptor.capture());
+        verify(paymentRepository).save(paymentCaptor.capture());
+
+        Order savedOrder = orderCaptor.getValue();
+        List<Product> savedProducts = productsCaptor.getValue();
+        Payment savedPayment = paymentCaptor.getValue();
+
+        assertThat(savedOrder.getOrderStatus()).isEqualTo(OrderStatus.CANCEL_COMPLETED);
+        assertThat(savedPayment.getPaymentNo()).isEqualTo(paymentKey);
+        assertThat(savedPayment.getPaymentStatus()).isEqualTo(PaymentStatus.CANCELED);
+        assertThat(savedPayment.getPaymentMethod()).isEqualTo(PaymentMethod.ofMethod(method));
+        assertThat(savedPayment.getPaymentProvider()).isEqualTo(PaymentProvider.ofPaymentProvider(paymentProvider));
+        assertThat(savedPayment.getPaymentCardType()).isEqualTo(PaymentCardType.ofCardType(cardType));
+        assertThat(savedPayment.getPaymentOwnerType()).isEqualTo(PaymentOwnerType.ofOwnerType(ownerType));
+        assertThat(savedPayment.getIssuerCode()).isEqualTo(PaymentCardCode.ofCardCode(issuerCode));
+        assertThat(savedPayment.getAcquirerCode()).isEqualTo(PaymentCardCode.ofCardCode(acquirerCode));
+        assertThat(savedPayment.getTotalPrice()).isEqualTo(totalAmount);
+        assertThat(savedPayment.getRequestedAt()).isEqualTo(LocalDateTime.parse(requestedAtCancel.substring(0, 19)));
+        assertThat(savedPayment.getApprovedAt()).isEqualTo(LocalDateTime.parse(approvedAtCancel.substring(0, 19)));
+        assertThat(savedPayment.getCurrency()).isEqualTo(currency);
+        assertThat(savedPayment.getOrder()).isEqualTo(getDataOrder());
+        assertThat(savedPayment.getMember()).isEqualTo(getDataMember());
+
+        assertThat(savedProducts.get(0).getQuantity()).isEqualTo(quantity + (itemProductQuantity * quantityItem));
+        assertThat(savedProducts.get(1).getQuantity()).isEqualTo(quantity2 + (itemProductQuantity2 * quantityItem2));
+    }
+
+    @Test
+    @DisplayName("결제 취소 실패 - 관리자가 아닐 경우")
+    void checkCancelPayment_validateAdminOrStoreManager() {
+        // given
+        OrderCancelCompleteRequest orderCancelCompleteRequest = OrderCancelCompleteRequest.builder()
+                .orderNo(orderNo)
+                .paymentKey(paymentKey)
+                .cancelReason("변심")
+                .build();
+
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            paymentService.checkCancelPayment(orderCancelCompleteRequest, getDataOrder(), List.of(getDataOrderDetail()), getDataMember());
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.FORBIDDEN.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.FORBIDDEN.getMessage());
+    }
+
+    @Test
+    @DisplayName("결제 취소 실패 - 삭제된 Item이 있을 경우 취소 불가")
+    void checkCancelPayment_existDeletedItem() {
+        // given
+        Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
+        List<OrderDetail> orderDetails = List.of(getDataOrderDetail(), getDeletedOrderDetail());
+
+        OrderCancelCompleteRequest orderCancelCompleteRequest = OrderCancelCompleteRequest.builder()
+                .orderNo(orderNo)
+                .paymentKey(paymentKey)
+                .cancelReason("변심")
+                .build();
+
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            paymentService.checkCancelPayment(orderCancelCompleteRequest, getDataCanceledOrder(), orderDetails, adminMember);
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getMessage());
+    }
+
+    @Test
+    @DisplayName("결제 취소 실패 - 삭제된 ItemProduct가 있을 경우 취소 불가")
+    void checkCancelPayment_existDeletedItemProduct() {
+        // given
+        Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
+        List<OrderDetail> orderDetails = List.of(getDataOrderDetail(), getOrderDetailItemProductDeletedAtNotNull());
+
+        OrderCancelCompleteRequest orderCancelCompleteRequest = OrderCancelCompleteRequest.builder()
+                .orderNo(orderNo)
+                .paymentKey(paymentKey)
+                .cancelReason("변심")
+                .build();
+
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            paymentService.checkCancelPayment(orderCancelCompleteRequest, getDataCanceledOrder(), orderDetails, adminMember);
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getMessage());
+    }
+
+    @Test
+    @DisplayName("결제 취소 실패 - 삭제된 Product가 있을 경우 취소 불가")
+    void checkCancelPayment_existDeletedProduct() {
+        // given
+        Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
+        List<OrderDetail> orderDetails = List.of(getDataOrderDetail(), getOrderDetailProductDeletedAtNotNull());
+
+        OrderCancelCompleteRequest orderCancelCompleteRequest = OrderCancelCompleteRequest.builder()
+                .orderNo(orderNo)
+                .paymentKey(paymentKey)
+                .cancelReason("변심")
+                .build();
+
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            paymentService.checkCancelPayment(orderCancelCompleteRequest, getDataCanceledOrder(), orderDetails, adminMember);
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getMessage());
+    }
+
 
     private Optional<Payment> getOnePayment() {
         return Optional.of(this.getDataPayment());
@@ -317,6 +494,34 @@ class PaymentServiceTest {
         return Payment.builder()
                 .paymentNo(paymentKey)
                 .paymentStatus(PaymentStatus.DONE)
+                .paymentMethod(PaymentMethod.ofMethod(method))
+                .paymentProvider(PaymentProvider.ofPaymentProvider(paymentProvider))
+                .paymentCardType(PaymentCardType.ofCardType(cardType))
+                .paymentOwnerType(PaymentOwnerType.ofOwnerType(ownerType))
+                .issuerCode(PaymentCardCode.ofCardCode(issuerCode))
+                .acquirerCode(PaymentCardCode.ofCardCode(acquirerCode))
+                .totalPrice(new BigDecimal(totalAmount))
+                .requestedAt(requestedAt_)
+                .approvedAt(approvedAt_)
+                .currency(currency)
+                .order(getDataOrder())
+                .member(getDataMember())
+                .build();
+    }
+
+    private Optional<Payment> getOneCanceledPayment() {
+        return Optional.of(this.getDataCanceledPayment());
+    }
+
+    private Payment getDataCanceledPayment() {
+        String requestedAtStr = requestedAtCancel.substring(0, 19);
+        String approvedAtStr = approvedAtCancel.substring(0, 19);
+        LocalDateTime requestedAt_ = LocalDateTime.parse(requestedAtStr);
+        LocalDateTime approvedAt_ = LocalDateTime.parse(approvedAtStr);
+
+        return Payment.builder()
+                .paymentNo(paymentKey)
+                .paymentStatus(PaymentStatus.CANCELED)
                 .paymentMethod(PaymentMethod.ofMethod(method))
                 .paymentProvider(PaymentProvider.ofPaymentProvider(paymentProvider))
                 .paymentCardType(PaymentCardType.ofCardType(cardType))
@@ -347,8 +552,7 @@ class PaymentServiceTest {
                 .itemPrice(price)
                 .quantity(quantityItem)
                 .totalPrice(totalItemPrice)
-                .item(getDataItem())
-                .order(getDataOrder())
+                .deletedAt(deletedAt)
                 .build();
         orderDetail.addItem(getDataItem());
         orderDetail.addOrder(getDataOrder());
@@ -371,8 +575,51 @@ class PaymentServiceTest {
                 .itemPrice(price2)
                 .quantity(quantityItem2)
                 .totalPrice(totalItemPrice2)
+                .deletedAt(deletedAt)
                 .build();
         orderDetail.addItem(this.getDataItem2());
+        orderDetail.addOrder(getDataOrder());
+
+        return orderDetail;
+    }
+
+    private OrderDetail getDeletedOrderDetail() {
+        OrderDetail orderDetail = OrderDetail.builder()
+                .id(orderDetailId2)
+                .itemPrice(price2)
+                .quantity(quantityItem2)
+                .totalPrice(totalItemPrice2)
+                .deletedAt(deletedAtCancel)
+                .build();
+        orderDetail.addItem(this.getDeletedItem());
+        orderDetail.addOrder(getDataOrder());
+
+        return orderDetail;
+    }
+
+    private OrderDetail getOrderDetailItemProductDeletedAtNotNull() {
+        OrderDetail orderDetail = OrderDetail.builder()
+                .id(orderDetailId2)
+                .itemPrice(price2)
+                .quantity(quantityItem2)
+                .totalPrice(totalItemPrice2)
+                .deletedAt(deletedAt)
+                .build();
+        orderDetail.addItem(this.getDeletedItem());
+        orderDetail.addOrder(getDataOrder());
+
+        return orderDetail;
+    }
+
+    private OrderDetail getOrderDetailProductDeletedAtNotNull() {
+        OrderDetail orderDetail = OrderDetail.builder()
+                .id(orderDetailId2)
+                .itemPrice(price2)
+                .quantity(quantityItem2)
+                .totalPrice(totalItemPrice2)
+                .deletedAt(deletedAt)
+                .build();
+        orderDetail.addItem(this.getDeletedProduct());
         orderDetail.addOrder(getDataOrder());
 
         return orderDetail;
@@ -423,6 +670,31 @@ class PaymentServiceTest {
                 .postcode(postcode)
                 .createdAt(LocalDateTime.now())
                 .member(this.getDataMember())
+                .build();
+    }
+
+    private Optional<Order> getOneCanceledOrder() {
+        return Optional.of(this.getDataCanceledOrder());
+    }
+
+    // 주문 취소된 접수
+    private Order getDataCanceledOrder() {
+        return Order.builder()
+                .id(orderId)
+                .orderNo(orderNo)
+                .orderStatus(OrderStatus.CANCELLED) // 주문 접수
+                .price(price)
+                .deliveryPrice(deliveryPrice)
+                .totalPrice(totalPrice)
+                .recipient(recipient)
+                .phone(phone)
+                .address(address)
+                .addressDetail(addressDetail)
+                .description(description)
+                .postcode(postcode)
+                .createdAt(LocalDateTime.now())
+                .member(this.getDataMember())
+                .orderDetails(List.of(getDataOrderDetail(), getDataOrderDetail2()))
                 .build();
     }
 
@@ -488,6 +760,7 @@ class PaymentServiceTest {
         ItemProduct itemProduct = ItemProduct.builder()
                 .item(item)
                 .product(product)
+                .quantity(itemProductQuantity)
                 .build();
         itemProduct.addItem(item);
         itemProduct.addProduct(product);
@@ -534,6 +807,95 @@ class PaymentServiceTest {
         ItemProduct itemProduct = ItemProduct.builder()
                 .item(item)
                 .product(product)
+                .quantity(itemProductQuantity2)
+                .build();
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product);
+
+        return item;
+    }
+
+    private Item getDeletedProduct() {
+        CategoryClass categoryClass = CategoryClass.builder()
+                .firstName(firstName2)
+                .build();
+
+        Category category = Category.builder()
+                .lastName(lastName2)
+                .build();
+        category.addCategoryClass(categoryClass);
+
+        Product product = Product.builder()
+                .name(productName2)
+                .quantity(quantity2)
+                .alcohol(alcohol2)
+                .ingredient(ingredient2)
+                .sweet(sweet2)
+                .sour(sour2)
+                .cool(cool2)
+                .body(body2)
+                .balance(balance2)
+                .incense(incense2)
+                .throat(throat2)
+                .deletedAt(deletedAtCancel)
+                .build();
+        product.addCategory(category);
+
+        Item item = Item.builder()
+                .name(itemName2)
+                .price(price2)
+                .info(info2)
+                .build();
+        item.addCategory(category);
+
+        ItemProduct itemProduct = ItemProduct.builder()
+                .item(item)
+                .product(product)
+                .quantity(itemProductQuantity2)
+                .build();
+        itemProduct.addItem(item);
+        itemProduct.addProduct(product);
+
+        return item;
+    }
+
+    private Item getDeletedItem() {
+        CategoryClass categoryClass = CategoryClass.builder()
+                .firstName(firstName2)
+                .build();
+
+        Category category = Category.builder()
+                .lastName(lastName2)
+                .build();
+        category.addCategoryClass(categoryClass);
+
+        Product product = Product.builder()
+                .name(productName2)
+                .quantity(quantity2)
+                .alcohol(alcohol2)
+                .ingredient(ingredient2)
+                .sweet(sweet2)
+                .sour(sour2)
+                .cool(cool2)
+                .body(body2)
+                .balance(balance2)
+                .incense(incense2)
+                .throat(throat2)
+                .build();
+        product.addCategory(category);
+
+        Item item = Item.builder()
+                .name(itemName2)
+                .price(price2)
+                .info(info2)
+                .build();
+        item.addCategory(category);
+
+        ItemProduct itemProduct = ItemProduct.builder()
+                .item(item)
+                .product(product)
+                .quantity(itemProductQuantity2)
+                .deletedAt(deletedAtCancel)
                 .build();
         itemProduct.addItem(item);
         itemProduct.addProduct(product);

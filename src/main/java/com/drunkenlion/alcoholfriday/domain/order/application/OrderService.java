@@ -10,6 +10,7 @@ import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface OrderService {
     OrderResponseList receive(OrderRequestList orderRequestList, Member member);
@@ -25,4 +26,8 @@ public interface OrderService {
     Order getOrder(String orderNo);
 
     OrderResponse cancelOrder(Long orderId, OrderCancelRequest orderCancelRequest, Member member);
+
+    List<OrderDetail> getOrderDetails(Order order);
+
+    void checkOrderDetails(Order order);
 }

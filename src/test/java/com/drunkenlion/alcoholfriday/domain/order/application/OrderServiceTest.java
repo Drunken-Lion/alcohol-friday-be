@@ -22,10 +22,12 @@ import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
+import com.drunkenlion.alcoholfriday.domain.order.util.OrderValidator;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import io.jsonwebtoken.lang.Collections;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -403,7 +405,7 @@ class OrderServiceTest {
     void getOrder() {
         // given
         // orderRepository.findByOrderNo(orderNo)
-        when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
+        when(orderRepository.findByOrderNoAndDeletedAtIsNull(orderNo)).thenReturn(getOneOrder());
 
         // when
         Order order = orderService.getOrder(orderNo);
@@ -420,7 +422,7 @@ class OrderServiceTest {
     void getOrder_notOrderNo() {
         // given
         // orderRepository.findByOrderNo(orderNo)
-        when(orderRepository.findByOrderNo(orderNo)).thenReturn(Optional.empty());
+        when(orderRepository.findByOrderNoAndDeletedAtIsNull(orderNo)).thenReturn(Optional.empty());
 
         // when & then
         Assertions.assertThrows(BusinessException.class, () -> {
@@ -544,6 +546,86 @@ class OrderServiceTest {
         assertEquals(HttpResponse.Fail.ORDER_CANCEL_FAIL.getMessage(), exception.getMessage());
     }
 
+    @Test
+    @DisplayName("주문 상태가 OrderStatus.CANCELLED 가 아닐 경우")
+    void checkOrderStatusAbleCancelComplete() {
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            OrderValidator.checkOrderStatusAbleCancelComplete(getDataOrder());
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.ORDER_CANCEL_COMPLETE_FAIL.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.ORDER_CANCEL_COMPLETE_FAIL.getMessage());
+    }
+
+    @Test
+    @DisplayName("Order로 OrderDetials를 찾을 때 값이 있는 경우(논리적 삭제된 OrderDetials가 없다.)")
+    void getOrderDetails() {
+        // given
+        List<OrderDetail> orderDetails = List.of(getDataOrderDetail(), getDataOrderDetail2());
+
+        when(orderDetailRepository.findByOrderAndDeletedAtIsNull(getDataOrder())).thenReturn(orderDetails);
+
+        // when
+        List<OrderDetail> orderDetailsResponse = orderService.getOrderDetails(getDataOrder());
+
+        // then
+        assertThat(orderDetailsResponse.get(0).getId()).isEqualTo(orderDetailId);
+        assertThat(orderDetailsResponse.get(0).getItemPrice()).isEqualTo(price);
+        assertThat(orderDetailsResponse.get(0).getQuantity()).isEqualTo(quantityItem);
+        assertThat(orderDetailsResponse.get(0).getTotalPrice()).isEqualTo(totalItemPrice);
+        assertThat(orderDetailsResponse.get(1).getId()).isEqualTo(orderDetailId2);
+        assertThat(orderDetailsResponse.get(1).getItemPrice()).isEqualTo(price2);
+        assertThat(orderDetailsResponse.get(1).getQuantity()).isEqualTo(quantityItem2);
+        assertThat(orderDetailsResponse.get(1).getTotalPrice()).isEqualTo(totalItemPrice2);
+    }
+
+    @Test
+    @DisplayName("Order로 OrderDetials를 찾을 때 값이 없는 경우(논리적 삭제된 OrderDetials가 있다.)")
+    void getOrderDetails_orderDetailsIsEmpty() {
+        // given
+        when(orderDetailRepository.findByOrderAndDeletedAtIsNull(getDataOrder())).thenReturn(Collections.emptyList());
+
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            orderService.getOrderDetails(getDataOrder());
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.NOT_FOUND_ORDER_DETAIL.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.NOT_FOUND_ORDER_DETAIL.getMessage());
+    }
+
+    @Test
+    @DisplayName("Order로 OrderDetials를 찾을 때 존재 유무 확인(논리적 삭제된 OrderDetials가 없다.)")
+    void checkOrderDetails_false() {
+        // given
+        when(orderDetailRepository.existsByOrderAndDeletedAtIsNotNull(getDataOrder())).thenReturn(false);
+
+        // when
+        orderService.checkOrderDetails(getDataOrder());
+
+        // then
+        verify(orderDetailRepository, times(1)).existsByOrderAndDeletedAtIsNotNull(getDataOrder());
+    }
+
+    @Test
+    @DisplayName("Order로 OrderDetials를 찾을 때 존재 유무 확인(논리적 삭제된 OrderDetials가 있다.)")
+    void checkOrderDetails_true() {
+        // given
+        when(orderDetailRepository.existsByOrderAndDeletedAtIsNotNull(getDataOrder())).thenReturn(true);
+
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            orderService.checkOrderDetails(getDataOrder());
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getMessage());
+    }
+
     private Optional<OrderDetail> getOneOrderDetail() {
         return Optional.of(this.getDataOrderDetail());
     }
@@ -559,8 +641,6 @@ class OrderServiceTest {
                 .itemPrice(price)
                 .quantity(quantityItem)
                 .totalPrice(totalItemPrice)
-                .item(getDataItem())
-                .order(getDataOrder())
                 .build();
         orderDetail.addItem(getDataItem());
         orderDetail.addOrder(getDataOrder());

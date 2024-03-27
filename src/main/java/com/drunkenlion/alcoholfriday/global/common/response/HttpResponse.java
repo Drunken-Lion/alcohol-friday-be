@@ -117,6 +117,7 @@ public class HttpResponse {
         RESTAURANT_REFUND_REJECT_FAIL(HttpStatus.CONFLICT, "매장 환불 반려 조건에 부합하지 않습니다."),
         ORDER_CANCEL_FAIL(HttpStatus.CONFLICT, "주문 취소 조건에 부합하지 않습니다."),
         ORDER_CANCEL_COMPLETE_FAIL(HttpStatus.CONFLICT, "주문 취소 완료 조건에 부합하지 않습니다."),
+        EXIST_DELETED_DATA(HttpStatus.CONFLICT, "삭제된 필요 데이터가 하나 이상입니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");
