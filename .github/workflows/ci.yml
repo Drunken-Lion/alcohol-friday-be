@@ -44,6 +44,16 @@ jobs:
           distribution: 'gradle-7.4.2'
           arguments: -i test
 
+      - name: Test Coverage Report
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.6
+        with:
+          title: Test Coverage Report
+          paths: ${{ github.workspace }}/build/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 50
+          min-coverage-changed-files: 50
+
       - name: Check test results
         uses: actions/github-script@v1
         with:
