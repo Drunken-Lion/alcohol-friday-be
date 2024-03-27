@@ -54,8 +54,8 @@ public class OrderController {
     }
 
     @Operation(summary = "주문 취소", description = "OrderStatus에서 결제 완료, 배송 준비 중일 경우 주문 취소 가능")
-    @PutMapping("{id}")
-    public ResponseEntity<OrderResponse> orderCancel(
+    @PutMapping("{id}/cancel")
+    public ResponseEntity<OrderResponse> cancelOrder(
             @PathVariable("id") Long orderId,
             @RequestBody OrderCancelRequest orderCancelRequest,
             @AuthenticationPrincipal UserPrincipal userPrincipal

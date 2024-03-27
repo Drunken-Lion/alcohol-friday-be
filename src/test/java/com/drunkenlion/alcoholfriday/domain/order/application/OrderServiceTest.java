@@ -12,7 +12,9 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderItemRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderDetailResponse;
@@ -426,6 +428,121 @@ class OrderServiceTest {
         } );
     }
 
+    @DisplayName("[주문 취소] 주문자가 주문 취소 성공")
+    void orderCancelTest() {
+        // given
+        Order order = getDataOrder();
+        order = order.toBuilder()
+                .orderStatus(OrderStatus.PAYMENT_COMPLETED)
+                .price(price)
+                .totalPrice(price.add(deliveryPrice))
+                .build();
+
+        OrderCancelRequest request = OrderCancelRequest.builder()
+                .cancelReason("단순 변심")
+                .build();
+
+        when(orderRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(order));
+
+        // when
+        OrderResponse response = this.orderService.cancelOrder(orderId, request, this.getDataMember());
+
+        // then
+        assertThat(response.getId()).isEqualTo(orderId);
+        assertThat(response.getOrderNo()).isEqualTo(orderNo);
+        assertThat(response.getOrderStatus()).isEqualTo(OrderStatus.CANCELLED);
+        assertThat(response.getPrice()).isEqualTo(price);
+        assertThat(response.getDeliveryPrice()).isEqualTo(deliveryPrice);
+        assertThat(response.getTotalPrice()).isEqualTo(price.add(deliveryPrice));
+        assertThat(response.getRecipient()).isEqualTo(recipient);
+        assertThat(response.getPhone()).isEqualTo(phone);
+        assertThat(response.getPostcode()).isEqualTo(postcode);
+        assertThat(response.getAddress()).isEqualTo(address);
+        assertThat(response.getAddressDetail()).isEqualTo(addressDetail);
+        assertThat(response.getDescription()).isEqualTo(description);
+        assertThat(response.getCancelReason()).isEqualTo("단순 변심");
+    }
+
+    @Test
+    @DisplayName("[주문 취소] 주문자가 주문 취소 실패 - 존재하지 않는 주문")
+    void orderCancelTest_1() {
+        // given
+        Order order = getDataOrder();
+        order = order.toBuilder()
+                .orderStatus(OrderStatus.PAYMENT_COMPLETED)
+                .price(price)
+                .totalPrice(price.add(deliveryPrice))
+                .build();
+
+        OrderCancelRequest request = OrderCancelRequest.builder()
+                .cancelReason("단순 변심")
+                .build();
+
+        when(orderRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            this.orderService.cancelOrder(orderId, request, this.getDataMember());
+        });
+
+        //then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_ORDER.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.NOT_FOUND_ORDER.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("[주문 취소] 주문자가 주문 취소 실패 - 본인이 주문한 내역이 아니면 권한 없음")
+    void orderCancelTest_2() {
+        // given
+        Order order = getDataOrder();
+        order = order.toBuilder()
+                .orderStatus(OrderStatus.PAYMENT_COMPLETED)
+                .price(price)
+                .totalPrice(price.add(deliveryPrice))
+                .build();
+
+        OrderCancelRequest request = OrderCancelRequest.builder()
+                .cancelReason("단순 변심")
+                .build();
+
+        when(orderRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(order));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            this.orderService.cancelOrder(orderId, request, this.getDataMember2());
+        });
+
+        //then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("[주문 취소] 주문자가 주문 취소 실패 - 결제완료, 배송 준비 상태가 아닌 상태이면 취소 불가")
+    void orderCancelTest_3() {
+        // given
+        Order order = getDataOrder();
+        order = order.toBuilder()
+                .orderStatus(OrderStatus.SHIPPED)
+                .price(price)
+                .totalPrice(price.add(deliveryPrice))
+                .build();
+
+        OrderCancelRequest request = OrderCancelRequest.builder()
+                .cancelReason("단순 변심")
+                .build();
+
+        when(orderRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(order));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () -> {
+            this.orderService.cancelOrder(orderId, request, this.getDataMember());
+        });
+
+        //then
+        assertEquals(HttpResponse.Fail.ORDER_CANCEL_FAIL.getStatus(), exception.getStatus());
+        assertEquals(HttpResponse.Fail.ORDER_CANCEL_FAIL.getMessage(), exception.getMessage());
+    }
 
     private Optional<OrderDetail> getOneOrderDetail() {
         return Optional.of(this.getDataOrderDetail());
