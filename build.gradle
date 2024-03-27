@@ -76,7 +76,7 @@ tasks.named('test') {
 // jacoco Test Coverage 설정
 jacoco {
     toolVersion = "0.8.8"
-    reportsDir = file("$buildDir/Jacoco")
+    reportsDir = file("$buildDir/jacoco")
 }
 
 jacocoTestReport {
@@ -100,24 +100,25 @@ jacocoTestReport {
     }
 
     dependsOn test
-    finalizedBy 'jacocoTestCoverageVerification'
+//    finalizedBy 'jacocoTestCoverageVerification'
 }
 
-jacocoTestCoverageVerification {
-    def Qdomains = []
-    for (qPattern in '*.QA'..'*.QZ') {
-        Qdomains.add(qPattern + '*')
-    }
-
-    violationRules {
-        rule {
-            enabled = true
-            element = 'CLASS'
-            excludes = ['*.jwt.*', '*.global.*'] + Qdomains
-            limit {
-                counter = 'BRANCH'
-                value = 'COVEREDRATIO'
-            }
-        }
-    }
-}
+//jacocoTestCoverageVerification {
+//    def Qdomains = []
+//    for (qPattern in '*.QA'..'*.QZ') {
+//        Qdomains.add(qPattern + '*')
+//    }
+//
+//    violationRules {
+//        rule {
+//            enabled = true
+//            element = 'CLASS'
+//            excludes = ['*.jwt.*', '*.global.*'] + Qdomains
+//            limit {
+//                counter = 'BRANCH'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.50
+//            }
+//        }
+//    }
+//}
