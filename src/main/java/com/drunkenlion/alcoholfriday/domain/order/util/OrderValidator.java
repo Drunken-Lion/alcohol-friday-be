@@ -25,4 +25,10 @@ public class OrderValidator {
             throw new BusinessException(HttpResponse.Fail.ORDER_CANCEL_FAIL);
         }
     }
+
+    public static void checkOrderStatusAbleCancelComplete(Order order) {
+        if (!order.getOrderStatus().equals(OrderStatus.CANCELLED)) {
+            throw new BusinessException(HttpResponse.Fail.ORDER_CANCEL_COMPLETE_FAIL);
+        }
+    }
 }

@@ -8,4 +8,5 @@ public interface PaymentService {
     void validatePaymentAmount(String orderNo, BigDecimal amount);
     void saveSuccessPayment(TossPaymentsReq tossPaymentsReq);
     void deletedCartItems(String orderNo);
+    void saveCancelSuccessPayment(TossPaymentsReq tossPaymentsReq);
 }

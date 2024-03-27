@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.payment.api;
 
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelCompleteRequest;
 import com.drunkenlion.alcoholfriday.domain.payment.application.PaymentService;
 import com.drunkenlion.alcoholfriday.domain.payment.dto.request.TossPaymentsReq;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
@@ -99,6 +100,52 @@ public class PaymentController {
         if (isSuccess) {
             paymentService.saveSuccessPayment(TossPaymentsReq.of(orderNo, paymentKey, jsonObject));
             if (!direct) paymentService.deletedCartItems(orderNo); // 장바구니 구매 시
+        }
+
+        return ResponseEntity.status(code).body(jsonObject);
+    }
+
+    @Operation(summary = "결제 취소 (관리자)",
+            description = "OrderStatus에서 주문 취소 중일 경우 주문 취소 완료 가능")
+    @PostMapping("cancel")
+    public ResponseEntity<JSONObject> cancelPayment(
+            @RequestBody OrderCancelCompleteRequest orderCancelCompleteRequest,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) throws Exception{
+
+        JSONParser parser = new JSONParser();
+        JSONObject obj = new JSONObject();
+        obj.put("cancelReason", orderCancelCompleteRequest.getCancelReason());
+
+        String widgetSecretKey = tossPaymentsWidgetSecretKey;
+        Base64.Encoder encoder = Base64.getEncoder();
+        byte[] encodedBytes = encoder.encode((widgetSecretKey + ":").getBytes("UTF-8"));
+        String authorizations = "Basic " + new String(encodedBytes, 0, encodedBytes.length);
+
+        URL url = new URL("https://api.tosspayments.com/v1/payments/" + orderCancelCompleteRequest.getPaymentKey() + "/cancel");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestProperty("Authorization", authorizations);
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(obj.toString().getBytes("UTF-8"));
+
+        int code = connection.getResponseCode();
+        boolean isSuccess = code == 200 ? true : false;
+
+        InputStream responseStream = isSuccess ? connection.getInputStream() : connection.getErrorStream();
+
+        Reader reader = new InputStreamReader(responseStream, StandardCharsets.UTF_8);
+        JSONObject jsonObject = (JSONObject) parser.parse(reader);
+        responseStream.close();
+
+        // 결제 취소 성공 시
+        if (isSuccess) {
+            paymentService.saveCancelSuccessPayment(
+                    TossPaymentsReq.of(orderCancelCompleteRequest.getOrderNo(), orderCancelCompleteRequest.getPaymentKey(), jsonObject)
+            );
         }
 
         return ResponseEntity.status(code).body(jsonObject);

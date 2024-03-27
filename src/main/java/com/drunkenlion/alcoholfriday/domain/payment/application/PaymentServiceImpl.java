@@ -6,12 +6,14 @@ import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
+import com.drunkenlion.alcoholfriday.domain.order.util.OrderValidator;
 import com.drunkenlion.alcoholfriday.domain.payment.dao.PaymentRepository;
 import com.drunkenlion.alcoholfriday.domain.payment.dto.request.TossPaymentsReq;
 import com.drunkenlion.alcoholfriday.domain.payment.entity.Payment;
 import com.drunkenlion.alcoholfriday.domain.payment.util.PaymentValidator;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.common.util.RoleValidator;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -73,5 +75,28 @@ public class PaymentServiceImpl implements PaymentService {
                 .toList();
 
         cartService.deleteCartList(deleteCartRequests, order.getMember());
+    }
+
+    /**
+     * 결제 취소 성공 시 Payment 저장
+     */
+    @Override
+    @Transactional
+    public void saveCancelSuccessPayment(TossPaymentsReq tossPaymentsReq) {
+        Order order = orderService.getOrder(tossPaymentsReq.getOrderNo());
+
+        Member member = memberRepository.findByEmail(order.getMember().getEmail())
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_MEMBER)
+                        .build());
+
+        RoleValidator.validateAdminOrStoreManager(member);
+        OrderValidator.checkOrderStatusAbleCancelComplete(order);
+
+        // Order 상태 취소 완료로 변경
+        order.updateOrderStatus(OrderStatus.CANCEL_COMPLETED);
+
+        Payment payment = TossPaymentsReq.toEntity(tossPaymentsReq, member, order);
+        paymentRepository.save(payment);
     }
 }
