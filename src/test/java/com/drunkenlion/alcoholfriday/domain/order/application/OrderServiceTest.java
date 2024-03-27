@@ -24,6 +24,7 @@ import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -131,6 +132,7 @@ class OrderServiceTest {
             + 1;
     private OrderStatus orderStatus = OrderStatus.ORDER_RECEIVED;
     private BigDecimal deliveryPrice = BigDecimal.valueOf(2500);
+    private BigDecimal totalPrice = BigDecimal.valueOf(100000);
     private String recipient = "홍길동";
     private String address = "서울특별시 중구 세종대로 110(태평로1가)";
     private String addressDetail = "서울특별시청 103호";
@@ -394,6 +396,36 @@ class OrderServiceTest {
         assertEquals(HttpResponse.Fail.FORBIDDEN.getMessage(), exception.getMessage());
     }
 
+    @Test
+    @DisplayName("orderNo로 Order 객체 조회")
+    void getOrder() {
+        // given
+        // orderRepository.findByOrderNo(orderNo)
+        when(orderRepository.findByOrderNo(orderNo)).thenReturn(getOneOrder());
+
+        // when
+        Order order = orderService.getOrder(orderNo);
+
+        // then
+        assertThat(order.getOrderNo()).isEqualTo(orderNo);
+        assertThat(order.getAddress()).isEqualTo(address);
+        assertThat(order.getAddressDetail()).isEqualTo(addressDetail);
+        assertThat(order.getTotalPrice()).isEqualTo(totalItemPrice);
+    }
+
+    @Test
+    @DisplayName("orderNo로 Order 객체 조회 - 주문번호에 해당하는 주문이 없는 경우")
+    void getOrder_notOrderNo() {
+        // given
+        // orderRepository.findByOrderNo(orderNo)
+        when(orderRepository.findByOrderNo(orderNo)).thenReturn(Optional.empty());
+
+        // when & then
+        Assertions.assertThrows(BusinessException.class, () -> {
+            orderService.getOrder(orderNo);
+        } );
+    }
+
 
     private Optional<OrderDetail> getOneOrderDetail() {
         return Optional.of(this.getDataOrderDetail());
@@ -446,11 +478,13 @@ class OrderServiceTest {
     }
 
     private Order getDataOrder() {
-        Order order = Order.builder()
+        return Order.builder()
                 .id(orderId)
                 .orderNo(orderNo)
-                .orderStatus(orderStatus)
+                .orderStatus(orderStatus) // 주문 접수
+                .price(price)
                 .deliveryPrice(deliveryPrice)
+                .totalPrice(totalPrice)
                 .recipient(recipient)
                 .phone(phone)
                 .address(address)
@@ -460,8 +494,6 @@ class OrderServiceTest {
                 .createdAt(LocalDateTime.now())
                 .member(this.getDataMember())
                 .build();
-
-        return order;
     }
 
     private Optional<Member> getOneMember() {

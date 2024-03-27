@@ -64,6 +64,10 @@ public enum PaymentStatus {
     }
 
     public static PaymentStatus ofStatus(String status) {
+        if (status == null) {
+            return null;
+        }
+
         return Arrays.stream(PaymentStatus.values())
                 .filter(value -> value.status.equals(status))
                 .findFirst()
