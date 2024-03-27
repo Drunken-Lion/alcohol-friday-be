@@ -70,10 +70,10 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
-    finalizedBy jacocoTestReport // 테스트 종료 후 jacocoTestReport 생성
+    finalizedBy jacocoTestReport
 }
 
-// jacoco Test Coverage
+// jacoco Test Coverage 설정
 jacoco {
     toolVersion = "0.8.8"
     reportsDir = file("$buildDir/Jacoco")
@@ -99,8 +99,8 @@ jacocoTestReport {
         )
     }
 
-    dependsOn test // test 성공해야 jacocoTestReport 실행
-    finalizedBy 'jacocoTestCoverageVerification' // jacocoTestReport 실행 후 CoverageVerification 실행
+    dependsOn test
+    finalizedBy 'jacocoTestCoverageVerification'
 }
 
 jacocoTestCoverageVerification {
@@ -112,12 +112,11 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             enabled = true
-            element = 'CLASS' // 커버리지 체크 기준 (BUNDLE(default), PACKAGE, CLASS, SOURCEFILE, METHOD)
+            element = 'CLASS'
             excludes = ['*.jwt.*', '*.global.*'] + Qdomains
             limit {
-                counter = 'BRANCH' // 커버리지 측정 기준 (line, branch, method, class, instruction(default), complexity)
+                counter = 'BRANCH'
                 value = 'COVEREDRATIO'
-//                minimum = 0.50
             }
         }
     }
