@@ -31,6 +31,10 @@ public enum PaymentOwnerType {
     }
 
     public static PaymentOwnerType ofOwnerType(String ownerType) {
+        if (ownerType == null) {
+            return null;
+        }
+
         return Arrays.stream(PaymentOwnerType.values())
                 .filter(value -> value.ownerType.equals(ownerType))
                 .findFirst()
