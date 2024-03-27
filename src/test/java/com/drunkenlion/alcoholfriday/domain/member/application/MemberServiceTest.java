@@ -23,7 +23,6 @@ import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.review.dao.ReviewRepository;
-import com.drunkenlion.alcoholfriday.domain.review.dto.response.ReviewResponse;
 import com.drunkenlion.alcoholfriday.domain.review.entity.Review;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
@@ -46,7 +45,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -98,7 +98,7 @@ public class MemberServiceTest {
 
     private final Long orderId = 1L;
     private final String orderNo = "order_" + orderId;
-    private final String orderStatus = OrderStatus.PAYMENT_COMPLETED.name();
+    private final OrderStatus orderStatus = OrderStatus.PAYMENT_COMPLETED;
     private final BigDecimal orderPrice = BigDecimal.valueOf(100000);
     private final BigDecimal deliveryPrice = BigDecimal.valueOf(3000);
     private final BigDecimal orderTotalPrice = orderPrice.add(deliveryPrice);
@@ -326,7 +326,7 @@ public class MemberServiceTest {
                         .id(orderId)
                         .member(this.getMemberData())
                         .orderNo(orderNo)
-                        .orderStatus(OrderStatus.valueOf(orderStatus))
+                        .orderStatus(orderStatus)
                         .price(orderPrice)
                         .deliveryPrice(deliveryPrice)
                         .totalPrice(orderTotalPrice)

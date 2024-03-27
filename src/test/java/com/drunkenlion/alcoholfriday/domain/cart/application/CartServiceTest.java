@@ -3,10 +3,10 @@ package com.drunkenlion.alcoholfriday.domain.cart.application;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.cart.dao.CartRepository;
-import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartDetailResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.request.CartRequest;
-import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.dto.request.DeleteCartRequest;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartDetailResponse;
+import com.drunkenlion.alcoholfriday.domain.cart.dto.response.CartResponse;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.Cart;
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
@@ -17,6 +17,7 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.ItemProduct;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -379,8 +380,6 @@ class CartServiceTest {
 
         when(itemRepository.findById(cartRequest.getItemId())).thenReturn(getOneItem());
 
-        when(cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getOneCartDetail());
-
         doNothing().when(cartDetailRepository).deleteByItemAndCart(getDataItem(), cart);
 
         // when
@@ -424,9 +423,6 @@ class CartServiceTest {
 
         when(itemRepository.findById(cartRequest.getItemId())).thenReturn(getOneItem());
         when(itemRepository.findById(cartRequest2.getItemId())).thenReturn(getOneItem2());
-
-        when(cartDetailRepository.findByItemAndCart(item, cart)).thenReturn(getOneCartDetail());
-        when(cartDetailRepository.findByItemAndCart(item2, cart)).thenReturn(getOneCartDetail2());
 
         doNothing().when(cartDetailRepository).deleteByItemAndCart(getDataItem(), cart);
         doNothing().when(cartDetailRepository).deleteByItemAndCart(getDataItem2(), cart);
@@ -473,6 +469,36 @@ class CartServiceTest {
         Assertions.assertThrows(BusinessException.class, () -> {
             cartService.deleteCart(cartRequest, makeCart);
         });
+    }
+
+    @Test
+    @DisplayName("회원의 장바구니 조회 - 성공")
+    void getCart_success() {
+        // given
+        when(cartService.addFirstCart(getDataMember())).thenReturn(getOneCart());
+
+        // when
+        Cart cartResponse = cartService.getCart(getDataMember());
+
+        // then
+        assertThat(cartResponse.getId()).isEqualTo(cartId);
+        assertThat(cartResponse.getMember()).isEqualTo(getDataMember());
+    }
+
+    @Test
+    @DisplayName("회원의 장바구니 조회 - 실패")
+    void getCart_fail() {
+        // given
+        when(cartService.addFirstCart(getDataMember())).thenReturn(Optional.empty());
+
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            cartService.getCart(getDataMember());
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.NOT_FOUND_CART.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.NOT_FOUND_CART.getMessage());
     }
 
 
