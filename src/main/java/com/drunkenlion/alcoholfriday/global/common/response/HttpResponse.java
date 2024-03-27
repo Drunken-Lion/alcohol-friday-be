@@ -35,6 +35,10 @@ public class HttpResponse {
         OUT_OF_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "현재 제품에 재고보다 많은 양을 추가할 수 없습니다."),
         INVALID_INPUT_PRODUCT_QUANTITY(HttpStatus.BAD_REQUEST, "제품 수량은 0 이상이어야 입니다."),
         MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "필수 파라미터가 누락되었습니다."),
+        STOCK_NOT_NEGATIVE(HttpStatus.BAD_REQUEST, "재고 수량은 0보다 적을 수 없습니다."),
+        PRICE_NOT_NEGATIVE(HttpStatus.BAD_REQUEST, "가격은 0보다 적을 수 없습니다."),
+        PRICE_AND_STOCK_NOT_NEGATIVE(HttpStatus.BAD_REQUEST, "가격과 수량은 0보다 적을 수 없습니다."),
+        PAYMENT_CANCEL_FAIL(HttpStatus.BAD_REQUEST, "결제 취소에 실패하였습니다."),
 
         // 401
         UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 접근입니다."),
@@ -47,6 +51,7 @@ public class HttpResponse {
         // 403
         FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없는 접근입니다."),
         DEACTIVATE_USER(HttpStatus.FORBIDDEN, "비활성화 상태 계정입니다."),
+        STOCK_ADDITION_FORBIDDEN(HttpStatus.FORBIDDEN, "재고에 대한 수량 추가 권한이 없습니다."),
 
         // 404
         NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 리소스입니다."),
@@ -87,6 +92,7 @@ public class HttpResponse {
         NOT_FOUND_RESTAURANT_ORDER_DETAIL(HttpStatus.NOT_FOUND, "발주 상세 내역이 존재하지 않습니다. 확인 후 다시 시도해 주세요."),
         NOT_FOUND_RESTAURANT_STOCK(HttpStatus.NOT_FOUND, "레스토랑 재고가 존재하지 않습니다."),
         NOT_FOUND_RESTAURANT_ORDER(HttpStatus.NOT_FOUND, "상태 변경 가능한 발주 건이 없습니다."),
+        NOT_FOUND_STOCK_IN_RESTAURANT(HttpStatus.NOT_FOUND, "재고 항목이 해당 매장에 속하지 않습니다."),
 
         // 405
         METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP METHOD 입니다."),
@@ -109,6 +115,9 @@ public class HttpResponse {
         RESTAURANT_REFUND_APPROVAL_FAIL(HttpStatus.CONFLICT, "매장 환불 승인 조건에 부합하지 않습니다."),
         RESTAURANT_REFUND_COMPLETE_FAIL(HttpStatus.CONFLICT, "매장 환불 완료 조건에 부합하지 않습니다."),
         RESTAURANT_REFUND_REJECT_FAIL(HttpStatus.CONFLICT, "매장 환불 반려 조건에 부합하지 않습니다."),
+        ORDER_CANCEL_FAIL(HttpStatus.CONFLICT, "주문 취소 조건에 부합하지 않습니다."),
+        ORDER_CANCEL_COMPLETE_FAIL(HttpStatus.CONFLICT, "주문 취소 완료 조건에 부합하지 않습니다."),
+        EXIST_DELETED_DATA(HttpStatus.CONFLICT, "삭제된 필요 데이터가 하나 이상입니다."),
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");

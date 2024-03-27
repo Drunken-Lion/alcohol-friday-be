@@ -1,6 +1,8 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantStockModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockModifyResponse;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.category.entity.Category;
 import com.drunkenlion.alcoholfriday.domain.category.entity.CategoryClass;
@@ -16,6 +18,8 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Day
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.Provision;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.enumerated.TimeOption;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
+import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
+import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +40,8 @@ import java.time.LocalTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -66,6 +72,10 @@ public class AdminRestaurantStockServiceTest {
     private Long stockId2 = 2L;
     private Long stockQuantity = 100L;
     private BigDecimal stockPrice = BigDecimal.valueOf(20000);
+
+    private Long modifyStockId = 1L;
+    private BigDecimal modifyPrice = BigDecimal.valueOf(20000);
+    private Long modifyQuantity = 80L;
 
     private final LocalDateTime createdAt = LocalDateTime.now();
     private final int page = 0;
@@ -103,6 +113,233 @@ public class AdminRestaurantStockServiceTest {
         assertThat(content.get(1).getFile()).isEqualTo(null);
     }
 
+    @Test
+    @DisplayName("매장 재고 수정 성공 (Admin)")
+    public void adminModifyRestaurantStocksTest() {
+        // given
+        RestaurantStockModifyRequest modifyRequest =
+                RestaurantStockModifyRequest.builder()
+                        .id(modifyStockId)
+                        .price(modifyPrice)
+                        .quantity(modifyQuantity)
+                        .build();
+
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(getRestaurant()));
+
+        when(restaurantStockRepository.findByIdAndDeletedAtIsNull(any()))
+                .thenReturn(Optional.of(getRestaurantStock1()));
+
+        when(restaurantStockRepository.save(any(RestaurantStock.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        RestaurantStockModifyResponse stock =
+                adminRestaurantStockService.modifyRestaurantStock(getRestaurant().getId(), getAdmin(), modifyRequest);
+
+        // then
+        assertThat(stock).isInstanceOf(RestaurantStockModifyResponse.class);
+        assertThat(stock.getId()).isEqualTo(modifyStockId);
+        assertThat(stock.getName()).isEqualTo(productName1);
+        assertThat(stock.getPrice()).isEqualTo(modifyPrice);
+        assertThat(stock.getQuantity()).isEqualTo(modifyQuantity);
+    }
+
+    @Test
+    @DisplayName("매장 재고 수정 실패 (Admin) - 가격과 재고 수량을 음수로 수정 요청을 보낼 때")
+    public void adminModifyRestaurantStocksNegativePriceAndQuantityTest() {
+        // given
+        RestaurantStockModifyRequest modifyRequest =
+                RestaurantStockModifyRequest.builder()
+                        .id(modifyStockId)
+                        .price(BigDecimal.valueOf(-20000))
+                        .quantity(-5L)
+                        .build();
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(getRestaurant()));
+
+        when(restaurantStockRepository.findByIdAndDeletedAtIsNull(any()))
+                .thenReturn(Optional.of(getRestaurantStock1()));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () ->
+                adminRestaurantStockService.modifyRestaurantStock(getRestaurant().getId(), getAdmin(), modifyRequest)
+        );
+
+        // then
+        assertEquals(HttpResponse.Fail.PRICE_AND_STOCK_NOT_NEGATIVE.getStatus(), exception.getStatus());
+    }
+
+    @Test
+    @DisplayName("매장 재고 수정 실패 (Admin) - 재고 수량을 음수로 수정 요청을 보낼 때")
+    public void adminModifyRestaurantStocksNegativeQuantityTest() {
+        // given
+        RestaurantStockModifyRequest modifyRequest =
+                RestaurantStockModifyRequest.builder()
+                        .id(modifyStockId)
+                        .price(modifyPrice)
+                        .quantity(-5L)
+                        .build();
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(getRestaurant()));
+
+        when(restaurantStockRepository.findByIdAndDeletedAtIsNull(any()))
+                .thenReturn(Optional.of(getRestaurantStock1()));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () ->
+                adminRestaurantStockService.modifyRestaurantStock(getRestaurant().getId(), getAdmin(), modifyRequest)
+        );
+
+        // then
+        assertEquals(HttpResponse.Fail.STOCK_NOT_NEGATIVE.getStatus(), exception.getStatus());
+    }
+
+    @Test
+    @DisplayName("매장 재고 수정 실패 (Admin) - 가격을 음수로 수정 요청을 보낼 때")
+    public void adminModifyRestaurantStocksTest_negativePrice() {
+        // given
+        RestaurantStockModifyRequest modifyRequest =
+                RestaurantStockModifyRequest.builder()
+                        .id(modifyStockId)
+                        .price(BigDecimal.valueOf(-20000))
+                        .quantity(modifyQuantity)
+                        .build();
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(getRestaurant()));
+
+        when(restaurantStockRepository.findByIdAndDeletedAtIsNull(any()))
+                .thenReturn(Optional.of(getRestaurantStock1()));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () ->
+                adminRestaurantStockService.modifyRestaurantStock(getRestaurant().getId(), getAdmin(), modifyRequest)
+        );
+
+        // then
+        assertEquals(HttpResponse.Fail.PRICE_NOT_NEGATIVE.getStatus(), exception.getStatus());
+    }
+
+    @Test
+    @DisplayName("매장 재고 수정 성공 (Owner)")
+    public void ownerModifyRestaurantStocksTest() {
+        // given
+        RestaurantStockModifyRequest modifyRequest =
+                RestaurantStockModifyRequest.builder()
+                        .id(modifyStockId)
+                        .price(modifyPrice)
+                        .quantity(modifyQuantity)
+                        .build();
+
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(getRestaurant()));
+
+        when(restaurantStockRepository.findByIdAndDeletedAtIsNull(any()))
+                .thenReturn(Optional.of(getRestaurantStock1()));
+
+        when(restaurantStockRepository.save(any(RestaurantStock.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        RestaurantStockModifyResponse stock =
+                adminRestaurantStockService.modifyRestaurantStock(getRestaurant().getId(), getOwner1(), modifyRequest);
+
+        // then
+        assertThat(stock).isInstanceOf(RestaurantStockModifyResponse.class);
+        assertThat(stock.getId()).isEqualTo(modifyStockId);
+        assertThat(stock.getName()).isEqualTo(productName1);
+        assertThat(stock.getPrice()).isEqualTo(modifyPrice);
+        assertThat(stock.getQuantity()).isEqualTo(modifyQuantity);
+    }
+
+    @Test
+    @DisplayName("매장 재고 수정 실패 (Owner) - Owner 권한이 타인 소유 매장에 접근할 때")
+    public void ownerModifyRestaurantStocksTest_noOwnership() {
+        // given
+        RestaurantStockModifyRequest modifyRequest =
+                RestaurantStockModifyRequest.builder()
+                        .id(modifyStockId)
+                        .price(modifyPrice)
+                        .quantity(modifyQuantity)
+                        .build();
+
+        Restaurant restaurant = Restaurant.builder()
+                .id(2L)
+                .member(getOwner2())
+                .build();
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(restaurant));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () ->
+                adminRestaurantStockService.modifyRestaurantStock(restaurant.getId(), getOwner1(), modifyRequest)
+        );
+
+        // then
+        assertEquals(HttpResponse.Fail.FORBIDDEN.getStatus(), exception.getStatus());
+    }
+
+    @Test
+    @DisplayName("매장 재고 수정 실패 (Owner) - Owner 권한이 재고 수량을 추가했을 때")
+    public void ownerModifyRestaurantStocksTest_stockPlus() {
+        // given
+        RestaurantStockModifyRequest modifyRequest =
+                RestaurantStockModifyRequest.builder()
+                        .id(modifyStockId)
+                        .price(modifyPrice)
+                        .quantity(130L)
+                        .build();
+
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(getRestaurant()));
+
+        when(restaurantStockRepository.findByIdAndDeletedAtIsNull(any()))
+                .thenReturn(Optional.of(getRestaurantStock1()));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () ->
+                adminRestaurantStockService.modifyRestaurantStock(getRestaurant().getId(), getOwner1(), modifyRequest)
+        );
+
+        // then
+        assertEquals(HttpResponse.Fail.STOCK_ADDITION_FORBIDDEN.getStatus(), exception.getStatus());
+    }
+
+    @Test
+    @DisplayName("매장 재고 수정 실패 (Owner) - 매장에 해당 재고가 속하지 않을 때")
+    public void ownerModifyRestaurantStocksTest_notFoundStockInRestaurant() {
+        // given
+        RestaurantStockModifyRequest modifyRequest =
+                RestaurantStockModifyRequest.builder()
+                        .id(3L)
+                        .price(modifyPrice)
+                        .quantity(modifyQuantity)
+                        .build();
+
+        Restaurant restaurant = Restaurant.builder()
+                .id(2L)
+                .member(getOwner2())
+                .build();
+
+        RestaurantStock restaurantStock = RestaurantStock.builder()
+                .id(3L)
+                .restaurant(restaurant)
+                .build();
+
+        when(restaurantRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(getRestaurant()));
+
+        when(restaurantStockRepository.findByIdAndDeletedAtIsNull(any()))
+                .thenReturn(Optional.of(restaurantStock));
+
+        // when
+        BusinessException exception = assertThrows(BusinessException.class, () ->
+                adminRestaurantStockService.modifyRestaurantStock(getRestaurant().getId(), getOwner1(), modifyRequest)
+        );
+
+        // then
+        assertEquals(HttpResponse.Fail.NOT_FOUND_STOCK_IN_RESTAURANT.getStatus(), exception.getStatus());
+    }
+
     private Page<RestaurantStock> getRestaurantStockPages() {
         Pageable pageable = PageRequest.of(page, size);
         return new PageImpl<>(getRestaurantStocks(), pageable, getRestaurantStocks().size());
@@ -125,8 +362,42 @@ public class AdminRestaurantStockServiceTest {
                 .build();
     }
 
+    private Member getOwner1() {
+        return Member.builder()
+                .id(2L)
+                .email("owner1@test.com")
+                .provider(ProviderType.KAKAO)
+                .name("owner1")
+                .nickname("owner1")
+                .role(MemberRole.OWNER)
+                .phone(1012345678L)
+                .certifyAt(LocalDate.now())
+                .agreedToServiceUse(true)
+                .agreedToServicePolicy(true)
+                .agreedToServicePolicyUse(true)
+                .createdAt(createdAt)
+                .build();
+    }
+
+    private Member getOwner2() {
+        return Member.builder()
+                .id(3L)
+                .email("owner2@test.com")
+                .provider(ProviderType.KAKAO)
+                .name("owner2")
+                .nickname("owner2")
+                .role(MemberRole.OWNER)
+                .phone(1012345678L)
+                .certifyAt(LocalDate.now())
+                .agreedToServiceUse(true)
+                .agreedToServicePolicy(true)
+                .agreedToServicePolicyUse(true)
+                .createdAt(createdAt)
+                .build();
+    }
+
     private Restaurant getRestaurant() {
-        Member owner = getAdmin();
+        Member owner = getOwner1();
 
         return Restaurant.builder()
                 .id(1L)

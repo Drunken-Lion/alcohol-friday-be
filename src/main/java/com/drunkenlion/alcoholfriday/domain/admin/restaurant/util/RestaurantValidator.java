@@ -13,7 +13,7 @@ import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
 public class RestaurantValidator {
 
     public static void compareEntityMemberToMember(RestaurantOrder order, Member member) {
-        if (!order.getMember().getId().equals(member.getId())) {
+        if (!order.getMember().equals(member)) {
             throw new BusinessException(Fail.FORBIDDEN);
         }
     }
@@ -39,7 +39,7 @@ public class RestaurantValidator {
     }
 
     public static void validateOwnership(Member member, Restaurant restaurant) {
-        if (!restaurant.getMember().getId().equals(member.getId())) {
+        if (!restaurant.getMember().equals(member)) {
             throw new BusinessException(Fail.FORBIDDEN);
         }
     }

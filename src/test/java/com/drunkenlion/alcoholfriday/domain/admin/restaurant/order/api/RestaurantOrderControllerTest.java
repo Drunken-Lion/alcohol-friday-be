@@ -320,8 +320,17 @@ public class RestaurantOrderControllerTest {
 
     @AfterEach
     void afterEach() {
+        memberRepository.deleteAll();
+        restaurantRepository.deleteAll();
+        productRepository.deleteAll();
+        categoryClassRepository.deleteAll();
+        categoryRepository.deleteAll();
+        makerRepository.deleteAll();
+        restaurantStockRepository.deleteAll();
         restaurantOrderRepository.deleteAll();
+        restaurantOrderDetailRepository.deleteAll();
         restaurantOrderRefundRepository.deleteAll();
+        restaurantOrderRefundDetailRepository.deleteAll();
     }
 
     @Test
