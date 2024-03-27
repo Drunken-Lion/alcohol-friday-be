@@ -1,5 +1,6 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.api;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantStockModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
 import com.drunkenlion.alcoholfriday.domain.member.dao.MemberRepository;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
@@ -17,6 +18,7 @@ import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.vo.TimeData;
 import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +37,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
@@ -45,6 +48,7 @@ import java.util.stream.LongStream;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -73,6 +77,9 @@ public class AdminRestaurantStockControllerTest {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private EntityManager em;
 
     private Map<String, Object> getMenuTest() {
         Map<String, Object> frame = new LinkedHashMap<>();
@@ -112,31 +119,36 @@ public class AdminRestaurantStockControllerTest {
         return frame;
     }
 
+    private static final String OWNER = "owner1@test.com";
+    private static final String ADMIN = "admin1@test.com";
+    private static final String STORE_MANAGER = "storeManager1@test.com";
+
     @BeforeEach
     @Transactional
     void beforeEach() throws IOException {
-        Member member = Member.builder()
-                .email("member@example.com")
-                .provider(ProviderType.KAKAO)
-                .name("테스트")
-                .nickname("test")
-                .role(MemberRole.OWNER)
-                .phone(1012345678L)
-                .certifyAt(null)
-                .agreedToServiceUse(true)
-                .agreedToServicePolicy(true)
-                .agreedToServicePolicyUse(true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(null)
-                .deletedAt(null)
-                .build();
+        em.createNativeQuery("ALTER TABLE restaurant_stock AUTO_INCREMENT = 1").executeUpdate();
 
-        memberRepository.save(member);
+        Member owner = memberRepository.findByEmail(OWNER)
+                .orElseGet(() -> memberRepository.save(Member.builder()
+                        .email(OWNER)
+                        .provider(ProviderType.KAKAO)
+                        .name("owner1")
+                        .nickname("owner1")
+                        .role(MemberRole.OWNER)
+                        .phone(1012345678L)
+                        .certifyAt(null)
+                        .agreedToServiceUse(true)
+                        .agreedToServicePolicy(true)
+                        .agreedToServicePolicyUse(true)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(null)
+                        .deletedAt(null)
+                        .build()));
 
         final Coordinate coordinate = new Coordinate(126.984634, 37.569833);
         Point restaurant_location = geometryFactory.createPoint(coordinate);
         Restaurant restaurant = Restaurant.builder()
-                .member(member)
+                .member(owner)
                 .category("한식")
                 .name("맛있는 한식당")
                 .address("서울시 강남구")
@@ -164,16 +176,20 @@ public class AdminRestaurantStockControllerTest {
             return product;
         }).toList();
 
-        List<RestaurantStock> restaurantStocks = products.stream().map(product -> {
-            return RestaurantStock.builder()
-                    .product(product)
-                    .restaurant(restaurant)
-                    .quantity(100L)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-        }).collect(Collectors.toList());
+        List<RestaurantStock> restaurantStocks = products.stream().map(product ->
+                RestaurantStock.builder()
+                        .product(product)
+                        .restaurant(restaurant)
+                        .quantity(100L)
+                        .createdAt(LocalDateTime.now())
+                        .build()
+        ).collect(Collectors.toList());
 
         restaurantStockRepository.saveAll(restaurantStocks);
+
+        for (RestaurantStock restaurantStock : restaurantStocks) {
+            System.out.println("restaurantStock = " + restaurantStock.getId());
+        }
     }
 
     @AfterEach
@@ -187,7 +203,7 @@ public class AdminRestaurantStockControllerTest {
 
     @Test
     @DisplayName("레스토랑 재고 조회")
-    @WithAccount(email = "admin@test.com", role = MemberRole.ADMIN)
+    @WithAccount(email = ADMIN, role = MemberRole.ADMIN)
     void getRestaurantStocksTest() throws Exception {
         // given
         Restaurant restaurant = this.restaurantRepository.findAll().get(0);
@@ -215,5 +231,37 @@ public class AdminRestaurantStockControllerTest {
                 .andExpect(jsonPath("$.data[1].price", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.data[1].quantity", instanceOf(Number.class)))
                 .andExpect(jsonPath("$.data[1].file", notNullValue()));
+    }
+
+    @Test
+    @DisplayName("레스토랑 재고 수정")
+    @WithAccount(email = ADMIN, role = MemberRole.ADMIN)
+    void modifyRestaurantStockTest() throws Exception {
+        // given
+        Restaurant restaurant = this.restaurantRepository.findAll().get(0);
+
+        RestaurantStockModifyRequest modifyRequest = RestaurantStockModifyRequest.builder()
+                .id(1L)
+                .price(BigDecimal.valueOf(20000))
+                .quantity(50L)
+                .build();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/admin/restaurants/" + restaurant.getId() + "/stocks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonConvertor.build(modifyRequest)))
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(AdminRestaurantStockController.class))
+                .andExpect(handler().methodName("modifyRestaurantStock"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.name", notNullValue()))
+                .andExpect(jsonPath("$.price", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.quantity", instanceOf(Number.class)));
     }
 }

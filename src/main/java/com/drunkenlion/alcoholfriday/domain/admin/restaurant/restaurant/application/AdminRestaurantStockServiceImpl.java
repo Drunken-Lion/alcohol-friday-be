@@ -1,6 +1,9 @@
 package com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.application;
 
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.request.RestaurantStockModifyRequest;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockListResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.dto.response.RestaurantStockModifyResponse;
+import com.drunkenlion.alcoholfriday.domain.admin.restaurant.restaurant.util.RestaurantStockValidator;
 import com.drunkenlion.alcoholfriday.domain.admin.restaurant.util.RestaurantValidator;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
@@ -39,5 +42,34 @@ public class AdminRestaurantStockServiceImpl implements AdminRestaurantStockServ
         Page<RestaurantStock> stockPages = restaurantStockRepository.findRestaurantStocks(member, restaurant, pageable);
 
         return stockPages.map(stock -> RestaurantStockListResponse.of(stock, fileService.findOne(stock.getProduct())));
+    }
+
+    @Transactional
+    @Override
+    public RestaurantStockModifyResponse modifyRestaurantStock(Long restaurantId,
+                                                               Member member,
+                                                               RestaurantStockModifyRequest modifyRequest) {
+
+        Restaurant restaurant = restaurantRepository.findByIdAndDeletedAtIsNull(restaurantId)
+                .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT));
+
+        RestaurantStockValidator.validateOwnership(member, restaurant);
+
+        RestaurantStock restaurantStock =
+                restaurantStockRepository.findByIdAndDeletedAtIsNull(modifyRequest.getId())
+                        .orElseThrow(() -> new BusinessException(HttpResponse.Fail.NOT_FOUND_RESTAURANT_STOCK));
+
+        RestaurantStockValidator.validateStockInRestaurant(restaurantStock, restaurant);
+
+        RestaurantStockValidator.validateOwnerModifyQuantity(member, restaurantStock, modifyRequest);
+
+        RestaurantStockValidator.validateNegative(modifyRequest);
+
+        restaurantStock = restaurantStockRepository.save(restaurantStock.toBuilder()
+                .price(modifyRequest.getPrice())
+                .quantity(modifyRequest.getQuantity())
+                .build());
+
+        return RestaurantStockModifyResponse.of(restaurantStock);
     }
 }

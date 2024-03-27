@@ -4,9 +4,10 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.dto.response.RestaurantNearbyResponse;
 import com.drunkenlion.alcoholfriday.domain.restaurant.restaurant.entity.Restaurant;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface RestaurantRepositoryCustom {
     Page<Restaurant> findAllBasedAuth(Member member, Pageable pageable);
