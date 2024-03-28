@@ -36,7 +36,8 @@ public class SearchItemResponse {
     @Schema(description = "상품 총 평점 / 상품 리뷰 총 개수")
     private ItemRating itemRating;
 
-    public static Page<SearchItemResponse> of(Page<Item> items, List<NcpFileResponse> files, List<ItemRating> itemRatingList) {
+    public static Page<SearchItemResponse> of(Page<Item> items, List<NcpFileResponse> files,
+                                              List<ItemRating> itemRatingList) {
         return items.map(item -> SearchItemResponse.of(item, files, itemRatingList));
     }
 
@@ -86,5 +87,16 @@ public class SearchItemResponse {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public static SearchItemResponse of(Item item, ItemRating itemRating, NcpFileResponse files) {
+        return SearchItemResponse.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .price(item.getPrice())
+                .category(FindCategoryResponse.of(item.getCategory()))
+                .itemRating(itemRating)
+                .files(files)
+                .build();
     }
 }

@@ -34,17 +34,7 @@ public class ItemServiceImpl implements ItemService {
     public Page<SearchItemResponse> search(int page, Integer size, String keyword, List<String> categories) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Item> search = this.itemRepository.search(categories, keyword, pageable);
-
-        List<Item> searchItems = search.getContent();
-        List<NcpFileResponse> files = searchItems.stream()
-                .map(this.fileService::findAll)
-                .toList();
-
-        List<ItemRating> itemRatingList = searchItems.stream()
-                .map(this::itemRating)
-                .toList();
-
-        return SearchItemResponse.of(search, files, itemRatingList);
+        return search.map(item -> SearchItemResponse.of(item, itemRating(item), fileService.findOne(item)));
     }
 
     @Override
