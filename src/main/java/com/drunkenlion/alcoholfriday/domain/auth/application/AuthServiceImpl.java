@@ -212,6 +212,7 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> data = getCertificationsInfo(headers, accessToken, impUid);
 //        String uniqueKey = String.valueOf(data.get("unique_key")); TODO : 추후 활용하도록 구현
         String birth = String.valueOf(data.get("birth"));
+        String phone = String.valueOf(data.get("phone"));
 
         if (!isAdult(birth)) {
             throw new BusinessException(HttpResponse.Fail.NOT_ADULT);
@@ -220,6 +221,7 @@ public class AuthServiceImpl implements AuthService {
         memberRepository.save(
                 member.toBuilder()
                         .certifyAt(LocalDate.now())
+                        .phone(Long.parseLong(phone))
                         .build());
     }
 
