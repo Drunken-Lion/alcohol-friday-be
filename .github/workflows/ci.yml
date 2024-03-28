@@ -62,6 +62,7 @@ jobs:
             } else {
               // Handle non-Pull Request event
             }
+
       - name: Test Coverage Report
         id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
