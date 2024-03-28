@@ -237,6 +237,45 @@ class OrderControllerTest {
                 );
         orderDetail2.addItem(item2);
         orderDetail2.addOrder(order);
+
+        // 주문 등록2
+        Order refundOrder =
+                orderRepository.save(Order.builder()
+                        .orderNo("240314-221628-987501-2")
+                        .orderStatus(OrderStatus.SHIPPED)
+                        .price(BigDecimal.valueOf(220000L))
+                        .deliveryPrice(BigDecimal.valueOf(2500L))
+                        .totalPrice(BigDecimal.valueOf(225000L))
+                        .recipient("테스트2")
+                        .phone(1012345678L)
+                        .address("서울특별시 마포구 연남동")
+                        .addressDetail("123-123")
+                        .description("부재시 연락주세요.")
+                        .postcode("123123")
+                        .member(member)
+                        .build());
+        orderId = order.getId();
+
+        OrderDetail refundOrderDetail =
+                orderDetailRepository.save(
+                        OrderDetail.builder()
+                                .itemPrice(item.getPrice())
+                                .quantity(2L)
+                                .totalPrice(BigDecimal.valueOf(100000))
+                                .build());
+        refundOrderDetail.addItem(item);
+        refundOrderDetail.addOrder(refundOrder);
+
+        OrderDetail refundOrderDetail2 =
+                orderDetailRepository.save(
+                        OrderDetail.builder()
+                                .itemPrice(item2.getPrice())
+                                .quantity(1L)
+                                .totalPrice(BigDecimal.valueOf(20000))
+                                .build()
+                );
+        refundOrderDetail2.addItem(item2);
+        refundOrderDetail2.addOrder(refundOrder);
     }
 
     @AfterEach
@@ -527,6 +566,7 @@ class OrderControllerTest {
                 .andExpect(handler().methodName("updateOrderAddress"))
                 .andExpect(jsonPath("$.message").value("권한이 없는 접근입니다."));
     }
+
     @Test
     @DisplayName("[주문 취소] 주문자가 주문 취소 성공")
     @WithAccount
@@ -563,6 +603,47 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.postcode").value("123123"))
                 .andExpect(jsonPath("$.address").value("서울특별시 마포구 연남동"))
                 .andExpect(jsonPath("$.addressDetail").value("123-12"))
+                .andExpect(jsonPath("$.description").value("부재시 연락주세요."))
+                .andExpect(jsonPath("$.cancelReason").value("단순 변심"))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)));
+    }
+
+    @Test
+    @DisplayName("[주문 환불] 주문자가 주문 환불 성공")
+    @WithAccount
+    void refundOrderTest() throws Exception {
+        // given
+        Order order = orderRepository.findAll().get(1);
+        OrderRevocationRequest request = OrderRevocationRequest.builder()
+                .cancelReason("단순 변심")
+                .build();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/orders/" + order.getId() + "/refund")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(JsonConvertor.build(request))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("refundOrder"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.orderNo", instanceOf(String.class)))
+                .andExpect(jsonPath("$.orderStatus").value(OrderStatus.REFUND_PROCESSING.name()))
+                .andExpect(jsonPath("$.price").value(220000L))
+                .andExpect(jsonPath("$.deliveryPrice").value(2500L))
+                .andExpect(jsonPath("$.totalPrice").value(225000L))
+                .andExpect(jsonPath("$.recipient").value("테스트2"))
+                .andExpect(jsonPath("$.phone").value(1012345678L))
+                .andExpect(jsonPath("$.postcode").value("123123"))
+                .andExpect(jsonPath("$.address").value("서울특별시 마포구 연남동"))
+                .andExpect(jsonPath("$.addressDetail").value("123-123"))
                 .andExpect(jsonPath("$.description").value("부재시 연락주세요."))
                 .andExpect(jsonPath("$.cancelReason").value("단순 변심"))
                 .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)));
