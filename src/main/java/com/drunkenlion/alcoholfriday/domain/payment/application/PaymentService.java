@@ -19,5 +19,7 @@ public interface PaymentService {
     void checkDeletedData(List<OrderDetail> orderDetails);
     void checkCancelPayment(Order order, List<OrderDetail> orderDetails, Member member);
     void saveCancelSuccessPayment(TossPaymentsReq tossPaymentsReq, Order order, List<OrderDetail> orderDetails, Member member);
+    void checkRefundPayment(Order order, List<OrderDetail> orderDetails, Member member);
+    void saveRefundSuccessPayment(TossPaymentsReq tossPaymentsReq, Order order, List<OrderDetail> orderDetails, Member member);
     TossApiResponse getTossPaymentsResult(URL url, JSONObject obj, JSONParser parser) throws Exception ;
 }

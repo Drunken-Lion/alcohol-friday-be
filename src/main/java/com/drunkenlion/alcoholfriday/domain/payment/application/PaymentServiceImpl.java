@@ -145,6 +145,39 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.save(payment);
     }
 
+    /**
+     * 결제 환불 가능 여부 체크
+     */
+    @Override
+    public void checkRefundPayment(Order order, List<OrderDetail> orderDetails, Member member) {
+        RoleValidator.validateAdminOrStoreManager(member);
+        OrderValidator.checkOrderStatusAbleRefundComplete(order);
+        checkDeletedData(orderDetails);
+    }
+
+    /**
+     * 결제 환불 성공 시 Payment 저장
+     */
+    @Override
+    @Transactional
+    public void saveRefundSuccessPayment(TossPaymentsReq tossPaymentsReq, Order order, List<OrderDetail> orderDetails, Member member) {
+        order.updateOrderStatus(OrderStatus.REFUND_COMPLETED);
+        orderRepository.save(order);
+
+        List<Product> productList = new ArrayList<>();
+        for (OrderDetail detail : orderDetails) {
+            List<ItemProduct> itemProducts = detail.getItem().getItemProducts();
+            itemProducts.forEach(itemProduct -> {
+                plusProductQuantity(detail.getQuantity(), itemProduct);
+                productList.add(itemProduct.getProduct());
+            });
+        }
+        productRepository.saveAll(productList);
+
+        Payment payment = TossPaymentsReq.toEntity(tossPaymentsReq, member, order);
+        paymentRepository.save(payment);
+    }
+
     private void plusProductQuantity(Long orderItemRequestQuantity, ItemProduct itemProduct) {
         Product product = itemProduct.getProduct();
         Long productQuantity = product.getQuantity();

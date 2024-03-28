@@ -139,4 +139,9 @@ public class Order extends BaseEntity {
         this.orderStatus = OrderStatus.CANCELLED;
         this.cancelReason = cancelReason;
     }
+
+    public void updateRefund(String cancelReason) {
+        this.orderStatus = OrderStatus.REFUND_PROCESSING;
+        this.cancelReason = cancelReason;
+    }
 }
