@@ -14,6 +14,7 @@ import com.drunkenlion.alcoholfriday.domain.item.entity.Item;
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartDetailRepository cartDetailRepository;
     private final ItemRepository itemRepository;
+    private final FileService fileService;
 
     @Override
     @Transactional
@@ -105,7 +107,7 @@ public class CartServiceImpl implements CartService {
         if (cartDetailList.isEmpty()) return getEmptyCart(cart);
 
         List<CartDetailResponse> cartDetails = cartDetailList.stream()
-                .map(CartDetailResponse::of)
+                .map(cartDetail -> CartDetailResponse.of(cartDetail, fileService.findOne(cartDetail.getItem())))
                 .toList();
 
         return CartResponse.of(cartDetails, cart, cartDetailList);
