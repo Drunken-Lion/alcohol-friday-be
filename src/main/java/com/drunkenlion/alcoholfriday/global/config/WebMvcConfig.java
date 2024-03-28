@@ -15,6 +15,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://localhost:3000",
                         "http://localhost:8080",
+                        "https://alcohol-friday-fe.vercel.app",
+                        "https://dev-alcohol-friday-fe.vercel.app",
                         "https://api.alcoholfriday.shop",
                         "https://api.alcoholfriday.store"
                 )
