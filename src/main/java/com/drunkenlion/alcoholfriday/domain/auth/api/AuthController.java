@@ -51,8 +51,8 @@ public class AuthController {
 
     @Operation(summary = "성인 인증")
     @PostMapping(value = "certifications", consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<?> certifyAdult(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                          @RequestBody String impUid) {
+    public ResponseEntity<Void> certifyAdult(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                             @RequestBody String impUid) {
         AuthValidator.validateCertifyAt(userPrincipal.getMember());
 
         authService.authenticateAdultUser(userPrincipal.getMember(), impUid);
