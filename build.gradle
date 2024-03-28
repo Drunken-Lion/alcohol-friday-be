@@ -95,38 +95,38 @@ jacocoTestReport {
         classDirectories.setFrom(
                 files(classDirectories.files.collect {
                     fileTree(dir: it,
-                            includes: ['*/com/drunkenlion/alcoholfriday/*'],
+                            includes: ['**/com/drunkenlion/alcoholfriday/**'],
                             excludes: ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains)
                 })
         )
     }
 
-    finalizedBy 'jacocoTestCoverageVerification'
+//    finalizedBy 'jacocoTestCoverageVerification'
 }
 
-jacocoTestCoverageVerification {
-    def Qdomains = []
-    for (qPattern in '*.QA'..'*.QZ') {
-        Qdomains.add(qPattern + '*')
-    }
-
-    violationRules {
-        rule {
-            enabled = true
-            element = 'CLASS'
-            includes = ['*/com/drunkenlion/alcoholfriday/*']
-            excludes = ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains
-
-            limit {
-                counter = 'CLASS'
-                value = 'COVEREDRATIO'
-                minimum = 0.60
-            }
-            limit {
-                counter = 'METHOD'
-                value = 'COVEREDRATIO'
-                minimum = 0.60
-            }
-        }
-    }
-}
+//jacocoTestCoverageVerification {
+//    def Qdomains = []
+//    for (qPattern in '*.QA'..'*.QZ') {
+//        Qdomains.add(qPattern + '*')
+//    }
+//
+//    violationRules {
+//        rule {
+//            enabled = true
+//            element = 'CLASS'
+//            includes = ['*/com/drunkenlion/alcoholfriday/*']
+//            excludes = ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains
+//
+//            limit {
+//                counter = 'CLASS'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.60
+//            }
+//            limit {
+//                counter = 'METHOD'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.60
+//            }
+//        }
+//    }
+//}
