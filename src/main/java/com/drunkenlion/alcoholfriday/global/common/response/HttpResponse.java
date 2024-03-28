@@ -38,6 +38,7 @@ public class HttpResponse {
         STOCK_NOT_NEGATIVE(HttpStatus.BAD_REQUEST, "재고 수량은 0보다 적을 수 없습니다."),
         PRICE_NOT_NEGATIVE(HttpStatus.BAD_REQUEST, "가격은 0보다 적을 수 없습니다."),
         PRICE_AND_STOCK_NOT_NEGATIVE(HttpStatus.BAD_REQUEST, "가격과 수량은 0보다 적을 수 없습니다."),
+        PAYMENT_CANCEL_FAIL(HttpStatus.BAD_REQUEST, "결제 취소에 실패하였습니다."),
 
         // 401
         UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 접근입니다."),
@@ -115,6 +116,9 @@ public class HttpResponse {
         RESTAURANT_REFUND_APPROVAL_FAIL(HttpStatus.CONFLICT, "매장 환불 승인 조건에 부합하지 않습니다."),
         RESTAURANT_REFUND_COMPLETE_FAIL(HttpStatus.CONFLICT, "매장 환불 완료 조건에 부합하지 않습니다."),
         RESTAURANT_REFUND_REJECT_FAIL(HttpStatus.CONFLICT, "매장 환불 반려 조건에 부합하지 않습니다."),
+        ORDER_CANCEL_FAIL(HttpStatus.CONFLICT, "주문 취소 조건에 부합하지 않습니다."),
+        ORDER_CANCEL_COMPLETE_FAIL(HttpStatus.CONFLICT, "주문 취소 완료 조건에 부합하지 않습니다."),
+        EXIST_DELETED_DATA(HttpStatus.CONFLICT, "삭제된 필요 데이터가 하나 이상입니다."),
         ADULT_ALREADY_VERIFIED(HttpStatus.CONFLICT, "이미 성인 인증이 완료된 사용자입니다."),
 
 

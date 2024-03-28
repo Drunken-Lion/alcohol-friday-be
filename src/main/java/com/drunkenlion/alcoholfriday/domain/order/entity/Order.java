@@ -66,6 +66,10 @@ public class Order extends BaseEntity {
     @Column(name = "postcode", columnDefinition = "VARCHAR(50)")
     private String postcode;
 
+    @Comment("주문 취소 사유")
+    @Column(name = "cancel_reason", columnDefinition = "VARCHAR(200)")
+    private String cancelReason;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", columnDefinition = "BIGINT", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private Member member;
@@ -129,5 +133,10 @@ public class Order extends BaseEntity {
 
     public void updateOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    public void updateCancel(String cancelReason) {
+        this.orderStatus = OrderStatus.CANCELLED;
+        this.cancelReason = cancelReason;
     }
 }

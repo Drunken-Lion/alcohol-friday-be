@@ -1,6 +1,7 @@
 package com.drunkenlion.alcoholfriday.domain.order.dto;
 
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
+import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -20,7 +21,7 @@ public class OrderResponse {
     private String orderNo;
 
     @Schema(description = "주문 상태")
-    private String orderStatus;
+    private OrderStatus orderStatus;
 
     @Schema(description = "주문 상품 총 금액")
     private BigDecimal price;
@@ -49,6 +50,9 @@ public class OrderResponse {
     @Schema(description = "배송 시 주의사항")
     private String description;
 
+    @Schema(description = "주문 취소 사유")
+    private String cancelReason;
+
     @Schema(description = "주문 일자")
     private LocalDateTime createdAt;
 
@@ -59,7 +63,7 @@ public class OrderResponse {
         return OrderResponse.builder()
                 .id(order.getId())
                 .orderNo(order.getOrderNo())
-                .orderStatus(order.getOrderStatus().name())
+                .orderStatus(order.getOrderStatus())
                 .price(order.getPrice())
                 .deliveryPrice(order.getDeliveryPrice())
                 .totalPrice(order.getTotalPrice())
@@ -69,8 +73,28 @@ public class OrderResponse {
                 .address(order.getAddress())
                 .addressDetail(order.getAddressDetail())
                 .description(order.getDescription())
+                .cancelReason(order.getCancelReason())
                 .createdAt(order.getCreatedAt())
                 .orderDetails(orderDetailResponses)
+                .build();
+    }
+
+    public static OrderResponse of(Order order) {
+        return OrderResponse.builder()
+                .id(order.getId())
+                .orderNo(order.getOrderNo())
+                .orderStatus(order.getOrderStatus())
+                .price(order.getPrice())
+                .deliveryPrice(order.getDeliveryPrice())
+                .totalPrice(order.getTotalPrice())
+                .recipient(order.getRecipient())
+                .phone(order.getPhone())
+                .postcode(order.getPostcode())
+                .address(order.getAddress())
+                .addressDetail(order.getAddressDetail())
+                .description(order.getDescription())
+                .cancelReason(order.getCancelReason())
+                .createdAt(order.getCreatedAt())
                 .build();
     }
 }

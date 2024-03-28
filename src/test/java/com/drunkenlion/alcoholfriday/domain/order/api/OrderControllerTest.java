@@ -16,12 +16,15 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelRequest;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.enumerated.OrderStatus;
+import com.drunkenlion.alcoholfriday.global.common.util.JsonConvertor;
 import com.drunkenlion.alcoholfriday.global.user.WithAccount;
+import com.drunkenlion.alcoholfriday.global.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +43,9 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -521,5 +526,45 @@ class OrderControllerTest {
                 .andExpect(handler().handlerType(OrderController.class))
                 .andExpect(handler().methodName("updateOrderAddress"))
                 .andExpect(jsonPath("$.message").value("권한이 없는 접근입니다."));
+    }
+    @Test
+    @DisplayName("[주문 취소] 주문자가 주문 취소 성공")
+    @WithAccount
+    void orderCancelTest() throws Exception {
+        // given
+        Order order = orderRepository.findAll().get(0);
+        OrderCancelRequest request = OrderCancelRequest.builder()
+                .cancelReason("단순 변심")
+                .build();
+
+        // when
+        ResultActions resultActions = mvc
+                .perform(put("/v1/orders/" + order.getId() + "/cancel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(JsonConvertor.build(request))
+                )
+                .andDo(print());
+
+        // then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(OrderController.class))
+                .andExpect(handler().methodName("cancelOrder"))
+                .andExpect(jsonPath("$", instanceOf(LinkedHashMap.class)))
+                .andExpect(jsonPath("$.id", instanceOf(Number.class)))
+                .andExpect(jsonPath("$.orderNo", instanceOf(String.class)))
+                .andExpect(jsonPath("$.orderStatus").value(OrderStatus.CANCELLED.name()))
+                .andExpect(jsonPath("$.price").value(220000L))
+                .andExpect(jsonPath("$.deliveryPrice").value(2500L))
+                .andExpect(jsonPath("$.totalPrice").value(225000L))
+                .andExpect(jsonPath("$.recipient").value("테스트1"))
+                .andExpect(jsonPath("$.phone").value(1012345678L))
+                .andExpect(jsonPath("$.postcode").value("123123"))
+                .andExpect(jsonPath("$.address").value("서울특별시 마포구 연남동"))
+                .andExpect(jsonPath("$.addressDetail").value("123-12"))
+                .andExpect(jsonPath("$.description").value("부재시 연락주세요."))
+                .andExpect(jsonPath("$.cancelReason").value("단순 변심"))
+                .andExpect(jsonPath("$.createdAt", matchesPattern(TestUtil.DATETIME_PATTERN)));
     }
 }

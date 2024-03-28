@@ -11,4 +11,5 @@ import java.util.List;
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long>, OrderDetailCustomRepository {
     Page<OrderDetail> findByOrderMemberIdAndReviewIsNull(Long memberId, Pageable pageable);
     List<OrderDetail> findByOrderAndDeletedAtIsNull(Order order);
+    boolean existsByOrderAndDeletedAtIsNotNull(Order order);
 }
