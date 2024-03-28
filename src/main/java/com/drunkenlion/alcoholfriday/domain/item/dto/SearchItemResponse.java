@@ -31,7 +31,7 @@ public class SearchItemResponse {
     private FindCategoryResponse category;
 
     @Schema(description = "상품에 포함된 이미지")
-    private List<NcpFileResponse> files;
+    private NcpFileResponse files;
 
     @Schema(description = "상품 총 평점 / 상품 리뷰 총 개수")
     private ItemRating itemRating;
@@ -49,22 +49,6 @@ public class SearchItemResponse {
     }
 
     public static SearchItemResponse of(Item item, List<NcpFileResponse> files, List<ItemRating> itemRatingList) {
-        List<NcpFileResponse> itemFile = files.stream()
-                .map(file -> {
-                    if (file != null && Objects.equals(item.getId(), file.getEntityId())) {
-                        return file;
-                    } else {
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .toList();
-
-        // 필터에서 null을 거르면 비어있는 files가 나와서 비어있는 files에 임의로 null 입력
-        if (itemFile.isEmpty()) {
-            itemFile = Collections.singletonList(null);
-        }
-
         ItemRating foundItemRating = getFoundItemRating(item, itemRatingList);
 
         return SearchItemResponse.builder()
@@ -72,7 +56,7 @@ public class SearchItemResponse {
                 .name(item.getName())
                 .price(item.getPrice())
                 .category(FindCategoryResponse.of(item.getCategory()))
-                .files(itemFile)
+                .files(files.get(0))
                 .itemRating(foundItemRating)
                 .build();
     }
