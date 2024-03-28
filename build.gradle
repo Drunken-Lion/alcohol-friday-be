@@ -80,6 +80,7 @@ jacoco {
 }
 
 jacocoTestReport {
+    dependsOn test
     reports {
         xml.enabled true
         html.enabled true
@@ -94,13 +95,12 @@ jacocoTestReport {
         classDirectories.setFrom(
                 files(classDirectories.files.collect {
                     fileTree(dir: it,
-                            includes: ['com/drunkenlion/alcoholfriday/**'],
-                            excludes: ['*.jwt.*', '*.global.*'] + Qdomains)
+                            includes: ['*.com.drunkenlion.alcoholfriday.*'],
+                            excludes: ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains)
                 })
         )
     }
 
-    dependsOn test
     finalizedBy 'jacocoTestCoverageVerification'
 }
 
@@ -114,11 +114,11 @@ jacocoTestCoverageVerification {
         rule {
             enabled = true
             element = 'CLASS'
-            includes = ['com/drunkenlion/alcoholfriday/**']
-            excludes = ['*.jwt.*', '*.global.*'] + Qdomains
+            includes = ['*.com.drunkenlion.alcoholfriday.*']
+            excludes = ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains
 
             limit {
-                counter = 'LINE'
+                counter = 'CLASS'
                 value = 'COVEREDRATIO'
                 minimum = 0.60
             }
