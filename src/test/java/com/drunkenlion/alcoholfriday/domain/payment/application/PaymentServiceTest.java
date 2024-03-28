@@ -13,7 +13,6 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
-import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelCompleteRequest;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderUtil;
@@ -434,13 +433,6 @@ class PaymentServiceTest {
     @Test
     @DisplayName("결제 취소 실패 - 관리자가 아닐 경우")
     void checkCancelPayment_validateAdminOrStoreManager() {
-        // given
-        OrderCancelCompleteRequest orderCancelCompleteRequest = OrderCancelCompleteRequest.builder()
-                .orderNo(orderNo)
-                .paymentKey(paymentKey)
-                .cancelReason("변심")
-                .build();
-
         // when
         BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
             paymentService.checkCancelPayment(getDataOrder(), List.of(getDataOrderDetail()), getDataMember());
@@ -457,12 +449,6 @@ class PaymentServiceTest {
         // given
         Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
         List<OrderDetail> orderDetails = List.of(getDataOrderDetail(), getDeletedOrderDetail());
-
-        OrderCancelCompleteRequest orderCancelCompleteRequest = OrderCancelCompleteRequest.builder()
-                .orderNo(orderNo)
-                .paymentKey(paymentKey)
-                .cancelReason("변심")
-                .build();
 
         // when
         BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
@@ -481,12 +467,6 @@ class PaymentServiceTest {
         Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
         List<OrderDetail> orderDetails = List.of(getDataOrderDetail(), getOrderDetailItemProductDeletedAtNotNull());
 
-        OrderCancelCompleteRequest orderCancelCompleteRequest = OrderCancelCompleteRequest.builder()
-                .orderNo(orderNo)
-                .paymentKey(paymentKey)
-                .cancelReason("변심")
-                .build();
-
         // when
         BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
             paymentService.checkCancelPayment(getDataCanceledOrder(), orderDetails, adminMember);
@@ -504,12 +484,6 @@ class PaymentServiceTest {
         Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
         List<OrderDetail> orderDetails = List.of(getDataOrderDetail(), getOrderDetailProductDeletedAtNotNull());
 
-        OrderCancelCompleteRequest orderCancelCompleteRequest = OrderCancelCompleteRequest.builder()
-                .orderNo(orderNo)
-                .paymentKey(paymentKey)
-                .cancelReason("변심")
-                .build();
-
         // when
         BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
             paymentService.checkCancelPayment(getDataCanceledOrder(), orderDetails, adminMember);
@@ -520,6 +494,141 @@ class PaymentServiceTest {
         assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getMessage());
     }
 
+    @Test
+    @DisplayName("결제 환불 성공 후 토스페이먼츠에서 응답 받은 값으로 Payment 저장 및 제품 수량 원복")
+    void saveRefundSuccessPayment() {
+        // given
+        Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
+        Order order = getDataCanceledOrder();
+
+        TossPaymentsReq tossPaymentsReq = TossPaymentsReq.builder()
+                .orderNo(orderNo)
+                .paymentNo(paymentKey)
+                .status(statusCancel)
+                .method(method)
+                .cardType(cardType)
+                .ownerType(ownerType)
+                .provider(paymentProvider)
+                .issuerCode(issuerCode)
+                .acquirerCode(acquirerCode)
+                .totalAmount(totalAmount)
+                .requestedAt(requestedAtCancel)
+                .approvedAt(approvedAtCancel)
+                .currency(currency)
+                .build();
+
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        List<Product> savedProducts1 = new ArrayList<>();
+        when(productRepository.saveAll(anyList()))
+                .thenAnswer(invocation -> {
+                    savedProducts1.addAll(invocation.getArgument(0));
+                    return invocation.getArgument(0);
+                });
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        ArgumentCaptor<List<Product>> productsCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
+
+        // when
+        paymentService.saveRefundSuccessPayment(tossPaymentsReq, order, order.getOrderDetails(), adminMember);
+
+        // then
+        verify(orderRepository, times(1)).save(any(Order.class));
+        assertEquals(2, savedProducts1.size());
+        verify(paymentRepository, times(1)).save(any(Payment.class));
+
+        verify(orderRepository).save(orderCaptor.capture());
+        verify(productRepository).saveAll(productsCaptor.capture());
+        verify(paymentRepository).save(paymentCaptor.capture());
+
+        Order savedOrder = orderCaptor.getValue();
+        List<Product> savedProducts = productsCaptor.getValue();
+        Payment savedPayment = paymentCaptor.getValue();
+
+        assertThat(savedOrder.getOrderStatus()).isEqualTo(OrderStatus.REFUND_COMPLETED);
+        assertThat(savedPayment.getPaymentNo()).isEqualTo(paymentKey);
+        assertThat(savedPayment.getPaymentStatus()).isEqualTo(PaymentStatus.CANCELED);
+        assertThat(savedPayment.getPaymentMethod()).isEqualTo(PaymentMethod.ofMethod(method));
+        assertThat(savedPayment.getPaymentProvider()).isEqualTo(PaymentProvider.ofPaymentProvider(paymentProvider));
+        assertThat(savedPayment.getPaymentCardType()).isEqualTo(PaymentCardType.ofCardType(cardType));
+        assertThat(savedPayment.getPaymentOwnerType()).isEqualTo(PaymentOwnerType.ofOwnerType(ownerType));
+        assertThat(savedPayment.getIssuerCode()).isEqualTo(PaymentCardCode.ofCardCode(issuerCode));
+        assertThat(savedPayment.getAcquirerCode()).isEqualTo(PaymentCardCode.ofCardCode(acquirerCode));
+        assertThat(savedPayment.getTotalPrice()).isEqualTo(totalAmount);
+        assertThat(savedPayment.getRequestedAt()).isEqualTo(LocalDateTime.parse(requestedAtCancel.substring(0, 19)));
+        assertThat(savedPayment.getApprovedAt()).isEqualTo(LocalDateTime.parse(approvedAtCancel.substring(0, 19)));
+        assertThat(savedPayment.getCurrency()).isEqualTo(currency);
+        assertThat(savedPayment.getOrder()).isEqualTo(getDataOrder());
+        assertThat(savedPayment.getMember()).isEqualTo(getDataMember());
+
+        assertThat(savedProducts.get(0).getQuantity()).isEqualTo(quantity + (itemProductQuantity * quantityItem));
+        assertThat(savedProducts.get(1).getQuantity()).isEqualTo(quantity2 + (itemProductQuantity2 * quantityItem2));
+    }
+
+    @Test
+    @DisplayName("결제 환불 실패 - 관리자가 아닐 경우")
+    void checkRefundPayment_validateAdminOrStoreManager() {
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            paymentService.checkRefundPayment(getDataRefundedOrder(), List.of(getDataOrderDetail()), getDataMember());
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.FORBIDDEN.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.FORBIDDEN.getMessage());
+    }
+
+    @Test
+    @DisplayName("결제 환불 실패 - 삭제된 Item이 있을 경우 취소 불가")
+    void checkRefundPayment_existDeletedItem() {
+        // given
+        Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
+        List<OrderDetail> orderDetails = List.of(getDataOrderDetail(), getDeletedOrderDetail());
+
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            paymentService.checkRefundPayment(getDataRefundedOrder(), orderDetails, adminMember);
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getMessage());
+    }
+
+    @Test
+    @DisplayName("결제 환불 실패 - 삭제된 ItemProduct가 있을 경우 취소 불가")
+    void checkRefundPayment_existDeletedItemProduct() {
+        // given
+        Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
+        List<OrderDetail> orderDetails = List.of(getDataOrderDetail(), getOrderDetailItemProductDeletedAtNotNull());
+
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            paymentService.checkRefundPayment(getDataRefundedOrder(), orderDetails, adminMember);
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getMessage());
+    }
+
+    @Test
+    @DisplayName("결제 환불 실패 - 삭제된 Product가 있을 경우 취소 불가")
+    void checkRefundPayment_existDeletedProduct() {
+        // given
+        Member adminMember = Member.builder().id(1L).role(MemberRole.ADMIN).build();
+        List<OrderDetail> orderDetails = List.of(getDataOrderDetail(), getOrderDetailProductDeletedAtNotNull());
+
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            paymentService.checkRefundPayment(getDataRefundedOrder(), orderDetails, adminMember);
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.EXIST_DELETED_DATA.getMessage());
+    }
 
     private Optional<Payment> getOnePayment() {
         return Optional.of(this.getDataPayment());
@@ -738,6 +847,26 @@ class PaymentServiceTest {
                 .build();
     }
 
+    // 주문 취소된 접수
+    private Order getDataRefundedOrder() {
+        return Order.builder()
+                .id(orderId)
+                .orderNo(orderNo)
+                .orderStatus(OrderStatus.REFUND_PROCESSING) // 주문 접수
+                .price(price)
+                .deliveryPrice(deliveryPrice)
+                .totalPrice(totalPrice)
+                .recipient(recipient)
+                .phone(phone)
+                .address(address)
+                .addressDetail(addressDetail)
+                .description(description)
+                .postcode(postcode)
+                .createdAt(LocalDateTime.now())
+                .member(this.getDataMember())
+                .orderDetails(List.of(getDataOrderDetail(), getDataOrderDetail2()))
+                .build();
+    }
     private Optional<Member> getOneMember() {
         return Optional.of(this.getDataMember());
     }

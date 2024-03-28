@@ -31,4 +31,17 @@ public class OrderValidator {
             throw new BusinessException(HttpResponse.Fail.ORDER_CANCEL_COMPLETE_FAIL);
         }
     }
+
+    public static void checkOrderStatusAbleRefundComplete(Order order) {
+        if (!order.getOrderStatus().equals(OrderStatus.REFUND_PROCESSING)) {
+            throw new BusinessException(HttpResponse.Fail.ORDER_REFUND_COMPLETE_FAIL);
+        }
+    }
+
+    public static void checkOrderStatusAbleRefund(Order order) {
+        if (!order.getOrderStatus().equals(OrderStatus.SHIPPED) &&
+                !order.getOrderStatus().equals(OrderStatus.DELIVERED)) {
+            throw new BusinessException(HttpResponse.Fail.ORDER_REFUND_FAIL);
+        }
+    }
 }

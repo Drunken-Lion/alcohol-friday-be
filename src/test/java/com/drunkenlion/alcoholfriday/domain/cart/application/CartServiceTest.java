@@ -19,6 +19,7 @@ import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.product.entity.Product;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
+import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,8 @@ import static org.mockito.Mockito.*;
 class CartServiceTest {
     @InjectMocks
     private CartServiceImpl cartService;
+    @Mock
+    private FileService fileService;
     @Mock
     private CartRepository cartRepository;
     @Mock

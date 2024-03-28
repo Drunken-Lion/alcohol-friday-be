@@ -8,11 +8,20 @@ COPY build.gradle .
 COPY settings.gradle .
 COPY src src
 
+# 타임존 설정
+ENV TZ=Asia/Seoul
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # 실행 권한 주고 gradle 실행
 RUN chmod +x ./gradlew && ./gradlew bootJar -x test
 
 # 나머지 빌드를 위한 스테이지
 FROM amazoncorretto:17
+
+# 타임존 설정
+ENV TZ=Asia/Seoul
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # 생성된 JAR 파일을 app.jar로 복사
 COPY --from=builder build/libs/*.jar app.jar
 

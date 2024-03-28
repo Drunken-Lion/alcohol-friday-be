@@ -3,7 +3,7 @@ package com.drunkenlion.alcoholfriday.domain.order.api;
 import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
-import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelRequest;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRevocationRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList;
 import com.drunkenlion.alcoholfriday.global.security.auth.UserPrincipal;
@@ -53,14 +53,25 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "주문 취소", description = "OrderStatus에서 결제 완료, 배송 준비 중일 경우 주문 취소 가능")
+    @Operation(summary = "주문 취소 (사용자)", description = "OrderStatus에서 결제 완료, 배송 준비 중일 경우 주문 취소 가능")
     @PutMapping("{id}/cancel")
     public ResponseEntity<OrderResponse> cancelOrder(
             @PathVariable("id") Long orderId,
-            @RequestBody OrderCancelRequest orderCancelRequest,
+            @RequestBody OrderRevocationRequest orderRevocationRequest,
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) {
-        OrderResponse orderResponse = orderService.cancelOrder(orderId, orderCancelRequest, userPrincipal.getMember());
+        OrderResponse orderResponse = orderService.cancelOrder(orderId, orderRevocationRequest, userPrincipal.getMember());
+        return ResponseEntity.ok().body(orderResponse);
+    }
+
+    @Operation(summary = "주문 환불 (사용자)", description = "OrderStatus에서 배송 중, 배송 완료일 경우 주문 취소 가능")
+    @PutMapping("{id}/refund")
+    public ResponseEntity<OrderResponse> refundOrder(
+            @PathVariable("id") Long orderId,
+            @RequestBody OrderRevocationRequest orderRevocationRequest,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        OrderResponse orderResponse = orderService.refundOrder(orderId, orderRevocationRequest, userPrincipal.getMember());
         return ResponseEntity.ok().body(orderResponse);
     }
 }
