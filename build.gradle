@@ -95,8 +95,8 @@ jacocoTestReport {
         classDirectories.setFrom(
                 files(classDirectories.files.collect {
                     fileTree(dir: it,
-                            includes: ['**/com/drunkenlion/alcoholfriday/**'],
-                            excludes: ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains)
+                            include: ['**/com/drunkenlion/alcoholfriday/**'],
+                            exclude: ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains)
                 })
         )
     }
