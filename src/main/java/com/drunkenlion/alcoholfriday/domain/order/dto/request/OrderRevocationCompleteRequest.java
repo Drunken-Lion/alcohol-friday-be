@@ -7,14 +7,14 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Schema(description = "주문 취소 처리 요청 정보 (결제 취소)")
-public class OrderCancelCompleteRequest {
+@Schema(description = "주문 취소, 환불 처리 요청 정보 (결제 취소)")
+public class OrderRevocationCompleteRequest {
     @Schema(description = "주문 고유 번호")
     private String orderNo;
 
     @Schema(description = "토스페이먼츠 결제 키")
     private String paymentKey;
 
-    @Schema(description = "주문 취소 사유")
+    @Schema(description = "주문 취소, 환불 사유")
     private String cancelReason;
 }

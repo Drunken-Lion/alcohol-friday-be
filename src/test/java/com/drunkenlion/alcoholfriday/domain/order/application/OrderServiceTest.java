@@ -560,6 +560,19 @@ class OrderServiceTest {
     }
 
     @Test
+    @DisplayName("주문 상태가 OrderStatus.REFUND_PROCESSING 가 아닐 경우")
+    void checkOrderStatusAbleRefundComplete() {
+        // when
+        BusinessException exception = Assertions.assertThrows(BusinessException.class, () -> {
+            OrderValidator.checkOrderStatusAbleRefundComplete(getDataOrder());
+        });
+
+        // then
+        assertThat(exception.getStatus()).isEqualTo(HttpResponse.Fail.ORDER_REFUND_COMPLETE_FAIL.getStatus());
+        assertThat(exception.getMessage()).isEqualTo(HttpResponse.Fail.ORDER_REFUND_COMPLETE_FAIL.getMessage());
+    }
+
+    @Test
     @DisplayName("Order로 OrderDetials를 찾을 때 값이 있는 경우(논리적 삭제된 OrderDetials가 없다.)")
     void getOrderDetails() {
         // given
