@@ -1,17 +1,13 @@
 package com.drunkenlion.alcoholfriday.domain.member.dto;
 
-import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
-import java.time.LocalDateTime;
-
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
-
+import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -41,6 +37,9 @@ public class MemberResponse {
     @Schema(description = "회원 권한", example = "MEMBER")
     private MemberRole role;
 
+    @Schema(description = "성인 인증 일자")
+    private LocalDate certifyAt;
+
     @Schema(description = "회원 가입 일시")
     private LocalDateTime createdAt;
 
@@ -59,6 +58,7 @@ public class MemberResponse {
                 .phone(member.getPhone())
                 .provider(member.getProvider().getProviderName())
                 .role(member.getRole())
+                .certifyAt(member.getCertifyAt())
                 .createdAt(member.getCreatedAt())
                 .updatedAt(member.getUpdatedAt())
                 .deletedAt(member.getDeletedAt())
