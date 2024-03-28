@@ -36,7 +36,7 @@ public class FindItemResponse {
     private List<FindProductResponse> products;
 
     @Schema(description = "상품에 포함된 파일")
-    private NcpFileResponse file;
+    private NcpFileResponse files;
 
     @Schema(description = "상품 총 평점 / 상품 리뷰 총 개수")
     private ItemRating itemRating;
@@ -54,7 +54,7 @@ public class FindItemResponse {
                 .info(item.getInfo())
                 .category(FindCategoryResponse.of(item.getCategory()))
                 .products(list)
-                .file(file)
+                .files(file)
                 .itemRating(itemRating)
                 .build();
     }
@@ -72,7 +72,7 @@ public class FindItemResponse {
                 .info(item.getInfo())
                 .category(FindCategoryResponse.of(item.getCategory()))
                 .products(list)
-                .file(file)
+                .files(file)
                 .build();
     }
 
