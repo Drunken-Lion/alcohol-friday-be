@@ -62,9 +62,11 @@ jobs:
             } else {
               // Handle non-Pull Request event
             }
-
-      - name: Test Coverage Report
-        id: jacoco
+ report:
+    needs: test  # Ensure that this job runs after the 'test' job is completed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Test Coverage Report
         uses: madrapps/jacoco-report@v1.6.1
         with:
           title: Test Coverage Report
