@@ -95,7 +95,7 @@ jacocoTestReport {
         classDirectories.setFrom(
                 files(classDirectories.files.collect {
                     fileTree(dir: it,
-                            includes: ['*.com.drunkenlion.alcoholfriday.*'],
+                            includes: ['*/com/drunkenlion/alcoholfriday/*'],
                             excludes: ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains)
                 })
         )
@@ -114,7 +114,7 @@ jacocoTestCoverageVerification {
         rule {
             enabled = true
             element = 'CLASS'
-            includes = ['*.com.drunkenlion.alcoholfriday.*']
+            includes = ['*/com/drunkenlion/alcoholfriday/*']
             excludes = ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains
 
             limit {
