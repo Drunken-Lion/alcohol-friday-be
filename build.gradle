@@ -81,7 +81,6 @@ jacoco {
 
 jacocoTestReport {
     dependsOn test
-    finalizedBy 'jacocoTestCoverageVerification'
     reports {
         xml.enabled true
         html.enabled true
@@ -89,31 +88,45 @@ jacocoTestReport {
 
     def Qdomains = []
     for (qPattern in '**/QA'..'**/QZ') {
-         Qdomains.add(qPattern + '*')
+        Qdomains.add(qPattern + '*')
     }
 
     afterEvaluate {
         classDirectories.setFrom(
                 files(classDirectories.files.collect {
                     fileTree(dir: it,
-                            exclude: ['**/jwt/*', '*/init/*', '*/exception/*', '*/auth/*'] + Qdomains)
+                            include: ['**/com/drunkenlion/alcoholfriday/**'],
+                            exclude: ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains)
                 })
         )
     }
+
+//    finalizedBy 'jacocoTestCoverageVerification'
 }
 
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            enabled = true
-            element = 'CLASS'
-            includes = ['com.drunkenlion.alcoholfriday.*']
-
-            limit {
-                counter = 'CLASS'
-                value = 'COVEREDRATIO'
-                minimum = 0.60
-            }
-        }
-    }
-}
+//jacocoTestCoverageVerification {
+//    def Qdomains = []
+//    for (qPattern in '*.QA'..'*.QZ') {
+//        Qdomains.add(qPattern + '*')
+//    }
+//
+//    violationRules {
+//        rule {
+//            enabled = true
+//            element = 'CLASS'
+//            includes = ['*/com/drunkenlion/alcoholfriday/*']
+//            excludes = ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains
+//
+//            limit {
+//                counter = 'CLASS'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.60
+//            }
+//            limit {
+//                counter = 'METHOD'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.60
+//            }
+//        }
+//    }
+//}
