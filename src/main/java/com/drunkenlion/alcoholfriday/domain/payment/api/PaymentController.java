@@ -2,7 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.payment.api;
 
 import com.drunkenlion.alcoholfriday.domain.cart.application.CartService;
 import com.drunkenlion.alcoholfriday.domain.order.application.OrderService;
-import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelCompleteRequest;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRevocationCompleteRequest;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.order.util.OrderValidator;
@@ -96,7 +96,7 @@ public class PaymentController {
             description = "OrderStatus에서 주문 취소 중일 경우 주문 취소 완료 가능")
     @PostMapping("cancel")
     public ResponseEntity<JSONObject> cancelPayment(
-            @RequestBody OrderCancelCompleteRequest orderCancelCompleteRequest,
+            @RequestBody OrderRevocationCompleteRequest orderCancelCompleteRequest,
             @AuthenticationPrincipal UserPrincipal userPrincipal
     ) throws Exception {
 
@@ -117,6 +117,40 @@ public class PaymentController {
         if (response.isSuccess()) {
             paymentService.saveCancelSuccessPayment(
                     TossPaymentsReq.of(orderCancelCompleteRequest.getOrderNo(), orderCancelCompleteRequest.getPaymentKey(), response.getJsonObject()),
+                    order,
+                    orderDetails,
+                    userPrincipal.getMember()
+            );
+        }
+
+        return ResponseEntity.status(response.getCode()).body(response.getJsonObject());
+    }
+
+    @Operation(summary = "결제 환불 (관리자)",
+            description = "OrderStatus에서 주문 환불 처리 중일 경우 환불 완료 가능")
+    @PostMapping("refund")
+    public ResponseEntity<JSONObject> refundPayment(
+            @RequestBody OrderRevocationCompleteRequest orderRefundCompleteRequest,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) throws Exception {
+
+        // 실패할 수 있는 케이스 전처리 작업
+        Order order = orderService.getOrder(orderRefundCompleteRequest.getOrderNo());
+        orderService.checkOrderDetails(order);
+        List<OrderDetail> orderDetails = orderService.getOrderDetails(order);
+
+        paymentService.checkRefundPayment(order, orderDetails, userPrincipal.getMember());
+
+        JSONObject obj = new JSONObject();
+        obj.put("cancelReason", orderRefundCompleteRequest.getCancelReason());
+        URL url = new URL("https://api.tosspayments.com/v1/payments/" + orderRefundCompleteRequest.getPaymentKey() + "/cancel");
+
+        TossApiResponse response = paymentService.getTossPaymentsResult(url, obj, new JSONParser());
+
+        // 결제 취소 성공 시
+        if (response.isSuccess()) {
+            paymentService.saveRefundSuccessPayment(
+                    TossPaymentsReq.of(orderRefundCompleteRequest.getOrderNo(), orderRefundCompleteRequest.getPaymentKey(), response.getJsonObject()),
                     order,
                     orderDetails,
                     userPrincipal.getMember()

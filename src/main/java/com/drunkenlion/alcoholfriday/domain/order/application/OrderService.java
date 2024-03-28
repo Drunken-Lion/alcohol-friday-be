@@ -25,9 +25,11 @@ public interface OrderService {
 
     Order getOrder(String orderNo);
 
-    OrderResponse cancelOrder(Long orderId, OrderCancelRequest orderCancelRequest, Member member);
+    OrderResponse cancelOrder(Long orderId, OrderRevocationRequest orderRevocationRequest, Member member);
 
     List<OrderDetail> getOrderDetails(Order order);
 
     void checkOrderDetails(Order order);
+
+    OrderResponse refundOrder(Long orderId, OrderRevocationRequest orderRevocationRequest, Member member);
 }

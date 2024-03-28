@@ -12,7 +12,7 @@ import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
-import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelRequest;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRevocationRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderItemRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderResponseList;
@@ -153,9 +153,12 @@ public class OrderServiceImpl implements OrderService {
                         .build());
     }
 
+    /**
+     * 주문 취소
+     */
     @Override
     @Transactional
-    public OrderResponse cancelOrder(Long orderId, OrderCancelRequest orderCancelRequest, Member member) {
+    public OrderResponse cancelOrder(Long orderId, OrderRevocationRequest orderRevocationRequest, Member member) {
         Order order = orderRepository.findByIdAndDeletedAtIsNull(orderId)
                 .orElseThrow(() -> BusinessException.builder()
                         .response(HttpResponse.Fail.NOT_FOUND_ORDER)
@@ -163,7 +166,7 @@ public class OrderServiceImpl implements OrderService {
 
         OrderValidator.compareEntityIdToMemberId(order, member);
         OrderValidator.checkOrderStatusAbleCancel(order);
-        order.updateCancel(orderCancelRequest.getCancelReason());
+        order.updateCancel(orderRevocationRequest.getCancelReason());
 
         return OrderResponse.of(order);
     }
@@ -189,5 +192,22 @@ public class OrderServiceImpl implements OrderService {
                     .response(HttpResponse.Fail.EXIST_DELETED_DATA)
                     .build();
         }
+    }
+
+    /**
+     * 주문 환불
+     */
+    @Override
+    public OrderResponse refundOrder(Long orderId, OrderRevocationRequest orderRevocationRequest, Member member) {
+        Order order = orderRepository.findByIdAndDeletedAtIsNull(orderId)
+                .orElseThrow(() -> BusinessException.builder()
+                        .response(HttpResponse.Fail.NOT_FOUND_ORDER)
+                        .build());
+
+        OrderValidator.compareEntityIdToMemberId(order, member);
+        OrderValidator.checkOrderStatusAbleRefund(order);
+        order.updateRefund(orderRevocationRequest.getCancelReason());
+
+        return OrderResponse.of(order);
     }
 }
