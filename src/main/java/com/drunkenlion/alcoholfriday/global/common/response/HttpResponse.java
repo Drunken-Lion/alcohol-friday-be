@@ -52,6 +52,7 @@ public class HttpResponse {
         FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없는 접근입니다."),
         DEACTIVATE_USER(HttpStatus.FORBIDDEN, "비활성화 상태 계정입니다."),
         STOCK_ADDITION_FORBIDDEN(HttpStatus.FORBIDDEN, "재고에 대한 수량 추가 권한이 없습니다."),
+        NOT_ADULT(HttpStatus.FORBIDDEN, "19세 미만인 사용자입니다."),
 
         // 404
         NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 리소스입니다."),
@@ -118,6 +119,8 @@ public class HttpResponse {
         ORDER_CANCEL_FAIL(HttpStatus.CONFLICT, "주문 취소 조건에 부합하지 않습니다."),
         ORDER_CANCEL_COMPLETE_FAIL(HttpStatus.CONFLICT, "주문 취소 완료 조건에 부합하지 않습니다."),
         EXIST_DELETED_DATA(HttpStatus.CONFLICT, "삭제된 필요 데이터가 하나 이상입니다."),
+        ADULT_ALREADY_VERIFIED(HttpStatus.CONFLICT, "이미 성인 인증이 완료된 사용자입니다."),
+
 
         // 500 서버 에러
         INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다.");

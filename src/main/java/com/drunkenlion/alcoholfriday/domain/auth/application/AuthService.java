@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.auth.application;
 
 import com.drunkenlion.alcoholfriday.domain.auth.dto.LoginResponse;
 import com.drunkenlion.alcoholfriday.domain.auth.enumerated.ProviderType;
+import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.security.jwt.dto.JwtResponse;
 
 public interface AuthService {
@@ -10,4 +11,6 @@ public interface AuthService {
     LoginResponse socialLogin(ProviderType provider, String accessToken);
 
     JwtResponse reissueToken(String requestRefreshToken);
+
+    void authenticateAdultUser(Member member, String impUid);
 }

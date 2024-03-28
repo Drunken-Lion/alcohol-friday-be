@@ -19,10 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -33,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.*;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -42,6 +41,18 @@ import java.util.Map;
 public class AuthServiceImpl implements AuthService {
     @Value("${oauth2.kakao.user-info-uri}")
     private String kakaoUserinfoUri;
+
+    @Value("${port-one.imp_key}")
+    private String impKey;
+
+    @Value("${port-one.imp_secret}")
+    private String impSecret;
+
+    @Value("${port-one.get-token-uri}")
+    private String getTokenUri;
+
+    @Value("${port-one.get-certifications-uri}")
+    private String getCertificationsUri;
 
     private final RestTemplate restTemplate;
     private final MemberRepository memberRepository;
@@ -185,5 +196,84 @@ public class AuthServiceImpl implements AuthService {
         tokenService.deleteRefreshToken(authentication.getName());
 
         return jwtTokenProvider.generateToken(authentication);
+    }
+
+    /**
+     * 성인 인증
+     */
+    @Transactional
+    @Override
+    public void authenticateAdultUser(Member member, String impUid) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        String accessToken = getPortOneToken(headers);
+
+        Map<String, Object> data = getCertificationsInfo(headers, accessToken, impUid);
+//        String uniqueKey = String.valueOf(data.get("unique_key")); TODO : 추후 활용하도록 구현
+        String birth = String.valueOf(data.get("birth"));
+
+        if (!isAdult(birth)) {
+            throw new BusinessException(HttpResponse.Fail.NOT_ADULT);
+        }
+
+        memberRepository.save(
+                member.toBuilder()
+                        .certifyAt(LocalDate.now())
+                        .build());
+    }
+
+    private String getPortOneToken(HttpHeaders headers) {
+        Map<String, String> tokenRequest = new HashMap<>();
+        tokenRequest.put("imp_key", impKey);
+        tokenRequest.put("imp_secret", impSecret);
+
+        // 요청 본문 설정
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(tokenRequest, headers);
+
+        // API 호출 및 ResponseEntity<Map>로 응답 받기
+        ResponseEntity<Map> responseEntity = restTemplate.postForEntity(
+                getTokenUri,
+                requestEntity,
+                Map.class);
+
+        // 응답 본문에서 Map 객체 얻기
+        Map<String, Object> tokenResponse = responseEntity.getBody();
+
+        return String.valueOf(((Map) tokenResponse.get("response")).get("access_token"));
+    }
+
+    private Map<String, Object> getCertificationsInfo(HttpHeaders headers,
+                                                      String accessToken,
+                                                      String impUid) {
+        headers.set("Authorization", accessToken);
+
+        HttpEntity<String> certificationEntity = new HttpEntity<>("parameters", headers);
+
+        ResponseEntity<Map> certificationResponse = restTemplate.exchange(
+                getCertificationsUri + "/" + impUid,
+                HttpMethod.GET,
+                certificationEntity,
+                Map.class
+        );
+
+        Map<String, Object> certificationsInfo = certificationResponse.getBody();
+
+        return (Map<String, Object>) certificationsInfo.get("response");
+    }
+
+    private boolean isAdult(String birth) {
+        long birthTimestamp = Long.parseLong(birth);
+        Instant instant = Instant.ofEpochSecond(birthTimestamp);
+        ZonedDateTime zonedDateTime = instant.atZone(ZoneId.of("Asia/Seoul"));
+
+        LocalDate birthDate = zonedDateTime.toLocalDate();
+        LocalDate currentDate = LocalDate.now();
+
+        Period period = Period.between(birthDate, currentDate);
+
+        int age = period.getYears();
+
+        return age >= 19;
     }
 }
