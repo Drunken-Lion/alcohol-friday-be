@@ -16,7 +16,7 @@ import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.domain.member.enumerated.MemberRole;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
-import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelRequest;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRevocationRequest;
 import com.drunkenlion.alcoholfriday.domain.order.entity.Order;
 import com.drunkenlion.alcoholfriday.domain.order.entity.OrderDetail;
 import com.drunkenlion.alcoholfriday.domain.product.dao.ProductRepository;
@@ -533,7 +533,7 @@ class OrderControllerTest {
     void orderCancelTest() throws Exception {
         // given
         Order order = orderRepository.findAll().get(0);
-        OrderCancelRequest request = OrderCancelRequest.builder()
+        OrderRevocationRequest request = OrderRevocationRequest.builder()
                 .cancelReason("단순 변심")
                 .build();
 

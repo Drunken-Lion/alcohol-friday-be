@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Schema(description = "주문 취소 요청 정보")
-public class OrderCancelRequest {
+public class OrderRevocationRequest {
     @Schema(description = "주문 취소 사유")
     private String cancelReason;
 }

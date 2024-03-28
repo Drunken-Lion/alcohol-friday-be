@@ -14,7 +14,7 @@ import com.drunkenlion.alcoholfriday.domain.order.dao.OrderDetailRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dao.OrderRepository;
 import com.drunkenlion.alcoholfriday.domain.order.dto.OrderResponse;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderAddressRequest;
-import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderCancelRequest;
+import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRevocationRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderItemRequest;
 import com.drunkenlion.alcoholfriday.domain.order.dto.request.OrderRequestList;
 import com.drunkenlion.alcoholfriday.domain.order.dto.response.OrderDetailResponse;
@@ -440,7 +440,7 @@ class OrderServiceTest {
                 .totalPrice(price.add(deliveryPrice))
                 .build();
 
-        OrderCancelRequest request = OrderCancelRequest.builder()
+        OrderRevocationRequest request = OrderRevocationRequest.builder()
                 .cancelReason("단순 변심")
                 .build();
 
@@ -476,7 +476,7 @@ class OrderServiceTest {
                 .totalPrice(price.add(deliveryPrice))
                 .build();
 
-        OrderCancelRequest request = OrderCancelRequest.builder()
+        OrderRevocationRequest request = OrderRevocationRequest.builder()
                 .cancelReason("단순 변심")
                 .build();
 
@@ -503,7 +503,7 @@ class OrderServiceTest {
                 .totalPrice(price.add(deliveryPrice))
                 .build();
 
-        OrderCancelRequest request = OrderCancelRequest.builder()
+        OrderRevocationRequest request = OrderRevocationRequest.builder()
                 .cancelReason("단순 변심")
                 .build();
 
@@ -530,7 +530,7 @@ class OrderServiceTest {
                 .totalPrice(price.add(deliveryPrice))
                 .build();
 
-        OrderCancelRequest request = OrderCancelRequest.builder()
+        OrderRevocationRequest request = OrderRevocationRequest.builder()
                 .cancelReason("단순 변심")
                 .build();
 
