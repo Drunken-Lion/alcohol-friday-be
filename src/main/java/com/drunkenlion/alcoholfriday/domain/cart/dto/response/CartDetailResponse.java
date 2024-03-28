@@ -2,6 +2,7 @@ package com.drunkenlion.alcoholfriday.domain.cart.dto.response;
 
 import com.drunkenlion.alcoholfriday.domain.cart.entity.CartDetail;
 import com.drunkenlion.alcoholfriday.domain.item.dto.FindItemResponse;
+import com.drunkenlion.alcoholfriday.global.ncp.dto.NcpFileResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -19,6 +20,13 @@ public class CartDetailResponse {
     public static CartDetailResponse of(CartDetail cartDetail) {
         return CartDetailResponse.builder()
                 .item(FindItemResponse.of(cartDetail.getItem()))
+                .quantity(cartDetail.getQuantity())
+                .build();
+    }
+
+    public static CartDetailResponse of(CartDetail cartDetail, NcpFileResponse file) {
+        return CartDetailResponse.builder()
+                .item(FindItemResponse.of(cartDetail.getItem(), file))
                 .quantity(cartDetail.getQuantity())
                 .build();
     }
