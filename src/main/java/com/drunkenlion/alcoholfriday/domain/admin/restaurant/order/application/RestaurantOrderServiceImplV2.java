@@ -94,12 +94,13 @@ public class RestaurantOrderServiceImplV2 {
         // 장바구니 Product 처리
         for (RestaurantOrderCartDetail cart : cartDetails) {
             Product product = cart.getProduct();
-
+            System.out.println("product first = " + product.getId());
             // 상품 수량 체크 및 감소
             RestaurantValidator.checkedQuantity(product, cart.getQuantity());
             product.minusQuantity(cart.getQuantity());
             productRepository.save(product);
 
+            System.out.println("product second = " + product.getId());
             RestaurantOrderDetail detail = RestaurantOrderDetail.builder()
                     .product(product)
                     .price(product.getDistributionPrice())
@@ -147,9 +148,9 @@ public class RestaurantOrderServiceImplV2 {
                 restaurantOrderCartRepository.findRestaurantAndMember(restaurantOrder.getRestaurant(), member)
                         .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART));
 
-        for (RestaurantOrderCartDetail rocd : restaurantOrderCart.getRestaurantDetailOrders()) {
+        for (RestaurantOrderDetail detail : restaurantOrder.getDetails()) {
             RestaurantOrderCartDetail orderCartDetail = restaurantOrderCartDetailRepository.findCartAndProduct(
-                            restaurantOrderCart, rocd.getProduct())
+                            restaurantOrderCart, detail.getProduct())
                     .orElseThrow(() -> new BusinessException(Fail.NOT_FOUND_RESTAURANT_ORDER_CART_DETAIL));
 
             RestaurantOrderDetail orderDetail = restaurantOrderDetailRepository.findRestaurantOrderAndProduct(
