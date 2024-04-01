@@ -12,10 +12,6 @@ import com.drunkenlion.alcoholfriday.domain.customerservice.question.util.valida
 import com.drunkenlion.alcoholfriday.domain.member.entity.Member;
 import com.drunkenlion.alcoholfriday.global.common.response.HttpResponse;
 import com.drunkenlion.alcoholfriday.global.exception.BusinessException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import com.drunkenlion.alcoholfriday.global.file.application.FileService;
 import com.drunkenlion.alcoholfriday.global.file.dao.FileRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -27,6 +23,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

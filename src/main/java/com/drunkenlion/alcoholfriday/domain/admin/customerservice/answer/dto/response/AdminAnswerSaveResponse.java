@@ -1,14 +1,11 @@
 package com.drunkenlion.alcoholfriday.domain.admin.customerservice.answer.dto.response;
 
-import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.response.CsMemberResponse;
 import com.drunkenlion.alcoholfriday.domain.customerservice.answer.entity.Answer;
+import com.drunkenlion.alcoholfriday.domain.customerservice.question.dto.response.CsMemberResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+
 import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
