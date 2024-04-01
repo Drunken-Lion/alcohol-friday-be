@@ -97,8 +97,6 @@ jacocoTestReport {
                     '**/jwt/**',
                     '**/init/**',
                     '**/exception/**',
-                    '**/payment/dto/response',
-                    '**/payment/api/**',
                     '**/auth/**'
             ] + Qdomains)
         }))
