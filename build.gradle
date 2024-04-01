@@ -92,41 +92,15 @@ jacocoTestReport {
     }
 
     afterEvaluate {
-        classDirectories.setFrom(
-                files(classDirectories.files.collect {
-                    fileTree(dir: it,
-                            include: ['**/com/drunkenlion/alcoholfriday/**'],
-                            exclude: ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains)
-                })
-        )
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    '**/jwt/**',
+                    '**/init/**',
+                    '**/exception/**',
+                    '**/payment/dto/response',
+                    '**/payment/api/**',
+                    '**/auth/**'
+            ] + Qdomains)
+        }))
     }
-
-//    finalizedBy 'jacocoTestCoverageVerification'
 }
-
-//jacocoTestCoverageVerification {
-//    def Qdomains = []
-//    for (qPattern in '*.QA'..'*.QZ') {
-//        Qdomains.add(qPattern + '*')
-//    }
-//
-//    violationRules {
-//        rule {
-//            enabled = true
-//            element = 'CLASS'
-//            includes = ['*/com/drunkenlion/alcoholfriday/*']
-//            excludes = ['*.jwt.*', '*.init.*', '*.exception.*', '*.auth.*'] + Qdomains
-//
-//            limit {
-//                counter = 'CLASS'
-//                value = 'COVEREDRATIO'
-//                minimum = 0.60
-//            }
-//            limit {
-//                counter = 'METHOD'
-//                value = 'COVEREDRATIO'
-//                minimum = 0.60
-//            }
-//        }
-//    }
-//}
